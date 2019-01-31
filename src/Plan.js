@@ -1,8 +1,6 @@
 
 // An attempt to plan the stucture while explaining the logic.
 import Store from 'pulse'
-// define the collection class in a constant
-const Collection = Store.Collection
 
 // As an example, our current vuex store has these modules:
 // - channels
@@ -18,7 +16,11 @@ const Collection = Store.Collection
 // Lots of mutations and getters have to be written for those, repeating and wasting code.
 // All getters have to be global with VueX, which gets real messy. 
 
-// The solution: "collections".
+// The solution: "collections"
+
+// define the collection class in a constant
+const Collection = Store.Collection
+
 // Collections are like modules in vuex but behave more like a mongo database. 
 const channels = new Collection({
     // every collection offers local state for casual use
@@ -127,8 +129,11 @@ Store.channels.getIndex('suggested')
 Store.channels.move(243, 'suggested', 'subscribed')
 // if the index does not already exist, it will be created.
 
-// again saving data to a collection with the same index is easy
+// Saving data to a collection from outside the collection
 Store.channels.collect('suggested', data)
+
+// saving data without an index 
+Store.channels.collect(data)
 
 // collections have their own getters
 
