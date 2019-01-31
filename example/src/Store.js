@@ -1,3 +1,7 @@
+import {
+    Log
+} from './Utils'
+
 class Store {
 
     constructor() {
@@ -6,6 +10,8 @@ class Store {
         this.state = {}
         this.subs = []
         this.commits = {}
+        this.histories = []
+        this.getters = {}
     }
 
     addState(obj) {
@@ -13,7 +19,6 @@ class Store {
         this.state = { ...obj
         }
 
-        //Where is commit?
         this.state = new Proxy((obj || {}), {
             set: function (state, key, value) {
                 state[key] = value;
@@ -21,8 +26,7 @@ class Store {
                 _self.subs.map(ctx => {
                     ctx.$set(ctx, key, value);
                 })
-                // it will call publishers
-                console.log(`updated state ${key} to ${value}`)
+                Log(`[STATE] Updated state ${key} to ${value}`)
 
                 return true;
             }
@@ -35,17 +39,18 @@ class Store {
         }
     }
 
-    mapState(properties = []) {
-        // return this.state
-        console.log(properties)
-        if (properties.length == 0) return this.state
+    addGetter(getters) {
+        for (let getterName in getters) {
+            this.getters[getterName] = getters[getterName]
+        }
+    }
 
+    mapState(properties = []) {
+        if (properties.length == 0) return this.state
         let ret = {};
         properties.forEach(prop => {
             ret[prop] = this.state[prop]
         })
-
-        console.log(ret);
         return ret;
     }
 
@@ -53,8 +58,31 @@ class Store {
         this.subs.push(context);
     }
 
+    getter(name) {
+        this.getters[name]({
+            state: this.state
+        })
+    }
+
+    /** you can pass any context in the first argument here */
     commit(name, val) {
-        this.commits[name](this.state, val)
+        //Is it possible? To console.log("commitName was commited")?
+        Log(`[COMMIT] ${name}`)
+        this.histories.push({
+            oldState: { ...this.state
+            }
+        })
+        this.commits[name]({
+            state: this.state
+        }, val)
+    }
+    //Who is Redux or Vuex? NotifyX > All
+    undo() {
+        // if (this.histories.length == 0) return
+        // setTimeout(() => {
+        //     this.state = this.histories[0].oldState
+        // }, 0)
+        // this.histories = this.histories.slice(1)
     }
 
 }

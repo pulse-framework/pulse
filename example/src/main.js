@@ -10,13 +10,30 @@ Store.addState({
   theme: 'dark'
 })
 
-//Hey, How can I get theme value? On HelloWorld
+//PogChamp He spelled my name right
 Store.addCommit({
   changeName({
     state
   }, val) {
-    // console.log(obj, val)
     state.name = val;
+  },
+  changeTheme({
+    state
+  }) {
+    if (state.theme === "light") {
+      state.theme = "dark";
+    } else {
+      state.theme = "light";
+    }
+  }
+})
+
+Store.addGetter({
+  tellMyName({
+    state
+  }) {
+    console.log(state.name)
+    return state.name
   }
 })
 

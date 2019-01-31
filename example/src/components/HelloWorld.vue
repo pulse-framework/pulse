@@ -8,10 +8,12 @@
 
 <script>
 import Store from "../Store.js";
+import { Log } from "../Utils.js";
+
 export default {
   mounted() {
     setTimeout(() => {
-      console.log(Store.state.name);
+      console.log(Store.getter("tellMyName"));
     }, 5000);
   },
   data: () => ({
@@ -19,12 +21,7 @@ export default {
   }),
   methods: {
     changeTheme: function() {
-      const theme = Store.state.theme;
-      if (theme === "light") {
-        Store.state.theme = "dark";
-      } else {
-        Store.state.theme = "light";
-      }
+      Store.commit("changeTheme");
     }
   },
   beforeCreate() {
