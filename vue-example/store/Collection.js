@@ -3,12 +3,18 @@ import Store from "./Store";
 // This class is somewhat similar to modules in typical state storage libraries, but instead supports functions. It's state is loaded into the main state tree. 
 
 class Collection {
-    constructor({model, state, actions, mutations, getters}) {
+    constructor({
+        model,
+        state,
+        actions,
+        mutations,
+        getters
+    }) {
         this.state = Object.create(null)
-        
+
         // internal state
         this._model = model;
-        this._indexes =Object.create(null)
+        this._indexes = Object.create(null)
     }
     createIndex(name, val, key) {
         if (val.constructor === Array) {
@@ -18,12 +24,11 @@ class Collection {
             }
             this._indexes[name] = val.map(item => item[key ? key : 'id'])
         } else if (typeof val === 'object' && val !== null) {
-            
+
         } else {
             assert(`Unable to create index from value provided`)
         }
     }
 }
 
-
-
+export default Collection

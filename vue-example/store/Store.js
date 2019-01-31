@@ -1,25 +1,54 @@
 import {
-    Log, assert
+    Log,
+    assert
 } from './Utils'
+
+import Collections from './Collection'
 
 class Store {
 
-    constructor() {
+    constructor({
+        collections = {},
+        actions = {},
+        state = {},
+        getters = {},
+        mutations = {}
+    }) {
         let self = this;
 
         // public state
         this.state = Object.create(null)
-        this.commits =  Object.create(null)
-        this.getters =  Object.create(null)
-        
+        this.mutations = Object.create(null)
+        this.getters = Object.create(null)
+
         // internal state
+        this._collections = Object.create(null)
         this.subs = []
         this._history = []
+
+        if (state) this.addState(state)
+        if (mutations) this.addMutation(mutations)
+        if (collections) this.initCollections(collections)
+    }
+
+    // build the collection classes
+    initCollections(collections) {
+        let loop = Object.keys(collections)['accounts', 'channels']
+        for (let index in loop) {
+            this.collections[index] = new Collections(collections)
+            // check if the instance has a naming conflict
+            if (this[index]) assert(`Collection name conflict, instance already has ${index} therefor it will not be accessable on the root state tree.`)
+            else {
+                // bind the collection class to the root state tree
+                this[index] = this.collections[index]
+            }
+        }
     }
 
     addState(obj) {
         var _self = this;
-        this.state = { ...obj }
+        this.state = { ...obj
+        }
 
         this.state = new Proxy((obj || {}), {
             set: function (state, key, value) {
@@ -35,9 +64,9 @@ class Store {
         })
     }
 
-    addCommit(commits) {
-        for (let commitName in commits) {
-            this.commits[commitName] = commits[commitName]
+    addMutation(mutations) {
+        for (let mutationName in mutations) {
+            this.mutations[mutationName] = mutations[mutationName]
         }
     }
 
@@ -73,7 +102,7 @@ class Store {
             oldState: { ...this.state
             }
         })
-        this.commits[name]({
+        this.mutations[name]({
             state: this.state
         }, val)
     }
@@ -84,10 +113,10 @@ class Store {
         // }, 0)
         // this._history = this._history.slice(1)
     }
-    
-    
+
+
 
 }
 
 
-export default new Store();
+export default Store;

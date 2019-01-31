@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h1>Custom state storage test</h1>
+    <h1>Pulse aka NotifyX</h1>
     <HelloWorld/>
     <Test/>
   </div>

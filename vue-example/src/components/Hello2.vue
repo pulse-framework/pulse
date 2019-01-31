@@ -5,18 +5,18 @@
 </template>
 
 <script>
-import Store from "../Store.js";
+import store from "../store.js";
 export default {
   mounted() {
     setTimeout(() => {
-      Store.commit("changeName", "twitch");
+      store.commit("changeName", "twitch");
     }, 3000);
   },
   data: () => ({
-    ...Store.mapState()
+    ...store.mapState()
   }),
   beforeCreate() {
-    Store.subscribe(this);
+    store.subscribe(this);
   }
 };
 </script>

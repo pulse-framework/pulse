@@ -7,25 +7,24 @@
 </template>
 
 <script>
-import Store from "../Store.js";
-import { Log } from "../Utils.js";
+import store from "../store.js";
 
 export default {
   mounted() {
     setTimeout(() => {
-      console.log(Store.getter("tellMyName"));
+      console.log(store.getter("tellMyName"));
     }, 5000);
   },
   data: () => ({
-    ...Store.mapState()
+    ...store.mapState()
   }),
   methods: {
     changeTheme: function() {
-      Store.commit("changeTheme");
+      store.commit("changeTheme");
     }
   },
   beforeCreate() {
-    Store.subscribe(this);
+    store.subscribe(this);
   }
 };
 </script>

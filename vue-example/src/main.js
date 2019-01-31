@@ -1,34 +1,35 @@
 import Vue from 'vue'
 import App from './App.vue'
 
-import Store from "../../Store.js"
+import store from "./store.js"
 
 Vue.config.productionTip = false
 
-Store.addState({
-  name: "Jamie",
-  theme: 'dark'
-})
+console.log(store)
 
-//PogChamp He spelled my name right
-Store.addCommit({
-  changeName({
-    state
-  }, val) {
-    state.name = val;
-  },
-  changeTheme({
-    state
-  }) {
-    if (state.theme === "light") {
-      state.theme = "dark";
-    } else {
-      state.theme = "light";
-    }
-  }
-})
+// store.addState({
+//   name: "Jamie",
+//   theme: 'dark'
+// })
 
-Store.addGetter({
+// store.addCommit({
+//   changeName({
+//     state
+//   }, val) {
+//     state.name = val;
+//   },
+//   changeTheme({
+//     state
+//   }) {
+//     if (state.theme === "light") {
+//       state.theme = "dark";
+//     } else {
+//       state.theme = "light";
+//     }
+//   }
+// })
+
+store.addGetter({
   tellMyName({
     state
   }) {
