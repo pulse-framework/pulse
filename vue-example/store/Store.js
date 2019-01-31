@@ -20,14 +20,17 @@ class Store {
         this.state = Object.create(null)
         this.mutations = Object.create(null)
         this.getters = Object.create(null)
+        this.actions = Object.create(null)
 
         // internal state
         this._collections = Object.create(null)
-        this.subs = []
+        this._subs = []
         this._history = []
 
         if (state) this.addState(state)
+        if (actions) this.addAction(actions)
         if (mutations) this.addMutation(mutations)
+        if (getters) this.addGetter(getters)
         if (collections) this.initCollections(collections)
     }
 
@@ -37,7 +40,7 @@ class Store {
         for (let index in loop) {
             this.collections[index] = new Collections(collections)
             // check if the instance has a naming conflict
-            if (this[index]) assert(`Collection name conflict, instance already has ${index} therefor it will not be accessable on the root state tree.`)
+            if (this[index]) assert(`Collection name conflict, instance already has ${index} thus it will not be accessable on the root state tree.`)
             else {
                 // bind the collection class to the root state tree
                 this[index] = this.collections[index]
@@ -54,7 +57,7 @@ class Store {
             set: function (state, key, value) {
                 state[key] = value;
 
-                _self.subs.map(ctx => {
+                _self._subs.map(ctx => {
                     ctx.$set(ctx, key, value);
                 })
                 Log(`[STATE] Updated state ${key} to ${value}`)
@@ -76,6 +79,18 @@ class Store {
         }
     }
 
+    addAction(actions) {
+        for (let actionName in actions) {
+            this.actions[actionName] = actions[actionName]
+        }
+    }
+
+    dispatch(name, val) {
+        this.actions[name]({
+            mutation: this.mutations
+        }, val)
+    }
+
     mapState(properties = []) {
         if (properties.length == 0) return this.state
         let ret = {};
@@ -86,13 +101,17 @@ class Store {
     }
 
     subscribe(context) {
-        this.subs.push(context);
+        this._subs.push(context);
     }
 
     getter(name) {
         this.getters[name]({
             state: this.state
         })
+    }
+
+    setState(stateName, value) {
+        stateName = value
     }
 
     /** you can pass any context in the first argument here */

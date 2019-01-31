@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h1>Pulse aka NotifyX</h1>
+    <h1>Pulse Framework</h1>
     <HelloWorld/>
     <Test/>
   </div>

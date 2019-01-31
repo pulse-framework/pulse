@@ -13,7 +13,7 @@ const store = new Store({
         },
         changeTheme({
             state
-        }) {
+        }, value) {
             if (state.theme === "light") {
                 state.theme = "dark";
             } else {
@@ -21,6 +21,11 @@ const store = new Store({
             }
         }
     },
+    actions: {
+        darkMode() {
+
+        }
+    }
 })
 
 export default store
