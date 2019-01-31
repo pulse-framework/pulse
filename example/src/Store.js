@@ -1,5 +1,5 @@
 import {
-    Log
+    Log, assert
 } from './Utils'
 
 class Store {
@@ -7,17 +7,19 @@ class Store {
     constructor() {
         let self = this;
 
-        this.state = {}
+        // public state
+        this.state = Object.create(null)
+        this.commits =  Object.create(null)
+        this.getters =  Object.create(null)
+        
+        // internal state
         this.subs = []
-        this.commits = {}
-        this.histories = []
-        this.getters = {}
+        this._history = []
     }
 
     addState(obj) {
         var _self = this;
-        this.state = { ...obj
-        }
+        this.state = { ...obj }
 
         this.state = new Proxy((obj || {}), {
             set: function (state, key, value) {
@@ -66,9 +68,8 @@ class Store {
 
     /** you can pass any context in the first argument here */
     commit(name, val) {
-        //Is it possible? To console.log("commitName was commited")?
         Log(`[COMMIT] ${name}`)
-        this.histories.push({
+        this._history.push({
             oldState: { ...this.state
             }
         })
@@ -76,17 +77,17 @@ class Store {
             state: this.state
         }, val)
     }
-    //Who is Redux or Vuex? NotifyX > All
     undo() {
-        // if (this.histories.length == 0) return
+        // if (this._history.length == 0) return
         // setTimeout(() => {
-        //     this.state = this.histories[0].oldState
+        //     this.state = this._history[0].oldState
         // }, 0)
-        // this.histories = this.histories.slice(1)
+        // this._history = this._history.slice(1)
     }
+    
+    
 
 }
 
-const _Store = new Store();
 
-export default _Store;
+export default new Store();
