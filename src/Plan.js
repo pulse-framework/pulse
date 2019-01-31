@@ -1,5 +1,5 @@
 
-// This example shows a simplified useage example of the store.
+// An attempt to plan the stucture while explaining the logic.
 import Store from 'pulse'
 // define the collection class in a constant
 const Collection = Store.Collection
