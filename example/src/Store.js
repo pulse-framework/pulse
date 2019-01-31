@@ -5,7 +5,7 @@ class Store {
 
         this.state = {}
         this.subs = []
-        this.getters = {}
+        this.commits = {}
     }
 
     addState(obj) {
@@ -29,6 +29,12 @@ class Store {
         })
     }
 
+    addCommit(commits) {
+        for (let commitName in commits) {
+            this.commits[commitName] = commits[commitName]
+        }
+    }
+
     mapState(properties = []) {
         // return this.state
         console.log(properties)
@@ -47,8 +53,8 @@ class Store {
         this.subs.push(context);
     }
 
-    commit(name, dispatch) {
-
+    commit(name, val) {
+        this.commits[name](this.state, val)
     }
 
 }

@@ -10,7 +10,6 @@ export default {
   mounted() {
     setTimeout(() => {
       Store.commit("changeName", "twitch");
-      console.log(this);
     }, 3000);
   },
   data: () => ({

@@ -5,6 +5,7 @@
     <p>{{theme}}</p>
   </div>
 </template>
+
 <script>
 import Store from "../Store.js";
 export default {
@@ -18,7 +19,12 @@ export default {
   }),
   methods: {
     changeTheme: function() {
-      alert("Hello");
+      const theme = Store.state.theme;
+      if (theme === "light") {
+        Store.state.theme = "dark";
+      } else {
+        Store.state.theme = "light";
+      }
     }
   },
   beforeCreate() {
