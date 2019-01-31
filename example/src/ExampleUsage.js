@@ -1,9 +1,25 @@
-// This example shows a simplified useage example of the store with a "collection"
+
+// This example shows a simplified useage example of the store.
 import Store from 'icantthinkofanameyet'
 // define the collection class in a constant
 const Collection = Store.Collection
 
-// Collections are like modules in vuex but behave more like a mongo database
+// As an example, our current vuex store has these modules:
+// - channels
+// - updates
+// - posts
+// - connections
+// - account
+// - settings
+// Some of these modules have one large array of data.
+// Most are related to eachother in some way.
+// Lots of inefficient filters have to be run on every change to remove duplicates, just in case.
+// Modules like channels, posts and updates have one data structure but multiple categories (EG: suggested channels, subscribed channels, muted channels, my channels)
+// Lots of mutations and getters have to be written for those, repeating and wasting code.
+// All getters have to be global with VueX, which gets real messy. 
+
+// The solution: "collections".
+// Collections are like modules in vuex but behave more like a mongo database. 
 const channels = new Collection({
     // every collection offers local state for casual use
     state: {
@@ -24,11 +40,13 @@ const channels = new Collection({
             required: true,
             // ..unless we define a default. This means the front-end will never get bad data.
             default: ''
-            // if the default is triggered the collection is marked as incomplete, more on this later
+            // if the default is triggered the item within the collection is marked as incomplete, more on this later
         },
         owner: {
-            // 
+            type: Number,
+            // this is for reactive relations, if this value matches the primary key for the forign collection refrenced here, it will be returned in the getter for this collection, with the property name matching the forign collection. The relation is reactive, meaning if the forigen collection changes, the getters for this collection update also.
             parent: Store.account
+            // This ensures we only ever store data once, and changes propergate through our application smoothly.
         }
     },
     actions: {
@@ -55,19 +73,27 @@ const channels = new Collection({
         }
     },
     getters: {
+        // the core model of each collection is not an array, so if we want to filter it, we can use "asArray" which will give us an array of all the items in a collection
+        getRecentlyActiveChannels: (self) => self.accounts.asArray.filter(channel => channel.lastActive),
+        // running a filter on the entire collection could be inefficent, so using an index to narrow it down is also possible
+        // indexes are cached, which means we dont repeat the generation of the index unless the data within the index has changed
+        // the store knows what items from a collection are in each index, and only when a peice of data changes does the cached index regenerate
+        getRecentlyActiveChannels: (self) => self.accounts.get('suggested').filter(channel => channel.lastActive)
 
     }
 },{
 // every collection has options as the second paramater in the class
 
-    // this will reject any data that doesn't fit the model
-    strict: true
+    // this will reject any extra data properties that are not defined in the model, otherwise they are left in
+    strict: true,
+    
 })
 
-// build the store
+// building the store
 new Store({
     collections: {
-        channels
+        channels,
+        accounts
     },
     state: {},
     mutations: {},
@@ -86,6 +112,12 @@ Store.state.something = true
 // for collections, a get function is a replacement for a getter, as creating them can sometimes be useless. It allows us to filter our collection by an index, one we set earler on the collect method. 
 Store.channels.get('suggested')
 
+// as get() is a function
+
+// but we can still create and use getters like normal, and they're accessable globally, great for handy filters
+Store.getters.getRecentlyActiveChannels
+
+
 //  you can also get the index, by using
 Store.channels.getIndex('suggested')
 // Returns: [23,435,6373,345...]
@@ -102,9 +134,3 @@ Store.channels.collect('suggested', data)
 
 
 
-// accounts
-// channels
-// updates
-// posts
-// connections
-// settings
