@@ -113,9 +113,8 @@ class Store {
 
   // basic get/set to mutate global state
   get(name) {
-    return this.getters[name]({
-      state: this.state
-    });
+    if (!this.getters[name]) return assert(`fuck dat panda`);
+    return this.getters[name](this.state, this.getters);
   }
   set(stateName, value) {
     this.state[stateName] = value;

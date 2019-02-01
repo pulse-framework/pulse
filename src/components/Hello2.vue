@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <h1>feltron: {{name}}</h1>
+    <h1>Component 2: {{name}}</h1>
   </div>
 </template>
 
@@ -10,7 +10,7 @@ export default {
   mounted() {
     setTimeout(() => {
       //store.commit('changeName', 'Twitch')
-      store.set("name", "SetFuckingState");
+      store.set("name", "Jamie Pine");
     }, 3000);
   },
   data: () => ({

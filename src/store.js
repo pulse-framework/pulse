@@ -12,7 +12,7 @@ const store = new Store({
     channels
   },
   state: {
-    name: "Jamie",
+    name: "",
     test: "Pulse is cool",
     theme: "dark"
   },
@@ -26,13 +26,13 @@ const store = new Store({
   },
   getters: {
     getTheme(state) {
-      return state;
+      return state.theme;
     }
   },
   actions: {
     switchTheme() {
-      if (store.get("theme") === "light") {
-        store.commit("changeTheme", "dark");
+      if (store.state.theme === "light") {
+        store.set("theme", "dark");
       } else {
         store.set("theme", "light");
       }

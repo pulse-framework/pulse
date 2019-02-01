@@ -30,8 +30,8 @@ const store = new Store({
     }
   },
   actions: {
-    switchTheme() {
-      if (self.getters.getTheme === "light") {
+    switchTheme(state) {
+      if (state.dark === "light") {
         store.commit("changeTheme");
       } else {
         store.set("theme", "light");

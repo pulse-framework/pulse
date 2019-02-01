@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <h1>Thing : {{name}}</h1>
+    <h1>Component 1: {{name}}</h1>
     <Button v-on:click="changeTheme">Change</Button>
     <p>{{theme}}</p>
   </div>
