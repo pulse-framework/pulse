@@ -14,3 +14,5 @@ Pulse is similar to Redux in function, but styled more like VueX. Our goal is to
 -   👯 No data repitition
 -   ⚡ Cached indexes for fast getters
 -   🔥 Supports Vue, React and React Native
+- Handles basic application logic:
+    -
