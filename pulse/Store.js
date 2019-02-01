@@ -34,11 +34,14 @@ class Store {
     this._subscribers.push(context);
   }
 
+  //nice
+
   // build the collection classes
   initCollections(collections) {
-    let loop = Object.keys(collections)[("accounts", "channels")];
+    console.log(collections);
+    let loop = Object.keys(collections);
     for (let index in loop) {
-      this.collections[index] = new Collections(collections);
+      this._collections[index] = new Collections(collections[index]);
       // check if the instance has a naming conflict
       if (this[index])
         assert(
@@ -46,22 +49,30 @@ class Store {
         );
       else {
         // bind the collection class to the root state tree
-        this[index] = this.collections[index];
+        this[index] = this._collections[index];
       }
     }
+  }
+
+  // Anytime we detect a change, this function will push the updates to the subscribed components for both Vue and React
+  updateSubscribers(key, value) {
+    this._subscribers.map(component => {
+      if (component._isVue) {
+        component.$set(component, key, value);
+      } else {
+        // react stuff
+      }
+    });
   }
 
   addState(obj) {
     var _self = this;
     this.state = { ...obj };
 
-    //Its just a Listener
     this.state = new Proxy(obj || {}, {
       set: function(state, key, value) {
         state[key] = value;
-        _self._subscribers.map(context => {
-          context.$set(context, key, value);
-        });
+        _self.updateSubscribers(key, value);
         Log(`[STATE] Updated state ${key} to ${value}`);
 
         return true;

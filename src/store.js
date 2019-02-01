@@ -1,7 +1,16 @@
 // prettier-ignore
 import Store from '../pulse'
 
+const channels = {
+  state: {
+    channelOpened: true
+  }
+};
+
 const store = new Store({
+  collections: {
+    channels
+  },
   state: {
     name: "Jamie",
     test: "Pulse is cool",

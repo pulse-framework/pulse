@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <h1>Pulse Framework</h1>
-    <p>Before: NotifyX</p>
     <HelloWorld/>
     <Test/>
   </div>

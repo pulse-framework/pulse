@@ -1,11 +1,24 @@
 // This class is somewhat similar to modules in typical state storage libraries, but instead supports functions.
 // It's state is loaded into the main state tree.
+import Store from "./Store";
+
 export default class Collection {
-  constructor(self) {
+  constructor(
+    model = {},
+    actions = {},
+    state = {},
+    getters = {},
+    mutations = {}
+  ) {
+    // external state
     this.state = Object.create(null);
+    this.mutations = Object.create(null);
+    this.getters = Object.create(null);
+    this.actions = Object.create(null);
 
     // internal state
     this._model = model;
+    this._data = Object.create(null);
     this._indexes = Object.create(null);
   }
 
