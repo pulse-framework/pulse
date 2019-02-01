@@ -74,7 +74,6 @@ class Store {
         self.processCallbacks(this.state);
       }
     });
-    console.log(this.state);
   }
 
   // this function adds a watcher on to
@@ -113,7 +112,7 @@ class Store {
 
   // basic get/set to mutate global state
   get(name) {
-    if (!this.getters[name]) return assert(`fuck dat panda`);
+    if (!this.getters[name]) return assert(`Getter ${name} not found.`);
     return this.getters[name](this.state, this.getters);
   }
   set(stateName, value) {
