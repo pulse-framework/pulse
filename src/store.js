@@ -4,12 +4,20 @@ import Store from '../pulse'
 const channels = {
   state: {
     channelOpened: true
+  },
+  model: {
+    id: {
+      type: Number,
+      primaryKey: true
+    }
   }
 };
+const posts = {};
 
 const store = new Store({
   collections: {
-    channels
+    channels,
+    posts
   },
   state: {
     name: "",
@@ -24,18 +32,20 @@ const store = new Store({
       self.set("theme", value);
     }
   },
-  getters: {
-    getTheme(state) {
-      return state.theme;
-    }
-  },
   actions: {
     switchTheme() {
       if (store.state.theme === "light") {
-        store.set("theme", "dark");
+        store.commit("changeTheme", "dark");
+        // store.set("theme", "dark");
       } else {
-        store.set("theme", "light");
+        store.commit("changeTheme", "light");
+        // store.set("theme", "light");
       }
+    }
+  },
+  getters: {
+    getTheme(state) {
+      return state.theme;
     }
   }
 });

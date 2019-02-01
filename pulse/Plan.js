@@ -134,9 +134,25 @@ Store.channels.move(243, 'suggested', 'subscribed')
 // if the index does not already exist, it will be created.
 
 // Saving data to a collection from outside the collection
-Store.channels.collect('suggested', data)
+Store.channels.collect(data, 'suggested')
 
 // saving data without an index 
 Store.channels.collect(data)
+
+
+
+// data sorting API (maybe, but should be done as a filter in the collection)
+Store.channels.addSorter({
+    index: 'suggested',
+    name: 'suggestedByDate',
+    property: 'dateCreated',
+
+    // optional
+    order: 'DESC'
+})
+// the old way, as a getter
+suggestedByDate: (getters) => {
+    return getters.getSuggested.sort((a, b) => a.dateCreated < b.dateCreated) 
+ }
 
 // collections have their own getters

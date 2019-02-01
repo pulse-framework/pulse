@@ -12,8 +12,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.18.0",
     "eslint-config-prettier": "^4.0.0",
-    "vue": "^2.5.22"
+    "vue": "^2.5.22",
+    "vue-object-view": "^0.4.2"
   },
   "devDependencies": {
     "prettier": "1.16.3",

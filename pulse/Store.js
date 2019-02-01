@@ -22,8 +22,10 @@ class Store {
     this._collections = Object.create(null);
     this._subscribers = [];
     this._history = [];
+    this._errors = [];
 
-    if (state) this.addState(state);
+    if (state) this.initState(state);
+
     if (actions) this.addAction(actions);
     if (mutations) this.addMutation(mutations);
     if (getters) this.addGetter(getters);
@@ -36,20 +38,40 @@ class Store {
 
   // build the collection classes
   initCollections(collections) {
-    console.log(collections);
     let loop = Object.keys(collections);
-    for (let index in loop) {
-      this._collections[index] = new Collections(collections[index]);
+    for (let index of loop) {
+      this._collections[index] = new Collections(
+        {
+          subscribers: this._subscribers,
+          history: this._history,
+          errors: this._errors
+        },
+        collections[index]
+      );
       // check if the instance has a naming conflict
-      if (this[index])
+      if (this[index]) {
         assert(
-          `Collection name conflict, instance already has ${index} thus it will not be accessable on the root state tree.`
+          `Collection name conflict, instance already has "${index}" thus it will not be accessable on the root state tree.`
         );
-      else {
+      } else {
         // bind the collection class to the root state tree
-        this[index] = this._collections[index];
+        this["$" + index] = this._collections[index];
       }
     }
+  }
+
+  // this is run once on the constuctor, the proxy detects when the state is changed, subsequently notifying the subscribers.
+  initState(obj) {
+    this.state = new Proxy(obj || {}, {
+      set: (state, key, value) => {
+        state[key] = value;
+
+        this.updateSubscribers(key, value);
+
+        // return true so we know it went well, otherwise it will error.
+        return true;
+      }
+    });
   }
 
   // Anytime we detect a change, this function will push the updates to the subscribed components for both Vue and React
@@ -60,32 +82,17 @@ class Store {
       } else {
         self.processCallbacks(this.state);
       }
+      console.log("PULSE INSTANCE", this);
     });
   }
 
   processCallbacks(data) {
-    const self = this;
     if (!self._subscribers.length) return false;
-    // We've got callbacks, so loop each one and fire it off
-    self._subscribers.forEach(callback => callback(data));
+    this._subscribers.forEach(callback => callback(data));
     return true;
   }
 
-  // this function adds a watcher on to
-  addState(obj) {
-    var _self = this;
-    this.state = { ...obj };
-
-    this.state = new Proxy(obj || {}, {
-      set: function(state, key, value) {
-        state[key] = value;
-        _self.updateSubscribers(key, value);
-        Log(`[STATE] Updated state ${key} to ${value}`);
-
-        return true;
-      }
-    });
-  }
+  //
   addMutation(mutations) {
     for (let mutationName in mutations) {
       this.mutations[mutationName] = mutations[mutationName];
