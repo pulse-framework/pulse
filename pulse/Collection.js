@@ -1,15 +1,14 @@
-import Store from "./Store";
-
-// This class is somewhat similar to modules in typical state storage libraries, but instead supports functions. It's state is loaded into the main state tree.
-
-class Collection {
-  constructor({ model, state, actions, mutations, getters }) {
+// This class is somewhat similar to modules in typical state storage libraries, but instead supports functions.
+// It's state is loaded into the main state tree.
+export default class Collection {
+  constructor(self) {
     this.state = Object.create(null);
 
     // internal state
     this._model = model;
     this._indexes = Object.create(null);
   }
+
   createIndex(name, val, key) {
     if (val.constructor === Array) {
       if (!key && !val.hasOwnProperty("id")) {
@@ -23,5 +22,3 @@ class Collection {
     }
   }
 }
-
-export default Collection;

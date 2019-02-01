@@ -20,7 +20,7 @@ class Store {
 
     // internal state
     this._collections = Object.create(null);
-    this._subs = [];
+    this._subscribers = [];
     this._history = [];
 
     if (state) this.addState(state);
@@ -28,6 +28,10 @@ class Store {
     if (mutations) this.addMutation(mutations);
     if (getters) this.addGetter(getters);
     if (collections) this.initCollections(collections);
+  }
+
+  subscribe(context) {
+    this._subscribers.push(context);
   }
 
   // build the collection classes
@@ -51,12 +55,12 @@ class Store {
     var _self = this;
     this.state = { ...obj };
 
+    //Its just a Listener
     this.state = new Proxy(obj || {}, {
       set: function(state, key, value) {
         state[key] = value;
-
-        _self._subs.map(ctx => {
-          ctx.$set(ctx, key, value);
+        _self._subscribers.map(context => {
+          context.$set(context, key, value);
         });
         Log(`[STATE] Updated state ${key} to ${value}`);
 
@@ -64,23 +68,33 @@ class Store {
       }
     });
   }
-
   addMutation(mutations) {
     for (let mutationName in mutations) {
       this.mutations[mutationName] = mutations[mutationName];
     }
   }
-
   addGetter(getters) {
     for (let getterName in getters) {
       this.getters[getterName] = getters[getterName];
     }
   }
-
   addAction(actions) {
     for (let actionName in actions) {
       this.actions[actionName] = actions[actionName];
     }
+  }
+
+  // ******************** */
+  // External functions
+
+  // basic get/set to mutate global state
+  get(name) {
+    this.getters[name]({
+      state: this.state
+    });
+  }
+  set(stateName, value) {
+    this.state[stateName] = value;
   }
 
   dispatch(name, val) {
@@ -92,6 +106,7 @@ class Store {
     );
   }
 
+  // mapState: Returns any state names passed as properties or if blank the entire state tree
   mapState(properties = []) {
     if (properties.length == 0) return this.state;
     let ret = {};
@@ -99,20 +114,6 @@ class Store {
       ret[prop] = this.state[prop];
     });
     return ret;
-  }
-
-  subscribe(context) {
-    this._subs.push(context);
-  }
-
-  get(name) {
-    this.getters[name]({
-      state: this.state
-    });
-  }
-
-  setState(stateName, value) {
-    this.state[stateName] = value;
   }
 
   /** you can pass any context in the first argument here */

@@ -1,5 +1,6 @@
 // prettier-ignore
 import Store from '../pulse'
+
 const store = new Store({
   state: {
     name: "Jamie",
@@ -11,7 +12,7 @@ const store = new Store({
       state.name = val;
     },
     changeTheme({ self }, value) {
-      store.setState("theme", value);
+      store.set("theme", value);
     }
   },
   getters: {
@@ -24,7 +25,7 @@ const store = new Store({
       if (self.getters.getTheme === "light") {
         store.commit("changeTheme");
       } else {
-        store.setState("theme", "light");
+        store.set("theme", "light");
       }
     }
   }

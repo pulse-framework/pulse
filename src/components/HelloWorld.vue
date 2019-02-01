@@ -19,7 +19,7 @@ export default {
     ...store.mapState()
   }),
   methods: {
-    changeTheme: function() {
+    changeTheme: () => {
       store.commit("changeTheme");
     }
   },
