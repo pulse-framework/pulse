@@ -34,19 +34,6 @@ class Store {
     this._subscribers.push(context);
   }
 
-  processCallbacks(data) {
-    const self = this;
-
-    if (!self._subscribers.length) {
-      return false;
-    }
-
-    // We've got callbacks, so loop each one and fire it off
-    self._subscribers.forEach(callback => callback(data));
-
-    return true;
-  }
-
   // build the collection classes
   initCollections(collections) {
     console.log(collections);
@@ -74,6 +61,14 @@ class Store {
         self.processCallbacks(this.state);
       }
     });
+  }
+
+  processCallbacks(data) {
+    const self = this;
+    if (!self._subscribers.length) return false;
+    // We've got callbacks, so loop each one and fire it off
+    self._subscribers.forEach(callback => callback(data));
+    return true;
   }
 
   // this function adds a watcher on to
