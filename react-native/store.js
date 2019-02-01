@@ -21,18 +21,18 @@ const store = new Store({
       state.name = val;
     },
     changeTheme({ self }, value) {
-      self.set("theme", value);
+      store.set("theme", value);
     }
   },
   getters: {
     getTheme(state) {
-      return state;
+      return state.theme;
     }
   },
   actions: {
     switchTheme() {
-      if (store.get("theme") === "light") {
-        store.commit("changeTheme", "dark");
+      if (self.getters.getTheme === "light") {
+        store.commit("changeTheme");
       } else {
         store.set("theme", "light");
       }

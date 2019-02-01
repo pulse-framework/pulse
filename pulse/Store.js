@@ -34,7 +34,18 @@ class Store {
     this._subscribers.push(context);
   }
 
-  //nice
+  processCallbacks(data) {
+    const self = this;
+
+    if (!self._subscribers.length) {
+      return false;
+    }
+
+    // We've got callbacks, so loop each one and fire it off
+    self._subscribers.forEach(callback => callback(data));
+
+    return true;
+  }
 
   // build the collection classes
   initCollections(collections) {
@@ -60,11 +71,13 @@ class Store {
       if (component._isVue) {
         component.$set(component, key, value);
       } else {
-        // react stuff
+        self.processCallbacks(this.state);
       }
     });
+    console.log(this.state);
   }
 
+  // this function adds a watcher on to
   addState(obj) {
     var _self = this;
     this.state = { ...obj };
@@ -100,7 +113,7 @@ class Store {
 
   // basic get/set to mutate global state
   get(name) {
-    this.getters[name]({
+    return this.getters[name]({
       state: this.state
     });
   }

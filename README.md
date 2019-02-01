@@ -8,11 +8,11 @@ Pulse is similar to Redux in function, but styled more like VueX. Our goal is to
 
 ## Features
 
--   ⚙️ MongoDB-like stucture
--   ❤ Similar language to VueX
--   🔮 Automatic data normalization
--   👯 No data repitition
--   ⚡ Cached indexes for fast getters
--   🔥 Supports Vue, React and React Native
-- Handles basic application logic:
-    -
+- ⚙️ MongoDB-like stucture
+- ❤ Similar terminology to VueX
+- 🔮 Automatic data normalization
+- 👯 No data repetition
+- ⚡ Cached indexes for fast getters
+- 🕰️ Commit history tracking
+- 🔥 Supports Vue, React and React Native
+- Provides a structure for basic application logic (requests, error logging, authentication)

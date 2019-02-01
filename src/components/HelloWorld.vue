@@ -12,15 +12,15 @@ import store from "../store.js";
 export default {
   mounted() {
     setTimeout(() => {
-      console.log(store.get("tellMyName"));
-    }, 5000);
+      console.log(store.get("getTheme"));
+    }, 3000);
   },
   data: () => ({
     ...store.mapState()
   }),
   methods: {
     changeTheme: () => {
-      store.commit("changeTheme");
+      store.dispatch("switchTheme");
     }
   },
   beforeCreate() {
