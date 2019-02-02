@@ -7,6 +7,7 @@ export default class Collection {
     { name, subscribers, history, errors, updateSubscribers },
     { model = {}, actions = {}, mutations = {}, indexes = [] }
   ) {
+    // from parent class
     this._name = name;
     this._subscribers = subscribers;
     this._history = history;
@@ -31,6 +32,7 @@ export default class Collection {
 
     this.collecting = false;
     this.primaryKey = null;
+    this.collectionSize = 0;
 
     this.defineIndexes(indexes);
   }
@@ -141,6 +143,7 @@ export default class Collection {
     }
     // add the data internally
     this._data[data[this.primaryKey]] = data;
+    this.collectionSize++;
   }
 
   // this will fill the index array with the correposonding data
