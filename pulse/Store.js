@@ -10,14 +10,6 @@ class Store {
     getters = {},
     mutations = {}
   }) {
-    let self = this;
-
-    // public state
-    this.state = Object.create(null);
-    this.mutations = Object.create(null);
-    this.getters = Object.create(null);
-    this.actions = Object.create(null);
-
     // internal state
     this._collections = Object.create(null);
     this._subscribers = [];
@@ -62,6 +54,13 @@ class Store {
     }
   }
 
+  bindRootCollection() {
+    const rootCollection = new Collections(
+      {},
+      { model, actions, mutations, indexes }
+    );
+  }
+
   // this is run once on the constuctor, the proxy detects when the state is changed, subsequently notifying the subscribers.
   initState(obj) {
     this.state = new Proxy(obj || {}, {
@@ -96,42 +95,42 @@ class Store {
   }
 
   //
-  addMutation(mutations) {
-    for (let mutationName in mutations) {
-      this.mutations[mutationName] = mutations[mutationName];
-    }
-  }
-  addGetter(getters) {
-    for (let getterName in getters) {
-      this.getters[getterName] = getters[getterName];
-    }
-  }
-  addAction(actions) {
-    for (let actionName in actions) {
-      this.actions[actionName] = actions[actionName];
-    }
-  }
+  // addMutation(mutations) {
+  //   for (let mutationName in mutations) {
+  //     this.mutations[mutationName] = mutations[mutationName];
+  //   }
+  // }
+  // addGetter(getters) {
+  //   for (let getterName in getters) {
+  //     this.getters[getterName] = getters[getterName];
+  //   }
+  // }
+  // addAction(actions) {
+  //   for (let actionName in actions) {
+  //     this.actions[actionName] = actions[actionName];
+  //   }
+  // }
 
   // ******************** */
   // External functions
 
   // basic get/set to mutate global state
-  get(name) {
-    if (!this.getters[name]) return assert(`Getter ${name} not found.`);
-    return this.getters[name](this.state, this.getters);
-  }
-  set(stateName, value) {
-    this.state[stateName] = value;
-  }
+  // get(name) {
+  //   if (!this.getters[name]) return assert(`Getter ${name} not found.`);
+  //   return this.getters[name](this.state, this.getters);
+  // }
+  // set(stateName, value) {
+  //   this.state[stateName] = value;
+  // }
 
-  dispatch(name, val) {
-    this.actions[name](
-      {
-        mutation: this.mutations
-      },
-      val
-    );
-  }
+  // dispatch(name, val) {
+  //   this.actions[name](
+  //     {
+  //       mutation: this.mutations
+  //     },
+  //     val
+  //   );
+  // }
 
   // mapState: Returns any state names passed as properties or if blank the entire state tree
   mapState(properties = []) {

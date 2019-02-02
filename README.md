@@ -1,6 +1,6 @@
 # Pulse
 
-**~WARNING~ STILL IN DEVELOPMENT**
+**WARNING STILL IN DEVELOPMENT, A LOT OF FUNCTION IS NOT COMPLETE**
 
 Pulse is a state management library for reactive Javascript frameworks with support for VueJS, React and React Native.
 
@@ -37,7 +37,7 @@ new Pulse({
 });
 ```
 
-Pulse provides "collections" as a way to easily and efficiently save data. They automatically handle normalizinng and caching data.
+Pulse provides "collections" as a way to easily save data. They automatically handle normalizing and caching the data.
 
 Once you've defined a collection, you can begin saving data to it.
 
@@ -49,6 +49,50 @@ Pulse.$channels.collect(response.data);
 ```
 
 Collecting data works like a commit in Vuex or a reducer in Redux, it handles preventing race conditions, saving history for time travel and normalizing the data.
+
+You can define collections easily, but the root of pulse is also a "collection", so to get started, you can just use `pulse.collect()`
+
+Otherwise collections are accessed with a \$ before the name like this: `pulse.$collectionName.collect()`
+
+## Primary Keys
+
+Because we need to normalize the data for Pulse collections to work, each piece of data must have a primary key, this has to be unique to avoid data being overwritten.
+Lukily if your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section below.
+
+## Indexes
+
+You can assign data an "index" as you collect it. This is useful because it creates a cache under that name where you can access that data on your component.
+
+```js
+pulse.collect(somedata, "indexName");
+```
+
+You can now get that data using `mapData()`
+
+```js
+// vue component example
+export default {
+  data() {
+    return {
+      ...pulse.mapData("indexName")
+    };
+  }
+};
+```
+
+Or with a collection you can use `mapCollection()`
+
+```js
+export default {
+  data() {
+    return {
+      ...pulse.mapCollection("collectionName", "indexName")
+    };
+  }
+};
+```
+
+You can define your own data properties too
 
 ## Actions
 
@@ -72,6 +116,7 @@ pulse.$channel.collect(res.data.channel, "selected");
 pulse.$channel.delete(1234);
 
 // removes any data from a collection that is not currently refrenced in an index
+// it also clears the history, so undo will not work after you run clean.
 pulse.$channel.clean();
 
 // will undo the last action
