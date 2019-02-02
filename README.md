@@ -1,5 +1,7 @@
 # Pulse
 
+**~WARNING~ STILL IN DEVELOPMENT**
+
 Pulse is a state management library for reactive Javascript frameworks with support for VueJS, React and React Native.
 
 Created by @jamiepine, @f3ltron and @joaof
