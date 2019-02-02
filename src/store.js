@@ -2,9 +2,6 @@
 import Pulse from '../pulse'
 
 const channels = {
-  state: {
-    channelOpened: true
-  },
   model: {
     id: {
       type: Number,
