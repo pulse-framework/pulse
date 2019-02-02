@@ -94,6 +94,7 @@ export default class Collection {
     });
 
     this.collecting = false;
+    Log(`Collected ${data.length} items. With index: ${index}`);
 
     this.processCacheRegenQueue();
     // update index specific
@@ -142,6 +143,12 @@ export default class Collection {
     this._data[data[this.primaryKey]] = data;
   }
 
+  // this will fill the index array with the correposonding data
+  regenerateCachedIndex(index) {
+    return this._indexes[index].map(id => this._data[id]);
+  }
+
+  // this processes any
   processCacheRegenQueue() {
     for (let index of this._indexesToRegen) {
       this.updateData(this.regenerateCachedIndex(index), index);
@@ -155,10 +162,6 @@ export default class Collection {
       this.updateSubscribers(index, data);
     }
     // else this.data.$dynamic[index] = data;
-  }
-
-  regenerateCachedIndex(index) {
-    return this._indexes[index].map(id => this._data[id]);
   }
 
   // used to save errors to the instance

@@ -1,8 +1,9 @@
 <template>
   <div class="hello">
+    <input v-model="thing">
+    <Button v-on:click="get(thing)">Get Channel</Button>
     <Button v-on:click="logInstance">Log Instance</Button>
-    <!-- <Button v-on:click="changeTheme">Change</Button>
-    <p>{{theme}}</p>
+    <!-- <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>-->
   </div>
 </template>
@@ -16,27 +17,26 @@ export default {
     // setTimeout(() => {
     //   console.log(store.get("getTheme"));
     // }, 3000);
+    this.get("jamie");
+    this.get("casey");
+    this.get("ninja");
     console.log(this);
-
-    setTimeout(() => {
-      axios.get("https://api.notify.me/channel/public/jamie").then(res => {
-        pulse.$posts.collect(res.data.posts, "jamie");
-      });
-      axios.get("https://api.notify.me/channel/public/casey").then(res => {
-        pulse.$posts.collect(res.data.posts, "casey");
-      });
-      axios.get("https://api.notify.me/channel/public/ninja").then(res => {
-        pulse.$posts.collect(res.data.posts, "ninja");
-      });
-    });
   },
   data: () => ({
     // ...pulse.mapState(),
-    ...pulse.mapCollection("posts")
-    // stateTree: {}
+    ...pulse.mapCollection("posts"),
+    thing: ""
   }),
   computed: {},
   methods: {
+    get(username) {
+      axios
+        .get(`http://localhost:3000/channel/public/${username}`)
+        .then(res => {
+          pulse.$posts.collect(res.data.posts, res.data.channel.username);
+          pulse.$channels.collect(res.data.channel);
+        });
+    },
     changeTheme: () => {
       pulse.dispatch("switchTheme");
     },
