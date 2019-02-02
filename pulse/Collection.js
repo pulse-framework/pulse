@@ -4,16 +4,16 @@ import { Log, assert } from "./Utils";
 // It's state is loaded into the main state tree.
 export default class Collection {
   constructor(
-    { subscribers, history, errors },
-    { model = {}, actions = {}, state = {}, getters = {}, mutations = {} }
+    { subscribers, history, errors, updateSubscribers },
+    { model = {}, actions = {}, mutations = {}, indexes = {} }
   ) {
-    this.subscribers = subscribers;
+    this._subscribers = subscribers;
     this._history = history;
     this._errors = errors;
+    this.updateSubscribers = updateSubscribers;
     // external properties
-    this.state = Object.create(null);
+    this.data = Object.create(null);
     this.mutations = Object.create(null);
-    this.getters = Object.create(null);
     this.actions = Object.create(null);
 
     // the model for validating data
@@ -26,23 +26,23 @@ export default class Collection {
     // arrays generated from indexes, used by getters to avoid recalcuation
     this._cachedData = Object.create(null);
 
+    this._indexesToRegen = [];
+
     this.collecting = false;
-
-    this.indexesToRegen = [];
-
     this.primaryKey = null;
 
-    this.watchData();
+    // this.watchData();
   }
 
   // Proxies
   // we shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically
   watchData(obj) {
-    this._data = new Proxy(obj || {}, {
+    this.data = new Proxy(obj || {}, {
       set: (state, key, value) => {
-        // Store.updateSubscribers()
-        if (this.collecting === false)
-          console.log("You modified the data manually???");
+        if (this.collecting === false) {
+          console.log("data can be modified manually, but is not reccomended");
+          // Store.updateSubscribers()
+        }
         return true;
       }
     });
@@ -51,6 +51,11 @@ export default class Collection {
   watchState(obj) {}
 
   collect(data, index) {
+    if (!this.data[index])
+      return this.dataRejectionHandler(
+        data,
+        `Index "${index}" has not been defined, please define it on collection instance.`
+      );
     this.collecting = true;
     let newIndex = true;
     // create the index
@@ -80,9 +85,14 @@ export default class Collection {
     });
 
     this.collecting = false;
+
+    this.processCacheRegenQueue();
+    // update index specific
+    if (index) this.updateData(data, index);
+    // update get all
   }
 
-  processDataItem(data, index, original) {
+  processDataItem(data, index) {
     // validate against model
 
     // if no primary key defined in the model, search for a generic one.
@@ -114,17 +124,32 @@ export default class Collection {
         indexName !== index &&
         this._indexes[indexName].includes(data[this.primaryKey])
       ) {
-        // this.indexesToRegen.push()
+        // save the index
+        this._indexesToRegen.push(index);
         console.log(`index ${indexName} requires regeneration.`);
       }
     }
-
+    // add the data internally
     this._data[data[this.primaryKey]] = data;
-
-    // save the cached array
-    if (index) this._cachedData[index] = original;
   }
 
+  processCacheRegenQueue() {
+    for (let index of this._indexesToRegen) {
+      this.updateData(this.regenerateCachedIndex(index), index);
+    }
+  }
+
+  // this adds cached properties that are accessable on the collection data
+  updateData(data, index) {
+    this.data[index] = data;
+    this.updateSubscribers(index, data);
+  }
+
+  regenerateCachedIndex(index) {
+    return this._indexes[index].map(id => this._data[id]);
+  }
+
+  // used to save errors to the instance
   dataRejectionHandler(data, message) {
     let error = `[Data Rejection] - ${message} - Data was not collected, but instead saved to the errors object("_errors") on root Pulse instance.`;
     this._errors.push({
@@ -135,6 +160,7 @@ export default class Collection {
     assert(error);
   }
 
+  // this should be rewritten, it's not currently used
   createIndex(name, val, key) {
     if (val.constructor === Array) {
       if (!key && !val.hasOwnProperty("id")) {

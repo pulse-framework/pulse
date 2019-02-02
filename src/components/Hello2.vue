@@ -9,10 +9,10 @@
 import store from "../store.js";
 export default {
   mounted() {
-    setTimeout(() => {
-      //store.commit('changeName', 'Twitch')
-      store.set("name", "Jamie Pine");
-    }, 3000);
+    // setTimeout(() => {
+    //   //store.commit('changeName', 'Twitch')
+    //   store.set("name", "Jamie Pine");
+    // }, 3000);
   },
   data: () => ({
     ...store.mapState()

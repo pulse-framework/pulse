@@ -1,5 +1,5 @@
 // prettier-ignore
-import Store from '../pulse'
+import Pulse from '../pulse'
 
 const channels = {
   state: {
@@ -17,10 +17,11 @@ const posts = {
     dateCreated: {
       primaryKey: true
     }
-  }
+  },
+  indexes: ["jamie"]
 };
 
-const store = new Store({
+const store = new Pulse({
   collections: {
     channels,
     posts

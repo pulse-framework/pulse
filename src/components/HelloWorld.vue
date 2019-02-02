@@ -1,35 +1,37 @@
 <template>
   <div class="hello">
     <Button v-on:click="changeTheme">Change</Button>
+    <Button v-on:click="logInstance">Log Instance</Button>
     <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>
   </div>
 </template>
 
 <script>
-import store from "../store.js";
+import pulse from "../store.js";
 import axios from "axios";
 
 export default {
   mounted() {
-    setTimeout(() => {
-      console.log(store.get("getTheme"));
-    }, 3000);
+    // setTimeout(() => {
+    //   console.log(store.get("getTheme"));
+    // }, 3000);
 
     axios.get("https://api.notify.me/channel/public/jamie").then(res => {
-      store.$posts.collect(res.data.posts, "jamie");
-
-      // store.$posts.get('jamie')
+      pulse.$posts.collect(res.data.posts, "jamie");
     });
   },
   data: () => ({
     lol: "",
-    ...store.mapState()
+    ...pulse.mapState()
     // stateTree: {}
   }),
   methods: {
     changeTheme: () => {
-      store.dispatch("switchTheme");
+      pulse.dispatch("switchTheme");
+    },
+    logInstance() {
+      console.log("PULSE INSTANCE", pulse);
     }
   },
   watch: {
@@ -38,7 +40,7 @@ export default {
     }
   },
   beforeCreate() {
-    store.subscribe(this);
+    pulse.subscribe(this);
   }
 };
 </script>

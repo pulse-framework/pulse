@@ -8,9 +8,10 @@ Pulse is similar to Redux in function, but styled more like VueX. Our goal is to
 
 ## Features
 
-- ⚙️ MongoDB-like stucture
-- ❤ Similar terminology to VueX
-- 🔮 Automatic data normalization
+- ⚙️ Modular stucture using "collections"
+- ❤ Famillar terminology
+- 🔮 Create data realtions between collections
+- ✨ Automatic data normalization
 - 👯 No data repetition
 - ⚡ Cached indexes for fast getters
 - 🕰️ Commit history tracking

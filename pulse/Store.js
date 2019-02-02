@@ -44,7 +44,8 @@ class Store {
         {
           subscribers: this._subscribers,
           history: this._history,
-          errors: this._errors
+          errors: this._errors,
+          updateSubscribers: this.updateSubscribers
         },
         collections[index]
       );
