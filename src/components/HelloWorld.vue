@@ -29,6 +29,7 @@ export default {
     // ...pulse.mapState(),
     pulse: pulse,
     ...pulse.mapCollection("posts"),
+    ...pulse.mapCollection("channels"),
     thing: ""
   }),
   computed: {},
@@ -38,7 +39,7 @@ export default {
         .get(`http://localhost:3000/channel/public/${username}`)
         .then(res => {
           pulse.$posts.collect(res.data.posts, res.data.channel.username);
-          pulse.$channels.collect(res.data.channel);
+          pulse.$channels.collect(res.data.channel, res.data.channel.username);
         });
     },
     update() {

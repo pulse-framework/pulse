@@ -7,7 +7,8 @@ const channels = {
       type: Number,
       primaryKey: true
     }
-  }
+  },
+  indexes: ["jamie", "casey"]
 };
 const posts = {
   model: {
@@ -15,7 +16,12 @@ const posts = {
       primaryKey: true
     }
   },
-  indexes: ["jamie", "casey"],
+  // this is where you register namespaces for your collection's data property
+  // data added via collect(data, index) will be cached here
+  indexes: ["selected", "jamie", "casey"],
+
+  // filters are like getters, but support Pulse's filter API
+  // the name of the filter is accessable via the collection's data property
   filters: {
     orderByDate({ filter }) {
       return filter({
@@ -57,8 +63,6 @@ const posts = {
   // }
 };
 
-// Pulse.$channel.filter("current", 324);
-
 const store = new Pulse({
   collections: {
     channels,
@@ -77,6 +81,7 @@ const store = new Pulse({
       self.set("theme", value);
     }
   },
+  request: {},
   actions: {
     switchTheme() {
       if (store.state.theme === "light") {

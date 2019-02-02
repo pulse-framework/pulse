@@ -47,3 +47,31 @@ Pulse.$channels.collect(response.data);
 ```
 
 Collecting data works like a commit in Vuex or a reducer in Redux, it handles preventing race conditions, saving history for time travel and normalizing the data.
+
+## Actions
+
+These can happen within actions in pulse, or directly on your component.
+
+```js
+// put data by id (or array of IDs) into another index
+pulse.$channel.put(2123, "selected");
+
+// move data by id (or array of IDs) into another index
+pulse.$channel.move([34, 3], "favorites", "muted");
+
+// change single or multiple properties in your data
+pulse.$channel.update(2123, {
+  avatar: "url"
+});
+// replace data (same as adding new data)
+pulse.$channel.collect(res.data.channel, "selected");
+
+// removes data via primary key from a collection
+pulse.$channel.delete(1234);
+
+// removes any data from a collection that is not currently refrenced in an index
+pulse.$channel.clean();
+
+// will undo the last action
+pulse.$channel.undo();
+```
