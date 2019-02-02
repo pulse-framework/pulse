@@ -122,3 +122,62 @@ pulse.$channel.clean();
 // will undo the last action
 pulse.$channel.undo();
 ```
+
+## Another example
+
+This might help you understand how you could use Pulse in a real world scenario
+
+```js
+new Pulse({
+  collections: {
+    // collection name
+    channels: {
+      // define some namespaces for your collection, any data collected under these names will be cached and accessible through them EG: channels.collect(data, 'subscribed')
+      indexes: ["suggested", "favorites", "subscribed"],
+
+      // filters are bound to data and cached, just like indexes
+      filters: {
+        recentlyActive({ filter }) {
+          return filter({
+            from: "subscribed",
+            byProperty: "lastActive"
+          });
+        }
+      },
+
+      // a place to define any extra data properties your collection might need
+      // they're reactive and accesable directly, just like regular state
+      data: {
+        channelOpen: false
+      },
+
+      // actions aren't required, but can do many things at once
+      actions: {
+        // first paramater is any functions to use from Pulse, everything after is yours.
+        async getSubscribedChannels({ request, collect }, username) {
+          // built in request handler
+          let res = await request.get(`/channels/subscribed/${username}`);
+          // collect data
+          collect(res.data.channels, "subscribed");
+          // collect to a sister collection, 3rd param is the name of the collection
+          collect(
+            res.data.posts,
+            ["subscribed", res.data.channel.username],
+            "posts"
+          );
+        }
+      }
+    },
+    // collections don't need any paramaters to function
+    posts: {}
+  }
+});
+```
+
+From what we've just created, you can now use mapCollection to access data
+
+```js
+...mapCollection('channels', ['subscribed', 'recentlyActive', 'channelOpened'])
+```
+
+As you can see we can access indexes, filters and regular data easily in our component, and it's all cached, reactive, and based on our collections internal database.

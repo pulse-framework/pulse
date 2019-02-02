@@ -32,7 +32,7 @@ export default class Collection {
     this.defineIndexes(indexes);
 
     // add proxy to data property to watch for manual changes
-    this.watchData(this.data);
+    // this.watchData(this.data);
   }
 
   // We shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically. But in the event that the user does modify the data manually, we should push that update to subscribers.

@@ -1,6 +1,8 @@
 // prettier-ignore
 import Pulse from '../pulse'
 
+// ...mapCollection('channels', ['recentlyActive', 'favorites'])
+
 const channels = {
   model: {
     id: {
@@ -10,6 +12,7 @@ const channels = {
   },
   indexes: ["jamie", "casey"]
 };
+
 const posts = {
   model: {
     dateCreated: {
