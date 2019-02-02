@@ -42,6 +42,7 @@ class Store {
     for (let index of loop) {
       this._collections[index] = new Collections(
         {
+          name: index,
           subscribers: this._subscribers,
           history: this._history,
           errors: this._errors,
@@ -77,13 +78,14 @@ class Store {
 
   // Anytime we detect a change, this function will push the updates to the subscribed components for both Vue and React
   updateSubscribers(key, value) {
+    // console.log("updating subscribers", key, value);
     this._subscribers.map(component => {
       if (component._isVue) {
         component.$set(component, key, value);
       } else {
         self.processCallbacks(this.state);
       }
-      console.log("PULSE INSTANCE", this);
+      // console.log("PULSE INSTANCE", this);
     });
   }
 
@@ -137,6 +139,18 @@ class Store {
     let ret = {};
     properties.forEach(prop => {
       ret[prop] = this.state[prop];
+    });
+    return ret;
+    return null;
+  }
+  mapCollection(collection, properties = []) {
+    console.log(this._collections[collection].data);
+    if (properties.length == 0) {
+      return this._collections[collection].data;
+    }
+    let ret = {};
+    properties.forEach(prop => {
+      ret[prop] = this._collections[collection].data[prop];
     });
     return ret;
   }

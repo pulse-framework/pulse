@@ -4,9 +4,10 @@ import { Log, assert } from "./Utils";
 // It's state is loaded into the main state tree.
 export default class Collection {
   constructor(
-    { subscribers, history, errors, updateSubscribers },
-    { model = {}, actions = {}, mutations = {}, indexes = {} }
+    { name, subscribers, history, errors, updateSubscribers },
+    { model = {}, actions = {}, mutations = {}, indexes = [] }
   ) {
+    this._name = name;
     this._subscribers = subscribers;
     this._history = history;
     this._errors = errors;
@@ -31,7 +32,7 @@ export default class Collection {
     this.collecting = false;
     this.primaryKey = null;
 
-    // this.watchData();
+    this.defineIndexes(indexes);
   }
 
   // Proxies
@@ -50,12 +51,20 @@ export default class Collection {
   // we should however, watch the state.
   watchState(obj) {}
 
+  defineIndexes(indexes) {
+    for (let index of indexes) this.createIndex(index);
+  }
+
+  // creates an index
+  createIndex(index) {
+    if (this.data[index] || this._indexes[index])
+      return assert(`Duplicate declaration for index ${index}`);
+    // create a new empty array for the index
+    this._indexes[index] = new Array();
+    this.data[index] = this._indexes[index];
+  }
+
   collect(data, index) {
-    if (!this.data[index])
-      return this.dataRejectionHandler(
-        data,
-        `Index "${index}" has not been defined, please define it on collection instance.`
-      );
     this.collecting = true;
     let newIndex = true;
     // create the index
@@ -65,7 +74,7 @@ export default class Collection {
       //   data,
       //   `Index "${index}" already in use.`
       // );
-      // define the new index
+      // define the new index internally
       this._indexes[index] = [];
     }
     // process the data
@@ -139,10 +148,13 @@ export default class Collection {
     }
   }
 
-  // this adds cached properties that are accessable on the collection data
+  // runs when new data is added
   updateData(data, index) {
-    this.data[index] = data;
-    this.updateSubscribers(index, data);
+    if (this.data[index]) {
+      this.data[index] = data;
+      this.updateSubscribers(index, data);
+    }
+    // else this.data.$dynamic[index] = data;
   }
 
   regenerateCachedIndex(index) {
@@ -161,16 +173,16 @@ export default class Collection {
   }
 
   // this should be rewritten, it's not currently used
-  createIndex(name, val, key) {
-    if (val.constructor === Array) {
-      if (!key && !val.hasOwnProperty("id")) {
-        assert(`Failed to create index, key or id property required`);
-        return;
-      }
-      this._indexes[name] = val.map(item => item[key ? key : "id"]);
-    } else if (typeof val === "object" && val !== null) {
-    } else {
-      assert(`Unable to create index from value provided`);
-    }
-  }
+  // createIndex(name, val, key) {
+  //   if (val.constructor === Array) {
+  //     if (!key && !val.hasOwnProperty("id")) {
+  //       assert(`Failed to create index, key or id property required`);
+  //       return;
+  //     }
+  //     this._indexes[name] = val.map(item => item[key ? key : "id"]);
+  //   } else if (typeof val === "object" && val !== null) {
+  //   } else {
+  //     assert(`Unable to create index from value provided`);
+  //   }
+  // }
 }

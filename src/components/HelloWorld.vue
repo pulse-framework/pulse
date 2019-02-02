@@ -1,9 +1,9 @@
 <template>
   <div class="hello">
-    <Button v-on:click="changeTheme">Change</Button>
     <Button v-on:click="logInstance">Log Instance</Button>
+    <!-- <Button v-on:click="changeTheme">Change</Button>
     <p>{{theme}}</p>
-    <h1>Component 1: {{name}}</h1>
+    <h1>Component 1: {{name}}</h1>-->
   </div>
 </template>
 
@@ -16,16 +16,26 @@ export default {
     // setTimeout(() => {
     //   console.log(store.get("getTheme"));
     // }, 3000);
+    console.log(this);
 
-    axios.get("https://api.notify.me/channel/public/jamie").then(res => {
-      pulse.$posts.collect(res.data.posts, "jamie");
+    setTimeout(() => {
+      axios.get("https://api.notify.me/channel/public/jamie").then(res => {
+        pulse.$posts.collect(res.data.posts, "jamie");
+      });
+      axios.get("https://api.notify.me/channel/public/casey").then(res => {
+        pulse.$posts.collect(res.data.posts, "casey");
+      });
+      axios.get("https://api.notify.me/channel/public/ninja").then(res => {
+        pulse.$posts.collect(res.data.posts, "ninja");
+      });
     });
   },
   data: () => ({
-    lol: "",
-    ...pulse.mapState()
+    // ...pulse.mapState(),
+    ...pulse.mapCollection("posts")
     // stateTree: {}
   }),
+  computed: {},
   methods: {
     changeTheme: () => {
       pulse.dispatch("switchTheme");

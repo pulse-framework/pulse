@@ -13,8 +13,10 @@ Pulse is similar to Redux in function, but styled more like VueX. Our goal is to
 - 🔮 Create data realtions between collections
 - ✨ Automatic data normalization
 - 👯 No data repetition
-- ⚡ Cached indexes for fast getters
-- 🕰️ Commit history tracking
+- ⚡ Cached indexes for performance
+- 🕰️ History tracking
+- 📕 Error logging
+- 🔒 Bad data protection
 - 🔥 Supports Vue, React and React Native
 - Provides a structure for basic application logic (requests, error logging, authentication)
 
