@@ -31,17 +31,23 @@ export default class Collection {
     this.indexesToRegen = [];
 
     this.primaryKey = null;
+
+    this.watchData();
   }
 
   // Proxies
-  // we only need to watch the data and the state, because those are the only things that get changed, getters, filters and indexes are regenerated on change, once complete the subscribed components are notified of the change.
+  // we shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically
   watchData(obj) {
     this._data = new Proxy(obj || {}, {
       set: (state, key, value) => {
         // Store.updateSubscribers()
+        if (this.collecting === false)
+          console.log("You modified the data manually???");
+        return true;
       }
     });
   }
+  // we should however, watch the state.
   watchState(obj) {}
 
   collect(data, index) {

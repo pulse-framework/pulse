@@ -150,6 +150,7 @@ Store.channels.addSorter({
     // optional
     order: 'DESC'
 })
+
 // the old way, as a getter
 suggestedByDate: (getters) => {
     return getters.getSuggested.sort((a, b) => a.dateCreated < b.dateCreated) 

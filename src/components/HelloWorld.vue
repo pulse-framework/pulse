@@ -18,6 +18,8 @@ export default {
 
     axios.get("https://api.notify.me/channel/public/jamie").then(res => {
       store.$posts.collect(res.data.posts, "jamie");
+
+      // store.$posts.get('jamie')
     });
   },
   data: () => ({

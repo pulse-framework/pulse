@@ -12,7 +12,13 @@ const channels = {
     }
   }
 };
-const posts = {};
+const posts = {
+  model: {
+    dateCreated: {
+      primaryKey: true
+    }
+  }
+};
 
 const store = new Store({
   collections: {
