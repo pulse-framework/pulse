@@ -83,6 +83,7 @@ export default class Collection {
     // record the changes
     this._history.push({
       collected: {
+        collection: this._name,
         timestamp: new Date(),
         dataCollected: data,
         indexesCreated: newIndex ? index : null,
