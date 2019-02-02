@@ -5,10 +5,11 @@ import Collections from "./Collection";
 class Store {
   constructor({
     collections = {},
+    data = {},
+    indexes = [],
     actions = {},
-    state = {},
-    getters = {},
-    mutations = {}
+    mutations = {},
+    filters = {}
   }) {
     // internal state
     this._collections = Object.create(null);
@@ -16,11 +17,10 @@ class Store {
     this._history = [];
     this._errors = [];
 
-    if (state) this.initState(state);
+    // user supplied data and fuctions this will be passed to the collections constructor and replaced
+    this.initRootCollection({ data, indexes, actions, mutations, filters });
 
-    if (actions) this.addAction(actions);
-    if (mutations) this.addMutation(mutations);
-    if (getters) this.addGetter(getters);
+    // init collections
     if (collections) this.initCollections(collections);
   }
 
@@ -49,16 +49,27 @@ class Store {
         );
       } else {
         // bind the collection class to the root state tree
-        this["$" + index] = this._collections[index];
+        this[index] = this._collections[index];
       }
     }
   }
 
-  bindRootCollection() {
-    const rootCollection = new Collections(
-      {},
-      { model, actions, mutations, indexes }
+  initRootCollection(params) {
+    this._root = new Collections(
+      {
+        name: "root",
+        subscribers: this._subscribers,
+        history: this._history,
+        errors: this._errors,
+        updateSubscribers: this.updateSubscribers
+      },
+      params
     );
+    this.data = this._root.data;
+  }
+  // Bind collection functions to root
+  collect(data, index) {
+    this._root.collect(data, index);
   }
 
   // this is run once on the constuctor, the proxy detects when the state is changed, subsequently notifying the subscribers.

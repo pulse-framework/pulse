@@ -4,8 +4,7 @@
     <Button v-on:click="get(thing)">Get Channel</Button>
     <Button v-on:click="logInstance">Log Instance</Button>
     <Button v-on:click="update">Update Instance</Button>
-    <VueObjectView v-model="pulse"/>
-
+    <!-- <VueObjectView v-model="pulse"/> -->
     <!-- <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>-->
   </div>
@@ -36,10 +35,11 @@ export default {
   methods: {
     get(username) {
       axios
-        .get(`http://localhost:3000/channel/public/${username}`)
+        .get(`https://api.notify.me/channel/public/${username}`)
         .then(res => {
-          pulse.$posts.collect(res.data.posts, res.data.channel.username);
-          pulse.$channels.collect(res.data.channel, res.data.channel.username);
+          pulse.posts.collect(res.data.posts, res.data.channel.username);
+          pulse.channels.collect(res.data.channel, res.data.channel.username);
+          pulse.collect(res.data.posts, res.data.channel.username);
         });
     },
     update() {

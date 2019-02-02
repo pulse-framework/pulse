@@ -68,7 +68,8 @@ const store = new Pulse({
     channels,
     posts
   },
-  state: {
+  indexes: ["jamie", "casey"],
+  data: {
     name: "",
     test: "Pulse is cool",
     theme: "dark"

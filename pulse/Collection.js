@@ -5,7 +5,7 @@ import { Log, assert } from "./Utils";
 export default class Collection {
   constructor(
     { name, subscribers, history, errors, updateSubscribers },
-    { model = {}, actions = {}, mutations = {}, indexes = [] }
+    { data = {}, model = {}, actions = {}, mutations = {}, indexes = [] }
   ) {
     // from parent class
     this._name = name;
@@ -13,45 +13,40 @@ export default class Collection {
     this._history = history;
     this._errors = errors;
     this.updateSubscribers = updateSubscribers;
+
     // external properties
     this.data = Object.create(null);
     this.mutations = Object.create(null);
     this.actions = Object.create(null);
 
-    // the model for validating data
-    this._model = model;
-    // the internal data store
-    this._data = Object.create(null);
-    // indexes, arrays of primary keys used to filter data
-    // EG: {suggested: [1,2,3...]}
-    this._indexes = Object.create(null);
-    // arrays generated from indexes, used by getters to avoid recalcuation
-    this._cachedData = Object.create(null);
+    this._model = model; // the model for validating data
+    this._data = Object.create(null); // the internal data store
+    this._indexes = Object.create(null); // arrays of primary keys
 
     this._indexesToRegen = [];
+    this._collecting = false;
+    this._primaryKey = null;
+    this._collectionSize = 0;
 
-    this.collecting = false;
-    this.primaryKey = null;
-    this.collectionSize = 0;
-
+    // any forward facing data properties need to be present before runtime, so we must map any indexes to the collection's data property in the constructor.
     this.defineIndexes(indexes);
+
+    // add proxy to data property to watch for manual changes
+    this.watchData(this.data);
   }
 
-  // Proxies
-  // we shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically
+  // We shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically. But in the event that the user does modify the data manually, we should push that update to subscribers.
   watchData(obj) {
     this.data = new Proxy(obj || {}, {
       set: (state, key, value) => {
-        if (this.collecting === false) {
-          console.log("data can be modified manually, but is not reccomended");
-          // Store.updateSubscribers()
+        // prevent from firing update if it is being handled by the collect method.
+        if (this._collecting === false) {
+          // this.updateSubscribers()
         }
         return true;
       }
     });
   }
-  // we should however, watch the state.
-  watchState(obj) {}
 
   defineIndexes(indexes) {
     for (let index of indexes) this.createIndex(index);
@@ -67,7 +62,7 @@ export default class Collection {
   }
 
   collect(data, index) {
-    this.collecting = true;
+    this._collecting = true;
     let newIndex = true;
     // create the index
     if (index) {
@@ -95,7 +90,7 @@ export default class Collection {
       }
     });
 
-    this.collecting = false;
+    this._collecting = false;
     Log(`Collected ${data.length} items. With index: ${index}`);
 
     this.processCacheRegenQueue();
@@ -108,33 +103,33 @@ export default class Collection {
     // validate against model
 
     // if no primary key defined in the model, search for a generic one.
-    if (!this.primaryKey) {
+    if (!this._primaryKey) {
       let genericPrimaryIds = ["id", "_id"];
       // detect a primary key
       for (let key of genericPrimaryIds)
-        if (data.hasOwnProperty(key)) this.primaryKey = key;
-      if (!this.primaryKey)
+        if (data.hasOwnProperty(key)) this._primaryKey = key;
+      if (!this._primaryKey)
         this.dataRejectionHandler(data, "No primary key supplied.");
     }
 
-    if (!data.hasOwnProperty(this.primaryKey))
+    if (!data.hasOwnProperty(this._primaryKey))
       this.dataRejectionHandler(data, "Primary key mismatch");
 
     // check if we already have the data if so, send to the update handler
-    // if (this._data[data[this.primaryKey]]) {
+    // if (this._data[data[this._primaryKey]]) {
     //   this.updateData(data);
     //   return;
     // }
 
     // push id into index
-    if (index) this._indexes[index].push(data[this.primaryKey]);
+    if (index) this._indexes[index].push(data[this._primaryKey]);
 
     // check existing indexes for primary key, here is where we determin which, if any, indexes need to be regenerated and cached
     let loop = Object.keys(this._indexes);
     for (let indexName of loop) {
       if (
         indexName !== index &&
-        this._indexes[indexName].includes(data[this.primaryKey])
+        this._indexes[indexName].includes(data[this._primaryKey])
       ) {
         // save the index
         this._indexesToRegen.push(index);
@@ -142,8 +137,8 @@ export default class Collection {
       }
     }
     // add the data internally
-    this._data[data[this.primaryKey]] = data;
-    this.collectionSize++;
+    this._data[data[this._primaryKey]] = data;
+    this._collectionSize++;
   }
 
   // this will fill the index array with the correposonding data

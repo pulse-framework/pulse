@@ -33,12 +33,12 @@ console.log(store);
 //   }
 // })
 
-store.addGetter({
-  tellMyName({ state }) {
-    console.log(state.name);
-    return state.name;
-  }
-});
+// store.addGetter({
+//   tellMyName({ state }) {
+//     console.log(state.name);
+//     return state.name;
+//   }
+// });
 
 new Vue({
   render: h => h(App)
