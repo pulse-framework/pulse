@@ -5,6 +5,10 @@ import store from "./store";
 
 Vue.config.productionTip = false;
 
+import o from "vue-object-view";
+
+Vue.component("VueObjectView", o);
+
 console.log(store);
 
 // store.addState({

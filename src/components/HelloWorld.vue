@@ -3,6 +3,9 @@
     <input v-model="thing">
     <Button v-on:click="get(thing)">Get Channel</Button>
     <Button v-on:click="logInstance">Log Instance</Button>
+    <Button v-on:click="update">Update Instance</Button>
+    <VueObjectView v-model="pulse"/>
+
     <!-- <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>-->
   </div>
@@ -24,6 +27,7 @@ export default {
   },
   data: () => ({
     // ...pulse.mapState(),
+    pulse: pulse,
     ...pulse.mapCollection("posts"),
     thing: ""
   }),
@@ -36,6 +40,9 @@ export default {
           pulse.$posts.collect(res.data.posts, res.data.channel.username);
           pulse.$channels.collect(res.data.channel);
         });
+    },
+    update() {
+      this.pulse = pulse;
     },
     changeTheme: () => {
       pulse.dispatch("switchTheme");

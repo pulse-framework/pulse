@@ -1,5 +1,5 @@
 {
-  "name": "pulse",
+  "name": "pulse-framework",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,13 +11,12 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "axios": "^0.18.0",
-    "eslint-config-prettier": "^4.0.0",
-    "vue": "^2.5.22",
-    "vue-object-view": "^0.4.2"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "axios": "^0.18.0",
+    "vue": "^2.5.22",
+    "vue-object-view": "^0.4.2",
+    "eslint-config-prettier": "^4.0.0",
     "prettier": "1.16.3",
     "@vue/cli-plugin-babel": "^3.3.0",
     "@vue/cli-service": "^3.3.0",
