@@ -12,7 +12,8 @@ export default class Collection {
       updateSubscribers,
       globalDataRefrence,
       globalDependencyTree,
-      dependenciesFound
+      dependenciesFound,
+      recordDependencyAccess
     },
     {
       data = {},
@@ -49,7 +50,7 @@ export default class Collection {
     this._localDataReference = [];
     this._primaryKey = null;
     this._collectionSize = 0;
-    this._recordDependencyAccess = false;
+    this._recordDependencyAccess = recordDependencyAccess;
     this._dependenciesFound = dependenciesFound;
     // any forward facing data properties need to be present before runtime, so we must map any indexes to the collection's data property in the constructor.
     this.defineIndexes(indexes);
@@ -69,18 +70,19 @@ export default class Collection {
         return true;
       },
       get: (target, key, value) => {
-        // console.log("prop accessed: ", key);
-        if (this._recordDependencyAccess)
+        if (this._recordDependencyAccess) {
+          console.log(key);
           this._dependenciesFound.push({
-            key,
-            collectionName: this._name
+            property: key,
+            collection: this._name
           });
+        }
         return target[key];
       }
     });
   }
 
-  runAllFilters() {
+  analyseFilters() {
     if (!this._filters) return;
     let loop = Object.keys(this._filters);
     for (let filter of loop) {
@@ -88,10 +90,26 @@ export default class Collection {
       this._recordDependencyAccess = true;
 
       this._filters[filter]({
+        // pass this collection's data as "data" to the filter
         data: this.data,
+        // spread each collection's data to the filter
         ...this._globalDataRefrence
       });
-      console.log(this._dependenciesFound);
+
+      console.log(
+        `${this._name} Found dependencies: `,
+        this._dependenciesFound
+      );
+
+      if (!this._globalDependencyTree[this._name]) {
+        let dependencies = {};
+        dependencies[filter] = this._dependenciesFound;
+        this._globalDependencyTree[this._name] = dependencies;
+      } else {
+        this._globalDependencyTree[this._name][
+          filter
+        ] = this._dependenciesFound;
+      }
 
       this._recordDependencyAccess = false;
       this._dependenciesFound = [];

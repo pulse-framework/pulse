@@ -22,6 +22,7 @@ class Store {
 
     // filter dependency tracker
     this._dependenciesFound = [];
+    this._recordDependencyAccess = false;
 
     // init collections
     if (collections) this.initCollections(collections);
@@ -53,7 +54,8 @@ class Store {
           updateSubscribers: this.updateSubscribers,
           globalDataRefrence: this._globalDataRefrence,
           globalDependencyTree: this._globalDependencyTree,
-          dependenciesFound: this._dependenciesFound
+          dependenciesFound: this._dependenciesFound,
+          recordDependencyAccess: this._recordDependencyAccess
         },
         collections[index]
       );
@@ -83,7 +85,7 @@ class Store {
   executeAllFilters() {
     let loop = Object.keys(this._collections);
     for (let collection of loop) {
-      this._collections[collection].runAllFilters();
+      this._collections[collection].analyseFilters();
     }
   }
 

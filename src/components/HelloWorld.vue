@@ -36,7 +36,7 @@ export default {
   methods: {
     get(username) {
       axios
-        .get(`https://api.notify.me/channel/public/${username}`)
+        .get(`http://localhost:3000/channel/public/${username}`)
         .then(res => {
           if (username === "jamie")
             pulse.channels.collect([res.data.channel], "myChannels");
