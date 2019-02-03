@@ -94,13 +94,13 @@ export default class Collection {
         ...this._globalDataRefrence
       });
 
+      let found = this._dependencyController.dependenciesFound;
+
       // data recorded, close door
       this._dependencyController.record = false;
 
       // empty the list of dependencies for next loop
       this._dependencyController.dependenciesFound = [];
-
-      let found = this._dependencyController.dependenciesFound;
 
       // loop over the found dependencies and register this filter as a child in the dependency graph
       for (let dependency of found) {
