@@ -102,9 +102,9 @@ export default class Collection {
 
       let found = this._dependencyController.dependenciesFound;
 
-      // loop over the found dependencies and register this filter as a child of them in the dependency graph
+      // loop over the found dependencies and register this filter as a child in the dependency graph
       for (let dependency of found) {
-        // address is the colleciton that contains the dependency
+        // the address is the colleciton that contains the dependency
         let address = this._dependencyController.dependencyGraph[
           dependency.collection
         ];
@@ -131,6 +131,8 @@ export default class Collection {
             }
           ];
         }
+
+        console.log(dependency);
       }
     }
   }

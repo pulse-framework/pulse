@@ -117,7 +117,7 @@ class Store {
     this._subscribers.map(component => {
       if (component._isVue) {
         if (component.hasOwnProperty(key)) {
-          console.log("UPDATING COMPONENTS", key);
+          // console.log("UPDATING COMPONENTS", key);
           component.$set(component, key, value);
         }
       } else {
