@@ -11,7 +11,6 @@ export default class Collection {
       errors,
       updateSubscribers,
       globalDataRefrence,
-      globalDependencyTree,
       dependencyController
     },
     {
@@ -42,8 +41,6 @@ export default class Collection {
 
     this._dataProxy = null;
     this._globalDataRefrence = globalDataRefrence;
-    this._globalDependencyTree = globalDependencyTree;
-
     this._indexesToRegen = [];
     this._collecting = false;
     this._localDataReference = [];
@@ -79,15 +76,17 @@ export default class Collection {
     });
   }
 
+  // this is called by the main class once all collections have been constructed, it runs through each filter, executing the function. It  then uses the data proxy to detect which properties the filter wants to access, and saves them in a dependency graph.
   analyseFilters() {
     if (!this._filters) return;
 
     let loop = Object.keys(this._filters);
 
     for (let filter of loop) {
-      // open the door to record which properties accross all collections are accessed by this filter
+      // open the door allowing each collection's data proxy to record which properties are accessed by this filter
       this._dependencyController.record = true;
 
+      // execute the filter
       this._filters[filter]({
         // pass this collection's data as "data" to the filter
         data: this.data,
@@ -95,13 +94,23 @@ export default class Collection {
         ...this._globalDataRefrence
       });
 
+      // data recorded, close door
+      this._dependencyController.record = false;
+
+      // empty the list of dependencies for next loop
+      this._dependencyController.dependenciesFound = [];
+
       let found = this._dependencyController.dependenciesFound;
-      // loop over the dependencies and register the filter property as a child
+
+      // loop over the found dependencies and register this filter as a child of them in the dependency graph
       for (let dependency of found) {
         // address is the colleciton that contains the dependency
-        let address = this._globalDependencyTree[dependency.collection];
+        let address = this._dependencyController.dependencyGraph[
+          dependency.collection
+        ];
         // property is the dependent filter name
         let property = dependency.property;
+
         // if there is already an entry for this property
         if (address[property]) {
           let entry = address[property];
@@ -123,10 +132,6 @@ export default class Collection {
           ];
         }
       }
-      // close door
-      this._dependencyController.record = false;
-
-      this._dependencyController.dependenciesFound = [];
     }
   }
 

@@ -14,7 +14,6 @@ class Store {
     // internal state
     this._collections = Object.create(null);
     this._globalDataRefrence = Object.create(null);
-    this._globalDependencyTree = Object.create(null);
     this._subscribers = [];
     this._history = [];
     this._errors = [];
@@ -23,7 +22,8 @@ class Store {
     // filter dependency tracker
     this._dependencyController = {
       record: false,
-      dependenciesFound: []
+      dependenciesFound: [],
+      dependencyGraph: {}
     };
 
     // init collections
@@ -55,7 +55,6 @@ class Store {
           errors: this._errors,
           updateSubscribers: this.updateSubscribers,
           globalDataRefrence: this._globalDataRefrence,
-          globalDependencyTree: this._globalDependencyTree,
           dependencyController: this._dependencyController
         },
         collections[index]
@@ -70,7 +69,7 @@ class Store {
         this[index] = this._collections[index];
       }
       // add an empty index on the global dependency tree
-      this._globalDependencyTree[index] = {};
+      this._dependencyController.dependencyGraph[index] = {};
     }
   }
 
