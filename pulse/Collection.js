@@ -112,6 +112,7 @@ export default class Collection {
             key,
             value
           });
+        return target[key];
       }
     });
   }
