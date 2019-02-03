@@ -12,8 +12,7 @@ export default class Collection {
       updateSubscribers,
       globalDataRefrence,
       globalDependencyTree,
-      dependenciesFound,
-      recordDependencyAccess
+      dependencyController
     },
     {
       data = {},
@@ -50,8 +49,7 @@ export default class Collection {
     this._localDataReference = [];
     this._primaryKey = null;
     this._collectionSize = 0;
-    this._recordDependencyAccess = recordDependencyAccess;
-    this._dependenciesFound = dependenciesFound;
+    this._dependencyController = dependencyController;
     // any forward facing data properties need to be present before runtime, so we must map any indexes to the collection's data property in the constructor.
     this.defineIndexes(indexes);
 
@@ -70,9 +68,8 @@ export default class Collection {
         return true;
       },
       get: (target, key, value) => {
-        if (this._recordDependencyAccess) {
-          console.log(key);
-          this._dependenciesFound.push({
+        if (this._dependencyController.record) {
+          this._dependencyController.dependenciesFound.push({
             property: key,
             collection: this._name
           });
@@ -84,10 +81,12 @@ export default class Collection {
 
   analyseFilters() {
     if (!this._filters) return;
+
     let loop = Object.keys(this._filters);
+
     for (let filter of loop) {
       // open the door to record which properties accross all collections are accessed by this filter
-      this._recordDependencyAccess = true;
+      this._dependencyController.record = true;
 
       this._filters[filter]({
         // pass this collection's data as "data" to the filter
@@ -96,23 +95,38 @@ export default class Collection {
         ...this._globalDataRefrence
       });
 
-      console.log(
-        `${this._name} Found dependencies: `,
-        this._dependenciesFound
-      );
+      let found = this._dependencyController.dependenciesFound;
+      // loop over the dependencies and register the filter property as a child
+      for (let dependency of found) {
+        // address is the colleciton that contains the dependency
+        let address = this._globalDependencyTree[dependency.collection];
+        // property is the dependent filter name
+        let property = dependency.property;
+        // if there is already an entry for this property
+        if (address[property]) {
+          let entry = address[property];
 
-      if (!this._globalDependencyTree[this._name]) {
-        let dependencies = {};
-        dependencies[filter] = this._dependenciesFound;
-        this._globalDependencyTree[this._name] = dependencies;
-      } else {
-        this._globalDependencyTree[this._name][
-          filter
-        ] = this._dependenciesFound;
+          entry.names.push(filter);
+          entry.dependents.push({
+            collection: dependency.collection,
+            property: filter
+          });
+        } else {
+          let entry = (address[property] = {});
+
+          entry.names = [filter];
+          entry.dependents = [
+            {
+              collection: dependency.collection,
+              property: filter
+            }
+          ];
+        }
       }
+      // close door
+      this._dependencyController.record = false;
 
-      this._recordDependencyAccess = false;
-      this._dependenciesFound = [];
+      this._dependencyController.dependenciesFound = [];
     }
   }
 

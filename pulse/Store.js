@@ -21,8 +21,10 @@ class Store {
     collections.root = { data, indexes, actions, mutations, filters };
 
     // filter dependency tracker
-    this._dependenciesFound = [];
-    this._recordDependencyAccess = false;
+    this._dependencyController = {
+      record: false,
+      dependenciesFound: []
+    };
 
     // init collections
     if (collections) this.initCollections(collections);
@@ -54,8 +56,7 @@ class Store {
           updateSubscribers: this.updateSubscribers,
           globalDataRefrence: this._globalDataRefrence,
           globalDependencyTree: this._globalDependencyTree,
-          dependenciesFound: this._dependenciesFound,
-          recordDependencyAccess: this._recordDependencyAccess
+          dependencyController: this._dependencyController
         },
         collections[index]
       );
@@ -68,6 +69,8 @@ class Store {
         // bind the collection class to the root state tree
         this[index] = this._collections[index];
       }
+      // add an empty index on the global dependency tree
+      this._globalDependencyTree[index] = {};
     }
   }
 
@@ -87,6 +90,7 @@ class Store {
     for (let collection of loop) {
       this._collections[collection].analyseFilters();
     }
+    // this.recordDependencyAccess = false;
   }
 
   // Bind collection functions to root
