@@ -13,6 +13,11 @@ const channels = {
       if (data.channelOpened) {
         return posts.happy;
       }
+    },
+    testTwo: ({ data, posts }) => {
+      if (data.channelOpened) {
+        return posts.happy;
+      }
     }
   },
   data: {

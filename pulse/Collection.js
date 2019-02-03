@@ -131,8 +131,6 @@ export default class Collection {
             }
           ];
         }
-
-        console.log(dependency);
       }
     }
   }
