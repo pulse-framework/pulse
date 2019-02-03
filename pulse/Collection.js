@@ -110,15 +110,8 @@ export default class Collection {
       // loop over the found dependencies and register this filter as a child in the dependency graph
       for (let dependency of found) {
         // if the dependency is a filter and has not yet been analysed, add this filter to the regen queue
-        if (
-          this._dependencyController.allFilters.includes(dependency.property) &&
-          !this._dependencyController.generatedFilters.includes(
-            this._name + dependency.property
-          )
-        ) {
-          this._regenQueue.push(filter);
+        if (this.checkForMissingDependency(dependency.property, filter))
           missingDependency = true;
-        }
 
         // the address is the colleciton that contains the dependency
         let address = this._dependencyController.dependencyGraph[
@@ -152,6 +145,19 @@ export default class Collection {
       if (!missingDependency)
         this._dependencyController.generatedFilters.push(this._name + filter);
     }
+  }
+
+  checkForMissingDependency(dependency, filter) {
+    if (
+      this._dependencyController.allFilters.includes(dependency) &&
+      !this._dependencyController.generatedFilters.includes(
+        this._name + dependency
+      )
+    ) {
+      this._regenQueue.push(filter);
+      return true;
+    }
+    return false;
   }
 
   filter(filter) {
