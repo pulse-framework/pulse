@@ -11,7 +11,8 @@ export default class Collection {
       errors,
       updateSubscribers,
       globalDataRefrence,
-      globalDependencyTree
+      globalDependencyTree,
+      dependenciesFound
     },
     {
       data = {},
@@ -48,11 +49,8 @@ export default class Collection {
     this._localDataReference = [];
     this._primaryKey = null;
     this._collectionSize = 0;
-
-    // filter dependency tracker
-    this._dependenciesFound = [];
     this._recordDependencyAccess = false;
-
+    this._dependenciesFound = dependenciesFound;
     // any forward facing data properties need to be present before runtime, so we must map any indexes to the collection's data property in the constructor.
     this.defineIndexes(indexes);
 
@@ -60,18 +58,41 @@ export default class Collection {
     this.mapFilterNamespaceToData(filters);
   }
 
+  // We shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically. But in the event that the user does modify the data manually, we should push that update to subscribers.
+  initProxy(obj) {
+    return new Proxy(obj || {}, {
+      set: (target, key, value) => {
+        // prevent from firing update if it is being handled by the collect method.
+        if (this._collecting === false) {
+          // this.updateSubscribers()
+        }
+        return true;
+      },
+      get: (target, key, value) => {
+        // console.log("prop accessed: ", key);
+        if (this._recordDependencyAccess)
+          this._dependenciesFound.push({
+            key,
+            collectionName: this._name
+          });
+        return target[key];
+      }
+    });
+  }
+
   runAllFilters() {
     if (!this._filters) return;
     let loop = Object.keys(this._filters);
     for (let filter of loop) {
+      // open the door to record which properties accross all collections are accessed by this filter
       this._recordDependencyAccess = true;
-      let result = this._filters[filter]({
+
+      this._filters[filter]({
         data: this.data,
         ...this._globalDataRefrence
       });
-      console.log(result);
-
       console.log(this._dependenciesFound);
+
       this._recordDependencyAccess = false;
       this._dependenciesFound = [];
     }
@@ -93,28 +114,6 @@ export default class Collection {
       // set the property to null, until we've parsed the filter
       this.data[filterName] = null;
     }
-  }
-
-  // We shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically. But in the event that the user does modify the data manually, we should push that update to subscribers.
-  initProxy(obj) {
-    return new Proxy(obj || {}, {
-      set: (target, key, value) => {
-        // prevent from firing update if it is being handled by the collect method.
-        if (this._collecting === false) {
-          // this.updateSubscribers()
-        }
-        return true;
-      },
-      get: (target, key, value) => {
-        // console.log("prop accessed: ", key);
-        if (this._recordDependencyAccess)
-          this._dependenciesFound.push({
-            key,
-            value
-          });
-        return target[key];
-      }
-    });
   }
 
   defineIndexes(indexes) {

@@ -20,6 +20,9 @@ class Store {
     this._errors = [];
     collections.root = { data, indexes, actions, mutations, filters };
 
+    // filter dependency tracker
+    this._dependenciesFound = [];
+
     // init collections
     if (collections) this.initCollections(collections);
 
@@ -49,7 +52,8 @@ class Store {
           errors: this._errors,
           updateSubscribers: this.updateSubscribers,
           globalDataRefrence: this._globalDataRefrence,
-          globalDependencyTree: this._globalDependencyTree
+          globalDependencyTree: this._globalDependencyTree,
+          dependenciesFound: this._dependenciesFound
         },
         collections[index]
       );

@@ -32,7 +32,7 @@ const posts = {
   data: {
     favorites: [],
     unread: [],
-    happy: "Result of filter."
+    happy: "Happy boy"
   },
   // filters are like getters, but support Pulse's filter API
   // the name of the filter is accessable via the collection's data property
