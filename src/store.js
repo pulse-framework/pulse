@@ -1,8 +1,6 @@
 // prettier-ignore
 import Pulse from '../pulse'
 
-// ...mapCollection('channels', ['recentlyActive', 'favorites'])
-
 const channels = {
   model: {
     id: {
@@ -10,7 +8,14 @@ const channels = {
       primaryKey: true
     }
   },
-  indexes: ["jamie", "casey"]
+  filters: {
+    testOne: ({ filter }) => {}
+  },
+  data: {
+    myChannels: [],
+    selected: {},
+    channelOpened: false
+  }
 };
 
 const posts = {
@@ -19,52 +24,58 @@ const posts = {
       primaryKey: true
     }
   },
-  // this is where you register namespaces for your collection's data property
-  // data added via collect(data, index) will be cached here
-  indexes: ["selected", "jamie", "casey"],
-
+  // this is where you define any data you need, if you collect() data with the same name as a property matching one in your data, provided the type matches and its empty, it will be populated and cached
+  data: {
+    favorites: [],
+    unread: []
+  },
   // filters are like getters, but support Pulse's filter API
   // the name of the filter is accessable via the collection's data property
   filters: {
-    orderByDate({ filter }) {
-      return filter({
-        from: "suggested",
-        byProperty: "dateCreated"
-      });
-    },
-    isLive({ filter }) {
-      return filter({
-        from: "subscribed",
-        isNull: "liveEndDate",
-        isNotNull: "liveStreamType"
-      });
-    },
-    isLiveOnTwitch({ filter }) {
+    // orderByDate: {
+    //     from: "subscribed",
+    //     byProperty: "dateCreated"
+    // },
+    myLive: ({ filter }) => {},
+    wasLive: ({ filter }) => {
       return filter({
         from: "subscribed",
-        isNull: "liveEndDate",
-        matching: {
-          liveStreamType: "twitch"
-        }
+        isNotNull: ["liveEndDate", "liveStreamType"]
       });
-    },
-    customFilter({ data }) {
-      return data.subscribed;
     }
+    // isLive({ filter }) {
+    //   return filter({
+    //     from: "orderByDate",
+    //     isNull: "liveEndDate",
+    //     isNotNull: "liveStreamType"
+    //   });
+    // },
+    // isLiveOnTwitch({ filter }) {
+    //   return filter({
+    //     from: "isLive",
+    //     isNull: "liveEndDate",
+    //     matching: {
+    //       liveStreamType: "twitch"
+    //     }
+    //   });
+  },
+  customFilter: ({ data }) => {
+    return data.subscribed;
   }
-
-  // // requires the a complete model with correct data types
-  // async onMissingKey({request, collect}, key) {
-  //   let res = await instance.request.get(`url/${key}`)
-  //   collect(res.data.posts)
-  //   collect()
-  // },
-  // // requires that the component specify the data it requires
-  // async onIncompleteData(instance, key) {
-  //   let res = await instance.request.get(`url/${key}`)
-  //   instance.$post.collect(res.data)
-  // }
 };
+
+// // requires the a complete model with correct data types
+// async onMissingKey({request, collect}, key) {
+//   let res = await instance.request.get(`url/${key}`)
+//   collect(res.data.posts)
+//   collect()
+// },
+// // requires that the component specify the data it requires
+// async onIncompleteData(instance, key) {
+//   let res = await instance.request.get(`url/${key}`)
+//   instance.$post.collect(res.data)
+// }
+// };
 
 const store = new Pulse({
   collections: {

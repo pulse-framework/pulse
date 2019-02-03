@@ -9,8 +9,6 @@ import o from "vue-object-view";
 
 Vue.component("VueObjectView", o);
 
-console.log(store);
-
 // store.addState({
 //   name: "Jamie",
 //   theme: 'dark'

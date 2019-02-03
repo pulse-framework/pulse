@@ -13,15 +13,32 @@ class Store {
   }) {
     // internal state
     this._collections = Object.create(null);
+    this._globalDataRefrence = Object.create(null);
+    this._globalDependencyTree = Object.create(null);
     this._subscribers = [];
     this._history = [];
     this._errors = [];
 
     // user supplied data and fuctions this will be passed to the collections constructor and replaced
-    this.initRootCollection({ data, indexes, actions, mutations, filters });
 
+    collections.root = { data, indexes, actions, mutations, filters };
     // init collections
     if (collections) this.initCollections(collections);
+    // bind root collection data to root
+    this.data = this._collections.root.data;
+
+    // below should happen after we've validated and delt with any namespace clashes on the collections (todo)
+
+    if (this._collections) {
+      let loop = Object.keys(this._collections);
+      for (let collection of loop) {
+        this._globalDataRefrence[collection] = this._collections[
+          collection
+        ].data;
+      }
+    }
+
+    // run filters
   }
 
   subscribe(context) {
@@ -38,7 +55,9 @@ class Store {
           subscribers: this._subscribers,
           history: this._history,
           errors: this._errors,
-          updateSubscribers: this.updateSubscribers
+          updateSubscribers: this.updateSubscribers,
+          globalDataRefrence: this._globalDataRefrence,
+          globalDependencyTree: this._globalDependencyTree
         },
         collections[index]
       );
@@ -47,29 +66,16 @@ class Store {
         assert(
           `Collection name conflict, instance already has "${index}" thus it will not be accessable on the root state tree.`
         );
-      } else {
+      } else if (index !== "root") {
         // bind the collection class to the root state tree
         this[index] = this._collections[index];
       }
     }
   }
 
-  initRootCollection(params) {
-    this._root = new Collections(
-      {
-        name: "root",
-        subscribers: this._subscribers,
-        history: this._history,
-        errors: this._errors,
-        updateSubscribers: this.updateSubscribers
-      },
-      params
-    );
-    this.data = this._root.data;
-  }
   // Bind collection functions to root
   collect(data, index) {
-    this._root.collect(data, index);
+    this._collections.root.collect(data, index);
   }
 
   // this is run once on the constuctor, the proxy detects when the state is changed, subsequently notifying the subscribers.
@@ -91,7 +97,10 @@ class Store {
     // console.log("updating subscribers", key, value);
     this._subscribers.map(component => {
       if (component._isVue) {
-        component.$set(component, key, value);
+        if (component.hasOwnProperty(key)) {
+          console.log("UPDATING COMPONENTS", key);
+          component.$set(component, key, value);
+        }
       } else {
         self.processCallbacks(this.state);
       }
@@ -154,7 +163,6 @@ class Store {
     return null;
   }
   mapCollection(collection, properties = []) {
-    console.log(this._collections[collection].data);
     if (properties.length == 0) {
       return this._collections[collection].data;
     }

@@ -27,7 +27,7 @@ export default {
   data: () => ({
     // ...pulse.mapState(),
     pulse: pulse,
-    ...pulse.mapCollection("posts"),
+    ...pulse.mapCollection("posts", ["selected", "favorites"]),
     ...pulse.mapCollection("channels"),
     thing: ""
   }),
@@ -37,7 +37,7 @@ export default {
       axios
         .get(`https://api.notify.me/channel/public/${username}`)
         .then(res => {
-          pulse.posts.collect(res.data.posts, res.data.channel.username);
+          pulse.posts.collect(res.data.posts, "favorites");
           pulse.channels.collect(res.data.channel, res.data.channel.username);
           pulse.collect(res.data.posts, res.data.channel.username);
         });

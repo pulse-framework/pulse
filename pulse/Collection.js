@@ -4,8 +4,23 @@ import { Log, assert } from "./Utils";
 // It's state is loaded into the main state tree.
 export default class Collection {
   constructor(
-    { name, subscribers, history, errors, updateSubscribers },
-    { data = {}, model = {}, actions = {}, mutations = {}, indexes = [] }
+    {
+      name,
+      subscribers,
+      history,
+      errors,
+      updateSubscribers,
+      globalDataRefrence,
+      globalDependencyTree
+    },
+    {
+      data = {},
+      model = {},
+      actions = {},
+      mutations = {},
+      filters = {},
+      indexes = []
+    }
   ) {
     // from parent class
     this._name = name;
@@ -15,7 +30,7 @@ export default class Collection {
     this.updateSubscribers = updateSubscribers;
 
     // external properties
-    this.data = Object.create(null);
+    this.data = data || Object.create(null);
     this.mutations = Object.create(null);
     this.actions = Object.create(null);
 
@@ -23,16 +38,39 @@ export default class Collection {
     this._data = Object.create(null); // the internal data store
     this._indexes = Object.create(null); // arrays of primary keys
 
+    this._globalDataRefrence = globalDataRefrence;
+    this._globalDependencyTree = globalDependencyTree;
+
     this._indexesToRegen = [];
     this._collecting = false;
+    this._localDataReference = [];
     this._primaryKey = null;
     this._collectionSize = 0;
 
     // any forward facing data properties need to be present before runtime, so we must map any indexes to the collection's data property in the constructor.
     this.defineIndexes(indexes);
 
+    //  build a namespace tree that can be used by collections to access eachother
+    this.mapFilterNamespaceToData(filters);
+
     // add proxy to data property to watch for manual changes
     // this.watchData(this.data);
+  }
+
+  mapFilterNamespaceToData(filters) {
+    // map filters
+    let loop = Object.keys(filters);
+    for (let filterName of loop) {
+      // this.data[filterName] = filterName;
+    }
+  }
+
+  filter(filter) {
+    let from = filter.from;
+    if (this.data.hasOwnProperty(from)) {
+      // the source to filter from is in this collection
+    } else {
+    }
   }
 
   // We shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically. But in the event that the user does modify the data manually, we should push that update to subscribers.
@@ -63,16 +101,21 @@ export default class Collection {
 
   collect(data, index) {
     this._collecting = true;
-    let newIndex = true;
+    let indexIsArray = false;
+    let indexesModified = [];
+    let indexesCreated = [];
     // create the index
     if (index) {
-      if (this._indexes[index]) newIndex = false;
-      // return this.dataRejectionHandler(
-      //   data,
-      //   `Index "${index}" already in use.`
-      // );
-      // define the new index internally
-      this._indexes[index] = [];
+      if (Array.isArray(index)) {
+        indexIsArray = true;
+        for (let i of index) {
+          if (this._indexes[i]) indexesModified.push(i);
+          this._indexes[i] = [];
+        }
+      } else {
+        if (this._indexes[index]) indexesCreated.push(index);
+        this._indexes[index] = [];
+      }
     }
     // process the data
     if (!Array.isArray(data)) this.processDataItem(data, index);
@@ -86,8 +129,8 @@ export default class Collection {
         collection: this._name,
         timestamp: new Date(),
         dataCollected: data,
-        indexesCreated: newIndex ? index : null,
-        indexesModified: newIndex ? null : index
+        indexesCreated,
+        indexesModified
       }
     });
 
@@ -95,8 +138,13 @@ export default class Collection {
     Log(`Collected ${data.length} items. With index: ${index}`);
 
     this.processCacheRegenQueue();
-    // update index specific
-    if (index) this.updateData(data, index);
+
+    // update indexes, bind the data and notify subscribers
+    if (indexIsArray && index) {
+      for (let i in index) this.updateData(data, i);
+    } else if (index) {
+      this.updateData(data, index);
+    }
     // update get all
   }
 

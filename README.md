@@ -132,12 +132,16 @@ new Pulse({
   collections: {
     // collection name
     channels: {
-      // define some namespaces for your collection, any data collected under these names will be cached and accessible through them EG: channels.collect(data, 'subscribed')
-      indexes: ["suggested", "favorites", "subscribed"],
-
-      // filters are bound to data and cached, just like indexes
+      // filters are bound to collection data and cached
       filters: {
-        recentlyActive({ filter }) {
+        // if you collect data with a name corresponding to one of these, they'll be populated. EG: collect(data, 'suggested')
+        suggested: [],
+        // or if
+        favorites: [],
+        //
+        current: {}
+        // filters can also use our filter API
+        recentlyActive: ({ filter }) => {
           return filter({
             from: "subscribed",
             byProperty: "lastActive"
@@ -148,23 +152,25 @@ new Pulse({
       // a place to define any extra data properties your collection might need
       // they're reactive and accesable directly, just like regular state
       data: {
-        channelOpen: false
+        channelOpen: false,
+        tab: 'favorites'
       },
 
       // actions aren't required, but can do many things at once
       actions: {
-        // first paramater is any functions to use from Pulse, everything after is yours.
-        async getSubscribedChannels({ request, collect }, username) {
+        // first paramater is an object of any functions or collections to use from Pulse, everything after is yours.
+        async getSubscribedChannels({ request, collect, posts }, username) {
           // built in request handler
           let res = await request.get(`/channels/subscribed/${username}`);
           // collect data
           collect(res.data.channels, "subscribed");
-          // collect to a sister collection, 3rd param is the name of the collection
-          collect(
-            res.data.posts,
-            ["subscribed", res.data.channel.username],
-            "posts"
-          );
+          // collect to a sister collection
+          posts.collect(res.data.posts, [
+            // save it under the namespace "subscribed"
+            "subscribed",
+            // also under the namespace of the username
+            res.data.channel.username
+          ]);
         }
       }
     },
