@@ -14,6 +14,11 @@ const channels = {
         return posts.happy;
       }
     },
+    testThree: ({ data, posts }) => {
+      if (data.testTwo) {
+        return posts.happy;
+      }
+    },
     testTwo: ({ data, posts }) => {
       if (data.channelOpened) {
         return posts.happy;

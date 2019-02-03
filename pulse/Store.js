@@ -9,7 +9,8 @@ class Store {
     indexes = [],
     actions = {},
     mutations = {},
-    filters = {}
+    filters = {},
+    routes = {}
   }) {
     // internal state
     this._collections = Object.create(null);
@@ -23,7 +24,9 @@ class Store {
     this._dependencyController = {
       record: false,
       dependenciesFound: [],
-      dependencyGraph: {}
+      dependencyGraph: {},
+      generatedFilters: [],
+      allFilters: []
     };
 
     // init collections

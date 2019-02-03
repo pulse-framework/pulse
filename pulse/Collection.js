@@ -19,7 +19,8 @@ export default class Collection {
       actions = {},
       mutations = {},
       filters = {},
-      indexes = []
+      indexes = [],
+      routes = {}
     }
   ) {
     // from parent class
@@ -42,6 +43,7 @@ export default class Collection {
     this._dataProxy = null;
     this._globalDataRefrence = globalDataRefrence;
     this._indexesToRegen = [];
+    this._regenQueue = [];
     this._collecting = false;
     this._localDataReference = [];
     this._primaryKey = null;
@@ -62,6 +64,8 @@ export default class Collection {
         if (this._collecting === false) {
           // this.updateSubscribers()
         }
+
+        target[key] = value;
         return true;
       },
       get: (target, key, value) => {
@@ -83,6 +87,7 @@ export default class Collection {
     let loop = Object.keys(this._filters);
 
     for (let filter of loop) {
+      let missingDependency = false;
       // open the door allowing each collection's data proxy to record which properties are accessed by this filter
       this._dependencyController.record = true;
 
@@ -104,6 +109,17 @@ export default class Collection {
 
       // loop over the found dependencies and register this filter as a child in the dependency graph
       for (let dependency of found) {
+        // if the dependency is a filter and has not yet been analysed, add this filter to the regen queue
+        if (
+          this._dependencyController.allFilters.includes(dependency.property) &&
+          !this._dependencyController.generatedFilters.includes(
+            this._name + dependency.property
+          )
+        ) {
+          this._regenQueue.push(filter);
+          missingDependency = true;
+        }
+
         // the address is the colleciton that contains the dependency
         let address = this._dependencyController.dependencyGraph[
           dependency.collection
@@ -132,6 +148,9 @@ export default class Collection {
           ];
         }
       }
+      // if there's no missing dependencies for this filter, mark is as generated so other filters know they are in the clear!
+      if (!missingDependency)
+        this._dependencyController.generatedFilters.push(this._name + filter);
     }
   }
 
@@ -150,6 +169,7 @@ export default class Collection {
     for (let filterName of loop) {
       // set the property to null, until we've parsed the filter
       this.data[filterName] = null;
+      this._dependencyController.allFilters.push(filterName);
     }
   }
 
