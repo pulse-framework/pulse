@@ -2,11 +2,11 @@
 
 **WARNING STILL IN DEVELOPMENT, A LOT OF FUNCTION IS NOT COMPLETE**
 
-Pulse is a state management library for reactive Javascript frameworks with support for VueJS, React and React Native.
+Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native.
 
 Created by @jamiepine, @f3ltron and @joaof
 
-Pulse is similar to Redux in function, but styled more like VueX. Our goal is to create a structure that is lightweight, modular and powerful, but most importantly, easy to understand.
+Pulse is lightweight, modular and powerful, but most importantly, easy to understand.
 
 ## Features
 
