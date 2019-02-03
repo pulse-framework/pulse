@@ -16,9 +16,10 @@ import axios from "axios";
 
 export default {
   mounted() {
-    // setTimeout(() => {
-    //   console.log(store.get("getTheme"));
-    // }, 3000);
+    setTimeout(() => {
+      console.log(pulse.channels.data.channelOpened);
+      console.log(pulse.channels.data);
+    }, 4000);
     this.get("jamie");
     this.get("casey");
     this.get("ninja");
@@ -37,6 +38,8 @@ export default {
       axios
         .get(`https://api.notify.me/channel/public/${username}`)
         .then(res => {
+          if (username === "jamie")
+            pulse.channels.collect([res.data.channel], "myChannels");
           pulse.posts.collect(res.data.posts, "favorites");
           pulse.channels.collect(res.data.channel, res.data.channel.username);
           pulse.collect(res.data.posts, res.data.channel.username);

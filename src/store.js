@@ -9,12 +9,16 @@ const channels = {
     }
   },
   filters: {
-    testOne: ({ filter }) => {}
+    testOne: ({ data, posts }) => {
+      if (data.channelOpened) {
+        return posts.happy;
+      }
+    }
   },
   data: {
     myChannels: [],
     selected: {},
-    channelOpened: false
+    channelOpened: true
   }
 };
 
@@ -27,7 +31,8 @@ const posts = {
   // this is where you define any data you need, if you collect() data with the same name as a property matching one in your data, provided the type matches and its empty, it will be populated and cached
   data: {
     favorites: [],
-    unread: []
+    unread: [],
+    happy: "Result of filter."
   },
   // filters are like getters, but support Pulse's filter API
   // the name of the filter is accessable via the collection's data property
@@ -36,13 +41,13 @@ const posts = {
     //     from: "subscribed",
     //     byProperty: "dateCreated"
     // },
-    myLive: ({ filter }) => {},
-    wasLive: ({ filter }) => {
-      return filter({
-        from: "subscribed",
-        isNotNull: ["liveEndDate", "liveStreamType"]
-      });
-    }
+    // myLive: ({ data }) => {}
+    // wasLive: ({ filter }) => {
+    //   return filter({
+    //     from: "subscribed",
+    //     isNotNull: ["liveEndDate", "liveStreamType"]
+    //   });
+    // }
     // isLive({ filter }) {
     //   return filter({
     //     from: "orderByDate",

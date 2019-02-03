@@ -18,27 +18,19 @@ class Store {
     this._subscribers = [];
     this._history = [];
     this._errors = [];
-
-    // user supplied data and fuctions this will be passed to the collections constructor and replaced
-
     collections.root = { data, indexes, actions, mutations, filters };
+
     // init collections
     if (collections) this.initCollections(collections);
+
     // bind root collection data to root
     this.data = this._collections.root.data;
 
-    // below should happen after we've validated and delt with any namespace clashes on the collections (todo)
+    // build a tree of data after collection constructor is finished
+    this.buildGlobalDataRefrenceTree();
 
-    if (this._collections) {
-      let loop = Object.keys(this._collections);
-      for (let collection of loop) {
-        this._globalDataRefrence[collection] = this._collections[
-          collection
-        ].data;
-      }
-    }
-
-    // run filters
+    // filters depend on other data properties, and we need to know what they are so when one thing changes, only the correct caches should regerate
+    this.executeAllFilters();
   }
 
   subscribe(context) {
@@ -70,6 +62,24 @@ class Store {
         // bind the collection class to the root state tree
         this[index] = this._collections[index];
       }
+    }
+  }
+
+  buildGlobalDataRefrenceTree() {
+    if (this._collections) {
+      let loop = Object.keys(this._collections);
+      for (let collection of loop) {
+        this._globalDataRefrence[collection] = this._collections[
+          collection
+        ].data;
+      }
+    }
+  }
+
+  executeAllFilters() {
+    let loop = Object.keys(this._collections);
+    for (let collection of loop) {
+      this._collections[collection].runAllFilters();
     }
   }
 

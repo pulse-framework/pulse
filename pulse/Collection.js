@@ -30,14 +30,16 @@ export default class Collection {
     this.updateSubscribers = updateSubscribers;
 
     // external properties
-    this.data = data || Object.create(null);
+    this.data = this.initProxy(data);
     this.mutations = Object.create(null);
     this.actions = Object.create(null);
 
     this._model = model; // the model for validating data
+    this._filters = filters;
     this._data = Object.create(null); // the internal data store
     this._indexes = Object.create(null); // arrays of primary keys
 
+    this._dataProxy = null;
     this._globalDataRefrence = globalDataRefrence;
     this._globalDependencyTree = globalDependencyTree;
 
@@ -47,21 +49,31 @@ export default class Collection {
     this._primaryKey = null;
     this._collectionSize = 0;
 
+    // filter dependency tracker
+    this._dependenciesFound = [];
+    this._recordDependencyAccess = false;
+
     // any forward facing data properties need to be present before runtime, so we must map any indexes to the collection's data property in the constructor.
     this.defineIndexes(indexes);
 
     //  build a namespace tree that can be used by collections to access eachother
     this.mapFilterNamespaceToData(filters);
-
-    // add proxy to data property to watch for manual changes
-    // this.watchData(this.data);
   }
 
-  mapFilterNamespaceToData(filters) {
-    // map filters
-    let loop = Object.keys(filters);
-    for (let filterName of loop) {
-      // this.data[filterName] = filterName;
+  runAllFilters() {
+    if (!this._filters) return;
+    let loop = Object.keys(this._filters);
+    for (let filter of loop) {
+      this._recordDependencyAccess = true;
+      let result = this._filters[filter]({
+        data: this.data,
+        ...this._globalDataRefrence
+      });
+      console.log(result);
+
+      console.log(this._dependenciesFound);
+      this._recordDependencyAccess = false;
+      this._dependenciesFound = [];
     }
   }
 
@@ -73,15 +85,33 @@ export default class Collection {
     }
   }
 
+  // reserves the namespace on the component instance before runtime
+  mapFilterNamespaceToData(filters) {
+    // map filters
+    let loop = Object.keys(filters);
+    for (let filterName of loop) {
+      // set the property to null, until we've parsed the filter
+      this.data[filterName] = null;
+    }
+  }
+
   // We shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically. But in the event that the user does modify the data manually, we should push that update to subscribers.
-  watchData(obj) {
-    this.data = new Proxy(obj || {}, {
-      set: (state, key, value) => {
+  initProxy(obj) {
+    return new Proxy(obj || {}, {
+      set: (target, key, value) => {
         // prevent from firing update if it is being handled by the collect method.
         if (this._collecting === false) {
           // this.updateSubscribers()
         }
         return true;
+      },
+      get: (target, key, value) => {
+        // console.log("prop accessed: ", key);
+        if (this._recordDependencyAccess)
+          this._dependenciesFound.push({
+            key,
+            value
+          });
       }
     });
   }
