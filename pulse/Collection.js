@@ -20,6 +20,7 @@ export default class Collection {
       mutations = {},
       filters = {},
       indexes = [],
+      groups = [],
       routes = {}
     }
   ) {
@@ -43,14 +44,14 @@ export default class Collection {
     this._dataProxy = null;
     this._globalDataRefrence = globalDataRefrence;
     this._indexesToRegen = [];
-    this._regenQueue = [];
     this._collecting = false;
     this._localDataReference = [];
     this._primaryKey = null;
     this._collectionSize = 0;
-    this._dependencyController = dependencyController;
+    this._global = dependencyController;
+    this._regenQueue = this._global.regenQueue;
     // any forward facing data properties need to be present before runtime, so we must map any indexes to the collection's data property in the constructor.
-    this.defineIndexes(indexes);
+    this.defineIndexes([...indexes, ...groups]);
 
     //  build a namespace tree that can be used by collections to access eachother
     this.mapFilterNamespaceToData(filters);
@@ -69,8 +70,8 @@ export default class Collection {
         return true;
       },
       get: (target, key, value) => {
-        if (this._dependencyController.record) {
-          this._dependencyController.dependenciesFound.push({
+        if (this._global.record) {
+          this._global.dependenciesFound.push({
             property: key,
             collection: this._name
           });
@@ -89,23 +90,26 @@ export default class Collection {
     for (let filter of loop) {
       let missingDependency = false;
       // open the door allowing each collection's data proxy to record which properties are accessed by this filter
-      this._dependencyController.record = true;
+      this._global.record = true;
 
       // execute the filter
-      this._filters[filter]({
-        // pass this collection's data as "data" to the filter
-        data: this.data,
-        // spread each collection's data to the filter
-        ...this._globalDataRefrence
-      });
+      this.executeFilter(filter);
 
-      let found = this._dependencyController.dependenciesFound;
+      let found = this._global.dependenciesFound;
 
       // data recorded, close door
-      this._dependencyController.record = false;
+      this._global.record = false;
 
       // empty the list of dependencies for next loop
-      this._dependencyController.dependenciesFound = [];
+      this._global.dependenciesFound = [];
+
+      let depGraph = this._global.dependencyGraph;
+
+      // if the dependency graph does not have an entry for this collection, make one
+      if (!depGraph[this._name]) depGraph[this._name] = {};
+
+      // if no entry for this filter, make one
+      if (!depGraph[this._name][filter]) depGraph[this._name][filter] = {};
 
       // loop over the found dependencies and register this filter as a child in the dependency graph
       for (let dependency of found) {
@@ -113,25 +117,36 @@ export default class Collection {
         if (this.checkForMissingDependency(dependency.property, filter))
           missingDependency = true;
 
-        // the address is the colleciton that contains the dependency
-        let address = this._dependencyController.dependencyGraph[
-          dependency.collection
-        ];
-        // property is the dependent filter name
+        // REGISTER DEPENDENCIES (the dependencies)
+        let ownProperty = depGraph[this._name][filter];
+
+        if (ownProperty.dependencies) {
+          ownProperty.dependencies.push({
+            collection: this._name,
+            property: dependency.property
+          });
+        } else {
+          ownProperty.dependencies = [
+            {
+              collection: this._name,
+              property: dependency.property
+            }
+          ];
+        }
+        // REGISTER ON FOREIGN PROPERTIES (the dependants)
+        let foreignDep = depGraph[dependency.collection];
         let property = dependency.property;
 
         // if there is already an entry for this property
-        if (address[property]) {
-          let entry = address[property];
-
+        if (foreignDep[property]) {
+          let entry = foreignDep[property];
           entry.names.push(filter);
           entry.dependents.push({
             collection: dependency.collection,
             property: filter
           });
         } else {
-          let entry = (address[property] = {});
-
+          let entry = (foreignDep[property] = {});
           entry.names = [filter];
           entry.dependents = [
             {
@@ -143,21 +158,34 @@ export default class Collection {
       }
       // if there's no missing dependencies for this filter, mark is as generated so other filters know they are in the clear!
       if (!missingDependency)
-        this._dependencyController.generatedFilters.push(this._name + filter);
+        this._global.generatedFilters.push(this._name + filter);
     }
   }
 
   checkForMissingDependency(dependency, filter) {
     if (
-      this._dependencyController.allFilters.includes(dependency) &&
-      !this._dependencyController.generatedFilters.includes(
-        this._name + dependency
-      )
+      this._global.allFilters.includes(dependency) &&
+      !this._global.generatedFilters.includes(this._name + dependency)
     ) {
-      this._regenQueue.push(filter);
+      this._regenQueue.push({
+        type: "filter",
+        property: filter,
+        collection: this._name
+      });
       return true;
     }
     return false;
+  }
+
+  executeFilter(filter) {
+    this.data[filter] = this._filters[filter]({
+      // pass this collection's data as "data" to the filter
+      data: this.data,
+      // spread each collection's data to the filter
+      ...this._globalDataRefrence
+    });
+    this._global.generatedFilters.push(this._name + filter);
+    // update subscribers
   }
 
   filter(filter) {
@@ -175,7 +203,7 @@ export default class Collection {
     for (let filterName of loop) {
       // set the property to null, until we've parsed the filter
       this.data[filterName] = null;
-      this._dependencyController.allFilters.push(filterName);
+      this._global.allFilters.push(filterName);
     }
   }
 

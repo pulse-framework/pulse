@@ -21,12 +21,14 @@ class Store {
     collections.root = { data, indexes, actions, mutations, filters };
 
     // filter dependency tracker
-    this._dependencyController = {
+    this._global = {
       record: false,
       dependenciesFound: [],
       dependencyGraph: {},
       generatedFilters: [],
-      allFilters: []
+      allFilters: [],
+      regenQueue: [],
+      processAllRegenTasks: this.processAllRegenTasks
     };
 
     // init collections
@@ -40,6 +42,8 @@ class Store {
 
     // filters depend on other data properties, and we need to know what they are so when one thing changes, only the correct caches should regerate
     this.executeAllFilters();
+
+    // this.processAllRegen();
   }
 
   subscribe(context) {
@@ -58,7 +62,7 @@ class Store {
           errors: this._errors,
           updateSubscribers: this.updateSubscribers,
           globalDataRefrence: this._globalDataRefrence,
-          dependencyController: this._dependencyController
+          dependencyController: this._global
         },
         collections[index]
       );
@@ -72,7 +76,7 @@ class Store {
         this[index] = this._collections[index];
       }
       // add an empty index on the global dependency tree
-      this._dependencyController.dependencyGraph[index] = {};
+      this._global.dependencyGraph[index] = {};
     }
   }
 
@@ -93,6 +97,62 @@ class Store {
       this._collections[collection].analyseFilters();
     }
     // this.recordDependencyAccess = false;
+  }
+
+  processAllRegenTasks() {
+    while (this._global.regenQueue.length !== 0) {
+      let loop = Object.keys(this._collections);
+      for (let collection of loop) {
+        this._collections[collection].processRegenQueue();
+      }
+    }
+  }
+
+  processAllRegen() {
+    while (this._global.regenQueue) {
+      // this removes the first item of the array and saves it to `entry`
+      const entry = this._global.regenQueue.shift();
+
+      // different actions for different types of property, filters and indexes (groupes)
+      switch (entry.type) {
+        case "filter":
+          if (this.checkForMissingDependencies(entry)) {
+            this._collections[entry.collection].executeFilter();
+            console.log(
+              `Regenerated ${entry.property} for collection ${entry.collection}`
+            );
+            console.log(
+              `There are ${
+                this._global.regenQueue.length
+              } properties left to regenerate.`
+            );
+          } else {
+          }
+      }
+    }
+  }
+
+  checkForMissingDependencies({ type, property, collection }) {
+    let missingDependent = false;
+    console.log(type, property, collection);
+    let regenQueue = this._global.regenQueue;
+    let dependentCollection = this._global.dependencyGraph[collection];
+    console.log(dependentCollection);
+    let dependents = dependentCollection[property].dependents;
+    let generatedFilters = this._global.generatedFilters;
+
+    for (let obj of dependents) {
+      // if the dependent is not found on the list of generated properties
+      if (!generatedFilters.includes(obj.collection + obj.property)) {
+        missingDependent = true;
+        regenQueue.push({
+          type,
+          property,
+          collection
+        });
+      }
+    }
+    return missingDependent;
   }
 
   // Bind collection functions to root

@@ -8,7 +8,23 @@ const channels = {
       primaryKey: true
     }
   },
+  groups: [
+    "myChannels",
+    "subscribed",
+    "muted",
+    "unreadContent",
+    "suggested",
+    "favorites"
+  ],
+  data: {
+    channelOpened: true
+  },
   filters: {
+    testFour: ({ data, posts }) => {
+      if (data.testOne) {
+        return data.testThree;
+      }
+    },
     testOne: ({ data, posts }) => {
       if (data.channelOpened) {
         return posts.happy;
@@ -24,11 +40,6 @@ const channels = {
         return posts.happy;
       }
     }
-  },
-  data: {
-    myChannels: [],
-    selected: {},
-    channelOpened: true
   }
 };
 
@@ -40,42 +51,39 @@ const posts = {
   },
   // this is where you define any data you need, if you collect() data with the same name as a property matching one in your data, provided the type matches and its empty, it will be populated and cached
   data: {
-    favorites: [],
-    unread: [],
     happy: "Happy boy"
   },
   // filters are like getters, but support Pulse's filter API
   // the name of the filter is accessable via the collection's data property
+  groups: [
+    "myChannels",
+    "subscribed",
+    "muted",
+    "unreadContent",
+    "suggested",
+    "favorites"
+  ],
   filters: {
-    // orderByDate: {
-    //     from: "subscribed",
-    //     byProperty: "dateCreated"
-    // },
-    // myLive: ({ data }) => {}
-    // wasLive: ({ filter }) => {
-    //   return filter({
-    //     from: "subscribed",
-    //     isNotNull: ["liveEndDate", "liveStreamType"]
-    //   });
-    // }
-    // isLive({ filter }) {
-    //   return filter({
-    //     from: "orderByDate",
-    //     isNull: "liveEndDate",
-    //     isNotNull: "liveStreamType"
-    //   });
-    // },
-    // isLiveOnTwitch({ filter }) {
-    //   return filter({
-    //     from: "isLive",
-    //     isNull: "liveEndDate",
-    //     matching: {
-    //       liveStreamType: "twitch"
-    //     }
-    //   });
-  },
-  customFilter: ({ data }) => {
-    return data.subscribed;
+    testFour: ({ data, posts }) => {
+      if (data.favorites) {
+        return data.testThree;
+      }
+    },
+    testOne: ({ data, posts }) => {
+      if (data.channelOpened) {
+        return posts.happy;
+      }
+    },
+    testThree: ({ data, posts }) => {
+      if (data.testTwo) {
+        return posts.happy;
+      }
+    },
+    testTwo: ({ data, posts }) => {
+      if (data.channelOpened) {
+        return posts.happy;
+      }
+    }
   }
 };
 
@@ -95,7 +103,8 @@ const posts = {
 const store = new Pulse({
   collections: {
     channels,
-    posts
+    posts,
+    test: {}
   },
   indexes: ["jamie", "casey"],
   data: {

@@ -26,10 +26,10 @@ export default {
     console.log(this);
   },
   data: () => ({
-    // ...pulse.mapState(),
-    pulse: pulse,
     ...pulse.mapCollection("posts", ["selected", "favorites"]),
     ...pulse.mapCollection("channels"),
+
+    pulse: pulse,
     thing: ""
   }),
   computed: {},
