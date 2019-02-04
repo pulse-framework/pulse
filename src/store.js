@@ -24,18 +24,18 @@ const channels = {
       return data.myChannels;
     },
     testFour: ({ data, posts }) => {
-      if (data.testOne) {
-        return data.testThree;
+      if (data.muted) {
+        return data.suggested;
       }
     },
     testOne: ({ data, posts }) => {
-      if (data.channelOpened) {
+      if (data.channelOpened && data.favorites.length > 0) {
         return posts.happy;
       }
     },
     testThree: ({ data, posts }) => {
-      if (data.testTwo) {
-        return posts.happy;
+      if (posts.happy) {
+        return data.testOne;
       }
     },
     testTwo: ({ data, posts }) => {
@@ -58,35 +58,22 @@ const posts = {
   },
   // filters are like getters, but support Pulse's filter API
   // the name of the filter is accessable via the collection's data property
-  groups: [
-    "myChannels",
-    "subscribed",
-    "muted",
-    "unreadContent",
-    "suggested",
-    "favorites"
-  ],
+  groups: ["discover"],
   filters: {
-    testFour: ({ data, posts }) => {
-      if (data.favorites) {
-        return data.testThree;
-      }
-    },
-    testOne: ({ data, posts }) => {
-      if (data.channelOpened) {
-        return posts.happy;
-      }
-    },
-    testThree: ({ data, posts }) => {
-      if (data.testTwo) {
-        return posts.happy;
-      }
-    },
-    testTwo: ({ data, posts }) => {
-      if (data.channelOpened) {
-        return posts.happy;
-      }
-    }
+    // ooopsy: ({ data, channels }) => {
+    //   if (channels.favorites) {
+    //     return data.suggested;
+    //   }
+    // }
+    // lalala: ({ channels }) => {
+    //   return channels.favorites;
+    // },
+    // hahahaa: ({ data }) => {
+    //   return data.lalala;
+    // },
+    // no: ({ data }) => {
+    //   return data.hahahaa;
+    // }
   }
 };
 

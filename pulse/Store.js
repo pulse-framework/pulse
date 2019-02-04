@@ -75,8 +75,6 @@ class Store {
         // bind the collection class to the root state tree
         this[index] = this._collections[index];
       }
-      // add an empty index on the global dependency tree
-      this._global.dependencyGraph[index] = {};
     }
   }
 
@@ -142,8 +140,12 @@ class Store {
                 this._global.regenQueue.length
               } properties left to regenerate.`
             );
-          } else {
           }
+          break;
+        case "index":
+          // indexes can only have dependents, as they're based directly on the main data stucture, those dependents are filters.
+
+          break;
       }
     }
   }

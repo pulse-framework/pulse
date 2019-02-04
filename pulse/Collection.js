@@ -55,6 +55,8 @@ export default class Collection {
 
     //  build a namespace tree that can be used by collections to access eachother
     this.mapFilterNamespaceToData(filters);
+
+    this.prepareDependencyGraph();
   }
 
   // We shouldn't need to watch the data because it should only be modified by the collect function which handels propegating updates to subscribers automatically. But in the event that the user does modify the data manually, we should push that update to subscribers.
@@ -95,66 +97,29 @@ export default class Collection {
       // execute the filter
       this.executeFilter(filter);
 
-      let found = this._global.dependenciesFound;
-
       // data recorded, close door
+      let found = this._global.dependenciesFound;
       this._global.record = false;
-
       // empty the list of dependencies for next loop
       this._global.dependenciesFound = [];
 
       let depGraph = this._global.dependencyGraph;
 
-      // if the dependency graph does not have an entry for this collection, make one
-      if (!depGraph[this._name]) depGraph[this._name] = {};
-
-      // if no entry for this filter, make one
-      if (!depGraph[this._name][filter]) depGraph[this._name][filter] = {};
-
-      // loop over the found dependencies and register this filter as a child in the dependency graph
       for (let dependency of found) {
-        // if the dependency is a filter and has not yet been analysed, add this filter to the regen queue
         if (this.checkForMissingDependency(dependency.property, filter))
           missingDependency = true;
 
-        // REGISTER DEPENDENCIES (the dependencies)
-        let ownProperty = depGraph[this._name][filter];
-
-        if (ownProperty.dependencies) {
-          ownProperty.dependencies.push({
-            collection: this._name,
-            property: dependency.property
-          });
-        } else {
-          ownProperty.dependencies = [
-            {
-              collection: this._name,
-              property: dependency.property
-            }
-          ];
-        }
-        // REGISTER ON FOREIGN PROPERTIES (the dependants)
-        let foreignDep = depGraph[dependency.collection];
-        let property = dependency.property;
-
-        // if there is already an entry for this property
-        if (foreignDep[property]) {
-          let entry = foreignDep[property];
-          entry.names.push(filter);
-          entry.dependents.push({
-            collection: dependency.collection,
-            property: filter
-          });
-        } else {
-          let entry = (foreignDep[property] = {});
-          entry.names = [filter];
-          entry.dependents = [
-            {
-              collection: dependency.collection,
-              property: filter
-            }
-          ];
-        }
+        // Register dependents
+        depGraph[this._name][filter].dependencies.push({
+          collection: dependency.collection,
+          property: dependency.property
+        });
+        debugger;
+        // register this as a dependency for the forien property
+        depGraph[dependency.collection][dependency.property].dependents.push({
+          collection: this._name,
+          property: filter
+        });
       }
       // if there's no missing dependencies for this filter, mark is as generated so other filters know they are in the clear!
       if (!missingDependency)
@@ -175,6 +140,10 @@ export default class Collection {
       return true;
     }
     return false;
+  }
+
+  findAllDependents(collection, property) {
+    // let graph = this._global.dependencyGraph;
   }
 
   executeFilter(filter) {
@@ -204,6 +173,20 @@ export default class Collection {
       // set the property to null, until we've parsed the filter
       this.data[filterName] = null;
       this._global.allFilters.push(filterName);
+    }
+  }
+
+  prepareDependencyGraph() {
+    let graph = this._global.dependencyGraph;
+    graph[this._name] = {};
+    let loop = Object.keys(this.data);
+    for (let item of loop) {
+      graph[this._name][item] = {
+        dependencies: [],
+        dependents: [],
+        dependencyNames: [],
+        dependentNames: []
+      };
     }
   }
 
