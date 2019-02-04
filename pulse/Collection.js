@@ -258,7 +258,7 @@ export default class Collection {
     this._collecting = false;
     Log(`Collected ${data.length} items. With index: ${index}`);
 
-    this.processCacheRegenQueue();
+    this._global.processRegenQueue(true);
 
     // update indexes, bind the data and notify subscribers
     if (indexIsArray && index) {

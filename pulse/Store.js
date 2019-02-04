@@ -28,7 +28,7 @@ class Store {
       generatedFilters: [],
       allFilters: [],
       regenQueue: [],
-      processAllRegenTasks: this.processAllRegenTasks
+      processRegenQueue: this.processRegenQueue
     };
 
     // init collections
@@ -43,7 +43,7 @@ class Store {
     // filters depend on other data properties, and we need to know what they are so when one thing changes, only the correct caches should regerate
     this.executeAllFilters();
 
-    this.processAllRegen();
+    this.processRegenQueue();
   }
 
   subscribe(context) {
@@ -99,16 +99,25 @@ class Store {
     // this.recordDependencyAccess = false;
   }
 
-  processAllRegenTasks() {
-    while (this._global.regenQueue.length !== 0) {
-      let loop = Object.keys(this._collections);
-      for (let collection of loop) {
-        this._collections[collection].processRegenQueue();
-      }
-    }
-  }
+  // processRegenQueueTasks() {
+  //   while (this._global.regenQueue.length !== 0) {
+  //     let loop = Object.keys(this._collections);
+  //     for (let collection of loop) {
+  //       this._collections[collection].processRegenQueue();
+  //     }
+  //   }
+  // }
 
-  processAllRegen() {
+  processRegenQueue(scope) {
+    // if we called this function from the collection class
+    if (scope) this._global = this;
+
+    console.log(
+      `INFO: There are ${
+        this._global.regenQueue.length
+      } in the queue to process`
+    );
+    // for dev purposes, prevent infinate loop
     let whileSaftey = 0;
     while (this._global.regenQueue.length > 0) {
       whileSaftey++;
@@ -141,10 +150,8 @@ class Store {
 
   checkForMissingDependencies({ type, property, collection }) {
     let missingDependent = false;
-    console.log(type, property, collection);
     let regenQueue = this._global.regenQueue;
     let dependentCollection = this._global.dependencyGraph[collection];
-    console.log(dependentCollection);
     let dependencies = dependentCollection[property].dependencies;
     let generatedFilters = this._global.generatedFilters;
 

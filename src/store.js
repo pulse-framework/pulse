@@ -21,7 +21,7 @@ const channels = {
   },
   filters: {
     superFunTime: ({ data }) => {
-      return data.favorites;
+      return data.myChannels;
     },
     testFour: ({ data, posts }) => {
       if (data.testOne) {
