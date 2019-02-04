@@ -20,6 +20,9 @@ const channels = {
     channelOpened: true
   },
   filters: {
+    superFunTime: ({ data }) => {
+      return data.favorites;
+    },
     testFour: ({ data, posts }) => {
       if (data.testOne) {
         return data.testThree;

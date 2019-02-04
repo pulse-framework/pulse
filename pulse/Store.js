@@ -43,7 +43,7 @@ class Store {
     // filters depend on other data properties, and we need to know what they are so when one thing changes, only the correct caches should regerate
     this.executeAllFilters();
 
-    // this.processAllRegen();
+    this.processAllRegen();
   }
 
   subscribe(context) {
@@ -109,15 +109,22 @@ class Store {
   }
 
   processAllRegen() {
-    while (this._global.regenQueue) {
+    let whileSaftey = 0;
+    while (this._global.regenQueue.length > 0) {
+      whileSaftey++;
+      if (whileSaftey > 1000) {
+        assert(`You have a problem in the regen queue`);
+        break;
+      }
       // this removes the first item of the array and saves it to `entry`
       const entry = this._global.regenQueue.shift();
 
       // different actions for different types of property, filters and indexes (groupes)
+      // debugger;
       switch (entry.type) {
         case "filter":
           if (this.checkForMissingDependencies(entry)) {
-            this._collections[entry.collection].executeFilter();
+            this._collections[entry.collection].executeFilter(entry.property);
             console.log(
               `Regenerated ${entry.property} for collection ${entry.collection}`
             );
@@ -138,10 +145,12 @@ class Store {
     let regenQueue = this._global.regenQueue;
     let dependentCollection = this._global.dependencyGraph[collection];
     console.log(dependentCollection);
-    let dependents = dependentCollection[property].dependents;
+    let dependencies = dependentCollection[property].dependencies;
     let generatedFilters = this._global.generatedFilters;
 
-    for (let obj of dependents) {
+    for (let obj of dependencies) {
+      // ensure the dependency we're testing is a filter, not an index
+      if (!this._global.allFilters.includes(obj.property)) return;
       // if the dependent is not found on the list of generated properties
       if (!generatedFilters.includes(obj.collection + obj.property)) {
         missingDependent = true;
