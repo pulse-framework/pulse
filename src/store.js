@@ -70,7 +70,7 @@ const posts = {
       return posts.liveOnTwitch.filter(post => post.owner === 1);
     },
     liveOnTwitch: ({ posts }) => {
-      return posts.livePosts.filter(post => post.liveStreamPost === "twitch");
+      return posts.livePosts.filter(post => post.liveStreamType === "twitch");
     },
     livePosts: ({ posts }) => {
       return posts.feed.filter(post => post.liveStreamType !== null);
