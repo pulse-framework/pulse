@@ -1,5 +1,5 @@
 // prettier-ignore
-import Pulse from '../pulse'
+import Pulse from '../lib'
 
 const channels = {
   model: {
@@ -19,74 +19,58 @@ const channels = {
   data: {
     channelOpened: true
   },
-  filters: {
-    // superFunTime: ({ data }) => {
-    //   return data.myChannels;
-    // },
-    // testFour: ({ data, posts }) => {
-    //   if (data.muted) {
-    //     return data.suggested;
-    //   }
-    // },
-    testOne: ({ data, posts }) => {
-      if (data.testThree) {
-        return data.suggested;
-      }
-    },
-    testThree: ({ data, posts }) => {
-      return true;
-    }
-    // testTwo: ({ data, posts }) => {
-    //   if (data.channelOpened) {
-    //     return posts.happy;
-    //   }
-    // }
-  }
+  filters: {}
+  // // requires the a complete model with correct data types
+  // async onMissingKey({request, collect}, key) {
+  //   let res = await instance.request.get(`url/${key}`)
+  //   collect(res.data.posts)
+  //   collect()
+  // },
+  // // requires that the component specify the data it requires
+  // async onIncompleteData(instance, key) {
+  //   let res = await instance.request.get(`url/${key}`)
+  //   instance.$post.collect(res.data)
+  // }
+  // };
 };
 
 const posts = {
   model: {
-    dateCreated: {
+    id: {
       primaryKey: true
     }
   },
-  // this is where you define any data you need, if you collect() data with the same name as a property matching one in your data, provided the type matches and its empty, it will be populated and cached
+  groups: ["feed"],
   data: {
-    happy: "Happy boy"
+    liveStreamPost: false,
+    postSent: false,
+    newPost: false
   },
-  // filters are like getters, but support Pulse's filter API
-  // the name of the filter is accessable via the collection's data property
-  groups: ["discover"],
+  routes: {
+    newPost: ({ request }, post) => request.post(`/post/new`, post),
+    getbyFeedByTimestamp: ({ request }, timestamp) =>
+      request.get(`post/for/${id}/${new Date(timestamp).getTime()}`)
+  },
+  actions: {
+    async scrape({ routes }, link) {
+      return routes.scrape();
+    }
+  },
   filters: {
-    // ooopsy: ({ data, channels }) => {
-    //   if (channels.favorites) {
-    //     return data.suggested;
-    //   }
-    // }
-    // lalala: ({ channels }) => {
-    //   return channels.favorites;
-    // },
-    // hahahaa: ({ data }) => {
-    //   return data.lalala;
-    // },
-    // no: ({ data }) => {
-    //   return data.hahahaa;
-    // }
+    liveOnTwitchButJamieAGAIN: ({ posts }) => {
+      return posts.liveOnTwitchButJamie;
+    },
+    liveOnTwitchButJamie: ({ posts }) => {
+      return posts.liveOnTwitch.filter(post => post.owner === 1);
+    },
+    liveOnTwitch: ({ posts }) => {
+      return posts.livePosts.filter(post => post.liveStreamPost === "twitch");
+    },
+    livePosts: ({ posts }) => {
+      return posts.feed.filter(post => post.liveStreamType !== null);
+    }
   }
 };
-
-// // requires the a complete model with correct data types
-// async onMissingKey({request, collect}, key) {
-//   let res = await instance.request.get(`url/${key}`)
-//   collect(res.data.posts)
-//   collect()
-// },
-// // requires that the component specify the data it requires
-// async onIncompleteData(instance, key) {
-//   let res = await instance.request.get(`url/${key}`)
-//   instance.$post.collect(res.data)
-// }
-// };
 
 const store = new Pulse({
   collections: {

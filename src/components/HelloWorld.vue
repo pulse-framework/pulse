@@ -26,8 +26,16 @@ export default {
     // console.log(this);
   },
   data: () => ({
+    //  map data from a specific collection
     ...pulse.mapCollection("posts", ["selected", "favorites"]),
-    ...pulse.mapCollection("channels"),
+
+    // map data from any collection with a custom name
+    ...pulse.mapData(({ posts, channels }) => {
+      return {
+        posts: posts.livePosts,
+        hahah: channels.favorites
+      };
+    }),
 
     pulse: pulse,
     thing: ""
@@ -36,7 +44,7 @@ export default {
   methods: {
     get(username) {
       axios
-        .get(`http://localhost:3000/channel/public/${username}`)
+        .get(`https://api.notify.me/channel/public/${username}`)
         .then(res => {
           if (username === "jamie")
             pulse.channels.collect([res.data.channel], "myChannels");
