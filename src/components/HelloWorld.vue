@@ -16,14 +16,14 @@ import axios from "axios";
 
 export default {
   mounted() {
-    setTimeout(() => {
-      console.log(pulse.channels.data.channelOpened);
-      console.log(pulse.channels.data);
-    }, 4000);
-    this.get("jamie");
-    this.get("casey");
-    this.get("ninja");
-    console.log(this);
+    // setTimeout(() => {
+    //   console.log(pulse.channels.data.channelOpened);
+    //   console.log(pulse.channels.data);
+    // }, 4000);
+    // this.get("jamie");
+    // this.get("casey");
+    // this.get("ninja");
+    // console.log(this);
   },
   data: () => ({
     ...pulse.mapCollection("posts", ["selected", "favorites"]),
@@ -36,7 +36,7 @@ export default {
   methods: {
     get(username) {
       axios
-        .get(`https://api.notify.me/channel/public/${username}`)
+        .get(`http://localhost:3000/channel/public/${username}`)
         .then(res => {
           if (username === "jamie")
             pulse.channels.collect([res.data.channel], "myChannels");

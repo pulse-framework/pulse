@@ -111,9 +111,10 @@ class Store {
     if (scope) this._global = this;
 
     console.log(
-      `INFO: There are ${
+      `INFO: Regen queue processing. There are ${
         this._global.regenQueue.length
-      } in the queue to process`
+      } in the queue.`,
+      this._global.regenQueue
     );
     // for dev purposes, prevent infinate loop
     let whileSaftey = 0;
@@ -130,23 +131,24 @@ class Store {
       // debugger;
       switch (entry.type) {
         case "filter":
-          if (this.checkForMissingDependencies(entry)) {
-            this._collections[entry.collection].executeFilter(entry.property);
-            console.log(
-              `Regenerated ${entry.property} for collection ${entry.collection}`
-            );
-            console.log(
-              `There are ${
-                this._global.regenQueue.length
-              } properties left to regenerate.`
-            );
-          }
+          this._collections[entry.collection].executeAndAnalyseFilter(
+            entry.property
+          );
+          console.log(
+            `Regenerated ${entry.property} for collection ${entry.collection}`
+          );
+          this._global.generatedFilters.push(entry.collection + entry.property);
           break;
         case "index":
           // indexes can only have dependents, as they're based directly on the main data stucture, those dependents are filters.
 
           break;
       }
+      console.log(
+        `There are ${
+          this._global.regenQueue.length
+        } properties left to regenerate.`
+      );
     }
   }
 

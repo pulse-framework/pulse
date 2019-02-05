@@ -83,55 +83,74 @@ export default class Collection {
     });
   }
 
-  // this is called by the main class once all collections have been constructed, it runs through each filter, executing the function. It  then uses the data proxy to detect which properties the filter wants to access, and saves them in a dependency graph.
+  // this is called by the main class once all collections have been constructed, it runs through each filter, executing the function. It  then uses the data proxy to detect which properties the filter wants to access, and saves them in a dependency graph. NOTE: If the filter has an if statement, and a property is
   analyseFilters() {
     if (!this._filters) return;
-
     let loop = Object.keys(this._filters);
-
     for (let filter of loop) {
-      let missingDependency = false;
-      // open the door allowing each collection's data proxy to record which properties are accessed by this filter
-      this._global.record = true;
-
-      // execute the filter
-      this.executeFilter(filter);
-
-      // data recorded, close door
-      let found = this._global.dependenciesFound;
-      this._global.record = false;
-      // empty the list of dependencies for next loop
-      this._global.dependenciesFound = [];
-
-      let depGraph = this._global.dependencyGraph;
-
-      for (let dependency of found) {
-        if (this.checkForMissingDependency(dependency.property, filter))
-          missingDependency = true;
-
-        // Register dependents
-        depGraph[this._name][filter].dependencies.push({
-          collection: dependency.collection,
-          property: dependency.property
-        });
-        debugger;
-        // register this as a dependency for the forien property
-        depGraph[dependency.collection][dependency.property].dependents.push({
-          collection: this._name,
-          property: filter
-        });
-      }
-      // if there's no missing dependencies for this filter, mark is as generated so other filters know they are in the clear!
-      if (!missingDependency)
-        this._global.generatedFilters.push(this._name + filter);
+      this.executeAndAnalyseFilter(filter);
     }
   }
+  // this is called by the local analyseFilters() loop and the main class during regen queue processing
+  executeAndAnalyseFilter(filter) {
+    console.log(`[INFO ] Analysing filter "${filter}"`);
+    // open the door allowing each collection's data proxy to record which properties are accessed by this filter
+    this._global.record = true;
 
+    // execute the filter
+    this.executeFilter(filter);
+
+    // data recorded, close door
+    let found = this._global.dependenciesFound;
+    this._global.record = false;
+    // empty the list of dependencies for next loop
+    this._global.dependenciesFound = [];
+
+    console.log("[INFO]: Dependents found: ", found);
+
+    let depGraph = this._global.dependencyGraph;
+
+    // preliminarily loop over dependencys to find missing dependents
+    for (let dependency of found) {
+      if (this.checkForMissingDependency(dependency.property, filter))
+        // don't register anything to dependency graph, this will get done once all depenecies are clear, avoids us having to check or prevent dependency graph from having duplicate entries.
+        return;
+    }
+
+    for (let dependency of found) {
+      // Register dependencies
+      depGraph[this._name][filter].dependencies.push({
+        collection: dependency.collection,
+        property: dependency.property
+      });
+      console.log(
+        `saved ${filter} as a dependency of ${dependency.property}`,
+        depGraph[this._name][filter]
+      );
+      // register this as a dependency for the foreign property
+      depGraph[dependency.collection][dependency.property].dependents.push({
+        collection: this._name,
+        property: filter
+      });
+      console.log(
+        `saved ${dependency.property} as a dependent of ${filter}`,
+        depGraph[dependency.collection][dependency.property]
+      );
+    }
+    // mark is as generated so other filters know they are in the clear!
+    this._global.generatedFilters.push(this._name + filter);
+  }
+
+  // ensure it is a filter that has not been generated yet, if it hasn't we should save it to the queue to be checked again after more have been analysed
   checkForMissingDependency(dependency, filter) {
+    let glob = this._global;
     if (
-      this._global.allFilters.includes(dependency) &&
-      !this._global.generatedFilters.includes(this._name + dependency)
+      glob.allFilters.includes(dependency) &&
+      !glob.generatedFilters.includes(this._name + dependency)
     ) {
+      console.log(
+        `[INFO]: Dependent "${dependency}" has not been analysed yet, saving this filter to regen queue.`
+      );
       this._regenQueue.push({
         type: "filter",
         property: filter,

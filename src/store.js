@@ -20,29 +20,27 @@ const channels = {
     channelOpened: true
   },
   filters: {
-    superFunTime: ({ data }) => {
-      return data.myChannels;
-    },
-    testFour: ({ data, posts }) => {
-      if (data.muted) {
+    // superFunTime: ({ data }) => {
+    //   return data.myChannels;
+    // },
+    // testFour: ({ data, posts }) => {
+    //   if (data.muted) {
+    //     return data.suggested;
+    //   }
+    // },
+    testOne: ({ data, posts }) => {
+      if (data.testThree) {
         return data.suggested;
       }
     },
-    testOne: ({ data, posts }) => {
-      if (data.channelOpened && data.favorites.length > 0) {
-        return posts.happy;
-      }
-    },
     testThree: ({ data, posts }) => {
-      if (posts.happy) {
-        return data.testOne;
-      }
-    },
-    testTwo: ({ data, posts }) => {
-      if (data.channelOpened) {
-        return posts.happy;
-      }
+      return true;
     }
+    // testTwo: ({ data, posts }) => {
+    //   if (data.channelOpened) {
+    //     return posts.happy;
+    //   }
+    // }
   }
 };
 
