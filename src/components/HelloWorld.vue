@@ -20,22 +20,22 @@ export default {
     //   console.log(pulse.channels.data.channelOpened);
     //   console.log(pulse.channels.data);
     // }, 4000);
-    // this.get("jamie");
+    this.get("jamie");
     // this.get("casey");
     // this.get("ninja");
     // console.log(this);
   },
   data: () => ({
     //  map data from a specific collection
-    ...pulse.mapCollection("posts", ["selected", "favorites"]),
+    ...pulse.mapCollection("posts"),
 
     // map data from any collection with a custom name
-    ...pulse.mapData(({ posts, channels }) => {
-      return {
-        posts: posts.livePosts,
-        hahah: channels.favorites
-      };
-    }),
+    // ...pulse.mapData(({ posts, channels }) => {
+    //   return {
+    //     posts: posts.livePosts,
+    //     hahah: channels.favorites
+    //   };
+    // }),
 
     pulse: pulse,
     thing: ""
@@ -44,13 +44,10 @@ export default {
   methods: {
     get(username) {
       axios
-        .get(`https://api.notify.me/channel/public/${username}`)
+        .get(`http://localhost:3000/channel/public/${username}`)
         .then(res => {
-          if (username === "jamie")
-            pulse.channels.collect([res.data.channel], "myChannels");
-          pulse.posts.collect(res.data.posts, "favorites");
+          pulse.posts.collect(res.data.posts, "feed");
           pulse.channels.collect(res.data.channel, res.data.channel.username);
-          pulse.collect(res.data.posts, res.data.channel.username);
         });
     },
     update() {

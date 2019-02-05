@@ -1,9 +1,13 @@
 import Vue from "vue";
 import App from "./App.vue";
 
-import store from "./store";
+import pulse from "./store";
 
 Vue.config.productionTip = false;
+
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").load();
+}
 
 import o from "vue-object-view";
 

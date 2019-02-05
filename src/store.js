@@ -19,7 +19,11 @@ const channels = {
   data: {
     channelOpened: true
   },
-  filters: {}
+  filters: {
+    test2: ({ posts }) => {
+      return posts.test;
+    }
+  }
   // // requires the a complete model with correct data types
   // async onMissingKey({request, collect}, key) {
   //   let res = await instance.request.get(`url/${key}`)
@@ -42,9 +46,10 @@ const posts = {
   },
   groups: ["feed"],
   data: {
+    currentFilter: "",
     liveStreamPost: false,
     postSent: false,
-    newPost: false
+    newPost: true
   },
   routes: {
     newPost: ({ request }, post) => request.post(`/post/new`, post),
@@ -57,8 +62,9 @@ const posts = {
     }
   },
   filters: {
+    // withFilter: ({ posts }) => {},
     liveOnTwitchButJamieAGAIN: ({ posts }) => {
-      return posts.liveOnTwitchButJamie;
+      if (posts.newPost) return posts.liveOnTwitchButJamie;
     },
     liveOnTwitchButJamie: ({ posts }) => {
       return posts.liveOnTwitch.filter(post => post.owner === 1);
@@ -68,11 +74,14 @@ const posts = {
     },
     livePosts: ({ posts }) => {
       return posts.feed.filter(post => post.liveStreamType !== null);
+    },
+    test: ({ posts }) => {
+      return posts.feed.filter(post => post.liveStreamType !== null);
     }
   }
 };
 
-const store = new Pulse({
+export default new Pulse({
   collections: {
     channels,
     posts,
@@ -110,5 +119,3 @@ const store = new Pulse({
     }
   }
 });
-
-export default store;
