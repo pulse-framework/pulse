@@ -7,8 +7,46 @@
     <!-- <VueObjectView v-model="pulse"/> -->
     <!-- <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>-->
+    <div class="deps">
+      <div
+        class="collection"
+        v-for="(collection, colIndex) in pulse._global.dependencyGraph"
+        :key="colIndex"
+      >
+        <h2>{{colIndex}}</h2>
+        <div class="filters">
+          <h3>Data</h3>
+          <div v-for="(filter, index) in collection" :key="index">
+            <div>{{index}}</div>
+            <div>{{typeof pulse._collections[colIndex].data[index]}}</div>
+            <div>[{{pulse._collections[colIndex].data[index].length}}]</div>
+            <br>
+          </div>
+        </div>
+      </div>
+      <div class="collection">
+        <h2>History</h2>
+        <div v-for="(item, index) in pulse._history" :key="index">
+          <div class="history_item">{{index}}</div>
+          <br>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style>
+.deps {
+  display: flex;
+  flex-direction: row;
+}
+.collection {
+  width: 300px;
+  flex-direction: column;
+  display: flex;
+}
+</style>
+
 
 <script>
 import pulse from "../store.js";

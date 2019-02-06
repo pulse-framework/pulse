@@ -20,9 +20,11 @@ const channels = {
     channelOpened: true
   },
   filters: {
-    test2: ({ posts }) => {
-      return posts.test;
-    }
+    // test2: ({ posts, channels }) => {
+    //   if (channels.channelOpened) {
+    //     return [...posts.test, ...posts.feed];
+    //   }
+    // }
   }
   // // requires the a complete model with correct data types
   // async onMissingKey({request, collect}, key) {
@@ -42,6 +44,10 @@ const posts = {
   model: {
     id: {
       primaryKey: true
+    },
+    owner: {
+      parent: "channels",
+      byProperty: "owner"
     }
   },
   groups: ["feed"],
@@ -63,15 +69,15 @@ const posts = {
   },
   filters: {
     // withFilter: ({ posts }) => {},
-    liveOnTwitchButJamieAGAIN: ({ posts }) => {
-      if (posts.newPost) return posts.liveOnTwitchButJamie;
-    },
-    liveOnTwitchButJamie: ({ posts }) => {
-      return posts.liveOnTwitch.filter(post => post.owner === 1);
-    },
-    liveOnTwitch: ({ posts }) => {
-      return posts.livePosts.filter(post => post.liveStreamType === "twitch");
-    },
+    // liveOnTwitchButJamieAGAIN: ({ posts }) => {
+    //   if (posts.newPost) return posts.newPost;
+    // },
+    // liveOnTwitchButJamie: ({ posts }) => {
+    //   return posts.liveOnTwitch.filter(post => post.owner === 1);
+    // },
+    // liveOnTwitch: ({ posts }) => {
+    //   return posts.livePosts.filter(post => post.liveStreamType === "twitch");
+    // },
     livePosts: ({ posts }) => {
       return posts.feed.filter(post => post.liveStreamType !== null);
     },
@@ -84,8 +90,7 @@ const posts = {
 export default new Pulse({
   collections: {
     channels,
-    posts,
-    test: {}
+    posts
   },
   indexes: ["jamie", "casey"],
   data: {
