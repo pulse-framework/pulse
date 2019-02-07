@@ -15,19 +15,32 @@
       >
         <h2>{{colIndex}}</h2>
         <div class="filters">
-          <h3>Data</h3>
-          <div v-for="(filter, index) in collection" :key="index">
-            <div>{{index}}</div>
-            <div>{{typeof pulse._collections[colIndex].data[index]}}</div>
-            <div>[{{pulse._collections[colIndex].data[index].length}}]</div>
-            <br>
+          <div class="data" v-for="(filter, filterName) in collection" :key="filterName">
+            <div class="dataProp">{{filterName}}</div>
+            <div
+              v-if="Array.isArray(pulse._collections[colIndex].data[filterName])"
+              class="propType"
+            >Array</div>
+            <div v-else class="propType">{{typeof pulse._collections[colIndex].data[filterName]}}</div>
+            <!-- <div>[{{pulse._collections[colIndex].data[index].length}}]</div> -->
+            <!-- <div class="dependencies_title">Dependencies</div> -->
+            <div class="dependencies">
+              <div
+                v-for="(dep, boop) in collection[filterName].dependencies"
+                :key="boop"
+                class="dependency"
+              >{{dep.collection}}/{{dep.property}}</div>
+            </div>
           </div>
         </div>
       </div>
       <div class="collection">
         <h2>History</h2>
         <div v-for="(item, index) in pulse._history" :key="index">
-          <div class="history_item">{{index}}</div>
+          <div
+            v-if="item.hasOwnProperty('collected')"
+            class="history_item"
+          >Collected {{item.collected.dataCollected.length || 0}} Items</div>
           <br>
         </div>
       </div>
@@ -41,9 +54,34 @@
   flex-direction: row;
 }
 .collection {
-  width: 300px;
+  width: 280px;
   flex-direction: column;
   display: flex;
+  padding-right: 10px;
+}
+.data {
+  border-radius: 5px;
+  margin-bottom: 10px;
+  background: #121212;
+  padding: 10px;
+}
+.dependencies {
+  display: flex;
+  flex-wrap: wrap;
+}
+.dependency {
+  margin-right: 5px;
+  margin-bottom: 5px;
+  padding: 2px 10px;
+  border-radius: 3px;
+  background: rgb(114, 83, 146);
+}
+.dataProp {
+  font-size: 15px;
+  font-weight: bold;
+}
+.propType {
+  font-size: 11px;
 }
 </style>
 
