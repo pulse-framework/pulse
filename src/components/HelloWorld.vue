@@ -29,7 +29,14 @@
                 v-for="(dep, boop) in collection[filterName].dependencies"
                 :key="boop"
                 class="dependency"
-              >{{dep.collection}}/{{dep.property}}</div>
+              >{{dep}}</div>
+            </div>
+            <div class="dependencies">
+              <div
+                v-for="(dep, boop) in collection[filterName].dependents"
+                :key="boop"
+                class="dependency dependent"
+              >{{dep}}</div>
             </div>
           </div>
         </div>
@@ -41,6 +48,10 @@
             v-if="item.hasOwnProperty('collected')"
             class="history_item"
           >Collected {{item.collected.dataCollected.length || 0}} Items</div>
+          <div
+            v-else-if="item.hasOwnProperty('regenerated')"
+            class="history_item"
+          >Regenerated {{item.regenerated.filtersRegenerated.length || 0}} filters {{item.regenerated.filtersRegenerated}}</div>
           <br>
         </div>
       </div>
@@ -76,6 +87,9 @@
   border-radius: 3px;
   background: rgb(114, 83, 146);
 }
+.dependent {
+  background: rgb(83, 146, 91);
+}
 .dataProp {
   font-size: 15px;
   font-weight: bold;
@@ -96,7 +110,7 @@ export default {
     //   console.log(pulse.channels.data.channelOpened);
     //   console.log(pulse.channels.data);
     // }, 4000);
-    this.get("jamie");
+    // this.get("jamie");
     // this.get("casey");
     // this.get("ninja");
     // console.log(this);
@@ -114,7 +128,7 @@ export default {
     // }),
 
     pulse: pulse,
-    thing: ""
+    thing: "jamie"
   }),
   computed: {},
   methods: {
@@ -123,7 +137,7 @@ export default {
         .get(`http://localhost:3000/channel/public/${username}`)
         .then(res => {
           pulse.posts.collect(res.data.posts, "feed");
-          pulse.channels.collect(res.data.channel, res.data.channel.username);
+          pulse.channels.collect(res.data.channel);
         });
     },
     update() {

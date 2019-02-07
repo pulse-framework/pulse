@@ -26,7 +26,7 @@ const channels = {
       }
     },
     gay: ({ posts, channels }) => {
-      if (channels.channelOpened) {
+      if (posts.postSent) {
         return [...posts.test];
       }
     }
@@ -74,8 +74,8 @@ const posts = {
   },
   filters: {
     withFilter: ({ posts }) => {},
-    liveOnTwitchButJamieAGAIN: ({ posts }) => {
-      if (posts.newPost) return posts.newPost;
+    liveOnTwitchButJamieAGAIN: ({ posts, channels }) => {
+      if (channels.channelOpened) return posts.newPost;
     },
     liveOnTwitchButJamie: ({ posts }) => {
       return posts.liveOnTwitch.filter(post => post.owner === 1);
@@ -97,7 +97,6 @@ export default new Pulse({
     channels,
     posts
   },
-  indexes: ["jamie", "casey"],
   data: {
     name: "",
     test: "Pulse is cool",
