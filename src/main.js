@@ -2,8 +2,8 @@ import Vue from "vue";
 import App from "./App.vue";
 
 import Pulse from "../lib";
-import pulse from "./pulse";
-Vue.use(Pulse, pulse);
+import config from "./config";
+Vue.use(Pulse, config);
 
 Vue.config.productionTip = false;
 
