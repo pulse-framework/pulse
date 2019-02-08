@@ -3,11 +3,10 @@
     <input v-model="thing">
     <Button v-on:click="get(thing)">Get Channel</Button>
     <Button v-on:click="logInstance">Log Instance</Button>
-    <Button v-on:click="update">Update Instance</Button>
     <!-- <VueObjectView v-model="pulse"/> -->
     <!-- <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>-->
-    <div class="deps">
+    <div v-if="pulse !== null" class="deps">
       <div
         class="collection"
         v-for="(collection, colIndex) in pulse._global.dependencyGraph"
@@ -114,6 +113,7 @@ export default {
     // this.get("casey");
     // this.get("ninja");
     // console.log(this);
+    this.pulse = this.$pulse;
   },
   data: () => ({
     //  map data from a specific collection
@@ -126,7 +126,7 @@ export default {
     //     hahah: channels.favorites
     //   };
     // }),
-
+    pulse: null,
     thing: "jamie"
   }),
   computed: {},
@@ -135,25 +135,22 @@ export default {
       axios
         .get(`http://localhost:3000/channel/public/${username}`)
         .then(res => {
-          pulse.posts.collect(res.data.posts, "feed");
-          pulse.channels.collect(res.data.channel);
+          this.$posts.collect(res.data.posts, "feed");
+          this.$channels.collect(res.data.channel);
         });
-    },
-    update() {
-      this.pulse = pulse;
     },
     changeTheme: () => {
       pulse.dispatch("switchTheme");
     },
     logInstance() {
-      console.log("PULSE INSTANCE", pulse);
+      console.log("PULSE INSTANCE", this.pulse);
     }
   },
   watch: {
     _() {
       alert("hi");
     }
-  },
+  }
   // beforeCreate() {
   //   pulse.subscribe(this);
   // }
