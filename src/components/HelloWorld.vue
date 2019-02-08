@@ -101,8 +101,8 @@
 
 
 <script>
-import pulse from "../store.js";
 import axios from "axios";
+// import { mapCollection } from '../../lib'
 
 export default {
   mounted() {
@@ -117,7 +117,7 @@ export default {
   },
   data: () => ({
     //  map data from a specific collection
-    ...pulse.mapCollection("posts"),
+    // ...mapCollection("posts"),
 
     // map data from any collection with a custom name
     // ...pulse.mapData(({ posts, channels }) => {
@@ -127,7 +127,6 @@ export default {
     //   };
     // }),
 
-    pulse: pulse,
     thing: "jamie"
   }),
   computed: {},
@@ -155,8 +154,8 @@ export default {
       alert("hi");
     }
   },
-  beforeCreate() {
-    pulse.subscribe(this);
-  }
+  // beforeCreate() {
+  //   pulse.subscribe(this);
+  // }
 };
 </script>

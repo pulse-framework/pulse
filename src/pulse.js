@@ -1,5 +1,4 @@
 // prettier-ignore
-import Pulse from '../lib'
 
 const channels = {
   model: {
@@ -92,7 +91,7 @@ const posts = {
   }
 };
 
-export default new Pulse({
+export default {
   collections: {
     channels,
     posts
@@ -127,4 +126,4 @@ export default new Pulse({
       return state.theme;
     }
   }
-});
+};
