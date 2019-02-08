@@ -10,7 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "dotenv": "^6.2.0",
