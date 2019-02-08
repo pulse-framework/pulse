@@ -113,7 +113,7 @@ export default {
     // this.get("jamie");
     // this.get("casey");
     // this.get("ninja");
-    // console.log(this);
+    // console.log(mapCollection);
     this.pulse = this.$pulse;
   },
   data: () => ({
@@ -127,11 +127,10 @@ export default {
     //   };
     // }),
     pulse: null,
-    thing: "jamie"
+    thing: "jamie",
+    ...mapCollection("posts")
   }),
-  computed: {
-    // ...mapCollection("posts")
-  },
+  computed: {},
   methods: {
     testUpdate() {
       this.$posts.update(4956, {
