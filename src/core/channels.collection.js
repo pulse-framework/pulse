@@ -22,7 +22,7 @@ export default {
   actions: {
     subscribe({ routes, undo, posts, channels }, id) {
       channels.put(id, "subscribed");
-      channels.incrementProperty(id, "subCount", 1);
+      channels.increment(id, "subCount", 1);
       routes
         .subscribe(id)
         .then(res => posts.collect(res.data.posts))

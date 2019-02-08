@@ -1,6 +1,6 @@
 {
   "name": "pulse-framework",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,8 +9,12 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
-  "author": "",
+  "author": "Jamie Pine",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jamiepine/pulse"
+  },
   "dependencies": {},
   "devDependencies": {
     "dotenv": "^6.2.0",

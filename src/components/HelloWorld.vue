@@ -3,6 +3,7 @@
     <input v-model="thing">
     <Button v-on:click="get(thing)">Get Channel</Button>
     <Button v-on:click="logInstance">Log Instance</Button>
+    <Button v-on:click="testUpdate">testUpdate</Button>
     <!-- <VueObjectView v-model="pulse"/> -->
     <!-- <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>-->
@@ -101,7 +102,7 @@
 
 <script>
 import axios from "axios";
-// import { mapCollection } from '../../lib'
+import { mapCollection } from "../../lib/Helpers";
 
 export default {
   mounted() {
@@ -117,7 +118,6 @@ export default {
   },
   data: () => ({
     //  map data from a specific collection
-    // ...mapCollection("posts"),
 
     // map data from any collection with a custom name
     // ...pulse.mapData(({ posts, channels }) => {
@@ -129,8 +129,15 @@ export default {
     pulse: null,
     thing: "jamie"
   }),
-  computed: {},
+  computed: {
+    // ...mapCollection("posts")
+  },
   methods: {
+    testUpdate() {
+      this.$posts.update(4956, {
+        alert: true
+      });
+    },
     get(username) {
       axios
         .get(`http://localhost:3000/channel/public/${username}`)
