@@ -12,8 +12,8 @@ Pulse is lightweight, modular and powerful, but most importantly, easy to unders
 ## Features
 
 - ⚙️ Modular stucture using "collections"
-- ❤ Famillar terminology
-- 🔮 Create data realtions between collections
+- ❤ Familiar terminology
+- 🔮 Create data relations between collections
 - ✨ Automatic data normalization
 - 👯 No data repetition
 - ⚡ Cached indexes for performance
