@@ -4,8 +4,10 @@ export default {
       primaryKey: true
     },
     owner: {
-      parent: "channels",
-      byProperty: "owner"
+      parent: "channels", // name of collection
+      assignTo: "channel", // name of property to assign to
+      include: [],
+      exclude: []
     }
   },
   groups: ["feed"],
