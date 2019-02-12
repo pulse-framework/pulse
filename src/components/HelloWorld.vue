@@ -106,10 +106,11 @@ import pulse from "../../lib";
 
 export default {
   mounted() {
-    // setTimeout(() => {
-    //   console.log(pulse.channels.data.channelOpened);
-    //   console.log(pulse.channels.data);
-    // }, 4000);
+    setTimeout(() => {
+      console.log("...");
+      // this.$pulse.posts.data.liveStreamPost = true;
+      this.$posts.data.liveStreamPost = [];
+    }, 3000);
     // this.get("jamie");
     // this.get("casey");
     // this.get("ninja");
