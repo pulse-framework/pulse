@@ -102,7 +102,7 @@
 
 <script>
 import axios from "axios";
-import { mapCollection } from "../../lib/Helpers";
+import pulse from "../../lib";
 
 export default {
   mounted() {
@@ -114,6 +114,7 @@ export default {
     // this.get("casey");
     // this.get("ninja");
     // console.log(mapCollection);
+
     this.pulse = this.$pulse;
   },
   data: () => ({
@@ -127,10 +128,11 @@ export default {
     //   };
     // }),
     pulse: null,
-    thing: "jamie",
-    ...mapCollection("posts")
+    thing: "jamie"
   }),
-  computed: {},
+  computed: {
+    ...pulse.mapCollection("posts", ["liveStreamPost", "loloololf"])
+  },
   methods: {
     testUpdate() {
       this.$posts.update(4956, {
