@@ -19,7 +19,7 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 - 🔥 Supports Vue, React and React Native
 - Provides a structure for basic application logic (requests, error logging, authentication)
 
-## install
+## Install
 
 ```
 npm i pulse-framework --save
@@ -89,7 +89,20 @@ You can assign data an "index" as you collect it. This is useful because it crea
 pulse.collect(somedata, "indexName");
 ```
 
-Inside pulse the index is simply an ordered array of primary keys for which data is built from. This makes it easy and effienct to sort and move and filter data, without moving or copying the original.
+You must define indexes in the collection config if you want them to be accessable by your components.
+
+```js
+channels: {
+  indexes: ['indexName', 'subscribed'],
+  // etc..
+  model: {},
+  data: {},
+  routes: {},
+  filters: {},
+}
+```
+
+Inside pulse the index is simply an ordered array of primary keys for which data is built from. This makes it easy and efficient to sort and move and filter data, without moving or copying the original.
 
 If you do not define an index when collecting data there is a default index named 'default' that contains everything that was collected without an index present (coming soon).
 
@@ -124,7 +137,31 @@ Pulse has the following "forward facing" data types for each collection
 - Indexes (cached arrays of data based on the index of primary keys)
 - Data (custom data, like state)
 - Filters (like getters, these are cached data based on filter functions you define)
-- Actions (these )
+- Actions (functions to do stuff)
+
+"Forward facing" means you can access them under the collection root namespace, like this:
+
+```js
+this.$channels.indexName; // array
+this.$channels.randomDataName; // boolean
+this.$channels.filterName; // cached array
+this.$channels.doSomething(); // function
+```
+
+This can be disabled (coming soon), if you prefer to seperate everything by type, like so:
+
+```js
+this.$channels.index.indexName; //array
+this.$channels.data.randomDataName; // boolean
+this.$channels.filters.filterName; // cached array
+this.$channels.actions.doSomething(); // function
+```
+
+For indexes, if you'd like to access the raw array of primary keys, instead of the constructed data you can under `rawIndex` (coming soon)
+
+```js
+this.$channels.rawIndex.indexName; // EG: [ 123, 1435, 34634 ]
+```
 
 ## Mutating data
 
@@ -135,6 +172,28 @@ this.$channels.currentlyEditingChannel = true;
 ```
 
 We don't need mutation functions like "commit" in VueX because we use Proxies to intercept your changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily.
+
+## Filters
+
+Filters allow you to alter data before passing it to your component without changing the original data, they're essencially getters in VueX.
+
+They're cached for performance, so each filter is analysed to see which data properties they depend on, and when those data properties change the appropriate filters regenerate.
+
+```js
+channels: {
+  indexes: ['indexName', 'subscribed'],
+  filters: {
+    liveChannels({ channels }) => {
+      return channels.subscribed.filter(channel => )
+    }
+  }
+
+}
+```
+
+## Models and Data Relations
+
+(coming soon)
 
 ## Actions
 
@@ -165,67 +224,18 @@ pulse.$channel.clean();
 pulse.$channel.undo();
 ```
 
-## Another example
+## Errors
 
-This might help you understand how you could use Pulse in a real world scenario
+(coming soon)
 
-```js
-new Pulse({
-  collections: {
-    // collection name
-    channels: {
-      // filters are bound to collection data and cached
-      filters: {
-        // if you collect data with a name corresponding to one of these, they'll be populated. EG: collect(data, 'suggested')
-        suggested: [],
-        // or if
-        favorites: [],
-        //
-        current: {}
-        // filters can also use our filter API
-        recentlyActive: ({ filter }) => {
-          return filter({
-            from: "subscribed",
-            byProperty: "lastActive"
-          });
-        }
-      },
+## Data Rejections
 
-      // a place to define any extra data properties your collection might need
-      // they're reactive and accesable directly, just like regular state
-      data: {
-        channelOpen: false,
-        tab: 'favorites'
-      },
+(coming soon)
 
-      // actions aren't required, but can do many things at once
-      actions: {
-        // first paramater is an object of any functions or collections to use from Pulse, everything after is yours.
-        async getSubscribedChannels({ request, collect, posts }, username) {
-          // built in request handler
-          let res = await request.get(`/channels/subscribed/${username}`);
-          // collect data
-          collect(res.data.channels, "subscribed");
-          // collect to a sister collection
-          posts.collect(res.data.posts, [
-            // save it under the namespace "subscribed"
-            "subscribed",
-            // also under the namespace of the username
-            res.data.channel.username
-          ]);
-        }
-      }
-    },
-    // collections don't need any paramaters to function
-    posts: {}
-  }
-});
-```
+## HTTP Requests
 
-From what we've just created, you can now use mapCollection to access data
+(coming soon)
 
-```js
-...mapCollection('channels', ['subscribed', 'recentlyActive', 'channelOpened'])
-```
+## Sockets
 
-As you can see we can access indexes, filters and regular data easily in our component, and it's all cached, reactive, and based on our collections internal database.
+(coming soon)
