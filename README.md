@@ -138,7 +138,7 @@ Pulse has the following namespaces for each collection
 - Filters (like getters, these are cached data based on filter functions you define)
 - Actions (functions to do stuff)
 
-"Forward facing" means you can access them under the collection root namespace, like this:
+By default, you can access them under the collection root namespace, like this:
 
 ```js
 this.$channels.indexName; // array
@@ -147,7 +147,7 @@ this.$channels.filterName; // cached array
 this.$channels.doSomething(); // function
 ```
 
-If you prefer to seperate everything by type, you can access aread of your collection like so:
+But if you prefer to seperate everything by type, you can access aread of your collection like so:
 
 ```js
 this.$channels.index.indexName; //array
