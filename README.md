@@ -5,8 +5,6 @@ To see what is ready to use at this stage, read PROGRESS.md
 
 Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native.
 
-Created by @jamiepine, @f3ltron and @joaof
-
 Pulse is lightweight, modular and powerful, but most importantly, easy to understand.
 
 ## Features
