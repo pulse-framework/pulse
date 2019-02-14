@@ -129,12 +129,12 @@ You can also assign custom names for the data properties within the component
 })
 ```
 
-## Data
+## Collection Namespace
 
-Pulse has the following "forward facing" data types for each collection
+Pulse has the following namespaces for each collection
 
 - Indexes (cached arrays of data based on the index of primary keys)
-- Data (custom data, like state)
+- Data (custom data, good for stuff related to a collection, but not part the main body of data like booleans and strings.)
 - Filters (like getters, these are cached data based on filter functions you define)
 - Actions (functions to do stuff)
 
@@ -166,13 +166,13 @@ this.$channels.rawIndex.indexName; // EG: [ 123, 1435, 34634 ]
 
 ## Mutating data
 
-Changing data in Pulse is easy, you just change it.
+Changing data in Pulse is easy, you just set it to a new value.
 
 ```js
 this.$channels.currentlyEditingChannel = true;
 ```
 
-We don't need mutation functions like "commit" in VueX because we use Proxies to intercept your changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily.
+We don't need mutation functions like VueX's "commit" because we use Proxies to intercept your changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily. (Intercepting and queueing coming soon)
 
 ## Collection Functions
 
@@ -194,14 +194,18 @@ this.$channels.collect(res.data.channel, "selected");
 
 // removes data via primary key from a collection
 this.$channels.delete(1234);
+(comming soon)
 
 // removes any data from a collection that is not currently refrenced in an index
 // it also clears the history, so undo will not work after you run clean.
 this.$channels.clean();
+(comming soon)
 
 // will undo the last action
 this.$channels.undo();
 ```
+
+(comming soon)
 
 ## Filters
 
@@ -223,7 +227,7 @@ channels: {
 
 ## Actions
 
-Actions are simply functions within your pulse collections that can be called externally. They're asyncronous and can return a promise. A
+Actions are simply functions within your pulse collections that can be called externally. They're asyncronous and can return a promise.
 
 ## Models and Data Relations
 
