@@ -23,12 +23,18 @@ Pulse is lightweight, modular and powerful, but most importantly, easy to unders
 - 🔥 Supports Vue, React and React Native
 - Provides a structure for basic application logic (requests, error logging, authentication)
 
+## install
+
+```
+npm i pulse-framework --save
+```
+
 ## Simple example
 
-Setting up pulse
+Manually setting up pulse without a framework
 
 ```js
-import Pulse from "pulse";
+import { PulseClass } from "pulse-framework";
 
 new Pulse({
   collections: {
@@ -38,7 +44,30 @@ new Pulse({
 });
 ```
 
-Pulse provides "collections" as a way to easily save data. They automatically handle normalizing and caching the data.
+## Pulse with VueJS
+
+```js
+import Pulse from "pulse-framework";
+
+Vue.use(Pulse, {
+  collections: {
+    channels: {},
+    posts: {}
+  }
+});
+```
+
+Now you can access collections and the entire Pulse instance on within Vue
+
+```js
+this.$channels;
+// or
+this.$pulse.channels;
+```
+
+## Collections
+
+Pulse provides "collections" as a way to easily save data. They automatically handle normalizing and caching the data. Each collection comes with database-like methods to manipulate data.
 
 Once you've defined a collection, you can begin saving data to it.
 
@@ -46,14 +75,10 @@ Once you've defined a collection, you can begin saving data to it.
 // basic api call
 let response = await axios.get(`http://datatime.lol/feed_me`);
 
-Pulse.$channels.collect(response.data);
+this.$channels.collect(response.data);
 ```
 
 Collecting data works like a commit in Vuex or a reducer in Redux, it handles preventing race conditions, saving history for time travel and normalizing the data.
-
-You can define collections easily, but the root of pulse is also a "collection", so to get started, you can just use `pulse.collect()`
-
-Otherwise collections are accessed with a \$ before the name like this: `pulse.$collectionName.collect()`
 
 ## Primary Keys
 
@@ -68,36 +93,56 @@ You can assign data an "index" as you collect it. This is useful because it crea
 pulse.collect(somedata, "indexName");
 ```
 
-You can now get that data using `mapData()`
+Inside pulse the index is simply an ordered array of primary keys for which data is built from. This makes it easy and effienct to sort and move and filter data, without moving or copying the original.
+
+If you do not define an index when collecting data there is a default index named 'default' that contains everything that was collected without an index present (coming soon).
+
+You can now get data using `mapCollection()`
 
 ```js
 // vue component example
+import { mapCollection } from "pulse-framework";
+
 export default {
   data() {
     return {
-      ...pulse.mapData("indexName")
+      ...mapCollection("channels", ["indexName", "subscribed"])
     };
   }
 };
 ```
 
-Or with a collection you can use `mapCollection()`
+You can also assign custom names for the data properties within the component
 
 ```js
-export default {
-  data() {
-    return {
-      ...pulse.mapCollection("collectionName", "indexName")
-    };
-  }
-};
+...mapCollection("channels", {
+  customName: 'indexName'
+  sub: 'subscribed'
+})
 ```
 
-You can define your own data properties too
+## Data
+
+Pulse has the following "forward facing" data types for each collection
+
+- Indexes (cached arrays of data based on the index of primary keys)
+- Data (custom data, like state)
+- Filters (like getters, these are cached data based on filter functions you define)
+- Actions (these )
+
+## Mutating data
+
+Changing data in Pulse is easy, you just change it.
+
+```js
+this.$channels.currentlyEditingChannel = true;
+```
+
+We don't need mutation functions like "commit" in VueX because we use Proxies to intercept your changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily.
 
 ## Actions
 
-These can happen within actions in pulse, or directly on your component.
+These can happen within actions in your pulse config files, or directly on your component.
 
 ```js
 // put data by id (or array of IDs) into another index
