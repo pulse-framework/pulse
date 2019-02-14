@@ -6,7 +6,7 @@ export default {
     owner: {
       parent: "channels", // name of collection
       assignTo: "channel", // name of property to assign to
-      include: [],
+      include: ["displayName", "avatar", "username"],
       exclude: []
     }
   },

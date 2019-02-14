@@ -1,7 +1,6 @@
 # Pulse
 
-**WARNING STILL IN DEVELOPMENT**
-To see what is ready to use at this stage, read PROGRESS.md
+**WARNING STILL IN DEVELOPMENT** Features that are not working yet are marked as "coming soon". If you wish contribute and you understand what is needed to build one of these features, reach out via an issue, twitter dm @jamiepine or Discord jam#0001
 
 Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. Lightweight, modular and powerful, but most importantly easy to understand.
 
@@ -148,7 +147,7 @@ this.$channels.filterName; // cached array
 this.$channels.doSomething(); // function
 ```
 
-This can be disabled (coming soon), if you prefer to seperate everything by type, like so:
+If you prefer to seperate everything by type, you can access aread of your collection like so:
 
 ```js
 this.$channels.index.indexName; //array
@@ -156,6 +155,8 @@ this.$channels.data.randomDataName; // boolean
 this.$channels.filters.filterName; // cached array
 this.$channels.actions.doSomething(); // function
 ```
+
+If you're worried about namespace collision you can disable binding everything to the collection root and exclusively use the above method (coming soon)
 
 For indexes, if you'd like to access the raw array of primary keys, instead of the constructed data you can under `rawIndex` (coming soon)
 
@@ -172,6 +173,35 @@ this.$channels.currentlyEditingChannel = true;
 ```
 
 We don't need mutation functions like "commit" in VueX because we use Proxies to intercept your changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily.
+
+## Collection Functions
+
+These can happen within actions in your pulse config files, or directly on your component.
+
+```js
+// put data by id (or array of IDs) into another index
+this.$channels.put(2123, "selected");
+
+// move data by id (or array of IDs) into another index
+this.$channels.move([34, 3], "favorites", "muted");
+
+// change single or multiple properties in your data
+this.$channels.update(2123, {
+  avatar: "url"
+});
+// replace data (same as adding new data)
+this.$channels.collect(res.data.channel, "selected");
+
+// removes data via primary key from a collection
+this.$channels.delete(1234);
+
+// removes any data from a collection that is not currently refrenced in an index
+// it also clears the history, so undo will not work after you run clean.
+this.$channels.clean();
+
+// will undo the last action
+this.$channels.undo();
+```
 
 ## Filters
 
@@ -191,38 +221,13 @@ channels: {
 }
 ```
 
+## Actions
+
+Actions are simply functions within your pulse collections that can be called externally. They're asyncronous and can return a promise. A
+
 ## Models and Data Relations
 
 (coming soon)
-
-## Actions
-
-These can happen within actions in your pulse config files, or directly on your component.
-
-```js
-// put data by id (or array of IDs) into another index
-pulse.$channel.put(2123, "selected");
-
-// move data by id (or array of IDs) into another index
-pulse.$channel.move([34, 3], "favorites", "muted");
-
-// change single or multiple properties in your data
-pulse.$channel.update(2123, {
-  avatar: "url"
-});
-// replace data (same as adding new data)
-pulse.$channel.collect(res.data.channel, "selected");
-
-// removes data via primary key from a collection
-pulse.$channel.delete(1234);
-
-// removes any data from a collection that is not currently refrenced in an index
-// it also clears the history, so undo will not work after you run clean.
-pulse.$channel.clean();
-
-// will undo the last action
-pulse.$channel.undo();
-```
 
 ## Errors
 
@@ -239,3 +244,5 @@ pulse.$channel.undo();
 ## Sockets
 
 (coming soon)
+
+If you'd like to see a full example of how everything here can be used, check out examples in src/core
