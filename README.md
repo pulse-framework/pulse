@@ -93,7 +93,9 @@ Lukily if your data has `id` or `_id` as a property, we'll use that automaticall
 
 ## Groups
 
-You can assign data an "index" as you collect it. This is useful because it creates a cache under that name where you can access that data on your component.
+You can assign data a "group" as you collect it. This is useful because it creates a cache under that namespace where you can access that data on your component. The group will regenerate if any of its data changes.
+
+Groups create arrays of IDs called indexes internally within Pulse, which are arrays of primary keys used to build data.
 
 ```js
 pulse.collect(somedata, "groupName");
