@@ -102,14 +102,15 @@
 
 <script>
 import axios from "axios";
-import pulse from "../../lib";
+import Pulse from "pulse-framework";
 
 export default {
   mounted() {
     setTimeout(() => {
       console.log("...");
+      console.log(this);
       // this.$pulse.posts.data.liveStreamPost = true;
-      this.$posts.data.liveStreamPost = [];
+      this.$posts.liveStreamPost = [];
     }, 3000);
     // this.get("jamie");
     // this.get("casey");
@@ -132,7 +133,7 @@ export default {
     thing: "jamie"
   }),
   computed: {
-    ...pulse.mapCollection("posts", ["liveStreamPost", "loloololf"])
+    ...Pulse.mapCollection("posts", ["liveStreamPost", "loloololf"])
   },
   methods: {
     testUpdate() {

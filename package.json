@@ -1,6 +1,6 @@
 {
   "name": "pulse-framework",
-  "version": "1.0.5",
+  "version": "1.0.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,5 +16,15 @@
     "url": "https://github.com/jamiepine/pulse"
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "dotenv": "^6.2.0",
+    "axios": "^0.18.0",
+    "vue": "^2.5.22",
+    "eslint-config-prettier": "^4.0.0",
+    "prettier": "1.16.3",
+    "@vue/cli-plugin-babel": "^3.3.0",
+    "@vue/cli-service": "^3.3.0",
+    "babel-eslint": "^10.0.1",
+    "vue-template-compiler": "^2.5.21"
+  }
 }
