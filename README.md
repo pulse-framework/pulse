@@ -1,6 +1,6 @@
 # Pulse
 
-**WARNING STILL IN DEVELOPMENT** Features that are not working yet are marked as "coming soon". If you wish contribute and you understand what is needed to build one of these features, reach out via an issue, twitter dm @jamiepine or Discord jam#0001
+**WARNING STILL IN DEVELOPMENT** Features that are not working yet are marked as "coming soon". If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001
 
 Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. Lightweight, modular and powerful, but most importantly easy to understand.
 
@@ -11,12 +11,16 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 - 🔮 Create data relations between collections
 - ✨ Automatic data normalization
 - 👯 No data repetition
-- ⚡ Cached indexes for performance
-- 🕰️ History tracking
-- 📕 Error logging
-- 🔒 Bad data protection
+- ⚡ Cached data & filters with dependency based regeneration
+- 🔒 Model based data validation
+- 🕰️ History tracking with smart undo functions
+- 📕 Error logging & snapshot bug reporting
+- 💾 Optional persisted state
+- 📞 API for HTTP requests and websocket connections
+- 🔧 Wappers for helpers, utilities and service workers
+- 🔑 Pre-built authentication layer
+- 🚧 Task queuing for race condition prevention
 - 🔥 Supports Vue, React and React Native
-- Provides a structure for basic application logic (requests, error logging, authentication)
 
 ## Install
 
@@ -24,12 +28,12 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 npm i pulse-framework --save
 ```
 
-## Simple example
+## Vanilla Setup
 
 Manually setting up pulse without a framework
 
 ```js
-import { PulseClass } from "pulse-framework";
+import { Pulse } from "pulse-framework";
 
 new Pulse({
   collections: {
@@ -39,7 +43,7 @@ new Pulse({
 });
 ```
 
-## Pulse with VueJS
+## Setup with VueJS
 
 ```js
 import Pulse from "pulse-framework";
@@ -52,13 +56,20 @@ Vue.use(Pulse, {
 });
 ```
 
+## Basic Usage
+
 Now you can access collections and the entire Pulse instance on within Vue
 
 ```js
 this.$channels;
 // or
 this.$pulse.channels;
+
+// without vue
+pulse.channels;
 ```
+
+Going forward examples are written using `this.collectionName` which is
 
 ## Collections
 
@@ -80,19 +91,19 @@ Collecting data works like a commit in Vuex or a reducer in Redux, it handles pr
 Because we need to normalize the data for Pulse collections to work, each piece of data must have a primary key, this has to be unique to avoid data being overwritten.
 Lukily if your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section below.
 
-## Indexes
+## Groups
 
 You can assign data an "index" as you collect it. This is useful because it creates a cache under that name where you can access that data on your component.
 
 ```js
-pulse.collect(somedata, "indexName");
+pulse.collect(somedata, "groupName");
 ```
 
-You must define indexes in the collection config if you want them to be accessable by your components.
+You must define groups in the collection config if you want them to be accessable by your components.
 
 ```js
 channels: {
-  indexes: ['indexName', 'subscribed'],
+  groups: ['groupName', 'subscribed'],
   // etc..
   model: {},
   data: {},
@@ -101,9 +112,9 @@ channels: {
 }
 ```
 
-Inside pulse the index is simply an ordered array of primary keys for which data is built from. This makes it easy and efficient to sort and move and filter data, without moving or copying the original.
+Inside pulse the groups is simply an ordered array of primary keys for which data is built from. This makes it easy and efficient to sort and move and filter data, without moving or copying the original.
 
-If you do not define an index when collecting data there is a default index named 'default' that contains everything that was collected without an index present (coming soon).
+If you do not define a group when collecting data there is a default group named 'default' that contains everything that was collected without an group present (coming soon).
 
 You can now get data using `mapCollection()`
 
@@ -114,7 +125,7 @@ import { mapCollection } from "pulse-framework";
 export default {
   data() {
     return {
-      ...mapCollection("channels", ["indexName", "subscribed"])
+      ...mapCollection("channels", ["groupName", "subscribed"])
     };
   }
 };
@@ -124,7 +135,7 @@ You can also assign custom names for the data properties within the component
 
 ```js
 ...mapCollection("channels", {
-  customName: 'indexName'
+  customName: 'groupName'
   sub: 'subscribed'
 })
 ```
@@ -133,7 +144,7 @@ You can also assign custom names for the data properties within the component
 
 Pulse has the following namespaces for each collection
 
-- Indexes (cached arrays of data based on the index of primary keys)
+- Groups (cached data based on arrays of primary keys)
 - Data (custom data, good for stuff related to a collection, but not part the main body of data like booleans and strings.)
 - Filters (like getters, these are cached data based on filter functions you define)
 - Actions (functions to do stuff)
@@ -141,7 +152,7 @@ Pulse has the following namespaces for each collection
 By default, you can access them under the collection root namespace, like this:
 
 ```js
-this.$channels.indexName; // array
+this.$channels.groupName; // array
 this.$channels.randomDataName; // boolean
 this.$channels.filterName; // cached array
 this.$channels.doSomething(); // function
@@ -150,7 +161,7 @@ this.$channels.doSomething(); // function
 But if you prefer to seperate everything by type, you can access aread of your collection like so:
 
 ```js
-this.$channels.index.indexName; //array
+this.$channels.group.groupName; //array
 this.$channels.data.randomDataName; // boolean
 this.$channels.filters.filterName; // cached array
 this.$channels.actions.doSomething(); // function
@@ -158,10 +169,10 @@ this.$channels.actions.doSomething(); // function
 
 If you're worried about namespace collision you can disable binding everything to the collection root and exclusively use the above method (coming soon)
 
-For indexes, if you'd like to access the raw array of primary keys, instead of the constructed data you can under `rawIndex` (coming soon)
+For groups, if you'd like to access the raw array of primary keys, instead of the constructed data you can under `index` (coming soon)
 
 ```js
-this.$channels.rawIndex.indexName; // EG: [ 123, 1435, 34634 ]
+this.$channels.index.groupName; // EG: [ 123, 1435, 34634 ]
 ```
 
 ## Mutating data
@@ -179,10 +190,10 @@ We don't need mutation functions like VueX's "commit" because we use Proxies to 
 These can happen within actions in your pulse config files, or directly on your component.
 
 ```js
-// put data by id (or array of IDs) into another index
+// put data by id (or array of IDs) into another group
 this.$channels.put(2123, "selected");
 
-// move data by id (or array of IDs) into another index
+// move data by id (or array of IDs) into another group
 this.$channels.move([34, 3], "favorites", "muted");
 
 // change single or multiple properties in your data
@@ -196,7 +207,7 @@ this.$channels.collect(res.data.channel, "selected");
 this.$channels.delete(1234);
 (comming soon)
 
-// removes any data from a collection that is not currently refrenced in an index
+// removes any data from a collection that is not currently refrenced in a group
 // it also clears the history, so undo will not work after you run clean.
 this.$channels.clean();
 (comming soon)
@@ -215,7 +226,7 @@ They're cached for performance, so each filter is analysed to see which data pro
 
 ```js
 channels: {
-  indexes: ['indexName', 'subscribed'],
+  groups: ['groupName', 'subscribed'],
   filters: {
     liveChannels({ channels }) => {
       return channels.subscribed.filter(channel => )
@@ -230,6 +241,14 @@ channels: {
 Actions are simply functions within your pulse collections that can be called externally. They're asyncronous and can return a promise.
 
 ## Models and Data Relations
+
+(coming soon)
+
+## Services
+
+Pulse provides a really handy container for c
+
+## Event Bus
 
 (coming soon)
 
