@@ -1,7 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
 
-import Pulse from "../lib";
+import Pulse from "pulse-framework";
 import core from "./core";
 
 Vue.use(Pulse, core);
