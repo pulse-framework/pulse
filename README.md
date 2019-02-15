@@ -20,6 +20,7 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 - 🔧 Wappers for helpers, utilities and service workers
 - 🔑 Pre-built authentication layer
 - 🚧 Task queuing for race condition prevention
+- 🚌 Event bus
 - 🔥 Supports Vue, React and React Native
 
 ## Install
@@ -116,19 +117,30 @@ channels: {
 
 Inside pulse the groups is simply an ordered array of primary keys for which data is built from. This makes it easy and efficient to sort and move and filter data, without moving or copying the original.
 
-If you do not define a group when collecting data there is a default group named 'default' that contains everything that was collected without an group present (coming soon).
+If you do not define a group when collecting data the 'default' group contains everything that was collected without a defined group name (coming soon).
 
-You can now get data using `mapCollection()`
+## Using data
+
+Inside your component you can return any data from Pulse very easily.
+
+```js
+// VueJS computed properties
+computed: {
+  subscribedChannels() {
+    return this.$channels.subscribed
+  }
+}
+```
+
+A better way to import data would be using `mapCollection()`
 
 ```js
 // vue component example
 import { mapCollection } from "pulse-framework";
 
 export default {
-  data() {
-    return {
+  computed() {
       ...mapCollection("channels", ["groupName", "subscribed"])
-    };
   }
 };
 ```
@@ -147,11 +159,11 @@ You can also assign custom names for the data properties within the component
 Pulse has the following namespaces for each collection
 
 - Groups (cached data based on arrays of primary keys)
-- Data (custom data, good for stuff related to a collection, but not part the main body of data like booleans and strings.)
+- Data (custom data, good for stuff related to a collection, but not part the main body of data like booleans and strings)
 - Filters (like getters, these are cached data based on filter functions you define)
 - Actions (functions to do stuff)
 
-By default, you can access them under the collection root namespace, like this:
+By default, you can access everything under the collection root namespace, like this:
 
 ```js
 this.$channels.groupName; // array
@@ -160,10 +172,10 @@ this.$channels.filterName; // cached array
 this.$channels.doSomething(); // function
 ```
 
-But if you prefer to seperate everything by type, you can access aread of your collection like so:
+But if you prefer to seperate everything by type, you can access areas of your collection like so:
 
 ```js
-this.$channels.group.groupName; //array
+this.$channels.groups.groupName; //array
 this.$channels.data.randomDataName; // boolean
 this.$channels.filters.filterName; // cached array
 this.$channels.actions.doSomething(); // function
@@ -185,7 +197,7 @@ Changing data in Pulse is easy, you just set it to a new value.
 this.$channels.currentlyEditingChannel = true;
 ```
 
-We don't need mutation functions like VueX's "commit" because we use Proxies to intercept your changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily. (Intercepting and queueing coming soon)
+We don't need mutation functions like VueX's "commit" because we use Proxies to intercept changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily. (Intercepting and queueing coming soon)
 
 ## Collection Functions
 
@@ -207,18 +219,16 @@ this.$channels.collect(res.data.channel, "selected");
 
 // removes data via primary key from a collection
 this.$channels.delete(1234);
-(comming soon)
+// (comming soon)
 
 // removes any data from a collection that is not currently refrenced in a group
 // it also clears the history, so undo will not work after you run clean.
 this.$channels.clean();
-(comming soon)
+// (comming soon)
 
 // will undo the last action
 this.$channels.undo();
 ```
-
-(comming soon)
 
 ## Filters
 

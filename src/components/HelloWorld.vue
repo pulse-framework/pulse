@@ -18,10 +18,10 @@
           <div class="data" v-for="(filter, filterName) in collection" :key="filterName">
             <div class="dataProp">{{filterName}}</div>
             <div
-              v-if="Array.isArray(pulse._collections[colIndex].data[filterName])"
+              v-if="Array.isArray(pulse._collections[colIndex][filterName])"
               class="propType"
             >Array</div>
-            <div v-else class="propType">{{typeof pulse._collections[colIndex].data[filterName]}}</div>
+            <div v-else class="propType">{{typeof pulse._collections[colIndex][filterName]}}</div>
             <!-- <div>[{{pulse._collections[colIndex].data[index].length}}]</div> -->
             <!-- <div class="dependencies_title">Dependencies</div> -->
             <div class="dependencies">

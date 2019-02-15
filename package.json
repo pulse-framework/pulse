@@ -10,7 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "author": "Jamie Pine",
-  "license": "ISC",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/jamiepine/pulse"
