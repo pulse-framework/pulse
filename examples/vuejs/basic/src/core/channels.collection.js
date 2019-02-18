@@ -36,10 +36,11 @@ export default {
     getRedditComments({ routes }) {
       routes.getRedditComments().then(console.log);
     },
-    getPublicChannel({ routes, channels }, username) {
+    getPublicChannel({ routes, channels, posts }, username) {
       routes.getPublicChannel(username).then(res => {
         console.log(res);
         channels.collect(res.channel, "suggested");
+        posts.collect(res.posts, "feed");
       });
     }
   },
