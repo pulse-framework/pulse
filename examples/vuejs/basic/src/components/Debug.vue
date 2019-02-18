@@ -4,7 +4,7 @@
     <Button v-on:click="get(thing)">Get Channel</Button>
     <Button v-on:click="logInstance">Log Instance</Button>
     <Button v-on:click="testUpdate">testUpdate</Button>
-    {{$posts.feed}}
+    {{$channels.channelOpened}}
     <!-- <VueObjectView v-model="pulse"/> -->
     <!-- <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>-->
