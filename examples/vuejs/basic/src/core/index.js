@@ -19,7 +19,9 @@ export default {
       self.set("theme", value);
     }
   },
-  request: {},
+  request: {
+    baseURL: "https://api.notify.me"
+  },
   actions: {
     switchTheme() {
       if (store.state.theme === "light") {
