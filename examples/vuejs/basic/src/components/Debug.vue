@@ -4,6 +4,7 @@
     <Button v-on:click="get(thing)">Get Channel</Button>
     <Button v-on:click="logInstance">Log Instance</Button>
     <Button v-on:click="testUpdate">testUpdate</Button>
+    {{$posts.feed}}
     <!-- <VueObjectView v-model="pulse"/> -->
     <!-- <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>-->
@@ -107,11 +108,9 @@ import Pulse from "pulse-framework";
 export default {
   mounted() {
     setTimeout(() => {
-      console.log("...");
-      console.log(this);
       // this.$pulse.posts.data.liveStreamPost = true;
       this.$channels.channelOpened = ["jeff"];
-      // this.$channels.getPublicChannel("jamie");
+      this.$channels.getPublicChannel("jamie");
     }, 3000);
     // this.get("jamie");
     // this.get("casey");
@@ -134,24 +133,15 @@ export default {
     thing: "jamie"
   }),
   computed: {
-    ...Pulse.mapCollection("posts", ["liveStreamPost", "loloololf"])
+    // theFeed() {
+    //   return this.$posts.feed;
+    // }
   },
   methods: {
     testUpdate() {
       this.$posts.update(4956, {
         alert: true
       });
-    },
-    get(username) {
-      axios
-        .get(`http://localhost:3000/channel/public/${username}`)
-        .then(res => {
-          this.$posts.collect(res.data.posts, "feed");
-          this.$channels.collect(res.data.channel);
-        });
-    },
-    changeTheme: () => {
-      pulse.dispatch("switchTheme");
     },
     logInstance() {
       console.log("PULSE INSTANCE", this.pulse);
