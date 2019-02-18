@@ -10,7 +10,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "dotenv": "^6.2.0",
-    "pulse-framework": "^1.0.4",
+    "pulse-framework": "^1.0.5",
     "vue": "^2.5.22"
   },
   "devDependencies": {
