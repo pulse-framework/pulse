@@ -111,6 +111,7 @@ export default {
       console.log(this);
       // this.$pulse.posts.data.liveStreamPost = true;
       this.$channels.channelOpened = false;
+      this.$channels.getPublicChannel("jamie");
     }, 3000);
     // this.get("jamie");
     // this.get("casey");

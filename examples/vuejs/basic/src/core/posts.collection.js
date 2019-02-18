@@ -17,6 +17,7 @@ export default {
     postSent: false,
     newPost: true
   },
+  persisted: ["currentFilter"],
   routes: {
     newPost: (request, post) => request.post(`/post/new`, post),
     getbyFeedByTimestamp: (request, timestamp) =>

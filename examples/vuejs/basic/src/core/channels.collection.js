@@ -16,17 +16,31 @@ export default {
   data: {
     channelOpened: true
   },
+  persist: ["channelOpened"],
   routes: {
-    subscribe: (request, id) => request.post(`/channels/subscribe/${id}`)
+    subscribe: (request, id) => request.post(`subscribe/${id}`),
+    getRedditComments: request => request.get(`r/all/comments.json`),
+    getPublicChannel: (request, username) =>
+      request.get("channel/public/" + username)
   },
   actions: {
     subscribe({ routes, undo, posts, channels }, id) {
+      console.log(posts);
       channels.put(id, "subscribed");
       channels.increment(id, "subCount", 1);
       routes
         .subscribe(id)
         .then(res => posts.collect(res.data.posts))
         .catch(() => undo());
+    },
+    getRedditComments({ routes }) {
+      routes.getRedditComments().then(console.log);
+    },
+    getPublicChannel({ routes, channels }, username) {
+      routes.getPublicChannel(username).then(res => {
+        console.log(res);
+        channels.collect(res.channel, "suggested");
+      });
     }
   },
   filters: {
