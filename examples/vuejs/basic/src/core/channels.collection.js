@@ -16,6 +16,7 @@ export default {
   data: {
     channelOpened: true
   },
+  persist: ["channelOpened"],
   routes: {
     subscribe: (request, id) => request.post(`subscribe/${id}`),
     getRedditComments: request => request.get(`r/all/comments.json`),
