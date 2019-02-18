@@ -34,7 +34,7 @@ npm i pulse-framework --save
 Manually setting up pulse without a framework
 
 ```js
-import { Pulse } from "pulse-framework";
+import { Pulse } from 'pulse-framework';
 
 new Pulse({
   collections: {
@@ -47,7 +47,7 @@ new Pulse({
 ## Setup with VueJS
 
 ```js
-import Pulse from "pulse-framework";
+import Pulse from 'pulse-framework';
 
 Vue.use(Pulse, {
   collections: {
@@ -99,7 +99,7 @@ You can assign data a "group" as you collect it. This is useful because it creat
 Groups create arrays of IDs called indexes internally within Pulse, which are arrays of primary keys used to build data.
 
 ```js
-pulse.collect(somedata, "groupName");
+pulse.collect(somedata, 'groupName');
 ```
 
 You must define groups in the collection config if you want them to be accessable by your components.
@@ -132,26 +132,10 @@ computed: {
 }
 ```
 
-A better way to import data would be using `mapCollection()`
+or directly within the template
 
-```js
-// vue component example
-import { mapCollection } from "pulse-framework";
-
-export default {
-  computed() {
-      ...mapCollection("channels", ["groupName", "subscribed"])
-  }
-};
-```
-
-You can also assign custom names for the data properties within the component
-
-```js
-...mapCollection("channels", {
-  customName: 'groupName'
-  sub: 'subscribed'
-})
+```HTML
+<div>{{ $channels.subscribed }}</div>
 ```
 
 ## Collection Namespace
@@ -205,17 +189,17 @@ These can happen within actions in your pulse config files, or directly on your 
 
 ```js
 // put data by id (or array of IDs) into another group
-this.$channels.put(2123, "selected");
+this.$channels.put(2123, 'selected');
 
 // move data by id (or array of IDs) into another group
-this.$channels.move([34, 3], "favorites", "muted");
+this.$channels.move([34, 3], 'favorites', 'muted');
 
 // change single or multiple properties in your data
 this.$channels.update(2123, {
-  avatar: "url"
+  avatar: 'url'
 });
 // replace data (same as adding new data)
-this.$channels.collect(res.data.channel, "selected");
+this.$channels.collect(res.data.channel, 'selected');
 
 // removes data via primary key from a collection
 this.$channels.delete(1234);
