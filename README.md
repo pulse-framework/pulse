@@ -34,7 +34,7 @@ npm i pulse-framework --save
 Manually setting up pulse without a framework
 
 ```js
-import { Pulse } from 'pulse-framework';
+import Pulse from 'pulse-framework';
 
 new Pulse({
   collections: {
@@ -49,12 +49,14 @@ new Pulse({
 ```js
 import Pulse from 'pulse-framework';
 
-Vue.use(Pulse, {
+const pulse = new Pulse({
   collections: {
     channels: {},
     posts: {}
   }
 });
+
+Vue.use(pulse);
 ```
 
 ## Basic Usage
