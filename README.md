@@ -80,11 +80,9 @@ this.$collectionTwo;
 pulse.collectionOne;
 ```
 
-Going forward examples are written using `this.collectionName` which is
-
 ## Collections
 
-Pulse provides "collections" as a way to easily save data. They automatically handle normalizing and caching the data. Each collection comes with database-like methods to manipulate data.
+Pulse provides "collections" as a way to easily save data. They automatically handle normalizing and caching data. Each collection comes with database-like methods to manipulate data.
 
 Once you've defined a collection, you can begin saving data to it.
 
@@ -92,22 +90,22 @@ Once you've defined a collection, you can begin saving data to it.
 collectionName.collect(someData);
 ```
 
-Collecting data works like a commit in Vuex or a reducer in Redux, it handles preventing race conditions, saving history for time travel and normalizing the data.
+Collecting data works like a commit in Vuex or a reducer in Redux, it handles data normalization, history and race condition prevention.
 
 ## Primary Keys
 
-Because we need to normalize the data for Pulse collections to work, each piece of data must have a primary key, this has to be unique to avoid data being overwritten.
-Lukily if your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section below.
+Because we need to normalize data for Pulse collections to work, each piece of data must have a primary key, this has to be unique to avoid data being overwritten.
+If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section below.
 
 ## Groups
 
 You can assign data a "group" as you collect it. This is useful because it creates a cache under that namespace where you can access that data on your component. The group will regenerate if any of its data changes.
 
-Groups create arrays of IDs called indexes internally within Pulse, which are arrays of primary keys used to build data.
-
 ```js
 collectionName.collect(somedata, 'groupName');
 ```
+
+Groups create arrays of IDs called "indexes" internally, which are arrays of primary keys used to build data. This makes handing the data much faster and efficient.
 
 You must define groups in the collection config if you want them to be accessable by your components.
 
@@ -116,10 +114,6 @@ collectionName: {
   groups: ['groupName', 'anotherGroupName'],
 }
 ```
-
-Inside pulse the groups is simply an ordered array of primary keys for which data is built from. This makes it easy and efficient to sort and move and filter data, without moving or copying the original.
-
-If you do not define a group when collecting data the 'default' group contains everything that was collected without a defined group name (coming soon).
 
 ## Using data
 
@@ -170,7 +164,7 @@ Pulse intergrates directly with local storage and session storage, and even has 
 }
 ```
 
-Local storage is the default, you don't need to use the storage object for it to work.
+Local storage is the default and you don't need to define a storage object for it to work.
 
 More features will be added to data persisting soon, such as custom storage per collection and more configuration options.
 
@@ -260,13 +254,15 @@ They're cached for performance, so each filter is analysed to see which data pro
 channels: {
   groups: ['groupName', 'subscribed'],
   filters: {
-    liveChannels({ channels }) => {
-      return channels.subscribed.filter(channel => )
+    liveChannels({ groups }) => {
+      return groups.subscribed.filter(channel => )
     }
   }
 
 }
 ```
+
+Filters have access to the context object which contains groups, data, filters and actions from this collection, and other collections under their namespace.
 
 ## Actions
 
@@ -275,8 +271,28 @@ Actions are simply functions within your pulse collections that can be called ex
 Actions recieve a context object as the first paramater, this includes every registered collection by name and the routes object.
 
 ```js
-actionName({ collectionOne, Collection2, routes });
+actionName({ collectionOne, CollectionTwo, routes, data });
 ```
+
+## Context Object
+
+Filters and actions recieve the "context" object the first paramater.
+
+| Name               | Type      | Description                                                              | Filters | Actions |
+| ------------------ | --------- | ------------------------------------------------------------------------ | ------- | ------- |
+| Collection Objects | Object(s) | For each collection within pulse, this is its public data and functions. | True    | True    |
+| routes             | Object    | The local routes for the current collection.                             | False   | True    |
+| actions            | Object    | The local actions for the current collection.                            | True    | True    |
+| filters            | Object    | The local filters for the current collection.                            | True    | True    |
+| groups             | Object    | The local groups for the current collection.                             | True    | True    |
+| findById           | Function  | A helper function to return data directly by primary key.                | True    | True    |
+| collect            | Function  | The collect function, to save data to this collection.                   | False   | True    |
+| put                | Function  | Insert data into a group by primary key.                                 | False   | True    |
+| move               | Function  | Move data from one group to another.                                     | False   | True    |
+| update             | Function  | Mutate properties of a data entry by primary key.                        | False   | True    |
+| delete             | Function  | Delete data.                                                             | False   | True    |
+| clear              | Function  | Remove unused data.                                                      | False   | True    |
+| undo               | Function  | Revert all changes made by this action.                                  | False   | True    |
 
 ## Models and Data Relations
 
