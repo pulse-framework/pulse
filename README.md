@@ -51,8 +51,17 @@ import Pulse from 'pulse-framework';
 
 const pulse = new Pulse({
   collections: {
-    channels: {},
-    posts: {}
+    collectionOne: {},
+    collectionTwo: {
+      model: {},
+      data: {},
+      groups: [],
+      persist: [],
+      routes: {},
+      actions: {},
+      filters: {}
+      // etc..
+    }
   }
 });
 
@@ -64,12 +73,11 @@ Vue.use(pulse);
 Now you can access collections and the entire Pulse instance on within Vue
 
 ```js
-this.$channels;
-// or
-this.$pulse.channels;
+this.$collectionOne;
+this.$collectionTwo;
 
 // without vue
-pulse.channels;
+pulse.collectionOne;
 ```
 
 Going forward examples are written using `this.collectionName` which is
@@ -81,10 +89,7 @@ Pulse provides "collections" as a way to easily save data. They automatically ha
 Once you've defined a collection, you can begin saving data to it.
 
 ```js
-// basic api call
-let response = await axios.get(`http://datatime.lol/feed_me`);
-
-this.$channels.collect(response.data);
+collectionName.collect(someData);
 ```
 
 Collecting data works like a commit in Vuex or a reducer in Redux, it handles preventing race conditions, saving history for time travel and normalizing the data.
@@ -101,19 +106,14 @@ You can assign data a "group" as you collect it. This is useful because it creat
 Groups create arrays of IDs called indexes internally within Pulse, which are arrays of primary keys used to build data.
 
 ```js
-pulse.collect(somedata, 'groupName');
+collectionName.collect(somedata, 'groupName');
 ```
 
 You must define groups in the collection config if you want them to be accessable by your components.
 
 ```js
-channels: {
-  groups: ['groupName', 'subscribed'],
-  // etc..
-  model: {},
-  data: {},
-  routes: {},
-  filters: {},
+collectionName: {
+  groups: ['groupName', 'anotherGroupName'],
 }
 ```
 
@@ -139,6 +139,40 @@ or directly within the template
 ```HTML
 <div>{{ $channels.subscribed }}</div>
 ```
+
+## Persisting Data
+
+To persist data use an array on your collection with the names of data properties you want to save locally.
+
+```js
+collectionName: {
+  data: {
+    haha: true;
+  }
+  persist: ['haha'];
+}
+```
+
+Pulse intergrates directly with local storage and session storage, and even has an api to configure your own storage.
+
+```js
+{
+  collections: {...}
+  // use session storage
+  storage: 'sessionStorage'
+  // use custom storage
+  storage: {
+    set: ...
+    get: ...
+    remove: ...
+    clear: ...
+  }
+}
+```
+
+Local storage is the default, you don't need to use the storage object for it to work.
+
+More features will be added to data persisting soon, such as custom storage per collection and more configuration options.
 
 ## Collection Namespace
 
@@ -237,6 +271,12 @@ channels: {
 ## Actions
 
 Actions are simply functions within your pulse collections that can be called externally. They're asyncronous and can return a promise.
+
+Actions recieve a context object as the first paramater, this includes every registered collection by name and the routes object.
+
+```js
+actionName({ collectionOne, Collection2, routes });
+```
 
 ## Models and Data Relations
 
