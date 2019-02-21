@@ -87,7 +87,7 @@ Pulse provides "collections" as a way to easily save data. They automatically ha
 Once you've defined a collection, you can begin saving data to it.
 
 ```js
-collectionName.collect(someData);
+collection.collect(someData);
 ```
 
 Collecting data works like a commit in Vuex or a reducer in Redux, it handles data normalization, history and race condition prevention.
@@ -102,7 +102,7 @@ If your data has `id` or `_id` as a property, we'll use that automatically, but 
 You can assign data a "group" as you collect it. This is useful because it creates a cache under that namespace where you can access that data on your component. The group will regenerate if any of its data changes.
 
 ```js
-collectionName.collect(somedata, 'groupName');
+collection.collect(somedata, 'groupName');
 ```
 
 Groups create arrays of IDs called "indexes" internally, which are arrays of primary keys used to build data. This makes handing the data much faster and efficient.
@@ -110,7 +110,7 @@ Groups create arrays of IDs called "indexes" internally, which are arrays of pri
 You must define groups in the collection config if you want them to be accessable by your components.
 
 ```js
-collectionName: {
+collection: {
   groups: ['groupName', 'anotherGroupName'],
 }
 ```
@@ -139,7 +139,7 @@ or directly within the template
 To persist data use an array on your collection with the names of data properties you want to save locally.
 
 ```js
-collectionName: {
+collection: {
   data: {
     haha: true;
   }
@@ -180,19 +180,19 @@ Pulse has the following namespaces for each collection
 By default, you can access everything under the collection root namespace, like this:
 
 ```js
-this.$channels.groupName; // array
-this.$channels.randomDataName; // boolean
-this.$channels.filterName; // cached array
-this.$channels.doSomething(); // function
+collection.groupName; // array
+collection.randomDataName; // boolean
+collection.filterName; // cached array
+collection.doSomething(); // function
 ```
 
 But if you prefer to seperate everything by type, you can access areas of your collection like so:
 
 ```js
-this.$channels.groups.groupName; //array
-this.$channels.data.randomDataName; // boolean
-this.$channels.filters.filterName; // cached array
-this.$channels.actions.doSomething(); // function
+collection.groups.groupName; //array
+collection.data.randomDataName; // boolean
+collection.filters.filterName; // cached array
+collection.actions.doSomething(); // function
 ```
 
 If you're worried about namespace collision you can disable binding everything to the collection root and exclusively use the above method (coming soon)
@@ -200,7 +200,7 @@ If you're worried about namespace collision you can disable binding everything t
 For groups, if you'd like to access the raw array of primary keys, instead of the constructed data you can under `index` (coming soon)
 
 ```js
-this.$channels.index.groupName; // EG: [ 123, 1435, 34634 ]
+collection.index.groupName; // EG: [ 123, 1435, 34634 ]
 ```
 
 ## Mutating data
@@ -208,7 +208,7 @@ this.$channels.index.groupName; // EG: [ 123, 1435, 34634 ]
 Changing data in Pulse is easy, you just set it to a new value.
 
 ```js
-this.$channels.currentlyEditingChannel = true;
+collection.currentlyEditingChannel = true;
 ```
 
 We don't need mutation functions like VueX's "commit" because we use Proxies to intercept changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily. (Intercepting and queueing coming soon)
@@ -219,29 +219,29 @@ These can happen within actions in your pulse config files, or directly on your 
 
 ```js
 // put data by id (or array of IDs) into another group
-this.$channels.put(2123, 'selected');
+collection.put(2123, 'selected');
 
 // move data by id (or array of IDs) into another group
-this.$channels.move([34, 3], 'favorites', 'muted');
+collection.move([34, 3], 'favorites', 'muted');
 
 // change single or multiple properties in your data
-this.$channels.update(2123, {
+collection.update(2123, {
   avatar: 'url'
 });
 // replace data (same as adding new data)
-this.$channels.collect(res.data.channel, 'selected');
+collection.collect(res.data.channel, 'selected');
 
 // removes data via primary key from a collection
-this.$channels.delete(1234);
+collection.delete(1234);
 // (comming soon)
 
 // removes any data from a collection that is not currently refrenced in a group
 // it also clears the history, so undo will not work after you run clean.
-this.$channels.clean();
+collection.clean();
 // (comming soon)
 
 // will undo the last action
-this.$channels.undo();
+collection.undo();
 ```
 
 ## Filters
@@ -312,11 +312,11 @@ Pulse provides a really handy container for c
 
 ## Data Rejections
 
-(coming soon)
+(implemented but description coming soon)
 
 ## HTTP Requests
 
-(coming soon)
+(implemented but description coming soon)
 
 ## Sockets
 
