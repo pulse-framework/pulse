@@ -80,6 +80,8 @@ this.$collectionTwo;
 pulse.collectionOne;
 ```
 
+**NOTE:** Going forward the examples will just use `collection` to represent a given collection.
+
 ## Collections
 
 Pulse provides "collections" as a way to easily save data. They automatically handle normalizing and caching data. Each collection comes with database-like methods to manipulate data.
