@@ -13,7 +13,7 @@ export default {
   },
   mutations: {
     changeName({ self }, val) {
-      state.name = val;
+      self.name = val;
     },
     changeTheme({ self }, value) {
       self.set("theme", value);
