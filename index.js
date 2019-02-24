@@ -1,3 +1,3 @@
-import Pulse from "./lib";
+const Pulse = require('./lib');
 
-export default Pulse;
+module.exports = Pulse;
