@@ -129,7 +129,7 @@ Inside your component you can return any data from Pulse very easily.
 // VueJS computed properties
 computed: {
   subscribedChannels() {
-    return this.$channels.subscribed
+    return this.channels.subscribed
   }
 }
 ```
@@ -137,7 +137,7 @@ computed: {
 or directly within the template
 
 ```HTML
-<div>{{ $channels.subscribed }}</div>
+<div>{{ channels.subscribed }}</div>
 ```
 
 ## Persisting Data

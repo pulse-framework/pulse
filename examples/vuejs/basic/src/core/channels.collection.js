@@ -70,4 +70,4 @@ export default {
   // };
 };
 
-// this.$channels.subscribe(1)
+// this.channels.subscribe(1)

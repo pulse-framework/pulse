@@ -4,7 +4,7 @@
     <Button v-on:click="get(thing)">Get Channel</Button>
     <Button v-on:click="logInstance">Log Instance</Button>
     <Button v-on:click="testUpdate">testUpdate</Button>
-    {{$channels.channelOpened}}
+    {{channels.channelOpened}}
     <!-- <VueObjectView v-model="pulse"/> -->
     <!-- <p>{{theme}}</p>
     <h1>Component 1: {{name}}</h1>-->
@@ -109,8 +109,8 @@ export default {
   mounted() {
     setTimeout(() => {
       // this.$pulse.posts.data.liveStreamPost = true;
-      this.$channels.channelOpened = ["jeff"];
-      this.$channels.getPublicChannel("jamie");
+      this.channels.channelOpened = ["jeff"];
+      this.channels.getPublicChannel("jamie");
     }, 3000);
     // this.get("jamie");
     // this.get("casey");
@@ -134,12 +134,12 @@ export default {
   }),
   computed: {
     // theFeed() {
-    //   return this.$posts.feed;
+    //   return this.posts.feed;
     // }
   },
   methods: {
     testUpdate() {
-      this.$posts.update(4956, {
+      this.posts.update(4956, {
         alert: true
       });
     },
