@@ -77,8 +77,8 @@ Vue.use(pulse);
 Now you can access collections and the entire Pulse instance on within Vue
 
 ```js
-this.$collectionOne;
-this.$collectionTwo;
+this.collectionOne;
+this.collectionTwo;
 
 // without vue
 pulse.collectionOne;
