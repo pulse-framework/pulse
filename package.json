@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config build/webpack.prod.js",
-    "dev": "webpack --config build/webpack.dev.js"
+    "build": "echo \"Building Pulse Framework...\" && webpack --config build/webpack.prod.js",
+    "dev": "webpack --config build/webpack.dev.js",
+    "install": "npm run build"
   },
   "author": "Jamie Pine",
   "license": "MIT",
