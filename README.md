@@ -20,9 +20,12 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 - 🚧 Task queuing for race condition prevention
 - ⏳ Timed interval task handler
 - 🚌 Event bus
+- 🍃 Lightweight (only 22KB) with 0 dependencies
 - 🔥 Supports Vue, React and React Native
 
 **Note:** Pulse is still in development, some features are not working yet. In this document they're marked as "coming soon".
+
+**React & React Native support coming soon!**
 
 If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001
 

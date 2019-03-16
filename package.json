@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "build": "webpack --config build/webpack.prod.js"
   },
   "author": "Jamie Pine",
   "license": "MIT",
@@ -17,8 +15,16 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "babel-eslint": "^10.0.1",
+    "clean-webpack-plugin": "^2.0.1",
     "eslint-config-prettier": "^4.0.0",
+    "html-webpack-plugin": "^3.2.0",
     "prettier": "1.16.3",
-    "babel-eslint": "^10.0.1"
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-merge": "^4.2.1"
   }
 }
