@@ -113,7 +113,21 @@ collection.collect(somedata, 'groupName');
 
 Groups create arrays of IDs called "indexes" internally, which are arrays of primary keys used to build data. This makes handing the data much faster and efficient.
 
-You must define groups in the collection config if you want them to be accessable by your components.
+Those indexes are also accessable if you need them, but in most cases they're just used by Pulse internally.
+
+```JSON
+collection: {
+  indexes: {
+    groupName: [ 1, 2, 3, 4, 5 ]
+  }
+}
+```
+
+Each time an index changes, the corresponding group rebuilds its data from the index. In the above case, `groupName` would be an array containing the data for primary keys 1-5.
+
+NOTE: You can modify the index directly and it will still trigger the group to regenerate.
+
+You must define groups in the collection config if you want them to be exposed on the collection publically so your components can read them drirectly.
 
 ```js
 collection: {
@@ -400,3 +414,73 @@ Pulse provides a really handy container for c
 ## Sockets
 
 (coming soon)
+
+## Extra information
+
+### Use case: groups
+
+To better help you understand how groups could be useful to you, here's an example of how Notify.me uses groups.
+Lets take `accounts` on Notify. Accounts can "favorite" and "mute" channels, on our API we store an array of channel ids that the user has muted, for example:
+
+```js
+account: {
+  id: 235624,
+  email: 'hello@jamiepine.com',
+  username: 'Jamie Pine',
+  muted: [12643, 34666, 34575],
+  favorites: [34634, 23535]
+}
+```
+
+When our API returns the `subscriptions` data, we will use the `muted` and `favorites` indexes on the `account` object to build groups of real data that our components can use.
+
+```js
+// Accounts collection
+accounts: {
+  actions: {
+    groups: ['authed'],
+    // after login, we get the user's account
+    refresh({ routes, accounts, channels }) {
+      routes.refresh().then(res => {
+        accounts.collect(res.account, 'authed')
+        // populate the indexes on the post collection
+        channels.put(res.account.muted, 'muted')
+        channels.put(res.account.favorites, 'favorites')
+      })
+    }
+  }
+}
+// Channels collection
+channels: {
+  channels: ['subscriptions', 'favorites', 'muted'],
+  actions: {
+    // get the subscriptions from the API
+    loadSubsciptions({ routes, collect }, channelId) {
+      routes.getSubscriptions(channelId).then(res => {
+        collect(res.subsciptions, 'subscriptions')
+      })
+    }
+  }
+}
+```
+
+When we finally call `loadSubsciptions()` the groups `favorites` and `muted` will already be populated with primary keys, so when the data is collected, 'favorites`and`muted` will regenerate with fully built data ready for the component.
+
+Now it's as easy as accessing `channels.favorites` from within Vue to render a list of favorite channels. Or we could write filters within pulse using the favorites group.
+
+To add a favorite channel, the action could look like this:
+
+```js
+channels: {
+  actions: {
+    favorite({ channels, routes, undo }, channelId) {
+      // update local data first
+      channels.put(channelId, 'favorites')
+      // make change on API in background
+      routes.favoriteChannel(channelId).catch(() => undo())
+    }
+  }
+}
+```
+
+If the API failed to make that change, `undo()` will revert every change made in this action.
