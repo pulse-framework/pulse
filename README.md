@@ -25,7 +25,7 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 
 ## Why Pulse?
 
-After exploring the many options for Javascript state libraries, including the popular VueX and Redux, I felt like I needed a simpler solution. I wanted to get more out of a library than just state management, I needed something that could provide solid structure for the entire application. Everything from data handling to sockets and HTTP requests. I built this framework reflective of the architecture in which we use at Notify.me, and as a replacement for VueX at Notify also, making sure it is also compatible with React and vanilla enviroments.
+After exploring the many options for Javascript state libraries, including the popular VueX and Redux, I felt like I needed a simpler solution. I wanted to get more out of a library than just state management, I needed something that could provide solid structure for the entire application. Everything from data handling to sockets and HTTP requests. I built this framework reflective of the architecture in which we use at Notify.me, and as a replacement for VueX at Notify also, making sure it is also compatible with React and vanilla environments.
 
 ## Install
 
