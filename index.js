@@ -1,3 +1,4 @@
-const Pulse = require('./dist/pulse.min.js');
-
-module.exports = Pulse;
+module.exports =
+  process.env.NODE_ENV === 'production'
+    ? require('./dist/pulse.min.js')
+    : require('./lib');
