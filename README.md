@@ -1,7 +1,5 @@
 # Pulse
 
-**WARNING STILL IN DEVELOPMENT** Features that are not working yet are marked as "coming soon". If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001
-
 Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. Lightweight, modular and powerful, but most importantly easy to understand.
 
 ## Features
@@ -23,6 +21,10 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 - ⏳ Timed interval task handler
 - 🚌 Event bus
 - 🔥 Supports Vue, React and React Native
+
+**Note:** Pulse is still in development, some features are not working yet. In this document they're marked as "coming soon".
+
+If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001
 
 ## Why Pulse?
 
