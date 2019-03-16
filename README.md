@@ -156,7 +156,7 @@ pulse.collectionOne;
 
 ## Collections
 
-Pulse provides "collections" as a way to easily save data. They automatically handle normalizing and caching. Collections are designed for arrays of data following the same stucture or 'model'. So channels, posts, comments, reviews etc.
+Pulse provides "collections" as a way to easily save data. Collections are designed data following the same stucture or 'model'. So channels, posts, comments, reviews, store items etc.
 Each collection comes with database-like methods to manipulate data.
 
 Once you've defined a collection, you can begin saving data to it.
@@ -166,6 +166,39 @@ collection.collect(someData);
 ```
 
 Collecting data works like a commit in Vuex or a reducer in Redux, it handles data normalization, history and race condition prevention.
+
+Collected data can be an array of objects containing primary keys, or a single object with a primary key.
+Here's an example using a basic `posts` dataset and the Pulse `collect()` method.
+
+```js
+// single object
+post = {
+  id: 234, // primary key
+  title: 'A post!',
+  body: '...'
+  //etc..
+};
+collect(post);
+// array of objects
+posts = [
+  {
+    id: 234,
+    title: 'Post One',
+    body: '...'
+  },
+  {
+    id: 323,
+    title: 'Post Two',
+    body: '...'
+  }
+];
+collect(posts);
+```
+
+## Primary Keys
+
+Because we need to normalize data for Pulse collections to work, each piece of data collected must have a primary key, this has to be unique to avoid data being overwritten.
+If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section later.
 
 ## Base collection
 
@@ -182,11 +215,6 @@ The `base` and `request` collections are created by default, with their own cust
 | request.baseURL      | String  | null    | The base URL for making HTTP requests.                             |
 
 More will be added soon!
-
-## Primary Keys
-
-Because we need to normalize data for Pulse collections to work, each piece of data collected must have a primary key, this has to be unique to avoid data being overwritten.
-If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section later.
 
 ## Groups
 
@@ -574,3 +602,9 @@ channels: {
 ```
 
 If the API failed to make that change, `undo()` will revert every change made in this action.
+
+## What is data normalization?
+
+Put simply, normalizing data is a way to ensure the data we're working with is consistent, accessable and in the stucture we expect it. Normalised data is much easier and faster to work with.
+
+In Pulse's case, collection data is stored internally in an object/keys format, and arrays of primary keys called `indexes` are used to preserve ordering and the grouping of data. This allows us to build a database like enviroment, as shown above.
