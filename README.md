@@ -302,7 +302,15 @@ Filters and actions recieve the "context" object the first paramater.
 
 ## Models and Data Relations
 
-(coming soon)
+Creating data relations between collections is easy and extremely useful.
+
+But why would you need to create data relations? The simple answer is keeping to our rule that data should not be repeated, and if it is needed in multiple places we should make it dependent on a single copy of that data, which when changed, causes any dependecies using that data to regenerate.
+Lets say you have a "channel" and a several "posts" which have been made by that channel. In the post object you have an `owner` property, which is a channel id. We can establish a relation between that `owner` id and the primary key in the channel collection. Now when groups or filters are generated for the posts collection, each piece of data will include the full `channel` object.
+
+When that channel is modified, any groups containing that a post dependent on that channel will regenerate, and filters dependent on those groups will regenerate also.
+
+A situation where this provided extremely satifying, was when a user updates their avatar on the Notify app, every instance of that data changed reactively. Here's a gif of that in action.
+ 
 
 ## Services
 
