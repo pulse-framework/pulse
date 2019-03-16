@@ -152,7 +152,8 @@ pulse.collectionOne;
 
 ## Collections
 
-Pulse provides "collections" as a way to easily save data. They automatically handle normalizing and caching data. Each collection comes with database-like methods to manipulate data.
+Pulse provides "collections" as a way to easily save data. They automatically handle normalizing and caching. Collections are designed for arrays of data following the same stucture or 'model'. So channels, posts, comments, reviews etc.
+Each collection comes with database-like methods to manipulate data.
 
 Once you've defined a collection, you can begin saving data to it.
 
