@@ -56,7 +56,7 @@ new Pulse.Library({
 ```js
 import Pulse from 'pulse-framework';
 
-new Pulse.Library({
+const pulse = new Pulse.Library({
   collections: {
     channels: {},
     posts: {}
