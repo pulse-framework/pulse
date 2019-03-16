@@ -7,7 +7,7 @@ module.exports = {
   },
   plugins: [new CleanWebpackPlugin()],
   output: {
-    filename: 'pulse.js',
-    path: path.resolve(__dirname, 'dist')
+    filename: 'pulse.min.js',
+    path: path.resolve(__dirname, '../dist')
   }
 };

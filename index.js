@@ -1,3 +1,3 @@
-const Pulse = require('./build/dist/pulse.js');
+const Pulse = require('./dist/pulse.min.js');
 
 module.exports = Pulse;

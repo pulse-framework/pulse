@@ -4,7 +4,7 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 
 ## Features
 
-- ⚙️ Modular stucture using "collections"
+- ⚙️ Modular structure using "collections"
 - ❤ Familiar terminology
 - 🔮 Create data relations between collections
 - ✨ Automatic data normalization
