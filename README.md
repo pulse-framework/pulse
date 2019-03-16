@@ -53,7 +53,7 @@ new Pulse.Library({
 ```js
 import Pulse from 'pulse-framework';
 
-const pulse = new Pulse({
+const pulse = new Pulse.Library({
   collections: {
     collectionOne: {},
     collectionTwo: {
@@ -219,9 +219,19 @@ collection.currentlyEditingChannel = true;
 
 We don't need mutation functions like VueX's "commit" because we use Proxies to intercept changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily. (Intercepting and queueing coming soon)
 
+## Actions
+
+Actions are simply functions within your pulse collections that can be called externally. They're asyncronous and can return a promise.
+
+Actions recieve a context object (see Context Object) as the first paramater, this includes every registered collection by name and the routes object.
+
+```js
+actionName({ collectionOne, CollectionTwo, routes, data });
+```
+
 ## Collection Functions
 
-These can happen within actions in your pulse config files, or directly on your component.
+These can happen within your actions in the Pulse Library, or directly on your component.
 
 ```js
 // put data by id (or array of IDs) into another group
@@ -250,35 +260,48 @@ collection.clean();
 collection.undo();
 ```
 
+It's recommended to use these functions within Pulse actions. For example, `collection.undo()` called within an action, will undo everything changed within that action, here's an example:
+
+```js
+actions: {
+  doSeveralThings({ routes, collectionOne, undo }, customParam) {
+
+    collectionOne.someValue = 'hi'
+
+    routes.someRoute(customParam).then(res => {
+
+      collectionOne.collect(res.data, 'groupOne')
+      collectionOne.someOtherValue = true
+
+    }).catch((error) => undo())
+  }
+}
+```
+
+If the catch block is triggered, the undo method will revert all changes made in this action, setting `customValue` back to its previous value, removing collected data and any changes to `groupOne` and reverting `someOtherValue` also. If the group was created during this action, it will be deleted.
+
 ## Filters
 
 Filters allow you to alter data before passing it to your component without changing the original data, they're essencially getters in VueX.
 
-They're cached for performance, so each filter is analysed to see which data properties they depend on, and when those data properties change the appropriate filters regenerate.
+They're cached for performance, meaning the output of the filter function is what gets served to the component, so each time it is accessed the entire filter doesn't need to re-run.
+
+Each filter is analysed to see which data properties they depend on, and when those data properties change the appropriate filters regenerate.
 
 ```js
 channels: {
-  groups: ['groupName', 'subscribed'],
+  groups: ['subscribed'],
   filters: {
     liveChannels({ groups }) => {
-      return groups.subscribed.filter(channel => )
+      return groups.subscribed.filter(channel => channel.live === true)
     }
   }
-
 }
 ```
 
 Filters have access to the context object which contains groups, data, filters and actions from this collection, and other collections under their namespace.
 
-## Actions
-
-Actions are simply functions within your pulse collections that can be called externally. They're asyncronous and can return a promise.
-
-Actions recieve a context object as the first paramater, this includes every registered collection by name and the routes object.
-
-```js
-actionName({ collectionOne, CollectionTwo, routes, data });
-```
+Filters can also be dependent on eachother, as they also recieve the `context object`.
 
 ## Context Object
 
@@ -310,7 +333,8 @@ Heres an example of a model.
 collection: {
   model: {
     id: {
-      // id is default, but you can set another property to a primary key using this:
+      // id is the default primary key, but you can set another
+      // property to a primary key if your data is different.
       primaryKey: true;
       type: Number; // coming soon
       required: true; // coming soon
@@ -319,13 +343,15 @@ collection: {
 }
 ```
 
+Data that does not fit the model requirements you define will not be collected, it will instead be saved in the Errors object as a "Data Rejection", so you can easily debug.
+
 ## Data Relations
 
 Creating data relations between collections is easy and extremely useful.
 
 But why would you need to create data relations? The simple answer is keeping to our rule that data should not be repeated, but when it is needed in multiple places we should make it dependent on a single copy of that data, which when changed, causes any dependecies using that data to regenerate.
 
-Lets say you have a "channel" and a several "posts" which have been made by that channel. In the post object you have an `owner` property, which is a channel id. We can establish a relation between that `owner` id and the primary key in the channel collection. Now when groups or filters are generated for the posts collection, each piece of data will include the full `channel` object.
+Lets say you have a `channel` and a several `posts` which have been made by that channel. In the post object you have an `owner` property, which is a channel id (the primary key). We can establish a relation between that `owner` id and the primary key in the channel collection. Now when groups or filters are generated for the posts collection, each piece of data will include the full `channel` object.
 
 When that channel is modified, any groups containing that a post dependent on that channel will regenerate, and filters dependent on those groups will regenerate also.
 
@@ -345,9 +371,9 @@ collections: {
 }
 ```
 
-...That's it! It just works.
+That's it! It just works.
 
-A situation where this provided extremely satifying, was when a user updates their avatar on the Notify app, every instance of that data changed reactively. Here's a gif of that in action.
+A situation where this proved extremely satisfying, was updating a channel avatar on the Notify app, every instance of that data changed reactively. Here's a gif of that in action.
 
 ![Gif showing reactivity using Pulse relations](https://i.imgur.com/kDjkHNx.gif 'All instances of the avatar update when the source is changed, including the related posts from a different collection.')
 
@@ -361,7 +387,7 @@ Pulse provides a really handy container for c
 
 ## Errors
 
-(coming soon)
+(implemented but description coming soon)
 
 ## Data Rejections
 
@@ -374,5 +400,3 @@ Pulse provides a really handy container for c
 ## Sockets
 
 (coming soon)
-
-If you'd like to see a full example of how everything here can be used, check out examples in src/core
