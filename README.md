@@ -56,9 +56,16 @@ new Pulse.Library({
 ```js
 import Pulse from 'pulse-framework';
 
+new Pulse.Library({
+  collections: {
+    channels: {},
+    posts: {}
+  }
+});
+
 Vue.use(pulse);
 
-export default pulse;
+export default pulse; // so you can use it outside of Vue too!
 ```
 
 ## Pulse Library
