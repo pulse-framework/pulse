@@ -452,7 +452,7 @@ accounts: {
 }
 // Channels collection
 channels: {
-  channels: ['subscriptions', 'favorites', 'muted'],
+  groups: ['subscriptions', 'favorites', 'muted'],
   actions: {
     // get the subscriptions from the API
     loadSubsciptions({ routes, collect }, channelId) {
