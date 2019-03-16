@@ -437,12 +437,12 @@ When our API returns the `subscriptions` data, we will use the `muted` and `favo
 ```js
 // Accounts collection
 accounts: {
+  groups: ['authed'],
   actions: {
-    groups: ['authed'],
     // after login, we get the user's account
-    refresh({ routes, accounts, channels }) {
+    refresh({ routes, collect, channels }) {
       routes.refresh().then(res => {
-        accounts.collect(res.account, 'authed')
+        collect(res.account, 'authed')
         // populate the indexes on the post collection
         channels.put(res.account.muted, 'muted')
         channels.put(res.account.favorites, 'favorites')
@@ -455,8 +455,8 @@ channels: {
   groups: ['subscriptions', 'favorites', 'muted'],
   actions: {
     // get the subscriptions from the API
-    loadSubsciptions({ routes, collect }, channelId) {
-      routes.getSubscriptions(channelId).then(res => {
+    loadSubsciptions({ routes, collect }) {
+      routes.getSubscriptions().then(res => {
         collect(res.subsciptions, 'subscriptions')
       })
     }
