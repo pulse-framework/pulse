@@ -40,7 +40,7 @@ Manually setting up pulse without a framework
 ```js
 import Pulse from 'pulse-framework';
 
-new Pulse({
+new Pulse.Library({
   collections: {
     channels: {},
     posts: {}
