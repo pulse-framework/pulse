@@ -300,17 +300,56 @@ Filters and actions recieve the "context" object the first paramater.
 | clear              | Function  | Remove unused data.                                                      | False   | True    |
 | undo               | Function  | Revert all changes made by this action.                                  | False   | True    |
 
-## Models and Data Relations
+## Models
+
+Collections allow you to define models for the data that you collect. This is great for ensuring valid data is always passed to your components. It also allows you to define data relations bewtween collections, as shown in the next section.
+
+Heres an example of a model.
+
+```js
+collection: {
+  model: {
+    id: {
+      // id is default, but you can set another property to a primary key using this:
+      primaryKey: true;
+      type: Number; // coming soon
+      required: true; // coming soon
+    }
+  }
+}
+```
+
+## Data Relations
 
 Creating data relations between collections is easy and extremely useful.
 
-But why would you need to create data relations? The simple answer is keeping to our rule that data should not be repeated, and if it is needed in multiple places we should make it dependent on a single copy of that data, which when changed, causes any dependecies using that data to regenerate.
+But why would you need to create data relations? The simple answer is keeping to our rule that data should not be repeated, but when it is needed in multiple places we should make it dependent on a single copy of that data, which when changed, causes any dependecies using that data to regenerate.
+
 Lets say you have a "channel" and a several "posts" which have been made by that channel. In the post object you have an `owner` property, which is a channel id. We can establish a relation between that `owner` id and the primary key in the channel collection. Now when groups or filters are generated for the posts collection, each piece of data will include the full `channel` object.
 
 When that channel is modified, any groups containing that a post dependent on that channel will regenerate, and filters dependent on those groups will regenerate also.
 
+Here's a full example using the names I refrenced above.
+
+```js
+collections: {
+  posts: {
+    model: {
+      owner: {
+        parent: 'channels', // name of the sister collection
+        assignTo: 'channel;' // the local propery to assign the channel data to
+      }
+    }
+  },
+  channels: {} // etc..
+}
+```
+
+...That's it! It just works.
+
 A situation where this provided extremely satifying, was when a user updates their avatar on the Notify app, every instance of that data changed reactively. Here's a gif of that in action.
- 
+
+![Gif showing reactivity using Pulse relations](https://i.imgur.com/kDjkHNx.gif 'All instances of the avatar update when the source is changed, including the related posts from a different collection.')
 
 ## Services
 
