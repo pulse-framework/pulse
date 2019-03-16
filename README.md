@@ -54,34 +54,44 @@ new Pulse.Library({
 ```js
 import Pulse from 'pulse-framework';
 
+Vue.use(pulse);
+
+export default pulse;
+```
+
+## Pulse Library
+
+The "Library" refers to the Pulse configuration files, this is where you define and configure collections (with data, filters, actions etc), request config, services, utilities and so on.
+
+This is everything currently supported by the Pulse Library and how it fits in the tree.
+
+```js
 const pulse = new Pulse.Library({
   collections: {
     collectionOne: {},
     collectionTwo: {
+      // example
       model: {},
       data: {},
       groups: [],
       persist: [],
       routes: {},
       actions: {},
-      filters: {}
-      // etc..
-    }
+      filters: {},
+      watch: {}
+    },
+    collectionThree: {}
+    //etc..
   },
-  services: {},
-  utils: {},
   request: {
+    baseURL: 'https://api.notify.me',
     headers: []
   },
+  services: {}, // coming soon
+  utils: {}, // coming soon
   jobs: {}
 });
-
-Vue.use(pulse);
 ```
-
-## Pulse Library
-
-The "Library" refers to the Pulse configuration files, this is where you define and configure collections (with data, filters, actions etc), request config, services, utilities and so on.
 
 For small applications you can keep this in one or two files like shown above, but for a medium to large application could build out a file stucture to look like this:
 
