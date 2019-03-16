@@ -20,6 +20,7 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 - 🔧 Wappers for helpers, utilities and service workers
 - 🔑 Pre-built authentication layer
 - 🚧 Task queuing for race condition prevention
+- ⏳ Timed interval task handler
 - 🚌 Event bus
 - 🔥 Supports Vue, React and React Native
 
@@ -66,10 +67,39 @@ const pulse = new Pulse.Library({
       filters: {}
       // etc..
     }
-  }
+  },
+  services: {},
+  utils: {},
+  request: {
+    headers: []
+  },
+  jobs: {}
 });
 
 Vue.use(pulse);
+```
+
+## Pulse Library
+
+The "Library" refers to the Pulse configuration files, this is where you define and configure collections (with data, filters, actions etc), request config, services, utilities and so on.
+
+For small applications you can keep this in one or two files like shown above, but for a medium to large application could build out a file stucture to look like this:
+
+```
+├── library
+|   ├── index.js
+|   ├── request.js
+|   ├── channels
+|   |   └── index.js
+|   |   └── channel.collection.js
+|   |   └── channel.actions.js
+|   |   └── channel.filters.js
+|   |   └── channel.model.js
+|   ├── services
+|   |   └── ...
+|   ├── utils
+|   |   └── ...
+
 ```
 
 ## Basic Usage
@@ -111,29 +141,28 @@ You can assign data a "group" as you collect it. This is useful because it creat
 collection.collect(somedata, 'groupName');
 ```
 
-Groups create arrays of IDs called "indexes" internally, which are arrays of primary keys used to build data. This makes handing the data much faster and efficient.
+Groups create arrays of IDs called "indexes", which are arrays of primary keys used to build data. This makes handing the data much faster and efficient.
 
 Those indexes are also accessable if you need them, but in most cases they're just used by Pulse internally.
 
 ```js
-collection: {
-  indexes: {
-    groupName: [1, 2, 3, 4, 5];
-  }
-}
+collection.indexes.groupName;
+// returns: [1, 2, 3, 4, 5];
 ```
 
 Each time an index changes, the corresponding group rebuilds its data from the index. In the above case, `groupName` would be an array containing the data for primary keys 1-5.
 
 NOTE: You can modify the index directly and it will still trigger the group to regenerate.
 
-You must define groups in the collection config if you want them to be exposed on the collection publically so your components can read them drirectly.
+You must define groups in the collection library if you want them to be exposed on the collection so your components, filters and actions can read them directly.
 
 ```js
 collection: {
   groups: ['groupName', 'anotherGroupName'],
 }
 ```
+
+Groups can be created dynamically, they won't be exposed on the collection,
 
 ## Using data
 
@@ -414,6 +443,12 @@ Pulse provides a really handy container for c
 ## Sockets
 
 (coming soon)
+
+## Jobs
+
+(coming soon)
+
+Similar to cron jobs, provides an API for setting up interval based tasks for your application, ensures the interval is registered and unregistered correctly and is unique.
 
 ## Extra information
 
