@@ -5,23 +5,22 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 ## Features
 
 - ⚙️ Modular structure using "collections"
-- ❤ Familiar terminology
-- 🔮 Create data relations between collections
+- 🔮 Smart data relations between collections for SSOT (single source of truth)
 - ✨ Automatic data normalization
-- 👯 No data repetition
 - ⚡ Cached data & filters with dependency based regeneration
 - 🔒 Model based data validation
 - 🕰️ History tracking with smart undo functions
 - 📕 Error logging & snapshot bug reporting
-- 💾 Optional persisted state
-- 📞 API for HTTP requests and websocket connections
 - 🔧 Wappers for helpers, utilities and service workers
-- 🔑 Pre-built authentication layer
 - 🚧 Task queuing for race condition prevention
 - ⏳ Timed interval task handler
 - 🚌 Event bus
+- 💾 Persisted data API
+- 📞 Promise based HTTP requests and websocket connections
+- 🔑 Optional pre-built authentication layer
 - 🍃 Lightweight (only 22KB) with 0 dependencies
 - 🔥 Supports Vue, React and React Native
+- ❤ Beginner friendly
 
 **Note:** Pulse is still in development, some features are not working yet. In this document they're marked as "coming soon".
 
