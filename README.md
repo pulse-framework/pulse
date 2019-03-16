@@ -115,10 +115,10 @@ Groups create arrays of IDs called "indexes" internally, which are arrays of pri
 
 Those indexes are also accessable if you need them, but in most cases they're just used by Pulse internally.
 
-```JSON
+```js
 collection: {
   indexes: {
-    groupName: [ 1, 2, 3, 4, 5 ]
+    groupName: [1, 2, 3, 4, 5];
   }
 }
 ```
