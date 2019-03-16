@@ -99,6 +99,16 @@ const pulse = new Pulse.Library({
   services: {}, // coming soon
   utils: {}, // coming soon
   jobs: {}
+
+  // base
+  model: {},
+  data: {},
+  groups: [],
+  persist: [],
+  routes: {},
+  actions: {},
+  filters: {},
+  watch: {}
 });
 ```
 
@@ -128,9 +138,14 @@ Now you can access collections and the entire Pulse instance on within Vue
 ```js
 this.collectionOne;
 this.collectionTwo;
+this.base; // the root of Pulse is also a collection called "base"
+this.request;
+this.services;
+this.utils;
 
 // without vue
 pulse.collectionOne;
+// etc
 ```
 
 **NOTE:** Going forward the examples will just use `collection` to represent a given collection.
@@ -147,22 +162,38 @@ collection.collect(someData);
 
 Collecting data works like a commit in Vuex or a reducer in Redux, it handles data normalization, history and race condition prevention.
 
+## Base collection
+
+By default the root of the Pulse library is a collection called "base". It's the same as any other collection, but with some extra data properties and logic built in out of the box.
+
+## Default Properties
+
+The `base` and `request` collections are created by default, with their own custom data properties and logic related to those properties. Use of these is optional, but can save you time!
+
+| Property             | type    | default | Description                                                        |
+| -------------------- | ------- | ------- | ------------------------------------------------------------------ |
+| base.isAuthenticated | Boolean | false   | Can be set manually, wi                                            |
+| base.appReady        | Boolean | false   | Once Pulse has completed initialization, this will be set to true. |
+| request.baseURL      | String  | null    | The base URL for making HTTP requests.                             |
+
+More will be added soon!
+
 ## Primary Keys
 
-Because we need to normalize data for Pulse collections to work, each piece of data must have a primary key, this has to be unique to avoid data being overwritten.
-If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section below.
+Because we need to normalize data for Pulse collections to work, each piece of data collected must have a primary key, this has to be unique to avoid data being overwritten.
+If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section later.
 
 ## Groups
 
-You can assign data a "group" as you collect it. This is useful because it creates a cache under that namespace where you can access that data on your component. The group will regenerate if any of its data changes.
+You can assign data a "group" as you collect it. This is useful because it creates a cache under that namespace where you can access that data on your component. The group will regenerate if any of the data referenced within changes.
 
 ```js
 collection.collect(somedata, 'groupName');
 ```
 
-Groups create arrays of IDs called "indexes", which are arrays of primary keys used to build data. This makes handing the data much faster and efficient.
+Groups create arrays of IDs called "indexes", which are arrays of primary keys used to build data. This makes handing the data much faster.
 
-Those indexes are also accessable if you need them, but in most cases they're just used by Pulse internally.
+The raw indexes are also accessable if you need them.
 
 ```js
 collection.indexes.groupName;
@@ -181,7 +212,7 @@ collection: {
 }
 ```
 
-Groups can be created dynamically, they won't be exposed on the collection,
+Groups can be created dynamically, but they won't be exposed on the collection like regular groups. You can still make use of them by calling `collection.getGroup('name')`. This method can be used throughout the Pulse library, and is reactive within filters. More information on the getGroup() method, and ones similar later on.
 
 ## Using data
 
