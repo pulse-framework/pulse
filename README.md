@@ -263,22 +263,79 @@ Groups can be created dynamically, but they won't be exposed on the collection l
 
 ## Using data
 
-Inside your component you can return any data from Pulse very easily.
+Using data in VueJS is simple using `mapData()`, It will return an object with Pulse data properties that you request. The string must contain a slash, first the name of the collection, then the data property.
 
 ```js
-// VueJS computed properties
+mapData({
+  localName: 'collection/property'
+});
+// returns { localName: value }
+```
+
+You can set `localName` to anything that suits your component.
+
+You can now bind each returned property to the data() in your component using object spreading. In VueJS the `mapData()` funtion is available on the Vue instance: `this.mapData()`.
+
+```js
+// VueJS data property
+data() {
+  return {
+    ...this.mapData({
+      customName: 'collection/property',
+    })
+    // etc..
+    localDataHere: true,
+  },
+}
+```
+
+mapData has access to all public facing **data, filters, groups, indexes** and even **actions**. _Using mapData enures this component is tracked as a dependency inside Pulse so that it can be reactive._
+
+Now you can access `customName` in the Vue instance like any other Vue data, it can be used in computed methods and even trigger Vue watchers.
+
+```js
+// VueJS data property
+data() {
+  return {
+    ...this.mapData({
+      settings: 'accounts/settings'
+    })
+  },
+},
+// VueJS computed methods are like Pulse filters, they're cached until one of their dependencies change. Here we're just writing a shortcut to return a boolean if `DARK_THEME` exists based on the Pulse data for `accounts/settings`.
 computed: {
-  subscribedChannels() {
-    return this.channels.subscribed
+  darkTheme() {
+    return this.settings.DARK_THEME || false
+  }
+  // as `settings` is defined in mapData(), it will trigger this computed function to re-render when it changes.
+},
+watch: {
+  settings() {
+    this.$accounts.updateTheme()
   }
 }
 ```
 
-or directly within the template
+You may notice in that watcher I used `this.$accounts`. This is possible as every Pulse collection can be accessed on the Vue instance with the prefix `$`. You can use this to set data, read data in methods, and call actions.
 
-```HTML
-<div>{{ channels.subscribed }}</div>
+**Do not use \$ collection refrences in your template or computed properties, Vue does not see them as reactive, and will not trigger a re-render when Pulse data updates. This is why we have mapData()**
+
+The \$ refrences are there to make it easy to interact with Pulse data from the component, like calling actions and setting new values.
+
+```JS
+// VueJS mounted hook
+mounted() {
+  this.$collection.doSomething()
+  this.$accounts.someValue = true
+},
+methods: {
+  doSomething() {
+    this.$collection.someAction()
+  }
+}
 ```
+
+Note: `mapData()` is read only. It's currently not possible to mutate data returned this way, you'll need to use the \$ values to make mutations as shown above. In most cases you'll be using mapData for groups and filters, which are not mutable anyway.
 
 ## Persisting Data
 
