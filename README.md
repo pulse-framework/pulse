@@ -132,7 +132,7 @@ const pulse = new Pulse.Library({
 });
 ```
 
-For small applications you can keep this in one or two files like shown above, but for a medium to large application could build out a file stucture to look like this:
+For small applications you can keep this in one or two files like shown above, but a medium to large application building out a file stucture like this might be preferred:
 
 ```
 ├── library
@@ -183,31 +183,26 @@ collection.collect(someData);
 
 Collecting data works like a commit in Vuex or a reducer in Redux, it handles data normalization, history and race condition prevention.
 
-Collected data can be an array of objects containing primary keys, or a single object with a primary key.
+Collected data can be an array of objects containing primary keys (id), or a single object with a primary key.
 Here's an example using a basic `posts` dataset and the Pulse `collect()` method.
 
 ```js
 // single object
 post = {
-  id: 234, // primary key
+  id: 234,
   title: 'A post!',
-  body: '...'
   //etc..
-};
-collect(post);
+}
+
+collect(post)
+
 // array of objects
 posts = [
-  {
-    id: 234,
-    title: 'Post One',
-    body: '...'
-  },
-  {
-    id: 323,
-    title: 'Post Two',
-    body: '...'
-  }
-];
+  { id: 323, ... },
+  { id: 243, ... },
+  { id: 722, ... }
+]
+
 collect(posts);
 ```
 
@@ -224,11 +219,12 @@ By default the root of the Pulse library is a collection called "base". It's the
 
 The `base` and `request` collections are created by default, with their own custom data properties and logic related to those properties. Use of these is optional, but can save you time!
 
-| Property             | type    | default | Description                                                        |
-| -------------------- | ------- | ------- | ------------------------------------------------------------------ |
-| base.isAuthenticated | Boolean | false   | Can be set manually, wi                                            |
-| base.appReady        | Boolean | false   | Once Pulse has completed initialization, this will be set to true. |
-| request.baseURL      | String  | null    | The base URL for making HTTP requests.                             |
+| Property             | type    | default | Description                                                                                                                                                                        |
+| -------------------- | ------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| base.isAuthenticated | Boolean | false   | Can be set manually, but will automatically set true if a Set-Cookie header is present on a request response. And automatically set false if a 401 error is returned on a request. |
+| base.appReady        | Boolean | false   | Once Pulse has completed initialization, this will be set to true.                                                                                                                 |
+| request.baseURL      | String  | null    | The base URL for making HTTP requests.                                                                                                                                             |
+| request.token        | String  | null    | If set, this will be included in requests as Authorization: Bearer {token}                                                                                                         |
 
 More will be added soon!
 
