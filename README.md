@@ -608,7 +608,7 @@ Similar to cron jobs, provides an API for setting up interval based tasks for yo
 ### Use case: groups
 
 To better help you understand how groups could be useful to you, here's an example of how Notify.me uses groups.
-Lets take `accounts` on Notify. Accounts can "favorite" and "mute" channels, on our API we store an array of channel ids that the user has muted, for example:
+Lets take `accounts` on Notify. Accounts can "favorite" and "mute" channels, on our API we store an array of channel ids that the user has muted, they're called "indexes".
 
 ```js
 account: {
