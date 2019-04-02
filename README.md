@@ -515,6 +515,7 @@ Filters and actions recieve the "context" object the first paramater.
 | move               | Function  | Move data from one group to another.                                                                       | False   | True    |
 | update             | Function  | Mutate properties of a data entry by primary key.                                                          | False   | True    |
 | delete             | Function  | Delete data.                                                                                               | False   | True    |
+| deleteGroup        | Function  | Delete data in a group                                                                                     | False   | True    |
 | clear              | Function  | Remove unused data.                                                                                        | False   | True    |
 | undo               | Function  | Revert all changes made by this action.                                                                    | False   | True    |
 | throttle           | Function  | Used to prevent an action from running more than once in a specified time frame. EG: throttle(2000) for 2s | False   | True    |
