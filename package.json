@@ -1,11 +1,12 @@
 {
   "name": "pulse-framework",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "echo \"Building Pulse Framework...\" && webpack --config build/webpack.prod.js",
+    "build:publish": "echo \"Building Pulse Framework...\" && webpack --config build/webpack.prod.js && npm publish",
     "dev": "webpack --config build/webpack.dev.js"
   },
   "author": "Jamie Pine",
