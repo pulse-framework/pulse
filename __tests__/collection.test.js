@@ -1,4 +1,5 @@
 import Pulse from '../lib';
+// import window from '../__mocks__/window';
 
 // A fully structured instance of Pulse with correct data
 const library = {
@@ -28,12 +29,13 @@ const library = {
 };
 
 test('Collections initalized', () => {
+  const pulse = new Pulse.Library(library);
   const exec = () => {
-    const pulse = new Pulse.Library(library);
     if (!pulse._collections.hasOwnProperty('exampleOne')) return false;
     if (!pulse._collections.hasOwnProperty('exampleTwo')) return false;
     if (!pulse.hasOwnProperty('exampleOne')) return false;
     if (!pulse.hasOwnProperty('exampleTwo')) return false;
+    return true;
   };
   expect(exec()).toBe(true);
 });
