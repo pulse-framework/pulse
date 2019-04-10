@@ -39,3 +39,18 @@ test('Collections initalized', () => {
   };
   expect(exec()).toBe(true);
 });
+
+test('data is mutable', () => {
+  const pulse = new Pulse.Library(library);
+  const exec = () => {
+    pulse.exampleOne.trueTest = 'hi';
+
+    if (pulse.exampleOne.trueTest !== 'hi') return false;
+    // if (pulse.exampleOne.data.trueTest !== 'hi') return false;
+    setTimeout(() => {
+      console.log(pulse._collections.exampleOne.data);
+    });
+    return true;
+  };
+  expect(exec()).toBe(true);
+});
