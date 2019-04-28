@@ -40,3 +40,4 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 
 **Note:** Pulse is still in development, some features are not working yet. In this document they're marked as "coming soon".
 
+To learn more about Pulse, [read the docs](https://pulsejs.org/).
