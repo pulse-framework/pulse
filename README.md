@@ -85,7 +85,7 @@ const pulse = new Pulse.Library({
 
 Vue.use(pulse); // VUE ONLY
 
-export default pulse; // so you can use it outside of Vue too!
+export default pulse; // so you can use the instance anywhere that you import this file, needed for React, optional for Vue.
 ```
 
 ## Pulse Library
