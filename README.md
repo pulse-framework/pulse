@@ -211,10 +211,6 @@ collect(posts);
 Because we need to normalize data for Pulse collections to work, each piece of data collected must have a primary key, this has to be unique to avoid data being overwritten.
 If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section later.
 
-## Base collection
-
-By default the root of the Pulse library is a collection called "base". It's the same as any other collection, but with some extra data properties and logic built in out of the box.
-
 ## Groups
 
 You can assign data a "group" as you collect it, this is required if you want to use your collected data in Vue/React components and have it be reactive.
@@ -304,6 +300,10 @@ _For convinence with Vue, each collection is fully accessable on the component (
 In Vue, mapped data can be used in computed methods and even trigger Vue watchers, just like regular Vue data.
 
 In React, data should be mapped to state, and it is compatible with React hooks.
+
+## Base collection
+
+By default the root of the Pulse library is a collection called "base". It's the same as any other collection, but with some extra data properties and logic built in out of the box.
 
 ## Default Properties
 
