@@ -40,8 +40,6 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 
 **Note:** Pulse is still in development, some features are not working yet. In this document they're marked as "coming soon".
 
-**React & React Native support coming soon!**
-
 If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001
 
 ## Why Pulse?
