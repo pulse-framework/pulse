@@ -215,22 +215,11 @@ If your data has `id` or `_id` as a property, we'll use that automatically, but 
 
 By default the root of the Pulse library is a collection called "base". It's the same as any other collection, but with some extra data properties and logic built in out of the box.
 
-## Default Properties
-
-The `base` and `request` collections are created by default, with their own custom data properties and logic related to those properties. Use of these is optional, but can save you time!
-
-| Property             | type    | default | Description                                                                                                                                                                        |
-| -------------------- | ------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| base.isAuthenticated | Boolean | false   | Can be set manually, but will automatically set true if a Set-Cookie header is present on a request response. And automatically set false if a 401 error is returned on a request. |
-| base.appReady        | Boolean | false   | Once Pulse has completed initialization, this will be set to true.                                                                                                                 |
-| request.baseURL      | String  | null    | The base URL for making HTTP requests.                                                                                                                                             |
-| request.token        | String  | null    | If set, this will be included in requests as Authorization: Bearer {token}                                                                                                         |
-
-More will be added soon!
-
 ## Groups
 
-You can assign data a "group" as you collect it. This is useful because it creates a cache under that namespace where you can access that data on your component. The group will regenerate if any of the data referenced within changes.
+You can assign data a "group" as you collect it, this is required if you want to use your collected data in Vue/React components and have it be reactive.
+
+Groups are exposed on the collection namespace. (`collection.groupName`) The group will regenerate if any of the data referenced within changes.
 
 ```js
 collection.collect(somedata, 'groupName');
@@ -247,9 +236,9 @@ collection.indexes.groupName;
 
 Each time an index changes, the corresponding group rebuilds its data from the index. In the above case, `groupName` would be an array containing the data for primary keys 1-5.
 
-NOTE: You can modify the index directly and it will still trigger the group to regenerate.
+You can modify the index directly and it will still trigger the group to regenerate.
 
-You must define groups in the collection library if you want them to be exposed on the collection so your components, filters and actions can read them directly.
+NOTE: **You must define groups in the collection library if you want them to be exposed on the collection so your components, filters and actions can read them directly.** Example:
 
 ```js
 collection: {
@@ -257,25 +246,25 @@ collection: {
 }
 ```
 
-Groups can be created dynamically, but they won't be exposed on the collection like regular groups. You can still make use of them by calling `collection.getGroup('name')`. This method can be used throughout the Pulse library, and is reactive within filters. More information on the getGroup() method, and ones similar later on.
+Although, groups can be created dynamically- but they won't be exposed on the collection like regular groups. You can still make use of them by calling `collection.getGroup('name')`. This method can be used throughout the Pulse library, and is reactive within filters. More information on the getGroup() method, and ones similar later on.
 
 ## Using data
 
-Using data in VueJS is simple using `mapData()`, It will return an object with Pulse data properties that you request. The string must contain a slash, first the name of the collection, then the data property.
+Using data in VueJS and React is simple using `mapData()`, It will return an object with Pulse data properties that you request. The string must contain a slash, first the name of the collection, then the data property.
 
 ```js
 mapData({
   localName: 'collection/property'
 });
-// returns { localName: value }
+// returns: { localName: value }
 ```
 
 You can set `localName` to anything that suits your component.
 
-You can now bind each returned property to the data() in your component using object spreading. In VueJS the `mapData()` funtion is available on the Vue instance: `this.mapData()`.
+You can now bind each returned property to the data in your component using object spreading. In VueJS only the `mapData()` funtion is available on the Vue instance: `this.mapData()`.
 
 ```js
-// VueJS data property
+// VueJS
 data() {
   return {
     ...this.mapData({
@@ -285,55 +274,48 @@ data() {
     localDataHere: true,
   },
 }
-```
 
-mapData has access to all public facing **data, filters, groups, indexes** and even **actions**. _Using mapData enures this component is tracked as a dependency inside Pulse so that it can be reactive._
+// React
+import pulse from '../pulseLib.js'
 
-Now you can access `customName` in the Vue instance like any other Vue data, it can be used in computed methods and even trigger Vue watchers.
-
-```js
-// VueJS data property
-data() {
-  return {
-    ...this.mapData({
-      settings: 'accounts/settings'
-    })
-  },
-},
-// VueJS computed methods are like Pulse filters, they're cached until one of their dependencies change. Here we're just writing a shortcut to return a boolean if `DARK_THEME` exists based on the Pulse data for `accounts/settings`.
-computed: {
-  darkTheme() {
-    return this.settings.DARK_THEME || false
+class extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      ...pulse.mapData({
+        customName: 'collection/property',
+      }, this)
+      // etc..
+      localDataHere: true,
+    }
   }
-  // as `settings` is defined in mapData(), it will trigger this computed function to re-render when it changes.
-},
-watch: {
-  settings() {
-    this.$accounts.updateTheme()
-  }
+
 }
 ```
 
-You may notice in that watcher I used `this.$accounts`. This is possible as every Pulse collection can be accessed on the Vue instance with the prefix `$`. You can use this to set data, read data in methods, and call actions.
+mapData has access to all public facing **data, filters, groups, indexes** and even **actions**. \_Using mapData enures this component is tracked as a dependency inside Pulse so that it can be reactive.
 
-**Do not use \$ collection refrences in your template or computed properties, Vue does not see them as reactive, and will not trigger a re-render when Pulse data updates. This is why we have mapData()**
+Now you can access `customName` in the component instance.
 
-The \$ refrences are there to make it easy to interact with Pulse data from the component, like calling actions and setting new values.
+**Note: `mapData()` is read only.** To mutate data or call actions, you must use the Pulse instance itself. A good way is to export the Pulse instance and import it into your component.
 
-```JS
-// VueJS mounted hook
-mounted() {
-  this.$collection.doSomething()
-  this.$accounts.someValue = true
-},
-methods: {
-  doSomething() {
-    this.$collection.someAction()
-  }
-}
-```
+_For convinence with Vue, each collection is fully accessable on the component (non reactively) under \$ namespace. EG: `this.$collection.somethingToChange = true`._
 
-Note: `mapData()` is read only. It's currently not possible to mutate data returned this way, you'll need to use the \$ values to make mutations as shown above. In most cases you'll be using mapData for groups and filters, which are not mutable anyway.
+In Vue, mapped data can be used in computed methods and even trigger Vue watchers, just like regular Vue data.
+
+In React, data should be mapped to state, and it is compatible with React hooks.
+
+## Default Properties
+
+The `base` and `request` collections are created by default, with their own custom data properties and logic related to those properties. Use of these is optional, but can save you time!
+
+| Property             | type    | default | Description                                                                                                                                                                        |
+| -------------------- | ------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| base.isAuthenticated | Boolean | false   | Can be set manually, but will automatically set true if a Set-Cookie header is present on a request response. And automatically set false if a 401 error is returned on a request. |
+| base.appReady        | Boolean | false   | Once Pulse has completed initialization, this will be set to true.                                                                                                                 |
+| request.baseURL      | String  | null    | The base URL for making HTTP requests.                                                                                                                                             |
+
+More will be added soon!
 
 ## Persisting Data
 
@@ -367,7 +349,7 @@ Pulse intergrates directly with local storage and session storage, and even has 
 
 Local storage is the default and you don't need to define a storage object for it to work.
 
-More features will be added to data persisting soon, such as custom storage per collection and more configuration options.
+More features will be added to data persisting soon, such as persisting entire collection data, custom storage per collection and more configuration options.
 
 ## Collection Namespace
 
@@ -375,10 +357,10 @@ Pulse has the following namespaces for each collection
 
 - Groups (cached data based on arrays of primary keys)
 - Data (custom data, good for stuff related to a collection, but not part the main body of data like booleans and strings)
-- Filters (like getters, these are cached data based on filter functions you define)
+- Filters (like VueX getters, these are cached data based on filter functions you define)
 - Actions (functions to do stuff)
 
-By default, you can access everything under the collection root namespace, like this:
+By default, you can access everything under the collection namespace, like this:
 
 ```js
 collection.groupName; // array
@@ -396,12 +378,10 @@ collection.filters.filterName; // cached array
 collection.actions.doSomething(); // function
 ```
 
-If you're worried about namespace collision you can disable binding everything to the collection root and exclusively use the above method (coming soon)
-
-For groups, if you'd like to access the raw array of primary keys, instead of the constructed data you can under `index` (coming soon)
+For groups, if you'd like to access the raw array of primary keys, instead of the constructed data you can under `indexes`
 
 ```js
-collection.index.groupName; // EG: [ 123, 1435, 34634 ]
+collection.indexes.groupName; // EG: [ 123, 1435, 34634 ]
 ```
 
 ## Mutating data
@@ -416,12 +396,20 @@ We don't need mutation functions like VueX's "commit" because we use Proxies to 
 
 ## Actions
 
-Actions are simply functions within your pulse collections that can be called externally. They're asyncronous and can return a promise.
+Actions are simply functions within your pulse collections that can be called externally.
 
-Actions recieve a context object (see Context Object) as the first paramater, this includes every registered collection by name and the routes object.
+Actions recieve a context object (see Context Object) as the first paramater, this includes every registered collection by name, the routes object and all default collection functions.
 
 ```js
-actionName({ collectionOne, CollectionTwo, routes, data });
+actionName({
+  collectionOne,
+  CollectionTwo,
+  routes,
+  data,
+  put
+  }, customParam1, customParam2, ...etc) {
+  // do something
+};
 ```
 
 ## Collection Functions
@@ -439,23 +427,24 @@ collection.move([34, 3], 'favorites', 'muted');
 collection.update(2123, {
   avatar: 'url'
 });
+
 // replace data (same as adding new data)
 collection.collect(res.data.channel, 'selected');
 
 // removes data via primary key from a collection
 collection.delete(1234);
-// (comming soon)
 
-// removes any data from a collection that is not currently refrenced in a group
-// it also clears the history, so undo will not work after you run clean.
+// will delete all data and empty all groups for a given collection
+collection.purge();
+
+// (coming soon) removes any data from a collection that is not currently refrenced in a group
 collection.clean();
-// (comming soon)
 
-// will undo the last action
+// (coming soon) will undo the last action
 collection.undo();
 ```
 
-It's recommended to use these functions within Pulse actions. For example, `collection.undo()` called within an action, will undo everything changed within that action, here's an example:
+It's recommended to use these functions within Pulse actions. For example, `collection.undo()` called within an action, will undo everything changed within that action, here's an example: (although undo is still not finished but this is how it will work)
 
 ```js
 actions: {
@@ -494,9 +483,9 @@ channels: {
 }
 ```
 
-Filters have access to the context object which contains groups, data, filters and actions from this collection, and other collections under their namespace.
+Filters have access to the context object (see Context Object) as the first paramater.
 
-Filters can also be dependent on eachother, as they also recieve the `context object`.
+Filters can also be dependent on eachother via the context object.
 
 ## Context Object
 
@@ -519,10 +508,77 @@ Filters and actions recieve the "context" object the first paramater.
 | clear              | Function  | Remove unused data.                                                                                        | False   | True    |
 | undo               | Function  | Revert all changes made by this action.                                                                    | False   | True    |
 | throttle           | Function  | Used to prevent an action from running more than once in a specified time frame. EG: throttle(2000) for 2s | False   | True    |
+| purge              | Function  | Clears all collection data and empties groups.                                                             | False   | True    |
+
+## HTTP Requests & Routes
+
+Pulse completely replaces the need to use a third party HTTP request library such as Axios. Allowing you to define endpoints within your collection, easily handle the response and collect the data.
+
+First you must define your baseURL in the request config (in the root of your Pulse library):
+
+```js
+  request: {
+    baseURL: 'https://api.notify.me'
+    headers: {
+      'Access-Control-Allow-Origin': 'https://notify.me'
+      //etc..
+    }
+  }
+  // for context ...
+  collections: {}
+  storage: {}
+  //etc..
+```
+
+Now you can define routes in your collections:
+
+```js
+routes: {
+  getStuff: request => request.get('stuff/something');
+}
+```
+
+Each route takes in the request object as the first paramater, which contains HTTP methods like, GET, POST, PATCH, DELETE etc.
+
+Route functions are promises, meaning you can either use then() or async/await
+
+You can access routes externally or within Pulse actions
+
+```js
+collection.routes.getStuff();
+```
+
+```js
+actions: {
+  doSomething({collection, routes}) {
+    return routes.getStuff().then(res => {
+      collection.collect(res.data)
+    })
+  }
+}
+```
+
+The request library is an extention of a collection, meaning it's built on top of the collection class. It's exposed on the instance the same way as a collection, data such as baseURL and the headers can be changed on the fly.
+
+```js
+request.baseURL = 'https://api.notify.gg';
+
+request.headers['Origin'] = 'https://notify.me';
+```
+
+Request history is saved (collected) into the request collection by default, though this can be disabled:
+
+```js
+request: {
+  saveHistory: false;
+}
+```
+
+HTTP requests will eventually have many more useful features, but for now basic function is implimented.
 
 ## Models
 
-Collections allow you to define models for the data that you collect. This is great for ensuring valid data is always passed to your components. It also allows you to define data relations bewtween collections, as shown in the next section.
+Collections allow you to define models for the data that you collect. This is great for ensuring valid data is always passed to your components. It also allows you to define data relations between collections, as shown in the next section.
 
 Heres an example of a model.
 
@@ -576,7 +632,7 @@ A situation where this proved extremely satisfying, was updating a channel avata
 
 ## Services
 
-Pulse provides a really handy container for c
+Pulse provides a really handy container for services... (finish this)
 
 ## Event Bus
 
@@ -587,10 +643,6 @@ Pulse provides a really handy container for c
 (implemented but description coming soon)
 
 ## Data Rejections
-
-(implemented but description coming soon)
-
-## HTTP Requests
 
 (implemented but description coming soon)
 
