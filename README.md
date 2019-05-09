@@ -206,16 +206,16 @@ posts = [
 collect(posts);
 ```
 
-## Primary Keys
-
-Because we need to normalize data for Pulse collections to work, each piece of data collected must have a primary key, this has to be unique to avoid data being overwritten.
-If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section later.
-
 ## What is data normalization?
 
 Put simply, normalizing data is a way to ensure the data we're working with is consistent, accessable and in the stucture we expect it. Normalised data is much easier and faster to work with.
 
-In Pulse's case, collection data is stored internally in an object/keys format, and arrays of primary keys called `indexes` are used to preserve ordering and the grouping of data. This allows us to build a database like enviroment, as shown above.
+In Pulse's case, collection data is stored internally in an object/keys format, and arrays of primary keys called `indexes` are used to preserve ordering and the grouping of data (see Groups). This allows us to build a database like enviroment.
+
+## Primary Keys
+
+Because we need to normalize data for Pulse collections to work, each piece of data collected must have a primary key, this has to be unique to avoid data being overwritten.
+If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a "model". More on that in the models section later.
 
 ## Groups
 
