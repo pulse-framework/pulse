@@ -175,8 +175,10 @@ Each collection comes with database-like methods to manipulate the collected dat
 Once you've defined a collection, you can begin saving data to it.
 
 ```js
-collection.collect(someData);
+collection.collect(someData, 'groupName');
 ```
+
+_"groupName" will be explained shortly_
 
 Collecting data works like a pre-built Vuex mutation function or a reducer in Redux, it handles data normalization, history and race condition prevention behind the scenes.
 
@@ -192,7 +194,7 @@ const post = {
   //etc..
 }
 
-collection.collect(post)
+collection.collect(post, 'feed')
 
 // array of objects
 const posts = [
@@ -201,7 +203,7 @@ const posts = [
   { id: 722, ... }
 ]
 
-collection.collect(posts);
+collection.collect(posts , 'feed');
 ```
 
 ## What is data normalization?
