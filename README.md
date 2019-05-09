@@ -249,7 +249,7 @@ collection: {
 }
 ```
 
-If necessary groups can be created dynamically, however they will not be exposed publically like regular groups. You can still make use of them by calling `collection.getGroup('name')`. This method can be used throughout the Pulse library, and is reactive within filters. More information on the getGroup() method, and ones similar later on.
+If necessary, groups can be created dynamically, however they will not be exposed publically like regular groups. You can still make use of them by calling `collection.getGroup('name')`. This method can be used throughout the Pulse library, and is reactive within filters. More information on the getGroup() method, and ones similar later on.
 
 ## Using data
 
