@@ -213,15 +213,15 @@ If your data has `id` or `_id` as a property, we'll use that automatically, but 
 
 ## Groups
 
-You can assign data a "group" as you collect it, this is required if you want to use your collected data in Vue/React components and have it be reactive.
+You should assign data a "group" as you collect it, this is required if you want to use collected data in React/Vue components reactively.
 
-Groups are exposed on the collection namespace. (`collection.groupName`) The group will regenerate if any of the data referenced within changes.
+Groups are exposed on the collection namespace. (`collection.groupName`)
 
 ```js
 collection.collect(somedata, 'groupName');
 ```
 
-Groups create arrays of IDs called "indexes", which are arrays of primary keys used to build data. This makes handing the data much faster.
+Groups create arrays of IDs called "indexes", which are arrays of primary keys used to build arrays of actual data. This makes handing data much faster.
 
 The raw indexes are also accessable if you need them.
 
@@ -232,7 +232,7 @@ collection.indexes.groupName;
 
 Each time an index changes, the corresponding group rebuilds its data from the index. In the above case, `groupName` would be an array containing the data for primary keys 1-5.
 
-You can modify the index directly and it will still trigger the group to regenerate.
+You can modify the index directly and it will trigger the group to regenerate with the correct data.
 
 NOTE: **You must define groups in the collection library if you want them to be exposed on the collection so your components, filters and actions can read them directly.** Example:
 
