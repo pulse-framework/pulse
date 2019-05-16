@@ -210,7 +210,7 @@ collection.collect(posts , 'feed');
 
 Put simply, normalizing data is a way to ensure the data we're working with is consistent, accessible and in the structure we expect it. Normalized data is much easier and faster to work with.
 
-In Pulse's case, collection data is stored internally in an object/keys format. Each piece of data is broken up and ingested individually using the "primary key" as a unique identifier. Arrays of primary keys called `indexes` are used to preserve ordering and the grouping of data (see Groups). This allows us to build a database-like environment.
+In Pulse's case, collection data is stored internally in an object/keys format. Each piece of data is broken up and ingested individually using the "primary key" as a unique identifier. Arrays of primary keys called `indexes` are used to preserve ordering and the grouping of data (see [Groups](#groups)). This allows us to build a database-like environment.
 
 ## Primary Keys
 
@@ -322,12 +322,12 @@ By default the root of the Pulse library is a collection called "base". It's the
 
 The `base` and `request` collections are created by default, with their own custom data properties and related logic. Use of these is optional, but can save you time!
 
-| Property             | type    | default       | Description                                                                                                                                                                        |
-| -------------------- | ------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| base.isAuthenticated | Boolean | false         | Can be set manually, but will automatically set true if a Set-Cookie header is present on a request response. And automatically set false if a 401 error is returned on a request. |
-| base.appReady        | Boolean | false         | Once Pulse has completed initialization, this will be set to true.                                                                                                                 |
-| request.baseURL      | String  | null          | The base URL for making HTTP requests.                                                                                                                                             |
-| request.headers      | Object  | (See Request) | Headers for outgoing HTTP requests.                                                                                                                                                |
+| Property             | type    | default                                 | Description                                                                                                                                                                        |
+| -------------------- | ------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| base.isAuthenticated | Boolean | false                                   | Can be set manually, but will automatically set true if a Set-Cookie header is present on a request response. And automatically set false if a 401 error is returned on a request. |
+| base.appReady        | Boolean | false                                   | Once Pulse has completed initialization, this will be set to true.                                                                                                                 |
+| request.baseURL      | String  | null                                    | The base URL for making HTTP requests.                                                                                                                                             |
+| request.headers      | Object  | (See [Request](#http-requests--routes)) | Headers for outgoing HTTP requests.                                                                                                                                                |
 
 More will be added soon!
 
@@ -412,7 +412,7 @@ We don't need mutation functions like VueX's "commit" because we use Proxies to 
 
 Actions are simply functions within your pulse collections that can be called externally.
 
-Actions receive a context object (see Context Object) as the first paramater, this includes every registered collection by name, the routes object and all default collection functions.
+Actions receive a context object (see [Context Object](#context-object)) as the first paramater, this includes every registered collection by name, the routes object and all default collection functions.
 
 ```js
 actionName({ collectionOne, collectionTwo }, customParam, ...etc) {
@@ -494,7 +494,7 @@ channels: {
 }
 ```
 
-Filters have access to the context object (see Context Object) as the first paramater.
+Filters have access to the context object (see [Context Object](#context-object)) as the first paramater.
 
 Filters can also be dependent on each other via the context object.
 
