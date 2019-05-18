@@ -1,0 +1,84 @@
+===============================================================================
+EXTENSION NAME : linecount
+EXTENSION VERSION : 0.1.7
+-------------------------------------------------------------------------------
+count time : 2019-05-18 01:29:05
+count workspace : /Users/jamiepine/Sites/Notify/pulse-framework
+total files : 30
+total code lines : 10245
+total comment lines : 347
+total blank lines : 390
+
+.babelrc, code is 3, comment is 0, blank is 0.
+.editorconfig, code is 10, comment is 0, blank is 2.
+.gitignore, code is 18, comment is 0, blank is 4.
+.prettierrc, code is 10, comment is 0, blank is 0.
+__mocks__/localStorage.js, code is 17, comment is 0, blank is 0.
+__mocks__/window.js, code is 4, comment is 0, blank is 3.
+__tests__/collection.test.js, code is 48, comment is 3, blank is 5.
+_config.yml, code is 1, comment is 0, blank is 0.
+build/webpack.common.js, code is 18, comment is 0, blank is 1.
+build/webpack.dev.js, code is 9, comment is 0, blank is 1.
+build/webpack.prod.js, code is 5, comment is 0, blank is 1.
+dist/pulse.min.js, code is 1, comment is 0, blank is 0.
+docs/index.md, code is 2, comment is 0, blank is 1.
+docs/structure.md, code is 15, comment is 0, blank is 10.
+docs/UsageWithReact.md, code is 0, comment is 0, blank is 0.
+docs/UsageWithVueJS.md, code is 33, comment is 4, blank is 4.
+examples/simpleExample1.js, code is 25, comment is 6, blank is 4.
+index.js, code is 4, comment is 1, blank is 1.
+lib/Base.js, code is 23, comment is 4, blank is 3.
+lib/Collection.js, code is 1075, comment is 206, blank is 204.
+lib/Discard.js, code is 40, comment is 9, blank is 4.
+lib/Helpers.js, code is 30, comment is 29, blank is 6.
+lib/index.js, code is 4, comment is 2, blank is 2.
+lib/Pulse.js, code is 328, comment is 37, blank is 35.
+lib/Request.js, code is 117, comment is 16, blank is 17.
+lib/Utils.js, code is 16, comment is 3, blank is 2.
+LICENSE, code is 17, comment is 0, blank is 4.
+package-lock.json, code is 8094, comment is 0, blank is 0.
+package.json, code is 33, comment is 0, blank is 0.
+README.md, code is 245, comment is 27, blank is 76.
+===============================================================================
+===============================================================================
+EXTENSION NAME : linecount
+EXTENSION VERSION : 0.1.7
+-------------------------------------------------------------------------------
+count time : 2019-05-18 01:29:46
+count workspace : /Users/jamiepine/Sites/Notify/pulse-framework
+total files : 30
+total code lines : 10245
+total comment lines : 347
+total blank lines : 390
+
+.babelrc, code is 3, comment is 0, blank is 0.
+.editorconfig, code is 10, comment is 0, blank is 2.
+.gitignore, code is 18, comment is 0, blank is 4.
+.prettierrc, code is 10, comment is 0, blank is 0.
+__mocks__/localStorage.js, code is 17, comment is 0, blank is 0.
+__mocks__/window.js, code is 4, comment is 0, blank is 3.
+__tests__/collection.test.js, code is 48, comment is 3, blank is 5.
+_config.yml, code is 1, comment is 0, blank is 0.
+build/webpack.common.js, code is 18, comment is 0, blank is 1.
+build/webpack.dev.js, code is 9, comment is 0, blank is 1.
+build/webpack.prod.js, code is 5, comment is 0, blank is 1.
+dist/pulse.min.js, code is 1, comment is 0, blank is 0.
+docs/index.md, code is 2, comment is 0, blank is 1.
+docs/structure.md, code is 15, comment is 0, blank is 10.
+docs/UsageWithReact.md, code is 0, comment is 0, blank is 0.
+docs/UsageWithVueJS.md, code is 33, comment is 4, blank is 4.
+examples/simpleExample1.js, code is 25, comment is 6, blank is 4.
+index.js, code is 4, comment is 1, blank is 1.
+lib/Base.js, code is 23, comment is 4, blank is 3.
+lib/Collection.js, code is 1075, comment is 206, blank is 204.
+lib/Discard.js, code is 40, comment is 9, blank is 4.
+lib/Helpers.js, code is 30, comment is 29, blank is 6.
+lib/index.js, code is 4, comment is 2, blank is 2.
+lib/Pulse.js, code is 328, comment is 37, blank is 35.
+lib/Request.js, code is 117, comment is 16, blank is 17.
+lib/Utils.js, code is 16, comment is 3, blank is 2.
+LICENSE, code is 17, comment is 0, blank is 4.
+package-lock.json, code is 8094, comment is 0, blank is 0.
+package.json, code is 33, comment is 0, blank is 0.
+README.md, code is 245, comment is 27, blank is 76.
+===============================================================================

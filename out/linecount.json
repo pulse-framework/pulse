@@ -1,0 +1,387 @@
+{
+    "extension": "linecount",
+    "version": "0.1.7",
+    "workspace": "/Users/jamiepine/Sites/Notify/pulse-framework",
+    "linecount": [
+        {
+            "version": "0.1.7",
+            "counttime": "2019-05-18 01:29:05",
+            "filesum": 30,
+            "codesum": 10245,
+            "commentsum": 347,
+            "blanksum": 390,
+            "filelist": [
+                {
+                    "blank": 0,
+                    "code": 3,
+                    "comment": 0,
+                    "filename": ".babelrc"
+                },
+                {
+                    "blank": 2,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": ".editorconfig"
+                },
+                {
+                    "blank": 4,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 0,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": ".prettierrc"
+                },
+                {
+                    "blank": 0,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "__mocks__/localStorage.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "__mocks__/window.js"
+                },
+                {
+                    "blank": 5,
+                    "code": 48,
+                    "comment": 3,
+                    "filename": "__tests__/collection.test.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "_config.yml"
+                },
+                {
+                    "blank": 1,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "build/webpack.common.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 9,
+                    "comment": 0,
+                    "filename": "build/webpack.dev.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 5,
+                    "comment": 0,
+                    "filename": "build/webpack.prod.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "dist/pulse.min.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "docs/index.md"
+                },
+                {
+                    "blank": 10,
+                    "code": 15,
+                    "comment": 0,
+                    "filename": "docs/structure.md"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "docs/UsageWithReact.md"
+                },
+                {
+                    "blank": 4,
+                    "code": 33,
+                    "comment": 4,
+                    "filename": "docs/UsageWithVueJS.md"
+                },
+                {
+                    "blank": 4,
+                    "code": 25,
+                    "comment": 6,
+                    "filename": "examples/simpleExample1.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 4,
+                    "comment": 1,
+                    "filename": "index.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 23,
+                    "comment": 4,
+                    "filename": "lib/Base.js"
+                },
+                {
+                    "blank": 204,
+                    "code": 1075,
+                    "comment": 206,
+                    "filename": "lib/Collection.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 40,
+                    "comment": 9,
+                    "filename": "lib/Discard.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 30,
+                    "comment": 29,
+                    "filename": "lib/Helpers.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 2,
+                    "filename": "lib/index.js"
+                },
+                {
+                    "blank": 35,
+                    "code": 328,
+                    "comment": 37,
+                    "filename": "lib/Pulse.js"
+                },
+                {
+                    "blank": 17,
+                    "code": 117,
+                    "comment": 16,
+                    "filename": "lib/Request.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 16,
+                    "comment": 3,
+                    "filename": "lib/Utils.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "LICENSE"
+                },
+                {
+                    "blank": 0,
+                    "code": 8094,
+                    "comment": 0,
+                    "filename": "package-lock.json"
+                },
+                {
+                    "blank": 0,
+                    "code": 33,
+                    "comment": 0,
+                    "filename": "package.json"
+                },
+                {
+                    "blank": 76,
+                    "code": 245,
+                    "comment": 27,
+                    "filename": "README.md"
+                }
+            ]
+        },
+        {
+            "version": "0.1.7",
+            "counttime": "2019-05-18 01:29:46",
+            "filesum": 30,
+            "codesum": 10245,
+            "commentsum": 347,
+            "blanksum": 390,
+            "filelist": [
+                {
+                    "blank": 0,
+                    "code": 3,
+                    "comment": 0,
+                    "filename": ".babelrc"
+                },
+                {
+                    "blank": 2,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": ".editorconfig"
+                },
+                {
+                    "blank": 4,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 0,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": ".prettierrc"
+                },
+                {
+                    "blank": 0,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "__mocks__/localStorage.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "__mocks__/window.js"
+                },
+                {
+                    "blank": 5,
+                    "code": 48,
+                    "comment": 3,
+                    "filename": "__tests__/collection.test.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "_config.yml"
+                },
+                {
+                    "blank": 1,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "build/webpack.common.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 9,
+                    "comment": 0,
+                    "filename": "build/webpack.dev.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 5,
+                    "comment": 0,
+                    "filename": "build/webpack.prod.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "dist/pulse.min.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "docs/index.md"
+                },
+                {
+                    "blank": 10,
+                    "code": 15,
+                    "comment": 0,
+                    "filename": "docs/structure.md"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "docs/UsageWithReact.md"
+                },
+                {
+                    "blank": 4,
+                    "code": 33,
+                    "comment": 4,
+                    "filename": "docs/UsageWithVueJS.md"
+                },
+                {
+                    "blank": 4,
+                    "code": 25,
+                    "comment": 6,
+                    "filename": "examples/simpleExample1.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 4,
+                    "comment": 1,
+                    "filename": "index.js"
+                },
+                {
+                    "blank": 3,
+                    "code": 23,
+                    "comment": 4,
+                    "filename": "lib/Base.js"
+                },
+                {
+                    "blank": 204,
+                    "code": 1075,
+                    "comment": 206,
+                    "filename": "lib/Collection.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 40,
+                    "comment": 9,
+                    "filename": "lib/Discard.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 30,
+                    "comment": 29,
+                    "filename": "lib/Helpers.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 2,
+                    "filename": "lib/index.js"
+                },
+                {
+                    "blank": 35,
+                    "code": 328,
+                    "comment": 37,
+                    "filename": "lib/Pulse.js"
+                },
+                {
+                    "blank": 17,
+                    "code": 117,
+                    "comment": 16,
+                    "filename": "lib/Request.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 16,
+                    "comment": 3,
+                    "filename": "lib/Utils.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "LICENSE"
+                },
+                {
+                    "blank": 0,
+                    "code": 8094,
+                    "comment": 0,
+                    "filename": "package-lock.json"
+                },
+                {
+                    "blank": 0,
+                    "code": 33,
+                    "comment": 0,
+                    "filename": "package.json"
+                },
+                {
+                    "blank": 76,
+                    "code": 245,
+                    "comment": 27,
+                    "filename": "README.md"
+                }
+            ]
+        }
+    ]
+}
