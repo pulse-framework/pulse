@@ -7,7 +7,9 @@
     "test": "jest",
     "build": "echo \"Building Pulse Framework...\" && webpack --config build/webpack.prod.js",
     "build:publish": "echo \"Building Pulse Framework...\" && webpack --config build/webpack.prod.js && npm publish",
-    "dev": "webpack --config build/webpack.dev.js"
+    "dev": "webpack --config build/webpack.dev.js",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
   "author": "Jamie Pine",
   "license": "MIT",
@@ -26,6 +28,7 @@
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.7.1",
     "prettier": "1.16.3",
+    "vuepress": "^0.14.11",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-merge": "^4.2.1"
