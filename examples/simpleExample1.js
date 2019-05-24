@@ -1,4 +1,5 @@
 // in this example, we'll get posts from an API and save them in a group to be accessed by a component
+import Pulse from 'pulse-framework';
 
 const pulse = new Pulse.Library({
   request: {
@@ -6,15 +7,17 @@ const pulse = new Pulse.Library({
   },
   collections: {
     posts: {
-      groups: ['homepage'],
+      groups: ['homepage', 'group1', 'group2'],
       routes: {
-        getPosts: request => request.get('posts/all')
+        getPosts: request => request.get('posts/all'),
+        getChannel: (request, username) =>
+          request.get(`channel/public/${username}`)
       },
       actions: {
         getPosts({ routes, collect }) {
-          routes.getPosts().then(res => {
+          routes.getChannel('jamie').then(res => {
             // use the collect method to collect posts into a group called "homepage", defined above
-            collect(res.posts, 'homepage');
+            collect(res.posts, ['homepage', 'group1', 'group2']);
           });
         }
       }
