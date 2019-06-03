@@ -377,19 +377,19 @@ Pulse has the following namespaces for each collection
 By default, you can access everything under the collection namespace, like this:
 
 ```js
-collection.groupName; // array
-collection.randomDataName; // boolean
-collection.filterName; // cached array
-collection.doSomething(); // function
+collection.groupName;
+collection.someDataName;
+collection.filterName;
+collection.doSomething();
 ```
 
 But if you prefer to seperate everything by type, you can access areas of your collection like so:
 
 ```js
-collection.groups.groupName; //array
-collection.data.randomDataName; // boolean
-collection.filters.filterName; // cached array
-collection.actions.doSomething(); // function
+collection.groups.groupName;
+collection.data.someDataName;
+collection.filters.filterName;
+collection.actions.doSomething();
 ```
 
 For groups, if you'd like to access the raw array of primary keys, instead of the constructed data you can under `indexes`.
