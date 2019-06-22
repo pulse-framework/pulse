@@ -322,12 +322,12 @@ By default the root of the Pulse library is a collection called "base". It's the
 
 The `base` and `request` collections are created by default, with their own custom data properties and related logic. Use of these is optional, but can save you time!
 
-| Property             | type    | default                                 | Description                                                                                                                                                                        |
-| -------------------- | ------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| base.isAuthenticated | Boolean | false                                   | Can be set manually, but will automatically set true if a Set-Cookie header is present on a request response. And automatically set false if a 401 error is returned on a request. |
-| base.appReady        | Boolean | false                                   | Once Pulse has completed initialization, this will be set to true.                                                                                                                 |
-| request.baseURL      | String  | null                                    | The base URL for making HTTP requests.                                                                                                                                             |
-| request.headers      | Object  | (See [Request](#http-requests--routes)) | Headers for outgoing HTTP requests.                                                                                                                                                |
+| Property             | type    | default                                 | Description                                                                                                                                                                                      |
+| -------------------- | ------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| base.isAuthenticated | Boolean | false                                   | Can be set manually, but will automatically set true if a Set-Cookie header is present on a request response. And automatically set false if a 401 error is returned on a request. (coming soon) |
+| base.appReady        | Boolean | false                                   | Once Pulse has completed initialization, this will be set to true.                                                                                                                               |
+| request.baseURL      | String  | null                                    | The base URL for making HTTP requests.                                                                                                                                                           |
+| request.headers      | Object  | (See [Request](#http-requests--routes)) | Headers for outgoing HTTP requests.                                                                                                                                                              |
 
 More will be added soon!
 
