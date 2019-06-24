@@ -79,12 +79,22 @@ const pulse = new Pulse.Library({
     channels: {},
     posts: {}
   }
+  // react only
+  config: {
+    framework: 'react'
+  }
 });
 
 Vue.use(pulse); // VUE ONLY
 
 export default pulse; // so you can use the instance anywhere that you import this file, needed for React, optional for Vue.
 ```
+
+## NOTE: React users
+
+Pulse will try to detect which framework it's installed into, it works eveytime with Vue since we can use `Vue.use(pulse)` but with React it fails in some production builds. We strongly recommend adding the above documented `config: { framework: 'react' }` to ensure you don't experience reactivity bugs.
+
+It's also recommended that each of your react components have `_mounted` as a boolean in state, using `componentDidMount` and `componentWillUnmount` to set change it respectively. Pulse will automatically use the `_mounted` boolean to prevent state updates on unmounted components; without this, React will throw a warning. To make your code cleaner, we recommend using HOC (Higher Order Components) from React to hide this logic, and example of how that can be done is in the "docs" folder of this repo (UsageWithReact.md).
 
 ## Pulse Library
 
