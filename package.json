@@ -2,8 +2,7 @@
   "name": "pulse-framework",
   "version": "1.10.3",
   "description": "",
-  "main": "lib/index.js",
-  "jsnext:main": "dist/pulse.esm.min.js",
+  "main": "dist/pulse.min.js",
   "module": "dist/pulse.esm.min.js",
   "scripts": {
     "test": "jest",
@@ -22,17 +21,19 @@
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.4",
+    "@babel/plugin-transform-runtime": "^7.4.4",
     "@babel/preset-env": "^7.3.4",
     "babel-eslint": "^10.0.1",
     "eslint-config-prettier": "^4.0.0",
     "jest": "^24.7.1",
     "prettier": "1.16.3",
-    "vuepress": "^1.0.2",
+    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-livereload": "^1.0.1",
     "rollup-plugin-node-resolve": "^5.1.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-serve": "^1.0.1",
-    "rollup-plugin-terser": "^5.0.0"
+    "rollup-plugin-terser": "^5.0.0",
+    "vuepress": "^1.0.2"
   }
 }

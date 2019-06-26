@@ -3,6 +3,8 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
 import replace from 'rollup-plugin-replace';
+import babel from 'rollup-plugin-babel';
+
 const prod = process.env.PRODUCTION;
 
 export default {
@@ -10,21 +12,22 @@ export default {
   output: [
     {
       file: 'dist/pulse.min.js',
-      name: 'pulse',
+      name: 'Pulse',
       format: 'umd',
-      exports: 'named'
+      freeze: false,
+      sourcemap: true
     },
     {
       file: 'dist/pulse.cjs.min.js',
-      name: 'pulse',
+      name: 'Pulse',
       format: 'cjs',
-      exports: 'named'
+      freeze: false,
+      sourcemap: true
     },
     {
       file: 'dist/pulse.esm.min.js',
-      name: 'pulse',
-      format: 'es',
-      exports: 'named'
+      name: 'Pulse',
+      format: 'esm'
     }
   ]
   ,
@@ -33,6 +36,10 @@ export default {
       browser: true
     }),
     commonjs(),
+    babel({
+      runtimeHelpers: true,
+      exclude: 'node_modules/**'
+    }),
     replace({
       'process.env.NODE_ENV': JSON.stringify(prod ? 'production' : 'development'),
     }),
