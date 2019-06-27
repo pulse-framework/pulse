@@ -25,6 +25,9 @@ module.exports = {
 		serviceWorker: {
 			updatePopup: true
 		},
+		markdown: {
+			lineNumbers: true
+		},
 		sidebar: [
             // These links will appear in the sidebar
             // Create heading groups
