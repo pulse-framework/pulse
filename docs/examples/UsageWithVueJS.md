@@ -1,3 +1,7 @@
+---
+title: Using with VueJS
+---
+
 ```js
 // VueJS data property
 data() {

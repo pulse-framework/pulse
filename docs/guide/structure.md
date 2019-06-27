@@ -2,7 +2,7 @@
 
 This document should help expain the archtecture of Pulse and allow developers to gain a better understanding of how it functions.
 
-## \_global Object
+## _global Object
 
 ## Proxies
 
