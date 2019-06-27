@@ -44,7 +44,7 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 - 🤓 Database style functions
 - 💎 SSOT architecture (single source of truth)
 - 📕 Error logging & snapshot bug reporting
-- 🔧 Wappers for helpers, utilities and service workers
+- 🔧 Wrappers for helpers, utilities and service workers
 - 🚧 Task queuing for race condition prevention
 - 📞 Promise based HTTP requests and websocket connections
 - ⏳ Timed interval task handler
