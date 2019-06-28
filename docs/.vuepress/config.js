@@ -4,6 +4,7 @@ module.exports = {
 	dest: "dist",
 	serviceWorker: true,
 	themeConfig: {
+		logo: '/logo.svg',
 		nav: [
 			{ text: 'Home', link: '/' },
 			{ text: 'Guide', link: '/getting-started/setup' }

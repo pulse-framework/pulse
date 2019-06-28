@@ -2,11 +2,17 @@
 title: Setup
 ---
 
+## Install
+
+```
+npm i pulse-framework --save
+```
+
 ## Vanilla Setup
 
 Manually setting up pulse without a framework
 
-```js
+``` js{4}{5}{6}
 import Pulse from 'pulse-framework';
 
 new Pulse.Library({
