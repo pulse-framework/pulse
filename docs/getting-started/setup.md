@@ -12,7 +12,7 @@ npm i pulse-framework --save
 
 Manually setting up pulse without a framework
 
-``` js{4}{5}{6}
+``` js
 import Pulse from 'pulse-framework';
 
 new Pulse.Library({
