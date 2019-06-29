@@ -6,10 +6,7 @@
     "builds": [
         {
             "src": "package.json",
-            "use": "@now/static-build",
-            "config": {
-                "distDir": ".vuepress/dist"
-            }
+            "use": "@now/static-build"
         }
     ]
 }
