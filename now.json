@@ -1,0 +1,14 @@
+{
+    "version": 2,
+    "name": "pulsejs-docs",
+    "public": true,
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "@now/static-build",
+            "config": {
+                "distDir": ".vuepress/dist"
+            }
+        }
+    ]
+}
