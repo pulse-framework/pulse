@@ -9,7 +9,8 @@
     "build:publish": "echo \"Building Pulse Framework...\" && webpack --config build/webpack.prod.js && npm publish",
     "dev": "webpack --config build/webpack.dev.js",
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs",
+    "now-build": "npm run docs:build && mv docs/.vuepress/dist dist"
   },
   "author": "Jamie Pine",
   "license": "MIT",
