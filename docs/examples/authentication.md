@@ -1,4 +1,8 @@
-## This demo shows a basic authentication system in Pulse
+---
+title: Authentication
+---
+
+## Basic authentication
 
 - Assuming you use a JWT as a Bearer token.
 - Remember in Pulse, "base" is the name of the root collection.
