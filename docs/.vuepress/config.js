@@ -3,7 +3,7 @@ module.exports = {
   description: 'Application logic library for reactive Javascript frameworks',
   dest: 'dist',
   serviceWorker: true,
-  base: '/pulse/',
+  base: '/',
   themeConfig: {
     logo: '/logo.svg',
     nav: [
