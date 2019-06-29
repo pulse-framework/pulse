@@ -1,83 +1,6 @@
 ---
-sidebar: auto
+title: Using PulseJS
 ---
-
-# Pulse
-
-Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. Lightweight, modular and powerful, but most importantly easy to understand.
-
-## Features
-
-- ⚙️ Modular structure using "collections"
-- ⚡ Cached data & filters with dependency based regeneration
-- ✨ Automatic data normalization
-- 🔒 Model based data validation
-- 🕰️ History tracking with smart undo functions
-- 🔮 Create data relations between collections
-- 🤓 Database style functions
-- 💎 SSOT architecture (single source of truth)
-- 📕 Error logging & snapshot bug reporting
-- 🔧 Wappers for helpers, utilities and service workers
-- 🚧 Task queuing for race condition prevention
-- 📞 Promise based HTTP requests and websocket connections
-- ⏳ Timed interval task handler
-- 🚌 Event bus
-- 💾 Persisted data API for localStorage, sessionStorage & more
-- 🔑 Optional pre-built authentication layer
-- 🍃 Lightweight (only 22KB) with 0 dependencies
-- 🔥 Supports Vue, React and React Native
-- ❤ Well documented (I'm getting there...)
-
-**Note:** Pulse is still in development, some features are not working yet. In this document they're marked as "coming soon".
-
-**React & React Native support coming soon!**
-
-If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001
-
-## Why Pulse?
-
-After exploring the many options for Javascript state libraries, including the popular VueX and Redux, I felt like I needed a simpler solution. I wanted to get more out of a library than just state management― something that could provide solid structure for the **entire** application. It needed to be stuctured and simple, but also scalable. This library provides everything needed to get a reactive javascript front-end application working fast, taking care to follow best practices and to employ simple terminology that makes sense even to beginners.
-
-I built this framework reflective of the architecture in which we use at Notify.me, and as a replacement for VueX at Notify also, making sure it is also compatible with React and vanilla environments. The team at Notify love it and I think you will too.
-
-## Install
-
-```
-npm i pulse-framework --save
-```
-
-## Vanilla Setup
-
-Manually setting up pulse without a framework
-
-```js
-import Pulse from 'pulse-framework';
-
-new Pulse.Library({
-  collections: {
-    channels: {},
-    posts: {}
-  }
-});
-```
-
-## Setup with VueJS
-
-```js
-import Pulse from 'pulse-framework';
-
-const pulse = new Pulse.Library({
-  collections: {
-    channels: {},
-    posts: {}
-  }
-});
-
-Vue.use(pulse);
-
-export default pulse; // so you can use it outside of Vue too!
-```
-
 ## Pulse Library
 
 The "Library" refers to the Pulse configuration files, this is where you define and configure collections (with data, filters, actions etc), request config, services, utilities and so on.
@@ -122,7 +45,7 @@ const pulse = new Pulse.Library({
 });
 ```
 
-For small applications you can keep this in one or two files like shown above, but a medium to large application building out a file stucture like this might be preferred:
+For small applications you can keep this in one or two files like shown above, but a medium to large application building out a file structure like this might be preferred:
 
 ```
 ├── library
@@ -162,7 +85,7 @@ pulse.collectionOne;
 
 ## Collections
 
-Pulse provides "collections" as a way to easily save data. Collections are designed for data following the same stucture or 'model'. So channels, posts, comments, reviews, store items etc. Think of a collection like a database table.
+Pulse provides "collections" as a way to easily save data. Collections are designed for data following the same structure or 'model'. So channels, posts, comments, reviews, store items etc. Think of a collection like a database table.
 Each collection comes with database-like methods to manipulate data.
 
 Once you've defined a collection, you can begin saving data to it.
@@ -228,7 +151,7 @@ collection.collect(somedata, 'groupName');
 
 Groups create arrays of IDs called "indexes", which are arrays of primary keys used to build data. This makes handing the data much faster.
 
-The raw indexes are also accessable if you need them.
+The raw indexes are also accessible if you need them.
 
 ```js
 collection.indexes.groupName;
@@ -262,7 +185,7 @@ mapData({
 
 You can set `localName` to anything that suits your component.
 
-You can now bind each returned property to the data() in your component using object spreading. In VueJS the `mapData()` funtion is available on the Vue instance: `this.mapData()`.
+You can now bind each returned property to the data() in your component using object spreading. In VueJS the `mapData()` function is available on the Vue instance: `this.mapData()`.
 
 ```js
 // VueJS data property
@@ -306,9 +229,9 @@ watch: {
 
 You may notice in that watcher I used `this.$accounts`. This is possible as every Pulse collection can be accessed on the Vue instance with the prefix `$`. You can use this to set data, read data in methods, and call actions.
 
-**Do not use \$ collection refrences in your template or computed properties, Vue does not see them as reactive, and will not trigger a re-render when Pulse data updates. This is why we have mapData()**
+**Do not use \$ collection references in your template or computed properties, Vue does not see them as reactive, and will not trigger a re-render when Pulse data updates. This is why we have mapData()**
 
-The \$ refrences are there to make it easy to interact with Pulse data from the component, like calling actions and setting new values.
+The \$ references are there to make it easy to interact with Pulse data from the component, like calling actions and setting new values.
 
 ```JS
 // VueJS mounted hook
@@ -338,7 +261,7 @@ collection: {
 }
 ```
 
-Pulse intergrates directly with local storage and session storage, and even has an api to configure your own storage.
+Pulse integrates directly with local storage and session storage, and even has an api to configure your own storage.
 
 ```js
 {
@@ -377,7 +300,7 @@ collection.filterName; // cached array
 collection.doSomething(); // function
 ```
 
-But if you prefer to seperate everything by type, you can access areas of your collection like so:
+But if you prefer to separate everything by type, you can access areas of your collection like so:
 
 ```js
 collection.groups.groupName; //array
@@ -402,13 +325,13 @@ Changing data in Pulse is easy, you just set it to a new value.
 collection.currentlyEditingChannel = true;
 ```
 
-We don't need mutation functions like VueX's "commit" because we use Proxies to intercept changes and queue them to prevent race condidtions. Those changes are stored and can be reverted easily. (Intercepting and queueing coming soon)
+We don't need mutation functions like VueX's "commit" because we use Proxies to intercept changes and queue them to prevent race conditions. Those changes are stored and can be reverted easily. (Intercepting and queueing coming soon)
 
 ## Actions
 
-Actions are simply functions within your pulse collections that can be called externally. They're asyncronous and can return a promise.
+Actions are simply functions within your pulse collections that can be called externally. They're asynchronous and can return a promise.
 
-Actions recieve a context object (see Context Object) as the first paramater, this includes every registered collection by name and the routes object.
+Actions recieve a context object (see Context Object) as the first parameter, this includes every registered collection by name and the routes object.
 
 ```js
 actionName({ collectionOne, CollectionTwo, routes, data });
@@ -467,7 +390,7 @@ If the catch block is triggered, the undo method will revert all changes made in
 
 ## Filters
 
-Filters allow you to alter data before passing it to your component without changing the original data, they're essencially getters in VueX.
+Filters allow you to alter data before passing it to your component without changing the original data, they're essentially getters in VueX.
 
 They're cached for performance, meaning the output of the filter function is what gets served to the component, so each time it is accessed the entire filter doesn't need to re-run.
 
@@ -486,7 +409,7 @@ channels: {
 
 Filters have access to the context object which contains groups, data, filters and actions from this collection, and other collections under their namespace.
 
-Filters can also be dependent on eachother, as they also recieve the `context object`.
+Filters can also be dependent on one another, as they also receive the `context object`.
 
 ## Context Object
 
@@ -536,13 +459,13 @@ Data that does not fit the model requirements you define will not be collected, 
 
 Creating data relations between collections is easy and extremely useful.
 
-But why would you need to create data relations? The simple answer is keeping to our rule that data should not be repeated, but when it is needed in multiple places we should make it dependent on a single copy of that data, which when changed, causes any dependecies using that data to regenerate.
+But why would you need to create data relations? The simple answer is keeping to our rule that data should not be repeated, but when it is needed in multiple places we should make it dependent on a single copy of that data, which when changed, causes any dependencies using that data to regenerate.
 
 Lets say you have a `channel` and a several `posts` which have been made by that channel. In the post object you have an `owner` property, which is a channel id (the primary key). We can establish a relation between that `owner` id and the primary key in the channel collection. Now when groups or filters are generated for the posts collection, each piece of data will include the full `channel` object.
 
 When that channel is modified, any groups containing that a post dependent on that channel will regenerate, and filters dependent on those groups will regenerate also.
 
-Here's a full example using the names I refrenced above.
+Here's a full example using the names I referenced above.
 
 ```js
 collections: {
@@ -634,16 +557,16 @@ channels: {
   groups: ['subscriptions', 'favorites', 'muted'],
   actions: {
     // get the subscriptions from the API
-    loadSubsciptions({ routes, collect }) {
+    loadSubscriptions({ routes, collect }) {
       routes.getSubscriptions().then(res => {
-        collect(res.subsciptions, 'subscriptions')
+        collect(res.subscriptions, 'subscriptions')
       })
     }
   }
 }
 ```
 
-When we finally call `loadSubsciptions()` the groups `favorites` and `muted` will already be populated with primary keys, so when the data is collected, these groups will regenerate with fully built data ready for the component.
+When we finally call `loadSubscriptions()` the groups `favorites` and `muted` will already be populated with primary keys, so when the data is collected, these groups will regenerate with fully built data ready for the component.
 
 Now it's as easy as accessing `channels.favorites` from within Vue to render a list of favorite channels. Or we could write filters within pulse using the favorites group.
 
@@ -666,6 +589,6 @@ If the API failed to make that change, `undo()` will revert every change made in
 
 ## What is data normalization?
 
-Put simply, normalizing data is a way to ensure the data we're working with is consistent, accessable and in the stucture we expect it. Normalised data is much easier and faster to work with.
+Put simply, normalizing data is a way to ensure the data we're working with is consistent, accessible and in the structure we expect it. Normalized data is much easier and faster to work with.
 
-In Pulse's case, collection data is stored internally in an object/keys format, and arrays of primary keys called `indexes` are used to preserve ordering and the grouping of data. This allows us to build a database like enviroment, as shown above.
+In Pulse's case, collection data is stored internally in an object/keys format, and arrays of primary keys called `indexes` are used to preserve ordering and the grouping of data. This allows us to build a database like environment, as shown above.

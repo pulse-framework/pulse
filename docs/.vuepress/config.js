@@ -4,9 +4,10 @@ module.exports = {
 	dest: "dist",
 	serviceWorker: true,
 	themeConfig: {
+		logo: '/logo.svg',
 		nav: [
 			{ text: 'Home', link: '/' },
-			{ text: 'Guide', link: '/guide.md' }
+			{ text: 'Guide', link: '/getting-started/setup' }
 		],
 		lastUpdated: 'Last Updated',
 		// Assumes GitHub. Can also be a full GitLab url.
@@ -24,6 +25,39 @@ module.exports = {
 		editLinkText: 'Help us improve this page!',
 		serviceWorker: {
 			updatePopup: true
-		}
+		},
+		markdown: {
+			lineNumbers: true
+		},
+		sidebar: [
+            // These links will appear in the sidebar
+            // Create heading groups
+            {
+                title: 'Getting Started',
+                collapsable: false,
+                children: [
+					// These are pages we'll add later
+                    '/getting-started/setup'
+                ]
+            },
+            {
+                title: 'Guide',
+                collapsable: false,
+                children: [
+                    // These are pages we'll add later
+                    '/guide/structure', 
+					'/guide/using',
+                ]
+			},
+			{
+                title: 'Examples',
+                collapsable: false,
+                children: [
+                    // These are pages we'll add later
+					'/examples/UsageWithVueJS',
+					'/examples/authentication'
+                ]
+            }
+        ]
 	}
 }
