@@ -8,23 +8,6 @@ title: Setup
 npm i pulse-framework --save
 ```
 
-## Vanilla Setup
-
-Manually setting up pulse without a framework
-
-``` js
-import Pulse from 'pulse-framework';
-
-new Pulse.Library({
-  collections: {
-    channels: {},
-    posts: {}
-  }
-});
-```
-
-## Setup with VueJS
-
 ```js
 import Pulse from 'pulse-framework';
 
