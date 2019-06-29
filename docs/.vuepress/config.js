@@ -62,7 +62,10 @@ module.exports = {
           '/guide/persisting-data',
           '/guide/mutating-data',
           '/guide/context-object',
-          '/guide/filters'
+          '/guide/filters',
+          '/guide/data-relations',
+          '/guide/http-requests',
+          '/guide/models'
         ]
       },
       {

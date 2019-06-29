@@ -2,6 +2,8 @@
 title: Pulse Library
 ---
 
+### Pulse Library
+
 The "Library" refers to the Pulse configuration files, this is where you define and configure collections and basic config for everything within Pulse.
 
 The library itself is an object, the `Pulse.Library` constructor takes it as the only parameter.

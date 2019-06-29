@@ -2,7 +2,7 @@
 title: Setup With React
 ---
 
-## Install
+### Install
 
 ```
 npm i pulse-framework --save

@@ -44,4 +44,4 @@ I built this framework reflective of the architecture in which we use at Notify.
 
 If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001
 
-FULL DOCUMENTATION HERE: (link coming soon, for now its in the docs folder)
+FULL DOCUMENTATION HERE: [pulsejs.org](https://pulsejs-docs.ijamespine.now.sh)

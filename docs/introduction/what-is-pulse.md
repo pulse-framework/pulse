@@ -10,7 +10,7 @@ Pulse is an application logic library for reactive Javascript frameworks with su
 
 Pulse replaces global state managment solutions such as Redux, VueX and MobX, including HTTP libraries such as Axios, Fetch or Request.js. It makes your application more modular, ensuring you follow the best practices while writing significantly less code.
 
-### Why Pulse?
+## Why Pulse?
 
 After exploring the many options for Javascript state libraries, including the popular VueX and Redux, I felt like I needed a simpler solution. I wanted to get more out of a library than just state management― something that could provide solid structure for the **entire** application. It needed to be structured and simple, but also scalable. This library provides everything needed to get a reactive javascript front-end application working fast, taking care to follow best practices and to employ simple terminology that makes sense even to beginners.
 
@@ -37,3 +37,7 @@ I built this framework reflective of the architecture in which we use at Notify.
 - :leaves: Lightweight (only 22KB) with 0 dependencies
 - :fire: Supports Vue, React and React Native
 - :yellow_heart: Well documented (I'm getting there...)
+
+## Is Pulse for you?
+
+The most attractive part of Pulse for me personally is how easy it is to work with, which makes it good for a variety of different projects. Though it does scale well for applications that have many different types of data.
