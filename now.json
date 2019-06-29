@@ -2,6 +2,7 @@
     "version": 2,
     "name": "pulsejs-docs",
     "public": true,
+    "regions": ["sfo1", "lhr1"],
     "builds": [
         {
             "src": "package.json",
