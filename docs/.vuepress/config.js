@@ -7,7 +7,7 @@ module.exports = {
     logo: '/logo.svg',
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/getting-started/setup' }
+      { text: 'Guide', link: '/introduction/what-is-pulse' }
     ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
@@ -33,11 +33,20 @@ module.exports = {
       // These links will appear in the sidebar
       // Create heading groups
       {
+        title: 'Introduction',
+        collapsable: false,
+        children: [
+          // These are pages we'll add later
+          '/introduction/what-is-pulse'
+        ]
+      },
+      {
         title: 'Getting Started',
         collapsable: false,
         children: [
           // These are pages we'll add later
-          '/getting-started/Setup_With_React'
+          '/getting-started/setup-with-react',
+          '/getting-started/setup-with-vue'
         ]
       },
       {
@@ -45,8 +54,14 @@ module.exports = {
         collapsable: false,
         children: [
           // These are pages we'll add later
-          '/guide/structure',
-          '/guide/using'
+          '/guide/library',
+          '/guide/collections',
+          '/guide/namespacing',
+          '/guide/using-data',
+          '/guide/persisting-data',
+          '/guide/mutating-data',
+          '/guide/context-object',
+          '/guide/filters'
         ]
       },
       {
@@ -54,8 +69,8 @@ module.exports = {
         collapsable: false,
         children: [
           // These are pages we'll add later
-          '/examples/UsageWithVueJS',
-          '/examples/authentication'
+          //   '/examples/UsageWithVueJS',
+          //   '/examples/authentication'
         ]
       }
     ]

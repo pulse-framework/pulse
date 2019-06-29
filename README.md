@@ -1,10 +1,3 @@
----
-home: true
-actionText: Getting Started →
-actionLink: /getting-started/setup
-footer: MIT Licensed | Copyright © 2018 - Jamiepine
----
-
 <p align="center">
   <a href="https://patreon.com/jamiepine"><img src="https://img.shields.io/badge/donate-patreon-F96854.svg" alt="Donate on patreon"></a>
   <a href="https://twitter.com/jamiepine"><img src="https://img.shields.io/twitter/follow/jamiepine.svg?label=Follow" alt="Follow on twitter"></a>

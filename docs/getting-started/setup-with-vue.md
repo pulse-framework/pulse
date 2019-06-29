@@ -1,5 +1,5 @@
 ---
-title: Setup
+title: Setup With Vue
 ---
 
 ## Install
