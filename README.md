@@ -12,14 +12,6 @@
   <a href="https://github.com/jamiepine/pulse"><img src="https://img.shields.io/github/repo-size/jamiepine/pulse.svg" alt="GitHub Repo Size"></a>
 </p>
 
-::: warning NOTE
-Pulse is still in development, some features are not working yet. In this document they're marked as "coming soon".
-
-**React & React Native support coming soon!**
-:::
-
-# Pulse
-
 Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. Lightweight, modular and powerful, but most importantly easy to understand.
 
 ## Why Pulse?
