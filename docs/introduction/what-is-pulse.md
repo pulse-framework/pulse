@@ -8,7 +8,7 @@ Pulse is still in development, some features are not working yet. In this docume
 
 Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. It is lightweight, modular and powerful, but most importantly easy to understand.
 
-Pulse replaces global state managment solutions such as Redux, VueX and MobX, including HTTP libraries such as Axios, Fetch or Request.js. It makes your application more modular, ensuring you follow the best practices while writing significantly less code.
+Pulse replaces global state management solutions such as Redux, VueX and MobX, including HTTP libraries such as Axios, Fetch or Request.js. It makes your application more modular, ensuring you follow the best practices while writing significantly less code.
 
 ## Why Pulse?
 

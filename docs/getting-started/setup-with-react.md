@@ -23,7 +23,7 @@ export default new Pulse.Library({
 
 For now we'll just leave that as the bare minimum, it is required that you tell Pulse what framework you're using, you can either pass in the React constructor itself, or just "react" as a string.
 
-There are two ways to intergrate Pulse into your components, the first is the easiest and cleanest using `pulse.wrapped`. It's a HOC (Higher Order Component) that handles intergrating (subscribing / unscubscribing) your component to Pulse data.
+There are two ways to integrate Pulse into your components, the first is the easiest and cleanest using `pulse.wrapped`. It's a HOC (Higher Order Component) that handles integrating (subscribing / unsubscribing) your component to Pulse data.
 
 ::: warning NOTE
 It's required that you pass in the React constructor to the config above if you plan on using `pulse.wrapped`
@@ -48,15 +48,15 @@ export default pulse.wrapped(myComponent, {
 });
 ```
 
-This wrapper is only for React functional components at this time, we're working on building a wrapper for class components. If you already use class components you'll have to stick to the second method for now; manual intergration.
+This wrapper is only for React functional components at this time, we're working on building a wrapper for class components. If you already use class components you'll have to stick to the second method for now; manual integration.
 
 `pulse.wrapped` takes two parameters, the first is your component as a function, the second is the data you want to subscribe to from within Pulse. [See mapData()](/guide/usage.html#using-data)
 
 ## Method #2
 
-### Manual Intergration
+### Manual Integration
 
-This method of intergration requires you to subscribe and unsubscribe your component to Pulse manually. We've built methods directly into Pulse to make this easy.
+This method of integration requires you to subscribe and unsubscribe your component to Pulse manually. We've built methods directly into Pulse to make this easy.
 
 ```js
 import React from 'react';
@@ -118,7 +118,7 @@ mapData takes in three params:
 - 2. [Instance] Typically "this", the component instance mapData is subscribing to.
 - 3. [Object] Additional configuration, EG: `waitForMount: true`
 
-We need mapData() to be in the constructor of the component to ensure that the component has access to the default Pulse data on the first render, however the contructor is too early for Pulse to be attempting to perform updates on a component, so we must use `waitForMount: true`.
+We need mapData() to be in the constructor of the component to ensure that the component has access to the default Pulse data on the first render, however the constructor is too early for Pulse to be attempting to perform updates on a component, so we must use `waitForMount: true`.
 
 ### waitForMount
 
