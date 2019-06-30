@@ -15,10 +15,10 @@ pulse.mapData({
 
 You can set `localName` to anything that suits your component.
 
-You can now bind each returned property to the data in your component using object spreading. In VueJS the `mapData()` funtion is available on the Vue instance as `this.mapData()`, in React you must import it.
+You can now bind each returned property to the data in your component using object spreading. In VueJS the `mapData()` function is available on the Vue instance as `this.mapData()`, in React you must import it.
 
 ::: tip More Info
-To see how mapData can be intergrated with your components, see: Setup with [React](/getting-started/setup-with-react.html) / [Vue](/getting-started/setup-with-vue.html)
+To see how mapData can be integrated with your components, see: Setup with [React](/getting-started/setup-with-react.html) / [Vue](/getting-started/setup-with-vue.html)
 :::
 
 `mapData()` has access to all public facing **data, filters, groups, indexes** and even **actions**. Using mapData enures this component is tracked as a dependency inside Pulse so that it can be reactive.

@@ -20,7 +20,7 @@ Pulse will only save the data property into local storage if it has been set to 
 ::: tip Note
 Currently it is not possible to persist data collected using the `collect` method, this would be better suited for "indexed storage", as local storage requires stringifying the data. If you need this functionality consider opening an issue or making a PR yourself.
 :::
-Pulse intergrates directly with local storage and session storage, and even has an API to configure your own storage.
+Pulse integrates directly with local storage and session storage, and even has an API to configure your own storage.
 
 ```js
 {

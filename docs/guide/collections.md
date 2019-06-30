@@ -127,7 +127,7 @@ collection.delete(1234);
 // will delete all data and empty all groups for a given collection
 collection.purge();
 
-// (coming soon) removes any data from a collection that is not currently refrenced in a group
+// (coming soon) removes any data from a collection that is not currently referenced in a group
 collection.clean();
 
 // (still in development, use with caution) will undo the action its called within, or the last action executed if called from outside
