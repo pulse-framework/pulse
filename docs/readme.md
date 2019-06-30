@@ -2,7 +2,7 @@
 home: true
 actionText: Getting Started →
 actionLink: /introduction/what-is-pulse
-footer: MIT Licensed | Copyright © 2018 - Jamiepine
+footer: MIT Licensed | Copyright © 2018 - Jamie Pine
 ---
 
 <p align="center">

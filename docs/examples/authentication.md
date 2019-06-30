@@ -6,7 +6,7 @@ title: Authentication
 
 - Assuming you use a JWT as a Bearer token.
 - Remember in Pulse, "base" is the name of the root collection.
-- Actions, watchers, requestIntercept and responseIntercept all recieve the "context" object as the first paramater, allowing full access to anything within Pulse
+- Actions, watchers, requestIntercept and responseIntercept all recieve the "context" object as the first parameter, allowing full access to anything within Pulse
 - Watchers can watch data, groups or filters, they should be the same name as the thing you're watching, whenever they change the watch function will run.
 
 ```js
@@ -17,7 +17,7 @@ const core = new Pulse.Library({
   request: {
     baseURL: 'https://api.mysite.me',
 
-    // do something before each requestx
+    // do something before each request
     requestIntercept({ base }, options) {},
 
     // do something after each request

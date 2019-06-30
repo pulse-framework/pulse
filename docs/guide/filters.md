@@ -21,6 +21,6 @@ channels: {
 }
 ```
 
-Filters have access to the context object (see [Context Object](/guide/context-object.html)) as the first paramater.
+Filters have access to the context object (see [Context Object](/guide/context-object.html)) as the first parameter.
 
 Filters can also be dependent on each other via the context object.

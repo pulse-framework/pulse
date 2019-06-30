@@ -20,7 +20,7 @@ collection.filterName;
 collection.doSomething();
 ```
 
-But if you prefer to seperate everything by type, you can access areas of your collection like so:
+But if you prefer to separate everything by type, you can access areas of your collection like so:
 
 ```js
 collection.groups.groupName;

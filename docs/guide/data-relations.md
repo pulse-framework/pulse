@@ -6,7 +6,7 @@ title: Data Relations
 
 Creating data relations between collections is easy and extremely useful.
 
-But why would you need to create data relations? The simple answer is keeping to our rule that data should not be repeated, but when it is needed in multiple places we should make it dependent on a single copy of that data, which when changed, causes any dependecies using that data to regenerate.
+But why would you need to create data relations? The simple answer is keeping to our rule that data should not be repeated, but when it is needed in multiple places we should make it dependent on a single copy of that data, which when changed, causes any dependencies using that data to regenerate.
 
 Let's say you have a `channel` and a several `posts` which have been made by that channel. In the post object you have an `owner` property, which is a channel id (the primary key). We can establish a relation between that `owner` id and the primary key in the channel collection. Now when groups or filters are generated for the posts collection, each piece of data will include the full `channel` object.
 
@@ -20,7 +20,7 @@ collections: {
     model: {
       owner: {
         parent: 'channels', // name of the sister collection
-        assignTo: 'channel;' // the local propery to assign the channel data to
+        assignTo: 'channel;' // the local property to assign the channel data to
       }
     }
   },

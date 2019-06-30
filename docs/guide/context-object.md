@@ -4,7 +4,7 @@ title: Context Object
 
 ### Context Object
 
-[Filters](/guide/filters.html), [actions](/guide/actions.html) and [watchers](/guide/watchers.html) receive the "context" object the first paramater.
+[Filters](/guide/filters.html), [actions](/guide/actions.html) and [watchers](/guide/watchers.html) receive the "context" object the first parameter.
 
 | Name               | Type      | Description                                                                                                | Filters | Actions |
 | ------------------ | --------- | ---------------------------------------------------------------------------------------------------------- | ------- | ------- |

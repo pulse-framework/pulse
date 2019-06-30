@@ -30,7 +30,7 @@ routes: {
 }
 ```
 
-Each route takes in the request object as the first paramater, which contains HTTP methods like, GET, POST, PATCH, DELETE etc.
+Each route takes in the request object as the first parameter, which contains HTTP methods like, GET, POST, PATCH, DELETE etc.
 
 Route functions are promises, meaning you can either use then() or async/await.
 
@@ -50,7 +50,7 @@ actions: {
 }
 ```
 
-The request library is an extention of a collection, meaning it's built on top of the collection class. It's exposed on the instance the same way as a collection, data such as `baseURL` and the `headers` can be changed on the fly.
+The request library is an extension of a collection, meaning it's built on top of the collection class. It's exposed on the instance the same way as a collection, data such as `baseURL` and the `headers` can be changed on the fly.
 
 ```js
 request.baseURL = 'https://api.notify.gg';

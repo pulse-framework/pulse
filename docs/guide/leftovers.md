@@ -90,7 +90,7 @@ channels: {
     // get the subscriptions from the API
     loadSubscriptions({ routes, collect }) {
       routes.getSubscriptions().then(res => {
-        collect(res.subsciptions, 'subscriptions')
+        collect(res.subscriptions, 'subscriptions')
       })
     }
   }
