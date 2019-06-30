@@ -19,7 +19,7 @@ collections: {
   posts: {
     model: {
       owner: {
-        parent: 'channels', // name of the sister collection
+        hasOne: 'channels', // name of the sister collection
         assignTo: 'channel;' // the local property to assign the channel data to
       }
     }
