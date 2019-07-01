@@ -65,7 +65,8 @@ module.exports = {
           '/guide/filters',
           '/guide/data-relations',
           '/guide/http-requests',
-          '/guide/models'
+          '/guide/models',
+          '/guide/debugging'
         ]
       },
       {
