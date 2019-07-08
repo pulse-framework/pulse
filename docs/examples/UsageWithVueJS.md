@@ -1,3 +1,7 @@
+---
+title: Using with VueJS
+---
+# Using with VueJS
 ```js
 // VueJS data property
 data() {
@@ -23,9 +27,9 @@ watch: {
 
 You may notice in that watcher I used `this.$accounts`. This is possible as every Pulse collection can be accessed on the Vue instance with the prefix `$`. You can use this to set data, read data in methods, and call actions.
 
-**Do not use \$ collection refrences in your template or computed properties, Vue does not see them as reactive, and will not trigger a re-render when Pulse data updates. This is why we have mapData()**
+**Do not use \$ collection references in your template or computed properties, Vue does not see them as reactive, and will not trigger a re-render when Pulse data updates. This is why we have mapData()**
 
-The \$ refrences are there to make it easy to interact with Pulse data from the component, like calling actions and setting new values.
+The \$ references are there to make it easy to interact with Pulse data from the component, like calling actions and setting new values.
 
 ```JS
 // VueJS mounted hook

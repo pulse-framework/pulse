@@ -20,3 +20,6 @@ yarn-error.log*
 *.sln
 *.sw*
 sync.js
+
+# Generated docs assets
+docs/dist/

@@ -1,6 +1,6 @@
 {
   "name": "pulse-framework",
-  "version": "1.10.3",
+  "version": "1.11.4",
   "description": "",
   "main": "dist/pulse.min.js",
   "module": "dist/pulse.esm.min.js",
@@ -10,7 +10,8 @@
     "build:publish": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js && npm publish",
     "dev": "rollup -c build/rollup.dev.config.js",
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs --dest ./docs/dist/",
+    "now-build": "npm run docs:build"
   },
   "author": "Jamie Pine",
   "license": "MIT",
