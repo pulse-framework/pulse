@@ -3,7 +3,7 @@
   "version": "1.11.5",
   "description": "",
   "main": "dist/pulse.min.js",
-  "module": "dist/pulse.esm.min.js",
+  "module": "lib/pulse.esm.min.js",
   "scripts": {
     "test": "jest",
     "build": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js",
