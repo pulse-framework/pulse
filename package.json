@@ -1,6 +1,6 @@
 {
   "name": "pulse-framework",
-  "version": "1.11.4",
+  "version": "1.11.5",
   "description": "",
   "main": "dist/pulse.min.js",
   "module": "dist/pulse.esm.min.js",
