@@ -27,10 +27,10 @@ export default {
     {
       file: 'dist/pulse.esm.min.js',
       name: 'Pulse',
-      format: 'esm'
+      format: 'esm',
+      sourcemap: true
     }
-  ]
-  ,
+  ],
   plugins: [
     nodeResolve({
       browser: true
@@ -41,7 +41,9 @@ export default {
       exclude: 'node_modules/**'
     }),
     replace({
-      'process.env.NODE_ENV': JSON.stringify(prod ? 'production' : 'development'),
+      'process.env.NODE_ENV': JSON.stringify(
+        prod ? 'production' : 'development'
+      )
     }),
     serve(),
     livereload({

@@ -1,6 +1,6 @@
 import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
-import {terser} from "rollup-plugin-terser";
+import { terser } from 'rollup-plugin-terser';
 import replace from 'rollup-plugin-replace';
 import babel from 'rollup-plugin-babel';
 
@@ -26,7 +26,8 @@ export default {
     {
       file: 'dist/pulse.esm.min.js',
       name: 'Pulse',
-      format: 'esm'
+      format: 'esm',
+      sourcemap: true
     }
   ],
   plugins: [
@@ -39,7 +40,9 @@ export default {
       exclude: 'node_modules/**'
     }),
     replace({
-      'process.env.NODE_ENV': JSON.stringify(prod ? 'production' : 'development'),
+      'process.env.NODE_ENV': JSON.stringify(
+        prod ? 'production' : 'development'
+      )
     }),
     terser()
   ]
