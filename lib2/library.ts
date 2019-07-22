@@ -36,14 +36,23 @@ export default class Library {
         uuid
       }
     };
-    // this.mapData = this._mapData.bind(this);
+
+    ['utils', 'services', 'staticData'].forEach(type => {
+      if (root[type]) this[type] = root[type];
+    });
+
     this._private.global.storage = new Storage();
     this.initCollections(root);
     this.initRuntime();
     this.bindCollectionPublicData();
     this.runAllFilters();
     this._private.global.initComplete = true;
-    console.log('INIT COMPLETE');
+    console.log('INIT COMPLETE', Object.assign({}, this));
+    if (!this._private.global.config.ssr) {
+      try {
+        window._pulse = this;
+      } catch (e) {}
+    }
   }
 
   runAllFilters() {
@@ -63,7 +72,7 @@ export default class Library {
     }
   }
 
-  initCollections(root: RootCollectionObject, request: RequestConfig = {}) {
+  initCollections(root: RootCollectionObject) {
     this._private.collections = {};
     let collectionKeys = Object.keys(root.collections);
     for (let i = 0; i < collectionKeys.length; i++) {
@@ -77,7 +86,7 @@ export default class Library {
     if (this._private.global.config.enableRequest !== false)
       this._private.collections['request'] = new Request(
         this._private.global,
-        request
+        root.request || {}
       );
     if (this._private.global.config.enableBase !== false)
       this._private.collections['base'] = new Base(this._private.global, root);
@@ -136,8 +145,8 @@ export default class Library {
     const config = pulse._private.global.config;
     Vue.mixin({
       beforeCreate() {
-        Object.keys(pulse.global.dataRef).forEach(collection => {
-          this['$' + collection] = pulse.global.dataRef[collection];
+        Object.keys(pulse._private.global.contextRef).forEach(collection => {
+          this['$' + collection] = pulse._private.global.contextRef[collection];
         });
 
         if (pulse.utils) this.$utils = pulse.utils;
@@ -165,6 +174,16 @@ export default class Library {
     });
   }
 
+  mount(instance) {
+    let component = this._private.global.subs.componentStore[
+      instance.__pulseUniqueIdentifier
+    ];
+    if (component) {
+      component.instance = instance;
+      component.ready = true;
+    }
+  }
+
   mapData(properties, instance = {}, _config = {}, pulseAlias?: any) {
     let pulse = pulseAlias ? pulseAlias : this;
     const config = {
@@ -188,13 +207,13 @@ export default class Library {
         let collection = val.split('/')[0];
         let property = val.split('/')[1];
         let c = pulse._private.global.getContext()[collection];
-        returnData = pulse._private.global.subs.subscribePropertiesToComponents(
-          () => {
-            return { [key]: c[property] };
-          },
-          componentUUID
-        );
+        returnData[
+          key
+        ] = pulse._private.global.subs.subscribePropertiesToComponents(() => {
+          return { [key]: c[property] };
+        }, componentUUID)[key];
       });
+      console.log(returnData);
       return returnData;
     }
   }

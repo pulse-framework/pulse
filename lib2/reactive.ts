@@ -40,7 +40,7 @@ export default class Reactive {
 
       // If property is an array, make it reactive
       if (Array.isArray(value)) {
-        value = this.reactiveArray(value, key);
+        // value = this.reactiveArray(value, key);
         // if property is an object, make it reactive also
       } else if (isWatchableObject(value) && !protectedNames.includes(key)) {
         // rootProperty should be the current key if first deep object

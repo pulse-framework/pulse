@@ -20,7 +20,8 @@ export const collectionFunctions = [
   'delete',
   'purge',
   'watch',
-  'findById'
+  'findById',
+  'put'
 ];
 
 export function defineConfig(config, defaults) {

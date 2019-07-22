@@ -53,7 +53,7 @@ export default class Collection {
 
     root = this.prepareNamespace(root);
 
-    this.initReactive(root.data, root.groups);
+    this.initReactive(root.data, this.namespace.groups);
     this.initRoutes(root.routes);
     this.initActions(root.actions);
     this.initWatchers(root.watch);
@@ -262,7 +262,7 @@ export default class Collection {
     let index = this.indexes.object[groupName];
     for (let i = 0; i < index.length; i++) {
       let id = index[i];
-      let data = Object.keys({}, this.internalData[id]);
+      let data = Object.assign({}, this.internalData[id]);
       if (!data) continue;
       data = this.injectDataByRelation(data);
       data = this.injectGroupByRelation(data, groupName);
@@ -502,7 +502,7 @@ export default class Collection {
 
   getGroup(property) {
     if (!this.indexes.exists(property))
-      return assert(warn => warn.INDEX_NOT_FOUND, 'group');
+      return assert(warn => warn.INDEX_NOT_FOUND, 'group') || [];
 
     if (this.global.runningFilter) {
       let filter = this.global.runningFilter as Filter;

@@ -18,19 +18,19 @@ export default class Runtime {
   }
 
   public ingest(job: Job): void {
-    if (this.ingestQueue.length > 0) {
-      // check if this job is already queued, if so defer to bottom of stack
-      const alreadyInQueueAt = this.ingestQueue.findIndex(
-        item =>
-          item.type === job.type &&
-          item.collection === job.collection &&
-          item.property === job.property
-      );
-      if (alreadyInQueueAt) {
-        // remove from queue at index
-        this.ingestQueue.splice(alreadyInQueueAt, 1);
-      }
-    }
+    // if (this.ingestQueue.length > 0) {
+    //   // check if this job is already queued, if so defer to bottom of stack
+    //   const alreadyInQueueAt = this.ingestQueue.findIndex(
+    //     item =>
+    //       item.type === job.type &&
+    //       item.collection === job.collection &&
+    //       item.property === job.property
+    //   );
+    //   if (alreadyInQueueAt) {
+    //     // remove from queue at index
+    //     this.ingestQueue.splice(alreadyInQueueAt, 1);
+    //   }
+    // }
     this.ingestQueue.push(job);
     if (!this.running) {
       this.findNextJob();
@@ -98,13 +98,12 @@ export default class Runtime {
         });
       });
     }
-
     this.finished();
   }
 
   private finished(): void {
     this.running = false;
-    if (this.completedJobs.length > 100) return;
+    if (this.completedJobs.length > 5000) return;
 
     // If there's already more stuff in the queue, loop.
     if (this.ingestQueue.length > 0) {
@@ -167,6 +166,9 @@ export default class Runtime {
     this.completedJob(job);
   }
   private performIndexUpdate(job: Job): void {
+    // if (job.property === 'feed') {
+    //   debugger;
+    // }
     // preserve old index
     job.previousValue = this.collections[job.collection].indexes[job.property];
     // Update Index
@@ -199,8 +201,6 @@ export default class Runtime {
         : job.property;
 
     job.value = filter.run();
-
-    console.log(job);
     // Commit Update
     this.writeToPublicObject(job.collection, 'filters', filter.name, job.value);
     this.completedJob(job);
@@ -257,17 +257,26 @@ export default class Runtime {
     }
 
     console.log(componentsToUpdate);
-    // this.updateSubscribers(componentsToUpdate)
+    this.updateSubscribers(componentsToUpdate);
+    this.completedJobs = [];
   }
 
   private updateSubscribers(componentsToUpdate) {
     const componentKeys = Object.keys(componentsToUpdate);
+
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];
-      const data = componentsToUpdate[componentID];
-      const dataKeys = Object.keys(data);
+      const componentInstance = this.global.subs.componentStore[componentID];
+      if (!componentInstance || !componentInstance.instance) return;
+      const propertiesToUpdate = componentsToUpdate[componentID];
+      const dataKeys = Object.keys(propertiesToUpdate);
       dataKeys.forEach(property => {
-        const value = data[property];
+        const value = propertiesToUpdate[property];
+        componentInstance.instance.$set(
+          componentInstance.instance,
+          property,
+          value
+        );
       });
     }
   }
@@ -297,12 +306,12 @@ export default class Runtime {
       searchIndexes.forEach(index => foundIndexes.add(index));
     }
 
-    foundIndexes.forEach(index => {
+    foundIndexes.forEach((index: string) => {
       this.ingest({
         type: JobType.INDEX_UPDATE,
         collection: c.name,
-        property: index
-        // FIND DEP
+        property: index,
+        dep: this.collections[c.name].indexes.getDep(index)
       });
     });
   }

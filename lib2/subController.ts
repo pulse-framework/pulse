@@ -1,9 +1,9 @@
 // This file handles external components subscribing to pulse.
 // It also handles subscribing mapData properties to collections
 
-import { uuid } from "./helpers";
-import { Global, ComponentContainer } from "./interfaces";
-import Dep from "./dep";
+import { uuid } from './helpers';
+import { Global, ComponentContainer } from './interfaces';
+import Dep from './dep';
 
 interface SubscribingComponentObject {
   componentUUID: string;

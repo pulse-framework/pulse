@@ -1,7 +1,7 @@
-import Collection from "../collection";
-import { Global, ExpandableObject, RequestConfig } from "../interfaces";
+import Collection from '../collection';
+import { Global, ExpandableObject, RequestConfig } from '../interfaces';
 
-type Method = "get" | "put" | "post" | "patch" | "delete";
+type Method = 'get' | 'put' | 'post' | 'patch' | 'delete';
 
 export default class Request extends Collection {
   private timeout: number;
@@ -20,13 +20,13 @@ export default class Request extends Collection {
   constructor(global: Global, requestConfig: RequestConfig) {
     // Before we invoke the parent class, we define some defaults
     let groups = [];
-    let persist = ["baseURL"];
+    let persist = ['baseURL'];
     let data = {
-      baseURL: requestConfig.baseURL || null,
-      mode: "cors",
-      credentials: "same-origin",
+      baseURL: requestConfig.baseURL || '',
+      mode: 'cors',
+      credentials: 'same-origin',
       headers: {
-        Accept: "application/json"
+        Accept: 'application/json'
       }
     };
 
@@ -38,13 +38,13 @@ export default class Request extends Collection {
     if (requestConfig.credentials) data.credentials = requestConfig.credentials;
     if (requestConfig.mode) data.mode = requestConfig.mode;
 
-    super("request", global, { groups, data, persist });
+    super('request', global, { groups, data, persist });
 
     this.requestIntercept = requestConfig.requestIntercept;
     this.responseIntercept = requestConfig.responseIntercept;
     this.timeout = requestConfig.timeout;
     this.saveHistory =
-      typeof requestConfig.saveHistory === "undefined" ? true : false;
+      typeof requestConfig.saveHistory === 'undefined' ? true : false;
 
     this.global.request = {
       get: this.get.bind(this),
@@ -57,23 +57,23 @@ export default class Request extends Collection {
   }
 
   get(url: string, headers?: ExpandableObject) {
-    return this.send(url, "get", {}, headers);
+    return this.send(url, 'get', {}, headers);
   }
 
   post(url: string, body?: ExpandableObject, headers?: ExpandableObject) {
-    return this.send(url, "post", body, headers);
+    return this.send(url, 'post', body, headers);
   }
 
   _put(url: string, body?: ExpandableObject, headers?: ExpandableObject) {
-    return this.send(url, "put", body, headers);
+    return this.send(url, 'put', body, headers);
   }
 
   patch(url: string, body?: ExpandableObject, headers?: ExpandableObject) {
-    return this.send(url, "patch", body, headers);
+    return this.send(url, 'patch', body, headers);
   }
 
   delete(url: string, body?: ExpandableObject, headers?: ExpandableObject) {
-    return this.send(url, "delete", body, headers);
+    return this.send(url, 'delete', body, headers);
   }
 
   async send(
@@ -90,12 +90,12 @@ export default class Request extends Collection {
       });
 
     // If method is not get set application type
-    if (method !== "get" && requestHeaders["Content-Type"] === undefined)
-      requestHeaders["Content-Type"] = "application/json";
+    if (method !== 'get' && requestHeaders['Content-Type'] === undefined)
+      requestHeaders['Content-Type'] = 'application/json';
 
     let fullURL;
 
-    if (url.startsWith("http")) fullURL = url;
+    if (url.startsWith('http')) fullURL = url;
     else fullURL = `${this.public.object.baseURL}/${url}`;
 
     // Stringify body
@@ -111,7 +111,7 @@ export default class Request extends Collection {
       {
         headers: requestHeaders,
         method: method.toUpperCase(),
-        body: method === "get" ? null : body
+        body: method === 'get' ? null : body
       },
       this.options
     );
@@ -125,17 +125,17 @@ export default class Request extends Collection {
       response = await Promise.race([
         fetch(fullURL, options),
         new Promise((resolve, reject) =>
-          setTimeout(() => reject("timeout"), this.timeout)
+          setTimeout(() => reject('timeout'), this.timeout)
         )
       ]);
     } else {
       response = await fetch(fullURL, options);
     }
 
-    const contentType = response.headers.get("content-type");
+    const contentType = response.headers.get('content-type');
 
     // extract body
-    if (contentType && contentType.indexOf("application/json") !== -1) {
+    if (contentType && contentType.indexOf('application/json') !== -1) {
       body = await response.json();
     } else {
       body = await response.text();
@@ -154,7 +154,7 @@ export default class Request extends Collection {
     let final;
 
     // If reponse body is an object, create a custom object with response function in prototype, so headers and the full response data can be accessed outside of this class
-    if (!Array.isArray(body) && typeof body === "object") {
+    if (!Array.isArray(body) && typeof body === 'object') {
       final = Object.create({
         response: () => {
           return response;
@@ -186,35 +186,35 @@ export default class Request extends Collection {
   queryify(obj) {
     const stringifyPrimitive = function(value) {
       switch (typeof value) {
-        case "string":
+        case 'string':
           return value;
 
-        case "boolean":
-          return value ? "true" : "false";
+        case 'boolean':
+          return value ? 'true' : 'false';
 
-        case "number":
-          return isFinite(value) ? value : "";
+        case 'number':
+          return isFinite(value) ? value : '';
 
         default:
-          return "";
+          return '';
       }
     };
     // validate input
-    if (typeof obj != "object") return;
+    if (typeof obj != 'object') return;
 
     return Object.keys(obj)
       .map(key => {
-        const encodedKey = encodeURIComponent(stringifyPrimitive(key)) + "=";
+        const encodedKey = encodeURIComponent(stringifyPrimitive(key)) + '=';
         // if value is an array, encode with same key as parent
         if (Array.isArray(obj[key]))
           return obj[key]
             .map(value => {
               return encodedKey + encodeURIComponent(stringifyPrimitive(value));
             })
-            .join("&");
+            .join('&');
         // join encoded key with value
         return encodedKey + encodeURIComponent(stringifyPrimitive(obj[key]));
       })
-      .join("&");
+      .join('&');
   }
 }
