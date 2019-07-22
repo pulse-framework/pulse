@@ -8,7 +8,7 @@
     "test": "jest",
     "build": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js",
     "build:publish": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js && npm publish",
-    "dev": "rollup -c build/rollup.dev.config.js",
+    "dev": "rollup -c build/rollup.dev.config.js --watch",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
     "now-build": "npm run docs:build"

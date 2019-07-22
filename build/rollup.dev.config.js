@@ -1,7 +1,5 @@
 import commonjs from 'rollup-plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
-import serve from 'rollup-plugin-serve';
-import livereload from 'rollup-plugin-livereload';
 import replace from 'rollup-plugin-replace';
 import babel from 'rollup-plugin-babel';
 import typescript from 'rollup-plugin-typescript';
@@ -46,10 +44,6 @@ export default {
       'process.env.NODE_ENV': JSON.stringify(
         prod ? 'production' : 'development'
       )
-    }),
-    serve(),
-    livereload({
-      watch: 'dist'
     })
   ]
 };
