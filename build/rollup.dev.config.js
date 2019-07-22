@@ -4,11 +4,12 @@ import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
 import replace from 'rollup-plugin-replace';
 import babel from 'rollup-plugin-babel';
+import typescript from 'rollup-plugin-typescript';
 
 const prod = process.env.PRODUCTION;
 
 export default {
-  input: './lib/index.js',
+  input: './lib2/library.ts',
   output: [
     {
       file: 'dist/pulse.min.js',
@@ -32,10 +33,11 @@ export default {
     }
   ],
   plugins: [
+    typescript({ lib: ['es5', 'es6', 'dom'], target: 'es5' }),
     nodeResolve({
       browser: true
     }),
-    commonjs(),
+    commonjs({ extensions: ['.js', '.ts'] }),
     babel({
       runtimeHelpers: true,
       exclude: 'node_modules/**'
