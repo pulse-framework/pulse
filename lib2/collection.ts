@@ -53,7 +53,7 @@ export default class Collection {
 
     root = this.prepareNamespace(root);
 
-    this.initReactive(root.data, this.namespace.groups);
+    this.initReactive(root.data, root.groups);
     this.initRoutes(root.routes);
     this.initActions(root.actions);
     this.initWatchers(root.watch);
@@ -74,7 +74,7 @@ export default class Collection {
       type => {
         if (type !== 'indexes' && !root[type]) root[type] = {};
         this.keys[type] =
-          type === 'indexes' ? root[type] || [] : Object.keys(root[type]);
+          type === 'indexes' ? root['groups'] || [] : Object.keys(root[type]);
       }
     );
 
@@ -103,7 +103,18 @@ export default class Collection {
     return groups;
   }
 
-  initReactive(data: object = {}, groups: object = {}) {
+  runWatchers(property) {
+    const watcher = this.watchers[property];
+    if (watcher) watcher();
+    const externalWatchers = this.externalWatchers[property];
+    if (externalWatchers)
+      externalWatchers.forEach(func =>
+        typeof func === 'function' ? func() : false
+      );
+  }
+
+  initReactive(data: object = {}, groups: Array<any> | object = []) {
+    groups = this.normalizeGroups(groups);
     // Make indexes reactive
     this.indexes = new Reactive(
       groups, // object
@@ -195,7 +206,7 @@ export default class Collection {
         requestObject.context = self.global.getContext();
         return routes[routeName].apply(
           null,
-          [self.global.request].concat(Array.prototype.slice.call(arguments))
+          [requestObject].concat(Array.prototype.slice.call(arguments))
         );
       };
     };
@@ -272,22 +283,22 @@ export default class Collection {
   }
 
   injectDataByRelation(data) {
+    // if (data.hasOwnProperty('liveStreamType')) debugger;
     let relations = Object.keys(this.dataRelations);
     if (relations.length > 0)
       for (let i = 0; i < relations.length; i++) {
-        const relationKey = relations[i];
-        const rel = this.dataRelations[relationKey];
-        const assignTo = rel.hasOwnProperty('assignTo') ? rel.assignTo : false;
+        const relationKey = relations[i]; // the key on the data to look at
+        const rel = this.dataRelations[relationKey]; // an object with fromCollectionName & assignTo
+        const assignTo = rel.hasOwnProperty('assignTo')
+          ? rel.assignTo
+          : rel.fromCollectionName;
 
         if (data.hasOwnProperty(relationKey)) {
-          let foreignData = this.global.contextRef[rel.fromCollectionName][
+          let foreignData = this.global.getInternalData(
+            rel.fromCollectionName,
             data[relationKey]
-          ];
-
-          if (foreignData) {
-            if (assignTo) data[assignTo] = foreignData;
-            else data[rel.fromCollectionName] = foreignData;
-          }
+          );
+          data[assignTo] = foreignData;
         }
       }
     return data;
@@ -345,12 +356,16 @@ export default class Collection {
     if (!Array.isArray(data)) data = [data];
     const groups = this.createGroups(group);
     const previousIndexValues = this.getPreviousIndexValues(groups);
+    const indexesToRegenOnceComplete = new Set();
 
     // process data items
     for (let i = 0; i < data.length; i++) {
       const dataItem = data[i];
       const dataProcessed = this.processDataItem(dataItem, groups, config);
-      if (dataProcessed) this.collectionSize++;
+      if (dataProcessed.success) this.collectionSize++;
+      dataProcessed.affectedIndexes.map(index =>
+        indexesToRegenOnceComplete.add(index)
+      );
     }
 
     // dispatch regen indexes and groups
@@ -367,6 +382,18 @@ export default class Collection {
       });
     }
 
+    console.log(group, indexesToRegenOnceComplete);
+
+    // indexesToRegenOnceComplete.forEach(index => {
+    //   this.global.ingest({
+    //     type: JobType.INDEX_UPDATE,
+    //     collection: this.name,
+    //     property: index,
+    //     value: this.indexes.object[index],
+    //     previousValue: previousIndexValues[index]
+    //   });
+    // });
+
     this.global.collecting = false;
   }
 
@@ -374,6 +401,15 @@ export default class Collection {
     if (!this.primaryKey) this.findPrimaryKey(dataItem);
 
     const key = dataItem[this.primaryKey as number | string];
+
+    // find affected indexes
+    let affectedIndexes = [...groups];
+
+    this.global
+      .searchIndexes(this.name, key)
+      .map(
+        index => !affectedIndexes.includes(index) && affectedIndexes.push(index)
+      );
 
     // validate against model
 
@@ -393,7 +429,7 @@ export default class Collection {
       else index.unshift(key);
       this.indexes.privateWrite(groupName, index);
     }
-    return true;
+    return { success: true, affectedIndexes };
   }
 
   getPreviousIndexValues(groups) {

@@ -30,6 +30,7 @@ export default class Library {
         subs: new SubController(this.getContext.bind(this)),
         storage: null,
         dispatch: this.dispatch.bind(this),
+        getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
         createForeignGroupRelation: this.createForeignGroupRelation.bind(this),
         contextRef: {},
@@ -68,8 +69,13 @@ export default class Library {
           property: filterName,
           type: JobType.FILTER_REGEN
         });
+        collection.runWatchers(filterName);
       }
     }
+  }
+
+  getInternalData(collection, primaryKey) {
+    return this._private.collections[collection].findById(primaryKey);
   }
 
   initCollections(root: RootCollectionObject) {
@@ -213,7 +219,6 @@ export default class Library {
           return { [key]: c[property] };
         }, componentUUID)[key];
       });
-      console.log(returnData);
       return returnData;
     }
   }

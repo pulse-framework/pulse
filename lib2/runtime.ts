@@ -14,23 +14,22 @@ export default class Runtime {
 
   constructor(private collections: Object, private global: Global) {
     global.ingest = this.ingest.bind(this);
+    global.searchIndexes = this.searchIndexes.bind(this);
     this.config = global.config;
   }
 
   public ingest(job: Job): void {
+    // console.log(job);
+
     // if (this.ingestQueue.length > 0) {
-    //   // check if this job is already queued, if so defer to bottom of stack
-    //   const alreadyInQueueAt = this.ingestQueue.findIndex(
+    //   this.ingestQueue = this.ingestQueue.filter(
     //     item =>
-    //       item.type === job.type &&
-    //       item.collection === job.collection &&
-    //       item.property === job.property
+    //       item.type !== job.type &&
+    //       item.collection !== job.collection &&
+    //       item.property !== job.property
     //   );
-    //   if (alreadyInQueueAt) {
-    //     // remove from queue at index
-    //     this.ingestQueue.splice(alreadyInQueueAt, 1);
-    //   }
     // }
+
     this.ingestQueue.push(job);
     if (!this.running) {
       this.findNextJob();
@@ -50,6 +49,9 @@ export default class Runtime {
   }
 
   private performJob(job: Job): void {
+    if (job.type !== JobType.INTERNAL_DATA_MUTATION)
+      console.log(job.type, job.collection, job.property.name || job.property);
+
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
         this.performPublicDataUpdate(job);
@@ -76,14 +78,8 @@ export default class Runtime {
         break;
     }
 
-    // run watcher if it exists
-    if (this.collections[job.collection].watchers[job.property]) {
-      // log("Running WATCHER for", property);
-      this.collections[job.collection].watchers[job.property]();
-    }
-    if (this.collections[job.collection].externalWatchers[job.property]) {
-      this.collections[job.collection].externalWatchers[job.property]();
-    }
+    // run watchers
+    this.collections[job.collection].runWatchers(job.property);
 
     // unpack dependent filters
     if (job.dep && job.dep.dependents.size > 0) {
@@ -135,8 +131,16 @@ export default class Runtime {
       job.value
     );
     // only look for indexes if we're not collecting data
-    if (!this.global.collecting)
-      this.findIndexesToUpdate(job.collection, job.property);
+
+    if (this.global.collecting) {
+      // dependecies handled by master collection
+    } else {
+      //handle dependecies here
+    }
+
+    // find and ingest direct depenecies on data
+
+    this.findIndexesToUpdate(job.collection, job.property);
     this.completedJob(job);
   }
 
@@ -166,9 +170,6 @@ export default class Runtime {
     this.completedJob(job);
   }
   private performIndexUpdate(job: Job): void {
-    // if (job.property === 'feed') {
-    //   debugger;
-    // }
     // preserve old index
     job.previousValue = this.collections[job.collection].indexes[job.property];
     // Update Index
@@ -306,14 +307,14 @@ export default class Runtime {
       searchIndexes.forEach(index => foundIndexes.add(index));
     }
 
-    foundIndexes.forEach((index: string) => {
-      this.ingest({
-        type: JobType.INDEX_UPDATE,
-        collection: c.name,
-        property: index,
-        dep: this.collections[c.name].indexes.getDep(index)
-      });
-    });
+    // foundIndexes.forEach((index: string) => {
+    //   this.ingest({
+    //     type: JobType.INDEX_UPDATE,
+    //     collection: c.name,
+    //     property: index,
+    //     dep: this.collections[c.name].indexes.getDep(index)
+    //   });
+    // });
   }
   // when groups are rebuilt, find other groups that are dependent on this group
   // (defined using "hasMany" in the model) and ingest those groups into the queue.
@@ -341,7 +342,7 @@ export default class Runtime {
     let foundIndexes = [];
     for (let i = 0; i < c.keys.indexes.length; i++) {
       const indexName = c.keys.indexes[i];
-      if (c.indexes[indexName].includes(primaryKey))
+      if (c.indexes.object[indexName].includes(primaryKey))
         foundIndexes.push(indexName);
     }
     return foundIndexes;

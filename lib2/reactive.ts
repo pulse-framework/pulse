@@ -140,6 +140,7 @@ export default class Reactive {
   }
 
   privateWrite(property, value) {
+    if (value === undefined) debugger;
     this.allowPrivateWrite = true;
     this.object[property] = value;
     this.allowPrivateWrite = false;

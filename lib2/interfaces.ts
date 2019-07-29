@@ -93,8 +93,10 @@ export interface Global {
   storage: any;
   // aliases
   createForeignGroupRelation: any;
+  searchIndexes: any;
   dispatch: any;
   getContext: any;
+  getInternalData: any;
   uuid: any;
   ingest?: any;
   request?: any;
