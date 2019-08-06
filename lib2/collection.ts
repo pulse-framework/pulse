@@ -460,8 +460,8 @@ export default class Collection {
   }
 
   findById(id) {
-    if (!this.internalData.hasOwnProperty(id))
-      return assert(warn => warn.INTERNAL_DATA_NOT_FOUND, 'findById');
+    // if (!this.internalData.hasOwnProperty(id))
+    //   return assert(warn => warn.INTERNAL_DATA_NOT_FOUND, 'findById');
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
@@ -575,7 +575,7 @@ export default class Collection {
 
     const index = this.indexes.privateGetValue(groupName);
 
-    const newIndex = index.computed(
+    const newIndex = index.filter(
       id => !(itemsToRemove as Array<number | string>).includes(id)
     );
 
@@ -663,7 +663,8 @@ export default class Collection {
   }
 
   // deprecate
-  remove() {
-    return this.removeFromGroup(...arguments);
+  // added removeFromGroup to be more specific, params got switched around, keeping this for backwards compatibility
+  remove(itemsToRemove, groupName) {
+    return this.removeFromGroup(groupName, itemsToRemove);
   }
 }

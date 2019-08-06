@@ -9,7 +9,7 @@ export default class RelationController {
   private groupRelations: { [key: string]: Array<string> } = {};
   private dataRelationsToComputed: { [key: string]: Array<Computed> } = {};
   constructor(
-    // collections refrence
+    // collections reference
     private global: Global
   ) {}
 
@@ -30,15 +30,15 @@ export default class RelationController {
   public internalDataModified(collection, primaryKey) {
     const key = `${collection}/${primaryKey}`;
     if (this.dataRelationsToComputed[key]) {
-      this.dataRelationsToComputed[key].forEach(computedIntance => {
+      this.dataRelationsToComputed[key].forEach(computedInstance => {
         // ingest instance
         this.global.ingest({
           type: JobType.COMPUTED_REGEN,
           collection: collection,
-          property: computedIntance,
+          property: computedInstance,
           dep: this.global.getDep(
-            computedIntance.collection,
-            computedIntance.name
+            computedInstance.collection,
+            computedInstance.name
           )
         });
       });

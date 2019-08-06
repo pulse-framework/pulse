@@ -22,7 +22,7 @@ export default class Runtime {
     // console.log(job);
 
     // if (this.ingestQueue.length > 0) {
-    //   this.ingestQueue = this.ingestQueue.computed(
+    //   this.ingestQueue = this.ingestQueue.filter(
     //     item =>
     //       item.type !== job.type &&
     //       item.collection !== job.collection &&
@@ -49,15 +49,6 @@ export default class Runtime {
   }
 
   private performJob(job: Job): void {
-    if (job.value === 2550)
-      if (
-        job.type === JobType.INDEX_UPDATE &&
-        job.dep.name === 'currentViewingSubscribed'
-      )
-        // if (job.type !== JobType.INTERNAL_DATA_MUTATION)
-        //   console.log(job.type, job.collection, job.property.name || job.property);
-        debugger;
-
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
         this.performPublicDataUpdate(job);
@@ -165,7 +156,7 @@ export default class Runtime {
     // for each found index, perform index update
     for (let i = 0; i < indexesToUpdate.length; i++) {
       const indexName = indexesToUpdate[i];
-      const newIndex = [...c.indexes.object[indexName]].computed(
+      const newIndex = [...c.indexes.object[indexName]].filter(
         id => id !== job.property
       );
       this.ingest({
@@ -248,8 +239,8 @@ export default class Runtime {
   private compileComponentUpdates(): void {
     if (!this.global.initComplete) return;
     this.updatingSubscribers = true;
-    console.log('ALL JOBS COMPLETE', this.completedJobs);
-    console.log('Updating components...');
+    // console.log('ALL JOBS COMPLETE', this.completedJobs);
+    // console.log('Updating components...');
 
     const componentsToUpdate = {};
 
@@ -271,7 +262,7 @@ export default class Runtime {
       if (job.dep) subscribe(job.value, job.dep.subscribers);
     }
 
-    console.log(componentsToUpdate);
+    // console.log(componentsToUpdate);
     this.updateSubscribers(componentsToUpdate);
     this.completedJobs = [];
   }
