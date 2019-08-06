@@ -1,4 +1,4 @@
-import { Global } from "./interfaces";
+import { Global } from './interfaces';
 
 export default class Dep {
   public dependents: any = new Set();
@@ -14,8 +14,8 @@ export default class Dep {
   register() {
     const subs = this.global.subs;
 
-    if (this.global.runningFilter) {
-      this.dependents.add(this.global.runningFilter);
+    if (this.global.runningComputed) {
+      this.dependents.add(this.global.runningComputed);
     }
     if (subs.subscribingComponent) {
       this.subscribeComponent();

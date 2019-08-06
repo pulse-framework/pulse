@@ -7,7 +7,7 @@ import {
 } from './helpers';
 import Reactive from './reactive';
 import Action from './action';
-import Filter from './filter';
+import Computed from './computed';
 import {
   Methods,
   Keys,
@@ -27,7 +27,7 @@ export default class Collection {
   public methods: Methods = {};
 
   public actions: { [key: string]: Action } = {};
-  public filters: { [key: string]: Filter } = {};
+  public computed: { [key: string]: Computed } = {};
   public watchers: { [key: string]: any } = {};
   public externalWatchers: { [key: string]: any } = {};
   public persist: Array<string> = [];
@@ -51,13 +51,16 @@ export default class Collection {
     this.config = root.config;
     this.dispatch = this.global.dispatch;
 
+    // legacy support
+    root.computed = { ...root.computed, ...root.filters };
+
     root = this.prepareNamespace(root);
 
     this.initReactive(root.data, root.groups);
     this.initRoutes(root.routes);
     this.initActions(root.actions);
     this.initWatchers(root.watch);
-    this.initFilters(root.filters);
+    this.initComputed(root.computed);
 
     this.initModel(root.model);
     this.initPersist(root.persist);
@@ -70,7 +73,7 @@ export default class Collection {
     );
 
     // for each type set default and register keys
-    ['data', 'actions', 'filters', 'indexes', 'routes', 'watch'].forEach(
+    ['data', 'actions', 'computed', 'indexes', 'routes', 'watch'].forEach(
       type => {
         if (type !== 'indexes' && !root[type]) root[type] = {};
         this.keys[type] =
@@ -85,7 +88,7 @@ export default class Collection {
         routes: {},
         indexes: {},
         actions: root.actions,
-        ...root.filters,
+        ...root.computed,
         ...root.data,
         ...this.normalizeGroups(root.groups)
       }
@@ -181,20 +184,19 @@ export default class Collection {
     this.watchers._keys = watcherKeys;
   }
 
-  initFilters(filters: object): void {
-    this.filters = {};
+  initComputed(computed: object): void {
     objectLoop(
-      filters,
-      (filterName: string, filterFunction: () => void) => {
-        this.filters[filterName] = new Filter(
+      computed,
+      (computedName: string, computedFunction: () => void) => {
+        this.computed[computedName] = new Computed(
           this.global,
           this.name,
-          filterName,
-          filterFunction
+          computedName,
+          computedFunction
         );
-        this.public.object[filterName] = [];
+        this.public.object[computedName] = [];
       },
-      this.keys.filters
+      this.keys.computed
     );
   }
 
@@ -336,7 +338,9 @@ export default class Collection {
   }
 
   createGroups(group) {
-    if (!Array.isArray(group)) group = [group];
+    if (group === undefined) group = [];
+    else if (!Array.isArray(group)) group = [group];
+
     for (let i = 0; i < group.length; i++) {
       const groupName = group[i];
       if (!this.indexes.object[groupName]) {
@@ -347,57 +351,52 @@ export default class Collection {
   }
 
   // METHODS
-  collect(data, group?: string, config?: ExpandableObject) {
+  collect(data, group?: string | Array<string>, config?: ExpandableObject) {
+    console.log('collecting', data);
     config = defineConfig(config, {
       append: true
     });
     this.global.collecting = true;
     // normalise data
     if (!Array.isArray(data)) data = [data];
-    const groups = this.createGroups(group);
-    const previousIndexValues = this.getPreviousIndexValues(groups);
+
+    // if groups don't already exist, create them dynamically
+    const groups: Array<string> = this.createGroups(group);
+    // groups now contains just the groups directly modified by this collect
+
+    // preserve index previous values
+    const previousIndexValues: object = this.getPreviousIndexValues(groups);
+
     const indexesToRegenOnceComplete = new Set();
 
     // process data items
     for (let i = 0; i < data.length; i++) {
       const dataItem = data[i];
-      const dataProcessed = this.processDataItem(dataItem, groups, config);
-      if (dataProcessed.success) this.collectionSize++;
-      dataProcessed.affectedIndexes.map(index =>
+      // process data item returns "success" as a boolean and affectedIndexes as an array
+      const processDataItem = this.processDataItem(dataItem, groups, config);
+      if (processDataItem.success) this.collectionSize++;
+      // ensure indexes modified by this data item are waiting to be ingested for regen
+      processDataItem.affectedIndexes.forEach(index =>
         indexesToRegenOnceComplete.add(index)
       );
     }
 
-    // dispatch regen indexes and groups
-    for (let i = 0; i < groups.length; i++) {
-      const groupName = groups[i];
+    console.log(group, indexesToRegenOnceComplete);
 
-      // processDataItem takes care of adding the data, submit
+    indexesToRegenOnceComplete.forEach(index => {
       this.global.ingest({
         type: JobType.INDEX_UPDATE,
         collection: this.name,
-        property: groupName,
-        value: this.indexes.object[groupName],
-        previousValue: previousIndexValues[groupName]
+        property: index,
+        value: this.indexes.object[index],
+        previousValue: previousIndexValues[index]
       });
-    }
-
-    console.log(group, indexesToRegenOnceComplete);
-
-    // indexesToRegenOnceComplete.forEach(index => {
-    //   this.global.ingest({
-    //     type: JobType.INDEX_UPDATE,
-    //     collection: this.name,
-    //     property: index,
-    //     value: this.indexes.object[index],
-    //     previousValue: previousIndexValues[index]
-    //   });
-    // });
+    });
 
     this.global.collecting = false;
   }
 
-  processDataItem(dataItem, groups, config) {
+  processDataItem(dataItem: object, groups: Array<string> = [], config) {
     if (!this.primaryKey) this.findPrimaryKey(dataItem);
 
     const key = dataItem[this.primaryKey as number | string];
@@ -464,9 +463,9 @@ export default class Collection {
     if (!this.internalData.hasOwnProperty(id))
       return assert(warn => warn.INTERNAL_DATA_NOT_FOUND, 'findById');
 
-    if (this.global.runningFilter) {
-      let filter = this.global.runningFilter as Filter;
-      filter.addRelationToInternalData(this.name, id);
+    if (this.global.runningComputed) {
+      let computed = this.global.runningComputed as Computed;
+      this.global.relations.createInternalDataRelation(this.name, id, computed);
     }
     return this.internalData[id];
   }
@@ -540,9 +539,9 @@ export default class Collection {
     if (!this.indexes.exists(property))
       return assert(warn => warn.INDEX_NOT_FOUND, 'group') || [];
 
-    if (this.global.runningFilter) {
-      let filter = this.global.runningFilter as Filter;
-      filter.addRelationToGroup(this.name, property);
+    if (this.global.runningComputed) {
+      let computed = this.global.runningComputed as Computed;
+      computed.addRelationToGroup(this.name, property);
     }
     return this.buildGroupFromIndex(property) || [];
   }
@@ -576,7 +575,7 @@ export default class Collection {
 
     const index = this.indexes.privateGetValue(groupName);
 
-    const newIndex = index.filter(
+    const newIndex = index.computed(
       id => !(itemsToRemove as Array<number | string>).includes(id)
     );
 
@@ -621,14 +620,14 @@ export default class Collection {
 
     const currentData = Object.assign({}, this.internalData[primaryKey]);
 
-    if (!validateNumber(amount, currentData[primaryKey][property]))
+    if (!validateNumber(amount, currentData[property]))
       return assert(
         warn => warn.PROPERTY_NOT_A_NUMBER,
         decrement ? 'decrement' : 'increment'
       );
 
-    if (decrement) currentData[primaryKey][property] -= amount;
-    else currentData[primaryKey][property] += amount;
+    if (decrement) currentData[property] -= amount;
+    else currentData[property] += amount;
 
     this.global.ingest({
       type: JobType.INTERNAL_DATA_MUTATION,
@@ -664,5 +663,7 @@ export default class Collection {
   }
 
   // deprecate
-  remove() {}
+  remove() {
+    return this.removeFromGroup(...arguments);
+  }
 }

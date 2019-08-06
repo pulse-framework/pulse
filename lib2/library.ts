@@ -11,6 +11,7 @@ import {
   RootCollectionObject,
   JobType
 } from './interfaces';
+import RelationController from './relationController';
 
 export default class Library {
   _private: Private;
@@ -25,15 +26,17 @@ export default class Library {
         initComplete: false,
         runningAction: false,
         runningWatcher: false,
-        runningFilter: false,
+        runningComputed: false,
         collecting: false,
         subs: new SubController(this.getContext.bind(this)),
+        relations: null,
         storage: null,
         dispatch: this.dispatch.bind(this),
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
         createForeignGroupRelation: this.createForeignGroupRelation.bind(this),
         contextRef: {},
+        getDep: this.getDep.bind(this),
         uuid
       }
     };
@@ -43,10 +46,14 @@ export default class Library {
     });
 
     this._private.global.storage = new Storage();
+    this._private.global.relations = new RelationController(
+      this._private.global
+    );
+
     this.initCollections(root);
     this.initRuntime();
     this.bindCollectionPublicData();
-    this.runAllFilters();
+    this.runAllComputed();
     this._private.global.initComplete = true;
     console.log('INIT COMPLETE', Object.assign({}, this));
     if (!this._private.global.config.ssr) {
@@ -56,26 +63,30 @@ export default class Library {
     }
   }
 
-  runAllFilters() {
+  runAllComputed() {
     const collectionKeys = Object.keys(this._private.collections);
     for (let i = 0; i < collectionKeys.length; i++) {
       const collection = this._private.collections[collectionKeys[i]];
 
-      const filterKeys = collection.keys.filters;
-      for (let i = 0; i < filterKeys.length; i++) {
-        const filterName = filterKeys[i];
-        this._private.runtime.performFilterOutput({
+      const computedKeys = collection.keys.computed;
+      for (let i = 0; i < computedKeys.length; i++) {
+        const computedName = computedKeys[i];
+        this._private.runtime.performComputedOutput({
           collection: collection.name,
-          property: filterName,
-          type: JobType.FILTER_REGEN
+          property: computedName,
+          type: JobType.COMPUTED_REGEN
         });
-        collection.runWatchers(filterName);
+        collection.runWatchers(computedName);
       }
     }
   }
 
   getInternalData(collection, primaryKey) {
     return this._private.collections[collection].findById(primaryKey);
+  }
+
+  getDep(collection, name) {
+    return this._private.collections[collection].public.getDep(name);
   }
 
   initCollections(root: RootCollectionObject) {
@@ -141,7 +152,7 @@ export default class Library {
       data: c.public.object,
       indexes: c.indexes.object,
       groups: c.public.object,
-      filters: c.public.object,
+      computed: c.public.object,
       routes: c.public.object.routes
     };
   }

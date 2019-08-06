@@ -3,7 +3,7 @@ import Runtime from './runtime';
 import Collection from './collection';
 import Dep from './dep';
 import Action from './action';
-import Filter from './filter';
+import Computed from './computed';
 
 export interface ExpandableObject {
   [key: string]: any;
@@ -42,6 +42,7 @@ export interface CollectionObject {
   persist?: Array<string>;
   groups?: Array<string>;
   actions?: object;
+  computed?: object;
   filters?: object;
   watch?: object;
   routes?: object;
@@ -75,7 +76,7 @@ export interface Methods {
 
 export interface Keys {
   data?: Array<string>;
-  filters?: Array<string>;
+  computed?: Array<string>;
   actions?: Array<string>;
   indexes?: Array<string>;
 }
@@ -87,10 +88,11 @@ export interface Global {
   initComplete: boolean;
   collecting: boolean;
   runningAction: boolean | Action;
-  runningFilter: boolean | Filter;
+  runningComputed: boolean | Computed;
   runningWatcher: boolean | Watcher;
   contextRef: ExpandableObject;
   storage: any;
+  getDep: any;
   // aliases
   createForeignGroupRelation: any;
   searchIndexes: any;
@@ -100,6 +102,7 @@ export interface Global {
   uuid: any;
   ingest?: any;
   request?: any;
+  relations?: any;
 }
 
 export interface Private {
@@ -113,7 +116,7 @@ export const enum JobType {
   PUBLIC_DATA_MUTATION = 'PUBLIC_DATA_MUTATION',
   INTERNAL_DATA_MUTATION = 'INTERNAL_DATA_MUTATION',
   INDEX_UPDATE = 'INDEX_UPDATE',
-  FILTER_REGEN = 'FILTER_REGEN',
+  COMPUTED_REGEN = 'COMPUTED_REGEN',
   GROUP_UPDATE = 'GROUP_UPDATE',
   DEEP_PUBLIC_DATA_MUTATION = 'DEEP_PUBLIC_DATA_MUTATION',
   BULK_INTERNAL_DATA_MUTATION = 'BULK_INTERNAL_DATA_MUTATION',

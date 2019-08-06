@@ -22,7 +22,7 @@ export default class Runtime {
     // console.log(job);
 
     // if (this.ingestQueue.length > 0) {
-    //   this.ingestQueue = this.ingestQueue.filter(
+    //   this.ingestQueue = this.ingestQueue.computed(
     //     item =>
     //       item.type !== job.type &&
     //       item.collection !== job.collection &&
@@ -40,7 +40,7 @@ export default class Runtime {
     this.running = true;
     let next = this.ingestQueue.shift();
 
-    // non public data properties such as groups, filters and indexes will not have their dep, so get it.
+    // non public data properties such as groups, computed and indexes will not have their dep, so get it.
     if (!next.dep)
       next.dep = this.collections[next.collection].public.getDep(next.property);
 
@@ -49,12 +49,19 @@ export default class Runtime {
   }
 
   private performJob(job: Job): void {
-    if (job.type !== JobType.INTERNAL_DATA_MUTATION)
-      console.log(job.type, job.collection, job.property.name || job.property);
+    if (job.value === 2550)
+      if (
+        job.type === JobType.INDEX_UPDATE &&
+        job.dep.name === 'currentViewingSubscribed'
+      )
+        // if (job.type !== JobType.INTERNAL_DATA_MUTATION)
+        //   console.log(job.type, job.collection, job.property.name || job.property);
+        debugger;
 
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
         this.performPublicDataUpdate(job);
+        this.collections[job.collection].runWatchers(job.property);
         break;
       case JobType.INTERNAL_DATA_MUTATION:
         this.performInternalDataUpdate(job);
@@ -65,11 +72,13 @@ export default class Runtime {
       case JobType.INDEX_UPDATE:
         this.performIndexUpdate(job);
         break;
-      case JobType.FILTER_REGEN:
-        this.performFilterOutput(job);
+      case JobType.COMPUTED_REGEN:
+        this.performComputedOutput(job);
+        this.collections[job.collection].runWatchers(job.property.name);
         break;
       case JobType.GROUP_UPDATE:
         this.performGroupRebuild(job);
+        this.collections[job.collection].runWatchers(job.property);
         break;
       case JobType.DELETE_INTERNAL_DATA:
         this.performInternalDataDeletion(job);
@@ -78,19 +87,18 @@ export default class Runtime {
         break;
     }
 
-    // run watchers
-    this.collections[job.collection].runWatchers(job.property);
-
-    // unpack dependent filters
+    // unpack dependent computed
     if (job.dep && job.dep.dependents.size > 0) {
       // log(`Queueing ${dep.dependents.size} dependents`);
-      job.dep.dependents.forEach(filter => {
-        // get dep from public filter output
+      job.dep.dependents.forEach(computed => {
+        // get dep from public computed output
         this.ingest({
-          type: JobType.FILTER_REGEN,
-          collection: filter.collection,
-          property: filter,
-          dep: this.collections[filter.collection].public.getDep(filter.name)
+          type: JobType.COMPUTED_REGEN,
+          collection: computed.collection,
+          property: computed,
+          dep: this.collections[computed.collection].public.getDep(
+            computed.name
+          )
         });
       });
     }
@@ -139,6 +147,7 @@ export default class Runtime {
     }
 
     // find and ingest direct depenecies on data
+    this.global.relations.internalDataModified(job.collection, job.property);
 
     this.findIndexesToUpdate(job.collection, job.property);
     this.completedJob(job);
@@ -156,7 +165,7 @@ export default class Runtime {
     // for each found index, perform index update
     for (let i = 0; i < indexesToUpdate.length; i++) {
       const indexName = indexesToUpdate[i];
-      const newIndex = [...c.indexes.object[indexName]].filter(
+      const newIndex = [...c.indexes.object[indexName]].computed(
         id => id !== job.property
       );
       this.ingest({
@@ -195,15 +204,20 @@ export default class Runtime {
     this.writeToPublicObject(job.collection, 'group', job.property, job.value);
     this.completedJob(job);
   }
-  public performFilterOutput(job: Job): void {
-    const filter =
+  public performComputedOutput(job: Job): void {
+    const computed =
       typeof job.property === 'string'
-        ? this.collections[job.collection].filters[job.property]
+        ? this.collections[job.collection].computed[job.property]
         : job.property;
 
-    job.value = filter.run();
+    job.value = computed.run();
     // Commit Update
-    this.writeToPublicObject(job.collection, 'filters', filter.name, job.value);
+    this.writeToPublicObject(
+      job.collection,
+      'computed',
+      computed.name,
+      job.value
+    );
     this.completedJob(job);
   }
 
@@ -338,10 +352,11 @@ export default class Runtime {
     primaryKey: string | number
   ): Array<string> {
     const c = this.collections[collection];
+    const keys = Object.keys(c.indexes.object);
 
     let foundIndexes = [];
-    for (let i = 0; i < c.keys.indexes.length; i++) {
-      const indexName = c.keys.indexes[i];
+    for (let i = 0; i < keys.length; i++) {
+      const indexName = keys[i];
       if (c.indexes.object[indexName].includes(primaryKey))
         foundIndexes.push(indexName);
     }

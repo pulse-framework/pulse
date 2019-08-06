@@ -163,5 +163,5 @@ export default class Reactive {
   }
 }
 
-// look for filter output access to determine dependencies
-// remove filter categories from public object on default config
+// look for computed output access to determine dependencies
+// remove computed categories from public object on default config

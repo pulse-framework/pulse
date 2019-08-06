@@ -1,5 +1,5 @@
-import Library from "./library";
-import { defineConfig } from "./helpers";
+import Library from './library';
+import { defineConfig } from './helpers';
 const pulse = new Library({
   config: {},
   collections: {
@@ -8,22 +8,22 @@ const pulse = new Library({
       model: {
         jeff: {
           hasMany: 'channels',
-          assignTo:'channels'
+          assignTo: 'channels'
         }
       },
-      filters: {
+      computed: {
         fuck({ channels }) {
-          return channels.filterOne;
+          return channels.computedOne;
         }
       }
     },
 
     channels: {
-      persist: ["openChannel"],
-      groups: ["myChannels"],
+      persist: ['openChannel'],
+      groups: ['myChannels'],
       routes: {
         getSomething: request =>
-          request.get("https://jsonplaceholder.typicode.com/posts")
+          request.get('https://jsonplaceholder.typicode.com/posts')
       },
       data: {
         openChannel: true,
@@ -43,15 +43,15 @@ const pulse = new Library({
           routes.getSomething().then(res => {
             console.log(res);
           });
-          channels.currentChannel = "FIRST";
-          channels.openChannel = "SECOND";
+          channels.currentChannel = 'FIRST';
+          channels.openChannel = 'SECOND';
           return true;
         }
       },
       watch: {},
-      filters: {
-        filterOne({ channels }) {
-          // console.log("Hi, I'm filter One!");
+      computed: {
+        computedOne({ channels }) {
+          // console.log("Hi, I'm computed One!");
           // console.log(channels.deepReactive)
           return channels.deepReactive.op.cool.luka;
         }
@@ -65,7 +65,7 @@ pulse.mapData(({ channels, lol }) => {
     channel: channels.myChannels,
     cool: channels.deepReactive.op.cool.luka,
     ijwefoiewjf: channels.deepReactive.op.cool,
-    haha: channels.filterTwo,
+    haha: channels.computedTwo,
     hahaha: lol.thing
   };
 });
@@ -75,15 +75,13 @@ for (let i = 0; i < 10; i++) {
   sampleData.push({
     id: Math.random(),
     thing: true,
-    jeff: "myChannels"
+    jeff: 'myChannels'
   });
 }
 
-pulse.channels.collect(sampleData, 'myChannels')
-pulse.lol.collect(sampleData, 'haha')
+pulse.channels.collect(sampleData, 'myChannels');
+pulse.lol.collect(sampleData, 'haha');
 
-
-
-setTimeout(() => console.log(pulse))
-setTimeout(() => console.log(pulse._private.collections.channels))
-setTimeout(() => console.log(pulse._private.collections.lol))
+setTimeout(() => console.log(pulse));
+setTimeout(() => console.log(pulse._private.collections.channels));
+setTimeout(() => console.log(pulse._private.collections.lol));

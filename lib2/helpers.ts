@@ -2,7 +2,7 @@ export const protectedNames = [
   'data',
   'indexes',
   'groups',
-  'filters',
+  'computed',
   'actions',
   'routes'
 ];
@@ -21,7 +21,10 @@ export const collectionFunctions = [
   'purge',
   'watch',
   'findById',
-  'put'
+  'put',
+  'throttle',
+  // deprecated
+  'remove'
 ];
 
 export function defineConfig(config, defaults) {
