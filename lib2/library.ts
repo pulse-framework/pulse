@@ -4,7 +4,7 @@ import SubController from './subController';
 import Storage from './storage';
 import Request from './collections/request';
 import Base from './collections/base';
-import { uuid, normalizeMap } from './helpers';
+import { uuid, normalizeMap, log } from './helpers';
 import {
   Private,
   RequestConfig,
@@ -55,7 +55,7 @@ export default class Library {
     this.bindCollectionPublicData();
     this.runAllComputed();
     this._private.global.initComplete = true;
-    console.log('INIT COMPLETE', Object.assign({}, this));
+    log('INIT COMPLETE', Object.assign({}, this));
     if (!this._private.global.config.ssr) {
       try {
         window._pulse = this;
@@ -153,7 +153,8 @@ export default class Library {
       indexes: c.indexes.object,
       groups: c.public.object,
       computed: c.public.object,
-      routes: c.public.object.routes
+      routes: c.public.object.routes,
+      local: c.local
     };
   }
 

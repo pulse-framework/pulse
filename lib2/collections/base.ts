@@ -1,5 +1,5 @@
-import Collection from "../collection";
-import { Global, RootCollectionObject } from "../interfaces";
+import Collection from '../collection';
+import { Global, RootCollectionObject } from '../interfaces';
 
 export default class Request extends Collection {
   constructor(global: Global, root: RootCollectionObject = {}) {
@@ -11,12 +11,11 @@ export default class Request extends Collection {
     if (!root.data) root.data = {};
     if (!root.persist) root.persist = [];
 
-    root.data["isAuthenticated"] = false;
-    root.data["appReady"] = false;
+    root.data['isAuthenticated'] = false;
+    root.data['appReady'] = false;
 
-    root.persist.push("isAuthenticated");
+    root.persist.push('isAuthenticated');
 
-    console.log(root);
-    super("base", global, root);
+    super('base', global, root);
   }
 }

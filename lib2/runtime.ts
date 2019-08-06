@@ -1,4 +1,4 @@
-import { log, objectLoop } from './helpers';
+import { log, objectLoop, log } from './helpers';
 import { JobType, Job, Global } from './interfaces';
 
 export default class Runtime {
@@ -19,17 +19,6 @@ export default class Runtime {
   }
 
   public ingest(job: Job): void {
-    // console.log(job);
-
-    // if (this.ingestQueue.length > 0) {
-    //   this.ingestQueue = this.ingestQueue.filter(
-    //     item =>
-    //       item.type !== job.type &&
-    //       item.collection !== job.collection &&
-    //       item.property !== job.property
-    //   );
-    // }
-
     this.ingestQueue.push(job);
     if (!this.running) {
       this.findNextJob();
@@ -239,8 +228,8 @@ export default class Runtime {
   private compileComponentUpdates(): void {
     if (!this.global.initComplete) return;
     this.updatingSubscribers = true;
-    // console.log('ALL JOBS COMPLETE', this.completedJobs);
-    // console.log('Updating components...');
+    log('ALL JOBS COMPLETE', this.completedJobs);
+    log('Updating components...');
 
     const componentsToUpdate = {};
 
@@ -262,7 +251,6 @@ export default class Runtime {
       if (job.dep) subscribe(job.value, job.dep.subscribers);
     }
 
-    // console.log(componentsToUpdate);
     this.updateSubscribers(componentsToUpdate);
     this.completedJobs = [];
   }

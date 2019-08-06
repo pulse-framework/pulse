@@ -53,8 +53,8 @@ export function objectLoop(object, callback, keys?: Array<any>) {
 
 // })
 
-export function log(value, payload) {
-  console.log(`Pulse / ${value}`, payload ? payload : ' ');
+export function log(value: any, payload?: any) {
+  // console.log(`Pulse / ${value}`, payload ? payload : ' ');
 }
 
 export function normalizeMap(map) {
@@ -78,8 +78,8 @@ export function assert(
   funcName?: string
 ) {
   function warn(message) {
-    if (funcName) console.log(`Pulse / ${funcName} / ${message}`);
-    else console.warn(`Pulse / ${message}`);
+    // if (funcName) console.log(`PULSE // "${funcName}()" :: ${message}`);
+    // else console.warn(`PULSE :: ${message}`);
     return false;
   }
   const warnings = {

@@ -31,6 +31,7 @@ export default class Collection {
   public watchers: { [key: string]: any } = {};
   public externalWatchers: { [key: string]: any } = {};
   public persist: Array<string> = [];
+  public local: { [key: string]: any } = {};
 
   public collectionSize: number = 0;
   public primaryKey: string | number | boolean = false;
@@ -51,7 +52,7 @@ export default class Collection {
     this.config = root.config;
     this.dispatch = this.global.dispatch;
 
-    // legacy support
+    // legacy support ("filters" changed to "computed")
     root.computed = { ...root.computed, ...root.filters };
 
     root = this.prepareNamespace(root);
@@ -71,6 +72,8 @@ export default class Collection {
     collectionFunctions.map(
       func => (this.methods[func] = this[func].bind(this))
     );
+
+    if (root.local) this.local = root.local;
 
     // for each type set default and register keys
     ['data', 'actions', 'computed', 'indexes', 'routes', 'watch'].forEach(
@@ -270,7 +273,6 @@ export default class Collection {
   }
 
   buildGroupFromIndex(groupName: string): Array<number> {
-    // console.log(collection, key)
     const constructedArray = [];
     let index = this.indexes.object[groupName];
     for (let i = 0; i < index.length; i++) {
@@ -352,7 +354,6 @@ export default class Collection {
 
   // METHODS
   collect(data, group?: string | Array<string>, config?: ExpandableObject) {
-    console.log('collecting', data);
     config = defineConfig(config, {
       append: true
     });
@@ -380,8 +381,6 @@ export default class Collection {
         indexesToRegenOnceComplete.add(index)
       );
     }
-
-    console.log(group, indexesToRegenOnceComplete);
 
     indexesToRegenOnceComplete.forEach(index => {
       this.global.ingest({
@@ -537,7 +536,7 @@ export default class Collection {
 
   getGroup(property) {
     if (!this.indexes.exists(property))
-      return assert(warn => warn.INDEX_NOT_FOUND, 'group') || [];
+      return assert(warn => warn.INDEX_NOT_FOUND, 'getGroup') || [];
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
@@ -569,7 +568,7 @@ export default class Collection {
     itemsToRemove: number | string | Array<number | string>
   ) {
     if (!this.indexes.exists(groupName))
-      return assert(warn => warn.INDEX_NOT_FOUND, 'group');
+      return assert(warn => warn.INDEX_NOT_FOUND, 'removeFromGroup');
 
     if (!Array.isArray(itemsToRemove)) itemsToRemove = [itemsToRemove];
 
