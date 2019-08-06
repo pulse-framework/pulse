@@ -95,7 +95,7 @@ export interface Global {
   getDep: any;
   // aliases
   createForeignGroupRelation: any;
-  searchIndexes: any;
+  searchIndexes?: any;
   dispatch: any;
   getContext: any;
   getInternalData: any;
@@ -108,6 +108,7 @@ export interface Global {
 export interface Private {
   global: Global;
   runtime: Runtime;
+  collectionKeys: Array<string>;
   collections?: { [key: string]: Collection };
   events?: { [key: string]: Array<(payload?: any) => any> };
 }

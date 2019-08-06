@@ -5,12 +5,7 @@ import Storage from './storage';
 import Request from './collections/request';
 import Base from './collections/base';
 import { uuid, normalizeMap, log } from './helpers';
-import {
-  Private,
-  RequestConfig,
-  RootCollectionObject,
-  JobType
-} from './interfaces';
+import { Private, RootCollectionObject, JobType } from './interfaces';
 import RelationController from './relationController';
 
 export default class Library {
@@ -18,55 +13,112 @@ export default class Library {
   [key: string]: any;
 
   constructor(root: RootCollectionObject) {
+    // Private object contains all internal Pulse data
     this._private = {
       runtime: null,
       events: {},
+      collections: {},
+      collectionKeys: [],
+      // global is passed in to all classes, must not contain cyclic references
       global: {
         config: root.config,
+        // State
         initComplete: false,
         runningAction: false,
         runningWatcher: false,
         runningComputed: false,
         collecting: false,
+        contextRef: {},
+        // Instances
         subs: new SubController(this.getContext.bind(this)),
         relations: null,
         storage: null,
+        // Function aliases
         dispatch: this.dispatch.bind(this),
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
         createForeignGroupRelation: this.createForeignGroupRelation.bind(this),
-        contextRef: {},
         getDep: this.getDep.bind(this),
         uuid
       }
     };
 
+    // Bind static objects to instance (utils and services eventually should be initialized)
     ['utils', 'services', 'staticData'].forEach(type => {
       if (root[type]) this[type] = root[type];
     });
 
+    // Create storage instance
     this._private.global.storage = new Storage();
+
+    // Create relation controller instance
     this._private.global.relations = new RelationController(
       this._private.global
     );
 
+    // Prepare
     this.initCollections(root);
     this.initRuntime();
+
+    // Finalize
     this.bindCollectionPublicData();
     this.runAllComputed();
-    this._private.global.initComplete = true;
-    log('INIT COMPLETE', Object.assign({}, this));
-    if (!this._private.global.config.ssr) {
-      try {
-        window._pulse = this;
-      } catch (e) {}
+
+    this.initComplete();
+  }
+
+  initCollections(root: RootCollectionObject) {
+    this._private.collectionKeys = Object.keys(root.collections);
+
+    for (let i = 0; i < this._private.collectionKeys.length; i++) {
+      // Create collection instance
+      this._private.collections[
+        this._private.collectionKeys[i]
+      ] = new Collection(
+        this._private.collectionKeys[i], // name
+        this._private.global, // global
+        root.collections[this._private.collectionKeys[i]] // collection config
+      );
+    }
+
+    // Create request class
+    if (this._private.global.config.enableRequest !== false)
+      this._private.collectionKeys.push('request');
+    this._private.collections['request'] = new Request(
+      this._private.global,
+      root.request || {}
+    );
+
+    // Create base class
+    if (this._private.global.config.enableBase !== false) {
+      this._private.collectionKeys.push('base');
+      this._private.collections['base'] = new Base(this._private.global, root);
+    }
+  }
+
+  initRuntime() {
+    this._private.runtime = new Runtime(
+      this._private.collections,
+      this._private.global
+    );
+  }
+
+  private bindCollectionPublicData(): void {
+    for (let i = 0; i < this._private.collectionKeys.length; i++) {
+      const collection = this._private.collections[
+        this._private.collectionKeys[i]
+      ];
+      this._private.global.contextRef[this._private.collectionKeys[i]] =
+        collection.public.object;
+      this[this._private.collectionKeys[i]] = collection.public.object;
     }
   }
 
   runAllComputed() {
-    const collectionKeys = Object.keys(this._private.collections);
-    for (let i = 0; i < collectionKeys.length; i++) {
-      const collection = this._private.collections[collectionKeys[i]];
+    for (let i = 0; i < this._private.collectionKeys.length; i++) {
+      const collection = this._private.collections[
+        this._private.collectionKeys[i]
+      ];
 
       const computedKeys = collection.keys.computed;
       for (let i = 0; i < computedKeys.length; i++) {
@@ -81,49 +133,22 @@ export default class Library {
     }
   }
 
+  initComplete() {
+    this._private.global.initComplete = true;
+    log('INIT COMPLETE', Object.assign({}, this));
+    if (!this._private.global.config.ssr) {
+      try {
+        window._pulse = this;
+      } catch (e) {}
+    }
+  }
+
   getInternalData(collection, primaryKey) {
     return this._private.collections[collection].findById(primaryKey);
   }
 
   getDep(collection, name) {
     return this._private.collections[collection].public.getDep(name);
-  }
-
-  initCollections(root: RootCollectionObject) {
-    this._private.collections = {};
-    let collectionKeys = Object.keys(root.collections);
-    for (let i = 0; i < collectionKeys.length; i++) {
-      const collection = root.collections[collectionKeys[i]];
-      this._private.collections[collectionKeys[i]] = new Collection(
-        collectionKeys[i],
-        this._private.global,
-        collection
-      );
-    }
-    if (this._private.global.config.enableRequest !== false)
-      this._private.collections['request'] = new Request(
-        this._private.global,
-        root.request || {}
-      );
-    if (this._private.global.config.enableBase !== false)
-      this._private.collections['base'] = new Base(this._private.global, root);
-  }
-
-  initRuntime() {
-    this._private.runtime = new Runtime(
-      this._private.collections,
-      this._private.global
-    );
-  }
-
-  bindCollectionPublicData() {
-    let collectionKeys = Object.keys(this._private.collections);
-    for (let i = 0; i < collectionKeys.length; i++) {
-      const collection = this._private.collections[collectionKeys[i]];
-      this._private.global.contextRef[collectionKeys[i]] =
-        collection.public.object;
-      this[collectionKeys[i]] = collection.public.object;
-    }
   }
 
   dispatch(type: string, payload) {
