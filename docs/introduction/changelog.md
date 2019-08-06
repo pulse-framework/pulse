@@ -8,5 +8,11 @@ Reactive properties on collections are no longer accessible under their type nam
 
 ## Main Improvements
 
+- Written in Typescript
+- Added global events
+- Improved internal structure
+  - Internal architecture now follows a clear structure with an efficient job queuing system. Code broken up into classes to group logic and de-spaghettify code.
+- Added component update squashing
+  - Prevents repeat component updates by waiting until all jobs are complete before updating subscribed components (Vue, React), squashing updates together per component.
 - Removed all Javascript proxies
   - **Why:** Proxies are new to javascript, they allow developers to do more with reactive objects but are not supported by many environments, including React Native's new JS engine "Hermes". Pulse now uses getters & setters which is the same system as Vue.

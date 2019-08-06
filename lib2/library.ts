@@ -184,6 +184,7 @@ export default class Library {
   }
 
   install(Vue) {
+    this._private.global.config.framework = 'vue';
     const pulse = this;
     const config = pulse._private.global.config;
     Vue.mixin({
@@ -221,6 +222,7 @@ export default class Library {
     let component = this._private.global.subs.componentStore[
       instance.__pulseUniqueIdentifier
     ];
+
     if (component) {
       component.instance = instance;
       component.ready = true;
