@@ -4,6 +4,7 @@ import SubController from './subController';
 import Storage from './storage';
 import Request from './collections/request';
 import Base from './collections/base';
+import withPulse from './wrappers/ReactWithPulse';
 import { uuid, normalizeMap, log } from './helpers';
 import { Private, RootCollectionObject, JobType } from './interfaces';
 import RelationController from './relationController';
@@ -11,7 +12,7 @@ import RelationController from './relationController';
 export default class Library {
   _private: Private;
   [key: string]: any;
-
+  withPulse: any = withPulse;
   constructor(root: RootCollectionObject) {
     // Private object contains all internal Pulse data
     this._private = {

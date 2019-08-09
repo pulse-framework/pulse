@@ -257,21 +257,32 @@ export default class Runtime {
 
   private updateSubscribers(componentsToUpdate) {
     const componentKeys = Object.keys(componentsToUpdate);
-
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];
       const componentInstance = this.global.subs.componentStore[componentID];
       if (!componentInstance || !componentInstance.instance) return;
       const propertiesToUpdate = componentsToUpdate[componentID];
       const dataKeys = Object.keys(propertiesToUpdate);
-      dataKeys.forEach(property => {
-        const value = propertiesToUpdate[property];
-        componentInstance.instance.$set(
-          componentInstance.instance,
-          property,
-          value
-        );
-      });
+      // Switch depending on framework
+      switch (this.global.config.framework) {
+        case 'vue':
+          dataKeys.forEach(property => {
+            const value = propertiesToUpdate[property];
+            componentInstance.instance.$set(
+              componentInstance.instance,
+              property,
+              value
+            );
+          });
+          break;
+        case 'react':
+          componentInstance.instance.setState(propertiesToUpdate);
+
+          break;
+
+        default:
+          break;
+      }
     }
   }
 
