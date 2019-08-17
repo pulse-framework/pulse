@@ -22,6 +22,7 @@ export const collectionFunctions = [
   'watch',
   'findById',
   'put',
+  'move',
   'throttle',
   // deprecated
   'remove'

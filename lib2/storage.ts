@@ -8,25 +8,23 @@ interface StorageMethods {
 export default class Storage {
   private isPromise: boolean = false;
   private storageReady: boolean = false;
-  constructor(
-    private storageType: "localStorage" | "custom" = "localStorage",
-    private storageMethods: StorageMethods = {}
-  ) {
-    if (this.localStorageAvaliable() && storageType === "localStorage") {
+  private storageType: 'localStorage' | 'custom' = 'localStorage';
+  constructor(private storageMethods: StorageMethods = {}) {
+    if (storageMethods.async) this.isPromise = true;
+    if (this.localStorageAvaliable() && this.storageType === 'localStorage') {
       this.storageReady = true;
-
       storageMethods.get = localStorage.getItem.bind(localStorage);
       storageMethods.set = localStorage.setItem.bind(localStorage);
       storageMethods.remove = localStorage.removeItem.bind(localStorage);
     } else {
-      this.storageType = "custom";
+      this.storageType = 'custom';
+
       if (
         this.check(storageMethods.get) &&
         this.check(storageMethods.set) &&
         this.check(storageMethods.remove)
       ) {
         this.storageReady = true;
-        if (storageMethods.async) this.isPromise = true;
       } else {
         this.storageReady = false;
         // bad
@@ -42,13 +40,15 @@ export default class Storage {
         this.storageMethods
           .get(this.getKey(collection, key))
           .then(res => {
-            if (typeof res !== "string") return resolve(res);
+            // if result is not JSON for some reason, return it.
+            if (typeof res !== 'string') return resolve(res);
+
             resolve(JSON.parse(res));
           })
           .catch(reject);
       });
     } else {
-      return this.storageMethods.get(this.getKey(collection, key));
+      return JSON.parse(this.storageMethods.get(this.getKey(collection, key)));
     }
   }
 
@@ -56,7 +56,7 @@ export default class Storage {
     if (!this.storageReady) return;
     this.storageMethods.set(
       this.getKey(collection, key),
-      typeof value === "string" ? value : JSON.stringify(value)
+      JSON.stringify(value)
     );
   }
 
@@ -70,13 +70,13 @@ export default class Storage {
   }
 
   private check(func) {
-    return typeof func !== "function";
+    return typeof func === 'function';
   }
 
   private localStorageAvaliable() {
     try {
-      localStorage.setItem("_", "_");
-      localStorage.removeItem("_");
+      localStorage.setItem('_', '_');
+      localStorage.removeItem('_');
       return true;
     } catch (e) {
       return false;

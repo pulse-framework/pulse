@@ -19,6 +19,13 @@ export default class Runtime {
   }
 
   public ingest(job: Job): void {
+    // if (
+    //   job.property === 'feed' &&
+    //   job.type === JobType.INDEX_UPDATE &&
+    //   job.value.length > 60
+    // )
+    //   debugger;
+
     this.ingestQueue.push(job);
     if (!this.running) {
       this.findNextJob();

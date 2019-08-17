@@ -143,15 +143,30 @@ export default class Collection {
 
   initPersist(persist: Array<string>): void {
     if (!Array.isArray(persist)) return;
+
     for (let i = 0; i < persist.length; i++) {
       const dataName = persist[i];
 
       // TODO: validate
 
       this.persist.push(dataName);
-      let data = this.global.storage.get(this.name, dataName);
-      if (data === undefined || data === null) continue;
-      this.public.privateWrite(dataName, data);
+      if (this.global.storage.isPromise) {
+        this.global.storage.get(this.name, dataName).then(data => {
+          if (data === undefined || data === null) return;
+          const job = {
+            type: JobType.PUBLIC_DATA_MUTATION,
+            value: data,
+            property: dataName,
+            collection: this.name,
+            dep: this.global.getDep(this.name, dataName)
+          };
+          this.global.ingest(job);
+        });
+      } else {
+        let data = this.global.storage.get(this.name, dataName);
+        if (data === undefined || data === null) continue;
+        this.public.privateWrite(dataName, data);
+      }
     }
   }
 
@@ -422,7 +437,9 @@ export default class Collection {
     // add the data to group indexes
     for (let i = 0; i < groups.length; i++) {
       const groupName = groups[i];
-      const index = [...this.indexes.object[groupName]];
+      let index = [...this.indexes.object[groupName]];
+      // remove key if already present in index
+      index = index.filter(k => k !== key);
       if (config.append) index.push(key);
       else index.unshift(key);
       this.indexes.privateWrite(groupName, index);

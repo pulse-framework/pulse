@@ -5,14 +5,13 @@ import Storage from './storage';
 import Request from './collections/request';
 import Base from './collections/base';
 import withPulse from './wrappers/ReactWithPulse';
-import { uuid, normalizeMap, log } from './helpers';
+import { uuid, normalizeMap, log, defineConfig } from './helpers';
 import { Private, RootCollectionObject, JobType } from './interfaces';
 import RelationController from './relationController';
 
 export default class Library {
   _private: Private;
   [key: string]: any;
-  withPulse: any = withPulse;
   constructor(root: RootCollectionObject) {
     // Private object contains all internal Pulse data
     this._private = {
@@ -22,7 +21,7 @@ export default class Library {
       collectionKeys: [],
       // global is passed in to all classes, must not contain cyclic references
       global: {
-        config: root.config,
+        config: this.prepareConfig(root.config),
         // State
         initComplete: false,
         runningAction: false,
@@ -50,7 +49,7 @@ export default class Library {
     });
 
     // Create storage instance
-    this._private.global.storage = new Storage();
+    this._private.global.storage = new Storage(root.storage);
 
     // Create relation controller instance
     this._private.global.relations = new RelationController(
@@ -142,6 +141,47 @@ export default class Library {
         window._pulse = this;
       } catch (e) {}
     }
+
+    console.log(this);
+  }
+
+  public wrapped(ReactComponent, mapData) {
+    const config = this._private.global.config;
+    if (config.framework === 'react' && config.frameworkConstructor) {
+      return withPulse(
+        this,
+        config.frameworkConstructor,
+        ReactComponent,
+        mapData
+      );
+    } else return false;
+  }
+
+  private prepareConfig(config) {
+    // defaults
+    config = defineConfig(config, {
+      framework: null,
+      waitForMount: false,
+      autoUnmount: false
+    });
+
+    // detect if framework passed in is a React constructor
+    if (
+      config.framework &&
+      config.framework.hasOwnProperty(
+        '__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'
+      )
+    ) {
+      config.frameworkConstructor = config.framework;
+      config.framework = 'react';
+    }
+
+    if (config.framework === 'react') {
+      if (config.waitForMount != false) config.waitForMount = true;
+      if (config.autoUnmount != false) config.autoUnmount = true;
+    }
+
+    return config;
   }
 
   getInternalData(collection, primaryKey) {
@@ -220,14 +260,11 @@ export default class Library {
   }
 
   mount(instance) {
-    let component = this._private.global.subs.componentStore[
-      instance.__pulseUniqueIdentifier
-    ];
+    this._private.global.subs.mount(instance);
+  }
 
-    if (component) {
-      component.instance = instance;
-      component.ready = true;
-    }
+  unmount(instance) {
+    this._private.global.subs.unmount(instance);
   }
 
   mapData(properties, instance = {}, _config = {}, pulseAlias?: any) {

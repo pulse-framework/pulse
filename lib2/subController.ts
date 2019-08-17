@@ -42,9 +42,26 @@ export default class SubController {
     return uuid;
   }
 
-  mount(instance) {}
+  mount(instance) {
+    let component = this.componentStore[instance.__pulseUniqueIdentifier];
 
-  unmount(instance) {}
+    if (component) {
+      component.instance = instance;
+      component.ready = true;
+    }
+  }
+
+  unmount(instance) {
+    const uuid = instance.__pulseUniqueIdentifier;
+    if (!uuid) return;
+
+    const componentContainer = this.componentStore[
+      instance.__pulseUniqueIdentifier
+    ];
+
+    // delete refrence to this component from store
+    delete this.componentStore[instance.__pulseUniqueIdentifier];
+  }
 
   subscribePropertiesToComponents(properties, componentUUID) {
     // provisionally get keys of mapped data
