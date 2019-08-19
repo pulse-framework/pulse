@@ -1,5 +1,6 @@
 ---
 title: Collections
+layout: Guide
 ---
 
 ## What are collections?
@@ -91,7 +92,7 @@ Each time an object's index changes, the related group rebuilds its data from th
 You can modify the index directly and it will trigger the group to regenerate with the correct data.
 
 ::: warning NOTE
-**You must define groups in the collection library if you want them to be exposed publicly to your components, filters and actions. Example below:**
+  **You must define groups in the collection library if you want them to be exposed publicly to your components, filters and actions. Example below:**
 :::
 
 ```js

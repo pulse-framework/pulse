@@ -1,5 +1,6 @@
 ---
 title: Using with VueJS
+layout: Guide
 ---
 # Using with VueJS
 ```js

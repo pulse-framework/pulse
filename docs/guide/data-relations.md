@@ -1,5 +1,6 @@
 ---
 title: Data Relations
+layout: Guide
 ---
 
 ### Data Relations

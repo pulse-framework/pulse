@@ -1,5 +1,6 @@
 ---
 title: Mutating Data
+layout: Guide
 ---
 
 ### Mutating Data

@@ -1,5 +1,6 @@
 ---
 title: Models
+layout: Guide
 ---
 
 ### Models

@@ -1,5 +1,6 @@
 ---
 title: Context Object
+layout: Guide
 ---
 
 ### Context Object

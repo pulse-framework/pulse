@@ -1,5 +1,6 @@
 ---
 title: Authentication
+layout: Guide
 ---
 
 ## Basic authentication

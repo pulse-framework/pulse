@@ -1,5 +1,6 @@
 ---
 title: Filters
+layout: Guide
 ---
 
 ### Filters

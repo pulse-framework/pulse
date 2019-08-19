@@ -1,5 +1,6 @@
 ---
 title: HTTP Requests
+layout: Guide
 ---
 
 ### HTTP Requests

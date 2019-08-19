@@ -1,0 +1,19 @@
+@tailwind preflight;
+@tailwind components;
+@tailwind utilities;
+
+@import 'utilities';
+@require './code'
+.theorem
+  margin 1rem 0
+  padding .1rem 1.5rem
+  border-radius 0.4rem
+  background-color #f6e05e
+  .title
+    font-weight bold
+
+.custom-block
+  &.right
+    color transparentify($textColor, 0.4)
+    font-size 0.9rem
+    text-align right

@@ -1,5 +1,6 @@
 ---
 title: Namespacing
+layout: Guide
 ---
 
 ### Namespacing

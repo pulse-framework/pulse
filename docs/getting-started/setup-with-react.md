@@ -1,5 +1,6 @@
 ---
 title: Setup With React
+layout: Guide
 ---
 
 ### Install

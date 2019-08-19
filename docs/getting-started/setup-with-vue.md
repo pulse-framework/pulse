@@ -1,5 +1,6 @@
 ---
 title: Setup With Vue
+layout: Guide
 ---
 
 ### Install

@@ -1,5 +1,6 @@
 ---
 title: Degugging
+layout: Guide
 ---
 
 ### Degugging

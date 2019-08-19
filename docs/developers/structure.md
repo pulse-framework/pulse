@@ -1,3 +1,8 @@
+---
+title: Structure
+layout: Guide
+---
+
 ## Structure
 
 This document should help explain the architecture of Pulse and allow developers to gain a better understanding of how it functions.

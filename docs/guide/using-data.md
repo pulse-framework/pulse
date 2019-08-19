@@ -1,5 +1,6 @@
 ---
 title: Using Data
+layout: Guide
 ---
 
 ### Using data with mapData()

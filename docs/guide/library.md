@@ -1,5 +1,6 @@
 ---
 title: Pulse Library
+layout: Guide
 ---
 
 ### Pulse Library

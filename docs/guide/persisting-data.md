@@ -1,5 +1,6 @@
 ---
 title: Persisting Data
+layout: Guide
 ---
 
 ### What is Persisting?
@@ -18,7 +19,7 @@ collection: {
 Pulse will only save the data property into local storage if it has been set to something other than the original value defined in the collection.
 
 ::: tip Note
-Currently it is not possible to persist data collected using the `collect` method, this would be better suited for "indexed storage", as local storage requires stringifying the data. If you need this functionality consider opening an issue or making a PR yourself.
+  Currently it is not possible to persist data collected using the `collect` method, this would be better suited for "indexed storage", as local storage requires stringifying the data. If you need this functionality consider opening an issue or making a PR yourself.
 :::
 Pulse integrates directly with local storage and session storage, and even has an API to configure your own storage.
 

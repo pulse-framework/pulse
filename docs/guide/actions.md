@@ -1,7 +1,7 @@
 ---
 title: Actions
+layout: Guide
 ---
-
 ### Actions
 
 Actions are simply functions within your pulse collections that can be called externally.
