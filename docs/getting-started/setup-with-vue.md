@@ -50,7 +50,7 @@ export default {
 };
 ```
 
-Since mapped data is directly immutable to mutate data you'll need to call the collection directly. In Vue, this is as easy as calling the collection using `$`.
+Since mapped data is immutable within the component, to mutate data you'll need to call the collection directly. In Vue, this is as easy as calling the collection using `$`.
 
 ```js
 this.$myCollection.thing = true;
