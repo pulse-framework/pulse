@@ -1,4 +1,4 @@
-import Pulse from '../lib';
+import Pulse from '../index';
 // import window from '../__mocks__/window';
 
 // A fully structured instance of Pulse with correct data
@@ -29,10 +29,10 @@ const library = {
 };
 
 test('Collections initalized', () => {
-  const pulse = new Pulse.Library(library);
+  const pulse = new Pulse(library);
   const exec = () => {
-    if (!pulse._collections.hasOwnProperty('exampleOne')) return false;
-    if (!pulse._collections.hasOwnProperty('exampleTwo')) return false;
+    if (!pulse._private.collections.hasOwnProperty('exampleOne')) return false;
+    if (!pulse._private.collections.hasOwnProperty('exampleTwo')) return false;
     if (!pulse.hasOwnProperty('exampleOne')) return false;
     if (!pulse.hasOwnProperty('exampleTwo')) return false;
     return true;
@@ -41,15 +41,11 @@ test('Collections initalized', () => {
 });
 
 test('data is mutable', () => {
-  const pulse = new Pulse.Library(library);
+  const pulse = new Pulse(library);
   const exec = () => {
     pulse.exampleOne.trueTest = 'hi';
 
     if (pulse.exampleOne.trueTest !== 'hi') return false;
-    // if (pulse.exampleOne.data.trueTest !== 'hi') return false;
-    setTimeout(() => {
-      console.log(pulse._collections.exampleOne.data);
-    });
     return true;
   };
   expect(exec()).toBe(true);

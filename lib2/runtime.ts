@@ -255,6 +255,7 @@ export default class Runtime {
 
     for (let i = 0; i < this.completedJobs.length; i++) {
       const job = this.completedJobs[i];
+      // if (Array.isArray(job.value) && job.value.length === 4) debugger;
       if (job.dep) subscribe(job.value, job.dep.subscribers);
     }
 
@@ -263,6 +264,7 @@ export default class Runtime {
   }
 
   private updateSubscribers(componentsToUpdate) {
+    console.log(componentsToUpdate);
     const componentKeys = Object.keys(componentsToUpdate);
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];
@@ -284,7 +286,7 @@ export default class Runtime {
           break;
         case 'react':
           componentInstance.instance.setState(propertiesToUpdate);
-
+          // console.log(propertiesToUpdate);
           break;
 
         default:
