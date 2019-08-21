@@ -1,9 +1,9 @@
 <template>
     <div>
         <Nav style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
-        <div class="container mx-auto my-10 py-10 px-20 rounded border shadow-xl content" style="width: 100%">
+        <div class="container mx-auto my-10 py-10 px-20 rounded border shadow-xl" style="width: 100%">
             <!-- Main Content -->
-            <Content />
+            <Content class="change-content"/>
         </div>
         <Footer />
     </div>
@@ -12,11 +12,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans&display=swap');
 
-body, html, #app {
-  height: 100%; /* makes the footer sticked to bottom */
-  font-family: 'Noto Sans', sans-serif;
-}
-.content > h2, h3 {
+.change-content > h1, h2, h3, h4, h5 {
     border-left-width: 5px;
     border-color: #38b2ac;
     font-size: 1.25rem;

@@ -10,7 +10,7 @@
       <div>
         
         <ul class="text-m text-white list-reset flex items-center">
-          <SearchBox  class="pt-1 text-left sm:mr-3"/>
+          <SearchBox  class=" text-left sm:mr-3"/>
           <li v-for="item in $site.themeConfig.nav">
             <a
               :href="item.link"
