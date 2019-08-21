@@ -1,16 +1,16 @@
 <template>
-<nav class="side-container m-0 text-left pt-5">
-  <ul class="text-white p-0 list-none w-full pl-10">
-    <li v-for="item in $site.themeConfig.sidebar" class=" no-underline whitespace-no-wrap">
-      <p
-        class="text-white pl-6 pr-16 w-full h-full"
-      >{{item.text}}</p>
-      <ul class="block w-full p-0 list-none font-medium">
-        <li v-for="child in item.children" class="no-underline pl-6 pr-16 whitespace-no-wrap">
+<nav class="side-container m-0 text-left px-10">
+  <ul class="text-white p-0 list-none">
+    <li v-for="item in $site.themeConfig.sidebar" class=" no-underline whitespace-no-wrap pt-8">
+      <span
+        class="text-white border-l-4 border-transparent hover:border-blue-800 pl-4 px-2"
+      >{{item.text}}</span>
+      <ul class="list-none">
+        <li v-for="child in item.children" class="no-underline whitespace-no-wrap">
         <router-link
           :to="child.link"
-          class="text-white pl-6 hover:text-teal-300 hover:underline"
-        >- {{ child.title }}</router-link>
+          class="text-white border-transparent  border-l-4 hover:border-blue-800 pl-12"
+        >{{ child.title }}</router-link>
         </li>
       </ul>
     </li>

@@ -1,7 +1,7 @@
 <template>
     <div>
         <Nav style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
-        <div class="flex font-sans leading-loose text-lg text-grey-900">
+        <div class="flex font-sans leading-loose  text-grey-900">
             <div class="bg-black flex-auto px-auto">
                 <!-- Sidebar generator -->
                 <Sidebar style="font-family: 'Noto Sans', sans-serif;"/>
@@ -21,7 +21,7 @@
 
 body, html, #app {
   height: 100%; /* makes the footer sticked to bottom */
-  /* font-family: 'Noto Sans', sans-serif; */
+  font-family: 'Noto Sans', sans-serif;
 }
 .guide-content > h2, h3 {
     border-left-width: 5px;
