@@ -5,5 +5,5 @@ export default ({
     siteData // site metadata
 }) => {
     // ...apply enhancements to the app
-    // Vue.config.debug = true;
+    Vue.config.debug = true;
 }

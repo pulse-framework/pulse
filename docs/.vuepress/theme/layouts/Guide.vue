@@ -8,7 +8,6 @@
             </div>
             <div class="flex-auto ml-16 pr-20 pb-16 pt-16" style="width: 100%">
                 <!-- Main Content -->
-                
                 <Content class="guide-content" />
             </div>
         </div>

@@ -38,6 +38,7 @@ module.exports = {
     logo: '/logo.svg',
     nav: [
       { text: 'Home', link: '/' },
+      { text: 'Changelog', link: '/changelog' },
       { text: 'Guide', link: '/introduction/what-is-pulse' }
     ],
     lastUpdated: 'Last Updated',
