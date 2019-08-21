@@ -49,5 +49,11 @@
     "vuepress": "^1.0.2",
     "vuepress-plugin-container": "^2.0.2"
   },
+  "dependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0"
+  }
+
+  },
   "dependencies": {}
 }
