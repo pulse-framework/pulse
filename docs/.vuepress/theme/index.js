@@ -1,10 +1,5 @@
 module.exports = {
     plugins: [
-        ["@silvanite/tailwind", {
-            purgecss: {
-                enabled: true,
-            },
-        }],
         ['@vuepress/search', {
             searchMaxSuggestions: 10
         }],

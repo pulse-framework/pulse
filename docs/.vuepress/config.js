@@ -9,15 +9,31 @@ module.exports = {
     // so babel-style may be a better choice
     ['container', {
       type: 'warning',
-      before: info => `<div class="theorem"><p class="title>${info}</p>`,
+      before: info => `<div class="container-warning">${info}`,
       after: '</div>',
     }],
     ['container', {
       type: 'tip',
-      before: info => `<div class="theorem"><p class="title">${info}</p>`,
+      before: info => `<div class="container-tip">${info}`,
+      after: '</div>',
+    }],
+    ['container', {
+      type: 'note',
+      before: info => `<div class="container-note">${info}`,
+      after: '</div>',
+    }],
+    ['container', {
+      type: 'flex',
+      before: info => `<div class="flex">${info}`,
       after: '</div>',
     }],
   ],
+  postcss: {
+    plugins: [
+        require('tailwindcss')('./tailwind.config.js'),
+        require('autoprefixer'),
+    ]
+  },
   themeConfig: {
     logo: '/logo.svg',
     nav: [
@@ -83,20 +99,13 @@ module.exports = {
       { 
         text: 'Examples', 
         children: [
-          // { title: 'Setup With ReactJS', link: '/getting-started/setup-with-react'},
+          //     // These are pages we'll add later
+          //     //   '/examples/UsageWithVueJS',
+          //     //   '
+          // { title: 'Authentication', link: '/examples/authentication'},
+          // { title: 'Usage with VueJS', link: '/examples/UsageWithVueJS'},
         ]
       }
-
-
-      // {
-      //   title: 'Examples',
-      //   collapsable: false,
-      //   children: [
-      //     // These are pages we'll add later
-      //     //   '/examples/UsageWithVueJS',
-      //     //   '/examples/authentication'
-      //   ]
-      // }
     ]
   }
 };

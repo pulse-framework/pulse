@@ -1,10 +1,54 @@
-@tailwind preflight;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @import 'utilities';
 @require './code'
-.theorem
+
+@css {
+  html, body {
+      height: 100%;
+  }
+  .wrapper {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -142px; /* the bottom margin is the negative value of the footer's height */
+  }
+  .footer, .push {
+    height: 200px; /* .push must be the same height as .footer */
+  }
+}
+
+.container-warning
+  margin 1rem 0
+  padding .1rem 1.5rem
+  border-radius 0.4rem
+  background-color #f6e05e
+  .title
+    font-weight bold
+
+.custom-block
+  &.right
+    color transparentify($textColor, 0.4)
+    font-size 0.9rem
+    text-align right
+
+.container-tip
+  margin 1rem 0
+  padding .1rem 1.5rem
+  border-radius 0.4rem
+  background-color #f6e05e
+  .title
+    font-weight bold
+
+.custom-block
+  &.right
+    color transparentify($textColor, 0.4)
+    font-size 0.9rem
+    text-align right
+
+.container-note
   margin 1rem 0
   padding .1rem 1.5rem
   border-radius 0.4rem

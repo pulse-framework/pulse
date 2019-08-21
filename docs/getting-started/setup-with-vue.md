@@ -59,6 +59,6 @@ this.$myCollection.thing = true;
 
 Remember, we've mapped `thing` to `something` locally in our Vue component, so for it to be reactive we must use `this.something` inside the template or computed methods.
 
-::: tip Summary
+::: note Summary
 The main thing to learn is that mapData() is reactive, `$` is not- though we need to use the `$` to make mutations and call actions.
 :::
