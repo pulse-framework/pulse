@@ -264,7 +264,6 @@ export default class Runtime {
   }
 
   private updateSubscribers(componentsToUpdate) {
-    console.log(componentsToUpdate);
     const componentKeys = Object.keys(componentsToUpdate);
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];

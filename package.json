@@ -5,7 +5,8 @@
   "main": "dist/pulse.min.js",
   "module": "dist/pulse.esm.min.js",
   "scripts": {
-    "test": "jest",
+    "test": "mocha --exit",
+    "test-debug": "mocha --inspect-brk",
     "build": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js",
     "build:publish": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js && npm publish",
     "dev": "rollup -c build/rollup.dev.config.js --watch",
@@ -39,5 +40,9 @@
     "tslib": "^1.10.0",
     "typescript": "^3.5.3",
     "vuepress": "^1.0.2"
+  },
+  "dependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0"
   }
 }

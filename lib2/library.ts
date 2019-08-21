@@ -12,7 +12,7 @@ import RelationController from './relationController';
 export default class Library {
   _private: Private;
   [key: string]: any;
-  constructor(root: RootCollectionObject) {
+  constructor(root: RootCollectionObject = {}) {
     // Private object contains all internal Pulse data
     this._private = {
       runtime: null,
@@ -68,19 +68,23 @@ export default class Library {
   }
 
   initCollections(root: RootCollectionObject) {
-    this._private.collectionKeys = Object.keys(root.collections);
-
-    for (let i = 0; i < this._private.collectionKeys.length; i++) {
-      // Create collection instance
-      this._private.collections[
-        this._private.collectionKeys[i]
-      ] = new Collection(
-        this._private.collectionKeys[i], // name
-        this._private.global, // global
-        root.collections[this._private.collectionKeys[i]] // collection config
-      );
+    this._private.collectionKeys = [];
+    if (root.collections) {
+      this._private.collectionKeys = [
+        ...Object.keys(root.collections),
+        ...this._private.collectionKeys
+      ];
+      for (let i = 0; i < this._private.collectionKeys.length; i++) {
+        // Create collection instance
+        this._private.collections[
+          this._private.collectionKeys[i]
+        ] = new Collection(
+          this._private.collectionKeys[i], // name
+          this._private.global, // global
+          root.collections[this._private.collectionKeys[i]] // collection config
+        );
+      }
     }
-
     // Create request class
     if (this._private.global.config.enableRequest !== false)
       this._private.collectionKeys.push('request');
@@ -141,8 +145,6 @@ export default class Library {
         window._pulse = this;
       } catch (e) {}
     }
-
-    console.log(this);
   }
 
   public wrapped(ReactComponent, mapData) {
