@@ -1,11 +1,11 @@
 <template>
-    <footer class="bg-black">
+    <footer style="background: linear-gradient(45deg, #030301 20%, #1b1b1b 100%)">
       <div class="container mx-auto px-6 pt-10 pb-6">
         <div class="flex flex-wrap">
           <div class="w-full md:w-1/2 text-center md:text-right"></div>
           
           <div class="w-full md:w-1/4 text-right md:text-left">
-            <h5 class="uppercase mb-6 font-bold text-white">Links</h5>
+            <h5 class="uppercase mb-6 font-bold text-white border-teal-500 border-b-2 mr-40">Links</h5>
             <ul class="mb-4">
               <li class="mt-2">
                 <a href="https://discord.gg/Huhe48c" class="hover:underline text-white hover:text-teal-500">Help</a>
@@ -16,7 +16,7 @@
             </ul>
           </div>
           <div class="w-full md:w-1/4 text-right  md:text-left">
-            <h5 class="uppercase mb-6 font-bold text-white">Social</h5>
+            <h5 class="uppercase mb-6 font-bold text-white border-teal-500 border-b-2 mr-40">Social</h5>
             <ul class="mb-4">
               <li class="mt-2">
                 <a href="https://twitch.tv/jamiepinelive" class="hover:underline text-white hover:text-teal-500">Twitch</a>
@@ -29,7 +29,7 @@
         </div>
       </div>
       <div class="container mx-auto flex items-center justify-center p-2 pb-4">
-          <div class="text-white text-center border-b-2 border-teal-600">©2019 James Pine. All rights reserved.</div>
+          <div class="text-gray-400 text-center">©2019 James Pine. All rights reserved.</div>
       </div>
       <div class="container mx-auto flex items-center justify-center pb-5">
         <div class="flex">

@@ -12,7 +12,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans&display=swap');
 
-.change-content > h1, h2, h3, h4, h5 {
+.change-content > h1, h2, h3 {
     border-left-width: 5px;
     border-color: #38b2ac;
     font-size: 1.25rem;

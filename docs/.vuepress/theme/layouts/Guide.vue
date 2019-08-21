@@ -2,7 +2,7 @@
     <div>
         <Nav style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
         <div class="flex font-sans leading-loose  text-grey-900">
-            <div class="bg-black flex-auto px-auto">
+            <div class="flex-auto px-auto" style="background: linear-gradient(45deg, #030301 20%, #1b1b1b 100%)">
                 <!-- Sidebar generator -->
                 <Sidebar style="font-family: 'Noto Sans', sans-serif;"/>
             </div>

@@ -1,8 +1,8 @@
 <template>
     <div>
         <Nav style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
-        <div class="flex font-sans leading-loose  text-grey-900">
-            <div class="flex-auto ml-16 pr-20 pb-16 pt-16" style="width: 100%">
+        <div class="font-sans leading-loose  text-grey-900">
+            <div class="ml-16 pr-20 pb-16 pt-16">
                 <!-- Main Content -->
                 <!-- <Content /> -->
                 <ChangelogIndex />
