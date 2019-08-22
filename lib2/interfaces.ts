@@ -87,9 +87,11 @@ export interface Global {
   config: RootConfig;
   initComplete: boolean;
   collecting: boolean;
+  touching: boolean;
   runningAction: boolean | Action;
   runningComputed: boolean | Computed;
   runningWatcher: boolean | Watcher;
+  touched: boolean | Dep;
   contextRef: ExpandableObject;
   storage: any;
   getDep: any;

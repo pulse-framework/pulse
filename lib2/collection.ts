@@ -158,7 +158,7 @@ export default class Collection {
             value: data,
             property: dataName,
             collection: this.name,
-            dep: this.global.getDep(this.name, dataName)
+            dep: this.global.getDep(dataName, this.name)
           };
           this.global.ingest(job);
         });

@@ -37,8 +37,8 @@ export default class RelationController {
           collection: collection,
           property: computedInstance,
           dep: this.global.getDep(
-            computedInstance.collection,
-            computedInstance.name
+            computedInstance.name,
+            computedInstance.collection
           )
         });
       });

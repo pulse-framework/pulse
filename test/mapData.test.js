@@ -17,7 +17,10 @@ const pulse = new Pulse({
     example2: {
       data: {
         thing: true,
-        thing2: 'haha'
+        thing2: 'haha',
+        deep: {
+          haha: true
+        }
       }
     }
   }
@@ -41,14 +44,12 @@ class fakeComponent {
 }
 
 const f0 = new fakeComponent();
-const f1 = new fakeComponent();
-const f2 = new fakeComponent();
 
 describe('Basic mapData() init & subscribe', () => {
   it('Can map data to component', () => {
     pulse.mapData(({ example }) => {
       return {
-        thingLocal: example.thing
+        thing: example.thing
       };
     }, f0);
     // make sure component store has one component instance inside
@@ -57,13 +58,17 @@ describe('Basic mapData() init & subscribe', () => {
     ).to.be.equal(1);
   });
   it('Has created dependency on collection data property', () => {
-    const dep = pulse._private.global.getDep('example', 'thing');
+    const dep = pulse._private.global.getDep('thing', 'example');
     expect(dep.subscribers.length).to.be.equal(1);
   });
 });
 
 describe('basic mapData() with several properties', () => {
   it('Can map multiple data properties to component', () => {
+    const f1 = new fakeComponent();
+    const f2 = new fakeComponent();
+
+    // mockup mapping data to fake component
     f1.setState({
       ...pulse.mapData(({ example, example2 }) => {
         return {
@@ -73,6 +78,7 @@ describe('basic mapData() with several properties', () => {
       }, f1)
     });
 
+    // mockup mapping data to fake component
     f2.setState({
       ...pulse.mapData(({ example, example2 }) => {
         return {
@@ -84,22 +90,27 @@ describe('basic mapData() with several properties', () => {
   });
 
   it('Has created dependency on collection data properties', () => {
-    const dep1 = pulse._private.global.getDep('example', 'thing');
-    const dep2 = pulse._private.global.getDep('example', 'thing2');
-    const dep3 = pulse._private.global.getDep('example2', 'thing');
-    const dep4 = pulse._private.global.getDep('example2', 'thing2');
+    // get the dependencies for each data properties
+    const dep1 = pulse._private.global.getDep('thing', 'example');
+    const dep2 = pulse._private.global.getDep('thing2', 'example');
+    const dep3 = pulse._private.global.getDep('thing', 'example2');
+    const dep4 = pulse._private.global.getDep('thing2', 'example2');
+    // first example is used in the first test, and in this test twice, thus should be 3
     expect(dep1.subscribers.length).to.be.equal(3);
+    // this example is never used
     expect(dep2.subscribers.length).to.be.equal(0);
+    // this example is used in this test twice
     expect(dep3.subscribers.length).to.be.equal(2);
+    // this example is never used
     expect(dep4.subscribers.length).to.be.equal(0);
   });
 });
 
 describe('Updating subscribers for mutations', () => {
   it('Single mutation will update subscribers', done => {
-    pulse.example2.thing = 'newValue';
+    pulse.example.thing = 'newValue';
     setTimeout(() => {
-      expect(f1.thing2).to.be.equal('newValue');
+      expect(f0.thing).to.be.equal('newValue');
       done();
     });
   });
@@ -128,6 +139,48 @@ describe('Updating subscribers for mutations', () => {
       expect(f3.thing2).to.be.equal('newValue2');
       expect(f3.thing3).to.be.equal('newValue3');
       expect(f3.thing4).to.be.equal('newValue4');
+      done();
+    });
+  });
+});
+
+describe('Map data with deep reactive properties', () => {
+  it('Map deep properties to component', () => {
+    // ensure values are what we expect
+    pulse.example.thing = 'deep1';
+    pulse.example.thing2 = 'deep2';
+    // create fake component
+    const f4 = new fakeComponent();
+    // map data with deep property
+    f4.setState({
+      ...pulse.mapData(({ example, example2 }) => {
+        return {
+          deepThing: example.thing,
+          deepHaha: example2.deep.haha,
+          deepThing2: example.thing2
+        };
+      }, f4)
+    });
+  });
+  it('Regular property before deep reactive is present.', done => {
+    setTimeout(() => {
+      // check that the property has the subscribers
+      expect(
+        typeof pulse._private.global
+          .getDep('thing', 'example')
+          .subscribers.find(x => x.key === 'deepThing')
+      ).to.be.equal('object');
+      done();
+    });
+  });
+  it('Regular property before deep reactive is present.', done => {
+    setTimeout(() => {
+      // check that the property has the subscribers
+      expect(
+        typeof pulse._private.global
+          .getDep(pulse.example2.thing)
+          .subscribers.find(x => x.key === 'deepThing')
+      ).to.be.equal('object');
       done();
     });
   });

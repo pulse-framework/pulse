@@ -38,7 +38,7 @@ export default class Runtime {
 
     // non public data properties such as groups, computed and indexes will not have their dep, so get it.
     if (!next.dep)
-      next.dep = this.collections[next.collection].public.getDep(next.property);
+      next.dep = this.global.getDep(next.property, next.collection);
 
     // execute the next task in the queue
     this.performJob(next);
@@ -83,9 +83,7 @@ export default class Runtime {
           type: JobType.COMPUTED_REGEN,
           collection: computed.collection,
           property: computed,
-          dep: this.collections[computed.collection].public.getDep(
-            computed.name
-          )
+          dep: this.global.getDep.getDep(computed.name, computed.collection)
         });
       });
     }
@@ -160,7 +158,7 @@ export default class Runtime {
         collection: c.name,
         property: indexName,
         value: newIndex,
-        dep: this.collections[job.collection].public.getDep(job.property)
+        dep: this.global.getDep.getDep(job.property, job.collection)
       });
     }
     this.completedJob(job);
@@ -180,7 +178,7 @@ export default class Runtime {
       type: JobType.GROUP_UPDATE,
       collection: job.collection,
       property: job.property,
-      dep: this.collections[job.collection].public.getDep(job.property)
+      dep: this.global.getDep(job.property, job.collection)
     });
   }
   private performGroupRebuild(job: Job): void {
@@ -324,7 +322,7 @@ export default class Runtime {
     //     type: JobType.INDEX_UPDATE,
     //     collection: c.name,
     //     property: index,
-    //     dep: this.collections[c.name].indexes.getDep(index)
+    //     dep: this.global.getDep(index, c.name)
     //   });
     // });
   }
@@ -338,9 +336,7 @@ export default class Runtime {
           type: JobType.GROUP_UPDATE,
           collection: relation.collection,
           property: relation.groupToRegen,
-          dep: this.collections[relation.collection].public.getDep(
-            relation.groupToRegen
-          )
+          dep: this.global.getDep(relation.groupToRegen, relation.collection)
         });
     });
   }

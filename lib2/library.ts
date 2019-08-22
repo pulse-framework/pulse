@@ -8,6 +8,7 @@ import withPulse from './wrappers/ReactWithPulse';
 import { uuid, normalizeMap, log, defineConfig } from './helpers';
 import { Private, RootCollectionObject, JobType } from './interfaces';
 import RelationController from './relationController';
+import Dep from './dep';
 
 export default class Library {
   _private: Private;
@@ -28,6 +29,8 @@ export default class Library {
         runningWatcher: false,
         runningComputed: false,
         collecting: false,
+        touching: false,
+        touched: false,
         contextRef: {},
         // Instances
         subs: new SubController(this.getContext.bind(this)),
@@ -182,7 +185,6 @@ export default class Library {
       if (config.waitForMount != false) config.waitForMount = true;
       if (config.autoUnmount != false) config.autoUnmount = true;
     }
-
     return config;
   }
 
@@ -190,8 +192,21 @@ export default class Library {
     return this._private.collections[collection].findById(primaryKey);
   }
 
-  getDep(collection, name) {
-    return this._private.collections[collection].public.getDep(name);
+  // returns Dep instance by "touching" reactive property revealing its Dep class
+  // if collection param is present we'll assume the property param is the name of the property, not a reference to the property itself
+  getDep(property: any, collection?: string): Dep {
+    this._private.global.touching = true;
+
+    // "touching" is simply invoking the property's getter
+    if (collection)
+      this._private.collections[collection].public.object[property];
+    else property;
+
+    // Extract the dep
+    const dep = this._private.global.touched;
+    this._private.global.touching = false;
+
+    return dep as Dep;
   }
 
   dispatch(type: string, payload) {

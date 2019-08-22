@@ -56,8 +56,8 @@ export default class Reactive {
 
       Object.defineProperty(object, key, {
         get: function pulseGetter() {
-          if (self.touching) {
-            self.touched = dep;
+          if (self.global.touching) {
+            self.global.touched = dep;
             return;
           }
           dep.register();
@@ -152,14 +152,6 @@ export default class Reactive {
 
   exists(property: string): boolean {
     return !!this.object.hasOwnProperty(property);
-  }
-
-  getDep(property) {
-    this.touching = true;
-    const _ = this.object[property]; // eslint-disable-line no-unused-var
-    const dep = this.touched;
-    this.touching = false;
-    return dep;
   }
 }
 
