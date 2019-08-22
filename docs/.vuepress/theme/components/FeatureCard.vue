@@ -15,10 +15,10 @@ export default {
         tagline: { default: 'tagline' },
         image: { default: 'https://placekitten.com/300/300' }
     },
-    // data: function () {
-    //     return {
-    //         image: image
-    //     }
-    // }
+    data: function () {
+        return {
+            image: image
+        }
+    }
 }
 </script>

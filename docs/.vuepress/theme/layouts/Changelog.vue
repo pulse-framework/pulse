@@ -19,9 +19,6 @@ body, html, #app {
   height: 100%; /* makes the footer sticked to bottom */
   font-family: 'Noto Sans', sans-serif;
 }
-.leading-loose {
-
-}
 
 </style>
 

@@ -1,5 +1,5 @@
 <template>
-    <footer style="background: linear-gradient(45deg, #030301 20%, #1b1b1b 100%)">
+    <footer style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
       <div class="container mx-auto px-6 pt-10 pb-6">
         <div class="flex flex-wrap">
           <div class="w-full md:w-1/2 text-center md:text-right"></div>
