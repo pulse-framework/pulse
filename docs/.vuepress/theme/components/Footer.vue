@@ -49,6 +49,7 @@
     </footer>
 </template>
 <style scoped>
+
 .flex > a {
   @apply px-2;
 }
