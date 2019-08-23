@@ -2,6 +2,7 @@ const Pulse = require('../dist/pulse.min.js');
 const assert = require('assert');
 const { expect } = require('chai');
 console.clear();
+
 // mockup Pulse config for this test
 const pulse = new Pulse({
   config: {
@@ -25,6 +26,7 @@ const pulse = new Pulse({
     }
   }
 });
+const getDep = pulse._private.global.getDep;
 
 // replicate the basic functionality of a react component, with internal history state change history for debugging
 class fakeComponent {
@@ -91,10 +93,10 @@ describe('basic mapData() with several properties', () => {
 
   it('Has created dependency on collection data properties', () => {
     // get the dependencies for each data properties
-    const dep1 = pulse._private.global.getDep('thing', 'example');
-    const dep2 = pulse._private.global.getDep('thing2', 'example');
-    const dep3 = pulse._private.global.getDep('thing', 'example2');
-    const dep4 = pulse._private.global.getDep('thing2', 'example2');
+    const dep1 = getDep('thing', 'example');
+    const dep2 = getDep('thing2', 'example');
+    const dep3 = getDep('thing', 'example2');
+    const dep4 = getDep('thing2', 'example2');
     // first example is used in the first test, and in this test twice, thus should be 3
     expect(dep1.subscribers.length).to.be.equal(3);
     // this example is never used
@@ -145,43 +147,74 @@ describe('Updating subscribers for mutations', () => {
 });
 
 describe('Map data with deep reactive properties', () => {
+  // prepare test
+  // this is an array that can be modified to add / remove properties from the test
+  const SampleTest = [
+    {
+      localName: 'deepThing',
+      location: pulse.example,
+      name: 'thing',
+      value: 'haha'
+    },
+    {
+      localName: 'deepThing2',
+      location: pulse.example,
+      name: 'thing2',
+      value: 'hahaha'
+    },
+    {
+      localName: 'deepThing3',
+      location: pulse.example2.deep,
+      name: 'haha',
+      value: 'hahahaha'
+    },
+    {
+      localName: 'deepThing4',
+      location: pulse.example2,
+      name: 'thing',
+      value: 'hahahaha'
+    },
+    {
+      localName: 'deepThing5',
+      location: pulse.example2,
+      name: 'thing2',
+      value: 'hahahahaha'
+    }
+  ];
   it('Map deep properties to component', () => {
-    // ensure values are what we expect
-    pulse.example.thing = 'deep1';
-    pulse.example.thing2 = 'deep2';
+    // ensure all values are clean and what we expect them to be
+    SampleTest.forEach(test => (test.location[test.name] = test.value));
+
     // create fake component
     const f4 = new fakeComponent();
-    // map data with deep property
+
+    // map data dynamically using SampleTest
+    const obj = {};
+    SampleTest.forEach(
+      test => (obj[test.localName] = test.location[test.name])
+    );
     f4.setState({
       ...pulse.mapData(({ example, example2 }) => {
-        return {
-          deepThing: example.thing,
-          deepHaha: example2.deep.haha,
-          deepThing2: example.thing2
-        };
+        return obj;
       }, f4)
     });
+
+    // ensure the correct values were mapped to the component
+    SampleTest.forEach(test =>
+      expect(f4[test.localName]).to.be.equal(test.value)
+    );
   });
-  it('Regular property before deep reactive is present.', done => {
-    setTimeout(() => {
-      // check that the property has the subscribers
-      expect(
-        typeof pulse._private.global
-          .getDep('thing', 'example')
-          .subscribers.find(x => x.key === 'deepThing')
-      ).to.be.equal('object');
-      done();
-    });
-  });
-  it('Regular property before deep reactive is present.', done => {
-    setTimeout(() => {
-      // check that the property has the subscribers
-      expect(
-        typeof pulse._private.global
-          .getDep(pulse.example2.thing)
-          .subscribers.find(x => x.key === 'deepThing')
-      ).to.be.equal('object');
-      done();
+
+  SampleTest.forEach(test => {
+    it(`Testing subscribers for sample: "${test.localName}"`, done => {
+      setTimeout(() => {
+        expect(
+          typeof getDep(test.name, test.location).subscribers.find(
+            x => x.key === test.localName
+          )
+        );
+        done();
+      });
     });
   });
 });
