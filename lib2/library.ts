@@ -6,7 +6,12 @@ import Request from './collections/request';
 import Base from './collections/base';
 import withPulse from './wrappers/ReactWithPulse';
 import { uuid, normalizeMap, log, defineConfig } from './helpers';
-import { Private, RootCollectionObject, JobType } from './interfaces';
+import {
+  Private,
+  RootCollectionObject,
+  JobType,
+  DebugType
+} from './interfaces';
 import RelationController from './relationController';
 import Dep from './dep';
 
@@ -205,7 +210,7 @@ export default class Library {
     }
 
     // Extract the dep
-    const dep = { ...(this._private.global.touched as Dep) };
+    const dep = this._private.global.touched as Dep;
     this._private.global.touching = false;
     this._private.global.touched = null;
 
@@ -345,5 +350,21 @@ export default class Library {
     if (!Array.isArray(this._private.events[name]))
       this._private.events[name] = [callback];
     else this._private.events[name].push(callback);
+  }
+
+  log(type: DebugType): void {
+    // let debugMode: Set<DebugType> = this._private.global.config.debugMode;
+    // if (debugMode.size === 0) return;
+    // if (debugMode.has(DebugType.ERRORS)) {
+    // }
+    // log(DebugType.ASSERT, `There was an error with "${thing}", bad :(`);
+    // const AssertMessages = {
+    //   INDEX_UPDATE_FAILED: (collection, property) =>
+    //     `The type ${collection} is ${property}.`
+    //   // and more
+    // };
+    // function _log(callback) {
+    // }
+    // _log(({ AssertMessages }) => AssertMessages.INDEX_UPDATE_FAILED(thing, thing2));
   }
 }

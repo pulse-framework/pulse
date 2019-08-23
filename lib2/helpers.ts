@@ -84,7 +84,7 @@ export function assert(
     return false;
   }
   const warnings = {
-    NO_PRIMARY_KEY: () => warn('No primary key found!'),
+    NO_PRIMARY_KEY: () => warn('No primary $1 key found! $2'),
     INVALID_PARAMETER: () => warn('Invalid parameter supplied to function.'),
     INDEX_NOT_FOUND: () => warn('Index was not found on collection.'),
     INTERNAL_DATA_NOT_FOUND: () => warn('Data was not found on collection.'),

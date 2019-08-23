@@ -33,6 +33,7 @@ export interface RootConfig {
   autoUnmount?: boolean;
   enableBase: boolean;
   enableRequest: boolean;
+  debugMode: Set<DebugType>;
 }
 export interface CollectionConfig {}
 
@@ -115,15 +116,22 @@ export interface Private {
   events?: { [key: string]: Array<(payload?: any) => any> };
 }
 
-export const enum JobType {
-  PUBLIC_DATA_MUTATION = 'PUBLIC_DATA_MUTATION',
-  INTERNAL_DATA_MUTATION = 'INTERNAL_DATA_MUTATION',
-  INDEX_UPDATE = 'INDEX_UPDATE',
-  COMPUTED_REGEN = 'COMPUTED_REGEN',
-  GROUP_UPDATE = 'GROUP_UPDATE',
-  DEEP_PUBLIC_DATA_MUTATION = 'DEEP_PUBLIC_DATA_MUTATION',
-  BULK_INTERNAL_DATA_MUTATION = 'BULK_INTERNAL_DATA_MUTATION',
-  DELETE_INTERNAL_DATA = 'DELETE_INTERNAL_DATA'
+export enum JobType {
+  PUBLIC_DATA_MUTATION,
+  INTERNAL_DATA_MUTATION,
+  INDEX_UPDATE,
+  COMPUTED_REGEN,
+  GROUP_UPDATE,
+  DEEP_PUBLIC_DATA_MUTATION,
+  BULK_INTERNAL_DATA_MUTATION,
+  DELETE_INTERNAL_DATA
+}
+
+export enum DebugType {
+  ERRORS,
+  ASSERT,
+  JOBS,
+  EVENTS
 }
 
 export interface Job {

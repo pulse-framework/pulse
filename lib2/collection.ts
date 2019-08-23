@@ -388,8 +388,13 @@ export default class Collection {
     // process data items
     for (let i = 0; i < data.length; i++) {
       const dataItem = data[i];
+
+      if (dataItem === null) continue;
       // process data item returns "success" as a boolean and affectedIndexes as an array
       const processDataItem = this.processDataItem(dataItem, groups, config);
+
+      if (!processDataItem) continue;
+
       if (processDataItem.success) this.collectionSize++;
       // ensure indexes modified by this data item are waiting to be ingested for regen
       processDataItem.affectedIndexes.forEach(index =>
@@ -412,6 +417,8 @@ export default class Collection {
 
   processDataItem(dataItem: object, groups: Array<string> = [], config) {
     if (!this.primaryKey) this.findPrimaryKey(dataItem);
+
+    if (!this.primaryKey) return false;
 
     const key = dataItem[this.primaryKey as number | string];
 

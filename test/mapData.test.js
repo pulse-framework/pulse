@@ -148,7 +148,7 @@ describe('Updating subscribers for mutations', () => {
 
 describe('Map data with deep reactive properties', () => {
   // prepare test
-  // this is an array that can be modified to add / remove properties from the test
+  // this is an array that can be modified to add / remove properties from the test, the code below this array uses it to dynamically perform the test.
   const SampleTest = [
     {
       localName: 'deepThing',
@@ -188,11 +188,12 @@ describe('Map data with deep reactive properties', () => {
     // create fake component
     const f4 = new fakeComponent();
 
-    // map data dynamically using SampleTest
+    // Convert the SampleTest object into a mapData object
     const obj = {};
     SampleTest.forEach(
       test => (obj[test.localName] = test.location[test.name])
     );
+    // actually map the data to our fake component
     f4.setState({
       ...pulse.mapData(({ example, example2 }) => {
         return obj;
@@ -205,6 +206,8 @@ describe('Map data with deep reactive properties', () => {
     );
   });
 
+  // Look at the properties within Pulse, retrieve their Dep class and ensure
+  // the component is correctly subscribed.
   SampleTest.forEach(test => {
     it(`Testing subscribers for sample: "${test.localName}"`, done => {
       setTimeout(() => {

@@ -26,6 +26,8 @@ export default class Runtime {
     // )
     //   debugger;
 
+    if (job.property === 'forChannel') console.log(job);
+
     this.ingestQueue.push(job);
     if (!this.running) {
       this.findNextJob();
@@ -83,7 +85,7 @@ export default class Runtime {
           type: JobType.COMPUTED_REGEN,
           collection: computed.collection,
           property: computed,
-          dep: this.global.getDep.getDep(computed.name, computed.collection)
+          dep: this.global.getDep(computed.name, computed.collection)
         });
       });
     }
@@ -158,7 +160,7 @@ export default class Runtime {
         collection: c.name,
         property: indexName,
         value: newIndex,
-        dep: this.global.getDep.getDep(job.property, job.collection)
+        dep: this.global.getDep(job.property, job.collection)
       });
     }
     this.completedJob(job);
