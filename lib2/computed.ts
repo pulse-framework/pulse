@@ -28,12 +28,4 @@ export default class Computed {
   }
 
   addRelationToGroup(collectionName: string, groupName: string): void {}
-  addRelationToInternalData(collectionName: string, primaryKey: string): void {
-    // const stringified = JSON.stringify({
-    //   collection: collectionName,
-    //   primaryKey
-    // });
-    // if (!this.relatedToInternalData.includes(stringified))
-    //   this.relatedToInternalData.push(stringified);
-  }
 }

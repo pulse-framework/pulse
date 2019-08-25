@@ -14,7 +14,6 @@ export default class Runtime {
 
   constructor(private collections: Object, private global: Global) {
     global.ingest = this.ingest.bind(this);
-    global.searchIndexes = this.searchIndexes.bind(this);
     this.config = global.config;
   }
 
@@ -119,24 +118,43 @@ export default class Runtime {
     this.writeToPublicObject(job.collection, 'data', job.property, job.value);
     this.completedJob(job);
   }
+
   private performInternalDataUpdate(job: Job): void {
     job.previousValue = this.overwriteInternalData(
       job.collection,
       job.property,
       job.value
     );
-    // only look for indexes if we're not collecting data
 
-    if (this.global.collecting) {
-      // dependecies handled by master collection
-    } else {
-      //handle dependecies here
+    // collection function handels ingesting indexes to update itself, since it waits until
+    // all internal data has been ingested before handling the affected indexes
+    // however for direct data modifications we should update afected indexes
+    if (!this.global.collecting) {
+      const affectedIndexes: Array<string> = this.collections[
+        job.collection
+      ].searchIndexesForPrimaryKey(job.property);
+
+      affectedIndexes.forEach(index => {
+        // since this is a singular piece of data that has changed, we do not need to
+        // rebuild the entire group, so we can soft rebuild
+        let modifiedGroup = this.collections[
+          job.collection
+        ].softUpdateGroupData(index);
+
+        this.ingest({
+          type: JobType.GROUP_UPDATE,
+          collection: job.collection,
+          value: modifiedGroup,
+          property: index,
+          dep: this.global.getDep(index, job.collection)
+          // we do not need a previousValue because groups are cached outputs and reversing the internal data update will do the trick
+        });
+      });
     }
 
     // find and ingest direct depenecies on data
     this.global.relations.internalDataModified(job.collection, job.property);
 
-    this.findIndexesToUpdate(job.collection, job.property);
     this.completedJob(job);
   }
 
@@ -147,7 +165,9 @@ export default class Runtime {
     // delete data
     delete c.internalData[job.property];
     // find indexes affected by this data deletion
-    const indexesToUpdate = this.searchIndexes(job.collection, job.property);
+    const indexesToUpdate = this.collections[
+      job.collection
+    ].searchIndexesForPrimaryKey(job.collection, job.property);
 
     // for each found index, perform index update
     for (let i = 0; i < indexesToUpdate.length; i++) {
@@ -165,6 +185,7 @@ export default class Runtime {
     }
     this.completedJob(job);
   }
+
   private performIndexUpdate(job: Job): void {
     // preserve old index
     job.previousValue = this.collections[job.collection].indexes[job.property];
@@ -183,14 +204,22 @@ export default class Runtime {
       dep: this.global.getDep(job.property, job.collection)
     });
   }
+
   private performGroupRebuild(job: Job): void {
-    job.value = this.collections[job.collection].buildGroupFromIndex(
-      job.property
-    );
-    this.ingestForeignRelatedGroups(job.collection, job.property);
+    // soft group rebuilds already have a generated value, otherwise generate the value
+    if (!job.value) {
+      job.value = this.collections[job.collection].buildGroupFromIndex(
+        job.property
+      );
+    }
+
+    // TODO: trigger relaction controller to update group relations
+    // this.global.relations.groupModified(job.collection, job.property);
+
     this.writeToPublicObject(job.collection, 'group', job.property, job.value);
     this.completedJob(job);
   }
+
   public performComputedOutput(job: Job): void {
     const computed =
       typeof job.property === 'string'
@@ -227,6 +256,13 @@ export default class Runtime {
   }
 
   private completedJob(job: Job): void {
+    // if (
+    //   job.type !== JobType.INTERNAL_DATA_MUTATION &&
+    //   job.property !== 'tooltip' &&
+    //   job.property !== 'scrollProcess'
+    // )
+    //   console.log(job);
+
     job.fromAction = this.global.runningAction;
     if (this.global.initComplete) this.completedJobs.push(job);
     this.persistData(job);
@@ -240,23 +276,28 @@ export default class Runtime {
 
     const componentsToUpdate = {};
 
-    const subscribe = (value, subscribers) => {
-      for (let i = 0; i < subscribers.length; i++) {
-        const uuid = subscribers[i].componentUUID;
-        const key = subscribers[i].key;
-        if (!componentsToUpdate[uuid]) {
-          componentsToUpdate[uuid] = {};
-          componentsToUpdate[uuid][key] = value;
-        } else {
-          componentsToUpdate[uuid][key] = value;
-        }
-      }
-    };
-
+    // for all completed jobs
     for (let i = 0; i < this.completedJobs.length; i++) {
       const job = this.completedJobs[i];
-      // if (Array.isArray(job.value) && job.value.length === 4) debugger;
-      if (job.dep) subscribe(job.value, job.dep.subscribers);
+
+      // if job has a Dep class present
+      // Dep class contains subscribers to that property (as a completed job)
+      if (job.dep) {
+        let subscribers: Array<any> = job.dep.subscribers;
+
+        // for all the subscribers
+        for (let i = 0; i < subscribers.length; i++) {
+          // add to componentsToUpdate (ensuring update & component is unique)
+          const uuid = subscribers[i].componentUUID;
+          const key = subscribers[i].key;
+          if (!componentsToUpdate[uuid]) {
+            componentsToUpdate[uuid] = {};
+            componentsToUpdate[uuid][key] = job.value;
+          } else {
+            componentsToUpdate[uuid][key] = job.value;
+          }
+        }
+      }
     }
 
     this.updateSubscribers(componentsToUpdate);
@@ -305,58 +346,6 @@ export default class Runtime {
     setTimeout(() => {
       this.updatingSubscribers = false;
     });
-  }
-
-  private findIndexesToUpdate(collection, keys): void {
-    const foundIndexes = new Set();
-    const c = this.collections[collection];
-
-    if (!Array.isArray(keys)) keys = [keys];
-
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      const searchIndexes = this.searchIndexes(collection, key);
-      searchIndexes.forEach(index => foundIndexes.add(index));
-    }
-
-    // foundIndexes.forEach((index: string) => {
-    //   this.ingest({
-    //     type: JobType.INDEX_UPDATE,
-    //     collection: c.name,
-    //     property: index,
-    //     dep: this.global.getDep(index, c.name)
-    //   });
-    // });
-  }
-  // when groups are rebuilt, find other groups that are dependent on this group
-  // (defined using "hasMany" in the model) and ingest those groups into the queue.
-  private ingestForeignRelatedGroups(collection: string, groupName: string) {
-    let relations = this.collections[collection].foreignGroupRelations;
-    objectLoop(relations, (relationKey, relation) => {
-      if (relationKey === groupName)
-        this.ingest({
-          type: JobType.GROUP_UPDATE,
-          collection: relation.collection,
-          property: relation.groupToRegen,
-          dep: this.global.getDep(relation.groupToRegen, relation.collection)
-        });
-    });
-  }
-
-  private searchIndexes(
-    collection: string,
-    primaryKey: string | number
-  ): Array<string> {
-    const c = this.collections[collection];
-    const keys = Object.keys(c.indexes.object);
-
-    let foundIndexes = [];
-    for (let i = 0; i < keys.length; i++) {
-      const indexName = keys[i];
-      if (c.indexes.object[indexName].includes(primaryKey))
-        foundIndexes.push(indexName);
-    }
-    return foundIndexes;
   }
 
   private overwriteInternalData(

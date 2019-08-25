@@ -73,7 +73,7 @@ export default class Reactive {
               collection: self.collection,
               key: rootProperty,
               value: self.object[rootProperty],
-              dep: dep
+              dep
             });
           } else {
             // if backdoor open or is protected name, allow direct mutation
@@ -86,7 +86,7 @@ export default class Reactive {
                 collection: self.collection,
                 key,
                 value: newValue,
-                dep: dep
+                dep
               });
               // we did not apply the mutation since runtime will privatly
               // write the result since we dispatched above

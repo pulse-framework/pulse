@@ -295,10 +295,47 @@ export default class Collection {
       let data = Object.assign({}, this.internalData[id]);
       if (!data) continue;
       data = this.injectDataByRelation(data);
-      data = this.injectGroupByRelation(data, groupName);
+      // data = this.injectGroupByRelation(data, groupName);
       constructedArray.push(data);
     }
     return constructedArray;
+  }
+
+  // rebuilding an entire group is expensive on resources, but is
+  // not nessisary if only one piece of data has changed
+  // this function will replace a single piece of data without rebuilding
+  // the entire group
+  softUpdateGroupData(
+    primaryKey: string | number,
+    groupName: string
+  ): Array<any> {
+    let index: Array<any> = this.indexes.privateGetValue(groupName);
+
+    // find the data's position within index
+    let position: number = index.indexOf(primaryKey);
+
+    // copy the current group output
+    let currentGroup: Array<any> = [...this.public[groupName]];
+
+    // get data for primaryKey
+    let data: { [key: string]: any } = { ...this.internalData[primaryKey] };
+
+    // data = this.injectDataByRelation(data);
+    data = this.includeDynamicRelatedData(primaryKey, data);
+    a;
+    // replace at known position with updated data
+    currentGroup[position] = data;
+
+    return currentGroup;
+  }
+
+  includeDynamicRelatedData(
+    primaryKey: string | number,
+    data: { [key: string]: any }
+  ): { [key: string]: any } {
+    const includeFunctions = [{}];
+
+    return data;
   }
 
   injectDataByRelation(data) {
@@ -368,6 +405,7 @@ export default class Collection {
   }
 
   // METHODS
+
   collect(data, group?: string | Array<string>, config?: ExpandableObject) {
     config = defineConfig(config, {
       append: true
@@ -425,11 +463,11 @@ export default class Collection {
     // find affected indexes
     let affectedIndexes = [...groups];
 
-    this.global
-      .searchIndexes(this.name, key)
-      .map(
-        index => !affectedIndexes.includes(index) && affectedIndexes.push(index)
-      );
+    // searchIndexesForPrimaryKey returns an array of indexes that include that primaryKey
+    // for each index found, if it is not already known, add to affected indexes
+    this.searchIndexesForPrimaryKey(key).map(
+      index => !affectedIndexes.includes(index) && affectedIndexes.push(index)
+    );
 
     // validate against model
 
@@ -445,13 +483,36 @@ export default class Collection {
     for (let i = 0; i < groups.length; i++) {
       const groupName = groups[i];
       let index = [...this.indexes.object[groupName]];
+
       // remove key if already present in index
-      index = index.filter(k => k !== key);
+      index = index.filter(k => k != key);
+
       if (config.append) index.push(key);
       else index.unshift(key);
+
+      // write index
       this.indexes.privateWrite(groupName, index);
     }
     return { success: true, affectedIndexes };
+  }
+
+  private searchIndexesForPrimaryKey(
+    primaryKey: string | number
+  ): Array<string> {
+    // include dynamic indexes
+    const keys = Object.keys(this.indexes.object);
+
+    let foundIndexes: Array<string> = [];
+
+    // for every index
+    for (let i = 0; i < keys.length; i++) {
+      const indexName = keys[i];
+
+      // if the index includes the primaryKey
+      if (this.indexes.object[indexName].includes(primaryKey))
+        foundIndexes.push(indexName);
+    }
+    return foundIndexes;
   }
 
   getPreviousIndexValues(groups) {
@@ -525,7 +586,15 @@ export default class Collection {
 
     if (destIndexName) {
       let destIndex = this.indexes.privateGetValue(destIndexName);
-      for (let i = 0; i < ids.length; i++) destIndex[method](ids[i]);
+
+      for (let i = 0; i < ids.length; i++) {
+        // destIndex = destIndex.filter(k => k != ids[i]);
+
+        if (destIndex.includes(ids[i])) continue;
+
+        // push or unshift id into current index
+        destIndex[method](ids[i]);
+      }
 
       this.global.ingest({
         type: JobType.INDEX_UPDATE,
@@ -547,8 +616,26 @@ export default class Collection {
 
     if (!Array.isArray(ids)) ids = [ids];
 
+    // get current index
     let destIndex = this.indexes.privateGetValue(destIndexName);
-    for (let i = 0; i < ids.length; i++) destIndex[method](ids[i]);
+
+    // This doesn't work because the array spead sets the object to index: value rather than just the values
+    // let test = { ...destIndex };
+    // ids.map(k => {
+    //   if (test[k]) return;
+    //   test[k] = true;
+    // });
+    // destIndex = Object.keys(test).map(k => Number(k));
+
+    // loop over every id user is trying to add into current index
+    for (let i = 0; i < ids.length; i++) {
+      // destIndex = destIndex.filter(k => k != ids[i]);
+
+      if (destIndex.includes(ids[i])) continue;
+
+      // push or unshift id into current index
+      destIndex[method](ids[i]);
+    }
 
     this.global.ingest({
       type: JobType.INDEX_UPDATE,

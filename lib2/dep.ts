@@ -17,6 +17,7 @@ export default class Dep {
     if (this.global.runningComputed) {
       this.dependents.add(this.global.runningComputed);
     }
+
     if (subs.subscribingComponent) {
       this.subscribeComponent();
     }
@@ -55,4 +56,5 @@ export default class Dep {
     };
     this.subscribers.push(component);
   }
+  ticket(uuid) {}
 }

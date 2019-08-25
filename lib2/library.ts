@@ -42,6 +42,7 @@ export default class Library {
         relations: null,
         storage: null,
         // Function aliases
+        ticket: this.ticket.bind(this),
         dispatch: this.dispatch.bind(this),
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
@@ -350,6 +351,9 @@ export default class Library {
     if (!Array.isArray(this._private.events[name]))
       this._private.events[name] = [callback];
     else this._private.events[name].push(callback);
+  }
+  ticket(collection: string, uuid: string) {
+    this.collections[collection].ticket(uuid);
   }
 
   log(type: DebugType): void {
