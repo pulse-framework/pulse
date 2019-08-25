@@ -33,6 +33,7 @@ export default class Library {
         runningAction: false,
         runningWatcher: false,
         runningComputed: false,
+        runningPopulate: false,
         collecting: false,
         touching: false,
         touched: false,
@@ -46,7 +47,6 @@ export default class Library {
         dispatch: this.dispatch.bind(this),
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
-        createForeignGroupRelation: this.createForeignGroupRelation.bind(this),
         getDep: this.getDep.bind(this),
         uuid
       }
@@ -326,20 +326,6 @@ export default class Library {
     }
   }
 
-  createForeignGroupRelation(
-    foreignCollection,
-    foreignData,
-    dependentCollection,
-    dependentGroup
-  ) {
-    this._private.collections[foreignCollection].foreignGroupRelations[
-      foreignData
-    ] = {
-      collection: dependentCollection,
-      groupToRegen: dependentGroup
-    };
-  }
-
   emit(name: string, payload: any): void {
     if (this._private.events[name])
       for (let i = 0; i < this._private.events[name].length; i++) {
@@ -352,8 +338,9 @@ export default class Library {
       this._private.events[name] = [callback];
     else this._private.events[name].push(callback);
   }
-  ticket(collection: string, uuid: string) {
-    this.collections[collection].ticket(uuid);
+
+  ticket(collection: string, uuid: string, primaryKey: string | number) {
+    this.collections[collection].ticket(uuid, primaryKey);
   }
 
   log(type: DebugType): void {

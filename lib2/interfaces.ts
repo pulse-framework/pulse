@@ -92,12 +92,13 @@ export interface Global {
   runningAction: boolean | Action;
   runningComputed: boolean | Computed;
   runningWatcher: boolean | Watcher;
+  runningPopulate: boolean | string;
   touched: boolean | Dep;
   contextRef: ExpandableObject;
   storage: any;
   getDep: any;
   // aliases
-  createForeignGroupRelation: any;
+  ticket: any;
   dispatch: any;
   getContext: any;
   getInternalData: any;

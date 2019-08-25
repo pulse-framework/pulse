@@ -3,7 +3,7 @@
 // Provides Collections & Deps with "tickets" which are UUIDs that reference relations stored on this class
 // This class has 5 different relationship types currently supported
 // upd
-import { Global } from './interfaces';
+import { Global, JobType } from './interfaces';
 import Computed from './computed';
 import Dep from './dep';
 import { uuid } from './helpers';
@@ -26,7 +26,7 @@ export enum RelationTypes {
   // store uuid on Dep (relations = [uuid, uuid]) [cleanup on Computed run]
   // how: ingest Computed
 
-  DATA_DEPENDS_ON_DEP, // the Dep class of a property when used in include()
+  DATA_DEPENDS_ON_DEP, // the Dep class of a property when used in include()            //DONE
   // { type: 2, updateThis: collection/primaryKey, whenThisChanges: Dep (any) }
   // store uuid on Dep (relations = [uuid, uuid]) [cleanup on data regen]
 
@@ -36,7 +36,7 @@ export enum RelationTypes {
 
   DATA_DEPENDS_ON_DATA // used by findById() when run in include()
   // { type: 4, updateThis: collection/primaryKey, whenThisChanges: collection/primaryKey  }
-  // store uuid on collection (internalDataRelations = [uuid, uuid]) [cleanup on data regen]
+  // store uuid on collectiternalDataRelations = [uuid, uuid]) [cleanup on data regen]
 }
 
 export interface Relation {
@@ -59,6 +59,10 @@ export default class RelationController {
     this.relations[id] = { uuid: id, type, updateThis, whenThisChanges };
   }
 
+  public cleanup(uuids: Array<string>): void {
+    uuids.forEach(uuid => delete this.relations[uuid]);
+  }
+
   public relate(
     type: RelationTypes,
     updateThis: UpdateThis,
@@ -68,11 +72,13 @@ export default class RelationController {
     // a unique identifier for this relation increases speed finding & cleaning up relations
     const id = uuid();
 
+    if (collection) whenThisChanges = `${collection}/${whenThisChanges as Key}`;
+
     switch (type) {
       //
       case RelationTypes.COMPUTED_DEPENDS_ON_DATA:
-        this.global.ticket(collection, id);
-        this.save(id, type, updateThis as Computed, whenThisChanges as Key);
+        this.global.ticket(collection, id, whenThisChanges);
+        this.save(id, type, updateThis as Computed, whenThisChanges);
 
         break;
       //
@@ -102,7 +108,41 @@ export default class RelationController {
     }
   }
 
-  update() {}
+  public update(uuids: Array<string>): void {
+    uuids.forEach(uuid => {
+      const relation = this.relations[uuid];
 
-  cleanup() {}
+      switch (relation.type) {
+        //
+        case RelationTypes.COMPUTED_DEPENDS_ON_DATA:
+          this.ingestComputed(relation.updateThis as Computed);
+
+          break;
+        //
+        case RelationTypes.COMPUTED_DEPENDS_ON_GROUP:
+          this.ingestComputed(relation.updateThis as Computed);
+
+          break;
+        //
+        case RelationTypes.DATA_DEPENDS_ON_DATA:
+          break;
+      }
+    });
+  }
+
+  private parse(key: string) {
+    return {
+      collection: key.split('/')[0],
+      primaryKey: key.split('/')[1]
+    };
+  }
+
+  private ingestComputed(computed: Computed) {
+    this.global.ingest({
+      type: JobType.COMPUTED_REGEN,
+      collection: computed.collection,
+      property: computed,
+      dep: this.global.getDep(computed.name, computed.collection)
+    });
+  }
 }

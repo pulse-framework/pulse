@@ -3,7 +3,8 @@ import {
   defineConfig,
   validateNumber,
   collectionFunctions,
-  objectLoop
+  objectLoop,
+  key
 } from './helpers';
 import Reactive from './reactive';
 import Action from './action';
@@ -32,15 +33,13 @@ export default class Collection {
   public externalWatchers: { [key: string]: any } = {};
   public persist: Array<string> = [];
   public local: { [key: string]: any } = {};
+  public model: { [key: string]: any } = {};
 
   public collectionSize: number = 0;
   public primaryKey: string | number | boolean = false;
 
   private internalData: object = {};
-
-  private dataRelations: { [key: string]: any } = {};
-  private groupRelations: { [key: string]: any } = {};
-  public foreignGroupRelations: { [key: string]: any } = {};
+  private internalDataWithPopulate: Array<string> = [];
 
   dispatch: void;
 
@@ -238,64 +237,38 @@ export default class Collection {
   }
 
   initModel(model = {}) {
+    this.model = model;
     Object.keys(model).forEach(property => {
       Object.keys(model[property]).forEach(config => {
-        if (config === 'primaryKey') {
-          this.primaryKey = property;
-        } else if (config === 'type') {
-          // if (
-          //   [
-          //     'string',
-          //     'boolean',
-          //     'integer',
-          //     'number',
-          //     'array',
-          //     'object'
-          //   ].includes(model[property].type)
-          // ) {
-          //   // model types are properties of the model to type check & validate on collect
-          //   if (!this._modelTypes.includes(property)) {
-          //     this._modelTypes.push(property);
-          //   }
-          // }
-        } else if (config === 'parent' || config === 'hasOne') {
-          this.createDataRelation(
-            property,
-            model[property].parent || model[property].hasOne,
-            model[property].assignTo
-          );
-        } else if (config === 'has' || config === 'hasMany') {
-          this.createGroupRelation(
-            property,
-            model[property].has || model[property].hasMany,
-            model[property].assignTo
-          );
+        switch (config) {
+          case 'primaryKey':
+            this.primaryKey = property;
+            break;
+          case 'populate':
+            this.internalDataWithPopulate.push(property);
+            break;
         }
       });
     });
   }
 
-  createDataRelation(primaryKeyName, fromCollectionName, assignTo) {
-    this.dataRelations[primaryKeyName] = {};
-    this.dataRelations[primaryKeyName].fromCollectionName = fromCollectionName;
-    if (assignTo) this.dataRelations[primaryKeyName].assignTo = assignTo;
-  }
-
-  createGroupRelation(primaryKeyName, fromCollectionName, assignTo) {
-    this.groupRelations[primaryKeyName] = {};
-    this.groupRelations[primaryKeyName].fromCollectionName = fromCollectionName;
-    if (assignTo) this.groupRelations[primaryKeyName].assignTo = assignTo;
-  }
+  ticket(uuid, primaryKey) {}
 
   buildGroupFromIndex(groupName: string): Array<number> {
     const constructedArray = [];
+    // get index directly
     let index = this.indexes.object[groupName];
+    // for every primaryKey in the index
     for (let i = 0; i < index.length; i++) {
+      // primaryKey of data
       let id = index[i];
-      let data = Object.assign({}, this.internalData[id]);
+      // copy data from internal database
+      let data = { ...this.internalData[id] };
+      // if none found skip
       if (!data) continue;
-      data = this.injectDataByRelation(data);
-      // data = this.injectGroupByRelation(data, groupName);
+      // inject dynamic data
+      data = this.injectDynamicRelatedData(id, data);
+
       constructedArray.push(data);
     }
     return constructedArray;
@@ -320,74 +293,32 @@ export default class Collection {
     // get data for primaryKey
     let data: { [key: string]: any } = { ...this.internalData[primaryKey] };
 
-    // data = this.injectDataByRelation(data);
-    data = this.includeDynamicRelatedData(primaryKey, data);
-    a;
+    data = this.injectDynamicRelatedData(primaryKey, data);
+
     // replace at known position with updated data
     currentGroup[position] = data;
 
     return currentGroup;
   }
 
-  includeDynamicRelatedData(
+  // This should be called on every piece of data retrieved when building a group from an index
+  injectDynamicRelatedData(
     primaryKey: string | number,
     data: { [key: string]: any }
   ): { [key: string]: any } {
-    const includeFunctions = [{}];
-
-    return data;
-  }
-
-  injectDataByRelation(data) {
-    // if (data.hasOwnProperty('liveStreamType')) debugger;
-    let relations = Object.keys(this.dataRelations);
-    if (relations.length > 0)
-      for (let i = 0; i < relations.length; i++) {
-        const relationKey = relations[i]; // the key on the data to look at
-        const rel = this.dataRelations[relationKey]; // an object with fromCollectionName & assignTo
-        const assignTo = rel.hasOwnProperty('assignTo')
-          ? rel.assignTo
-          : rel.fromCollectionName;
-
-        if (data.hasOwnProperty(relationKey)) {
-          let foreignData = this.global.getInternalData(
-            rel.fromCollectionName,
-            data[relationKey]
-          );
-          data[assignTo] = foreignData;
-        }
-      }
-    return data;
-  }
-
-  injectGroupByRelation(data, groupName) {
-    let groupRealtions = Object.keys(this.groupRelations);
-    if (groupRealtions.length > 0)
-      for (let i = 0; i < groupRealtions.length; i++) {
-        const relationKey = groupRealtions[i];
-        const rel = this.groupRelations[relationKey];
-
-        const assignTo = rel.hasOwnProperty('assignTo') ? rel.assignTo : false;
-
-        if (data.hasOwnProperty(relationKey)) {
-          const foreignData = this.global.contextRef[rel.fromCollectionName][
-            data[relationKey]
-          ];
-
-          if (foreignData) {
-            if (assignTo) data[assignTo] = foreignData;
-            else data[rel.fromCollectionName] = foreignData;
-          }
-
-          // register this relation on the foreign collection for reactive updates
-          this.global.createForeignGroupRelation(
-            rel.fromCollectionName,
-            data[relationKey],
-            this.name,
-            groupName
-          );
-        }
-      }
+    // for each populate() function found in the model for this collection
+    this.internalDataWithPopulate.forEach(property => {
+      // set runningPopulate to the key (collection/propery) of the data being modified
+      this.global.runningPopulate = key(this.name, primaryKey);
+      // run populate function passing in the context and the data
+      const populated = this.model[property].populate(
+        this.global.getContext(),
+        data
+      );
+      this.global.runningPopulate = false;
+      // inject result to data
+      data[property] = populated;
+    });
     return data;
   }
 

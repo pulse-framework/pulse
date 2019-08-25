@@ -57,6 +57,9 @@ export function objectLoop(object, callback, keys?: Array<any>) {
 export function log(value: any, payload?: any) {
   // console.log(`Pulse / ${value}`, payload ? payload : ' ');
 }
+export function key(collection: string, property?: string | number) {
+  return `${collection}/${property}`;
+}
 
 export function normalizeMap(map) {
   return Array.isArray(map)

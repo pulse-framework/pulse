@@ -1,4 +1,5 @@
 import { Global } from './interfaces';
+import { RelationTypes } from './relationController';
 
 export default class Dep {
   public dependents: any = new Set();
@@ -17,7 +18,13 @@ export default class Dep {
     if (this.global.runningComputed) {
       this.dependents.add(this.global.runningComputed);
     }
-
+    if (this.global.runningPopulate) {
+      this.global.relations.relate(
+        RelationTypes.DATA_DEPENDS_ON_DEP,
+        this.global.runningPopulate,
+        this
+      );
+    }
     if (subs.subscribingComponent) {
       this.subscribeComponent();
     }
