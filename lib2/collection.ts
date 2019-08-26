@@ -42,7 +42,7 @@ export default class Collection {
   private internalData: object = {};
   private internalDataWithPopulate: Array<string> = [];
 
-  private tickets: { [key: string]: Array<string> };
+  private tickets: { [key: string]: Array<string> } = {};
 
   dispatch: void;
 
@@ -262,6 +262,12 @@ export default class Collection {
     else this.tickets[primaryKey] = [uuid];
   }
 
+  public cleanupTickets(primaryKey) {
+    if (this.tickets[primaryKey]) {
+      this.tickets[primaryKey] = [];
+    }
+  }
+
   // called by Runtime when job has been completed
   public changed(primaryKey: string | number): void {
     if (this.tickets[primaryKey]) {
@@ -277,8 +283,9 @@ export default class Collection {
     const constructedArray = [];
     // get index directly
     let index = this.indexes.object[groupName];
-    // for every primaryKey in the index
+    if (!index) return [];
 
+    // for every primaryKey in the index
     for (let i = 0; i < index.length; i++) {
       // primaryKey of data
       let id = index[i];
@@ -529,9 +536,7 @@ export default class Collection {
   }
 
   getGroup(property) {
-    if (!this.indexes.exists(property))
-      return assert(warn => warn.INDEX_NOT_FOUND, 'getGroup') || [];
-
+    // if called inside Computed method, create temporary relation in relationship controller
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
       this.global.relations.relate(
@@ -541,6 +546,7 @@ export default class Collection {
         this.name
       );
     }
+    // if called from within populate() create another temporary relation
     if (this.global.runningPopulate) {
       this.global.relations.relate(
         RelationTypes.DATA_DEPENDS_ON_GROUP,
@@ -549,6 +555,7 @@ export default class Collection {
         this.name
       );
     }
+    // get group is not cached, so generate a fresh group from the index
     return this.buildGroupFromIndex(property) || [];
   }
 

@@ -12,10 +12,6 @@ export default class Computed {
   ) {}
 
   public run() {
-    // cleanup before running
-
-    if (this.global.relations) this.global.relations.computedCleanup(this);
-
     this.global.runningComputed = this;
 
     let output = this.computedFunction(this.global.getContext(this.collection));
@@ -26,5 +22,4 @@ export default class Computed {
 
     return output;
   }
-  public ticket() {}
 }

@@ -248,7 +248,7 @@ export default class Runtime {
     // inform Dep class that the job is complete
     if (job.dep) (job.dep as Dep).changed();
     // inform the collection that the job is complete
-    this.collections[job.collection].changed();
+    this.collections[job.collection].changed(job.property);
     // if either of these contain tickets, the relation controller will ingest updates
   }
 

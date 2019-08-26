@@ -1,14 +1,14 @@
+import { Global } from './interfaces';
+import Computed from './computed';
+import { JobType } from './runtime';
+import Dep from './dep';
+import { uuid, key, parse } from './helpers';
+
 // This class is global, since relationships can be between collections.
 // Three public functions: relate(), update() & cleanup()
 // Collections & Deps get "tickets" which are UUIDs that reference relations stored here.
 // this is the fastest way to access relations and cleanup from the outside.
 // 5 different relationship types currently supported
-
-import { Global } from './interfaces';
-import Computed from './computed';
-import { JobType } from './runtime';
-import Dep from './dep';
-import { uuid, key } from './helpers';
 
 // collection/primaryKey
 export type Key = string;
@@ -32,7 +32,7 @@ export interface Relation {
 }
 export default class RelationController {
   private relations: { [key: string]: Relation } = {};
-  private cleanupRefs: { [key: string]: Array<string> };
+  private cleanupRefs: { [key: string]: Array<string> } = {};
   constructor(private global: Global) {}
 
   private save(
@@ -41,12 +41,25 @@ export default class RelationController {
     updateThis: UpdateThis,
     whenThisChanges: WhenThisChanges
   ) {
-    this.relations[id] = { uuid: id, type, updateThis, whenThisChanges };
+    this.relations[id] = {
+      // uuid: id,
+      type,
+      updateThis,
+      whenThisChanges
+    };
   }
 
   private cleanup(cleanupKey: string): void {
+    if (!this.cleanupRefs[cleanupKey]) return;
     // delete relations for this cleanupKey based on the tickets saved
-    this.cleanupRefs[cleanupKey].forEach(uuid => delete this.relations[uuid]);
+    this.cleanupRefs[cleanupKey].forEach(ticket => {
+      const whenThisChanges = this.relations[ticket].whenThisChanges;
+
+      this.global.cleanupTickets(whenThisChanges);
+
+      delete this.relations[ticket];
+    });
+
     // empty old tickets ready for new evaluation
     this.cleanupRefs[cleanupKey] = [];
   }
@@ -104,13 +117,13 @@ export default class RelationController {
         break;
       //
       case RelationTypes.DATA_DEPENDS_ON_DATA:
-        (whenThisChanges as Dep).ticket(ticket);
+        this.global.ticket(collection, ticket, whenThisChanges);
         this.save(ticket, type, updateThis as Key, whenThisChanges as Key);
 
         break;
       //
       case RelationTypes.DATA_DEPENDS_ON_GROUP:
-        this.global.ticket(collection, ticket);
+        this.global.ticket(collection, ticket, whenThisChanges);
         this.save(ticket, type, updateThis as Key, whenThisChanges as Key);
 
         break;
@@ -127,6 +140,13 @@ export default class RelationController {
   public update(tickets: Array<string>): void {
     tickets.forEach(ticket => {
       const relation = this.relations[ticket];
+
+      // console.log(this.relations[ticket]);
+      // if (
+      //   relation.updateThis instanceof Computed &&
+      //   relation.updateThis.name === 'forChannel'
+      // )
+      //   debugger;
 
       switch (relation.type) {
         //
@@ -156,15 +176,8 @@ export default class RelationController {
     });
   }
 
-  private parse(key: string) {
-    return {
-      collection: key.split('/')[0],
-      primaryKey: key.split('/')[1]
-    };
-  }
-
   private ingestComputed(computed: Computed) {
-    this.global.runtime.ingest({
+    this.global.ingest({
       type: JobType.COMPUTED_REGEN,
       collection: computed.collection,
       property: computed.name,
@@ -173,8 +186,8 @@ export default class RelationController {
   }
 
   privateIngestDataUpdate(updateThis: key): void {
-    const parsed = this.parse(updateThis as Key);
-    this.global.runtime.ingest({
+    const parsed = parse(updateThis as Key);
+    this.global.ingest({
       type: JobType.INTERNAL_DATA_MUTATION,
       collection: parsed.collection,
       property: parsed.primaryKey

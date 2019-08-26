@@ -32,6 +32,13 @@ export function defineConfig(config, defaults) {
   return { ...defaults, ...config };
 }
 
+export function parse(key: string) {
+  return {
+    collection: key.split('/')[0],
+    primaryKey: key.split('/')[1]
+  };
+}
+
 export function uuid() {
   return (
     Math.random()

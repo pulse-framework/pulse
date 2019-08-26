@@ -4,13 +4,13 @@ import { RelationTypes } from './relationController';
 export default class Dep {
   public dependents: any = new Set();
   public subscribers: Array<object> = [];
+  public tickets: Array<string> = [];
 
   constructor(
     private global: Global,
     public name: string,
     public rootProperty: string,
-    public propertyOnObject: string,
-    public tickets: Array<string>
+    public propertyOnObject: string
   ) {}
 
   register() {

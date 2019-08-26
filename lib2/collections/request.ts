@@ -175,8 +175,6 @@ export default class Request extends Collection {
       this.responseIntercept(this.global.getContext(), response);
     }
 
-    console.log('');
-
     // reject if bad response status
     if (response.ok || response.redirected) return final;
 

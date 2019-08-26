@@ -5,11 +5,11 @@ import Storage from './storage';
 import Request from './collections/request';
 import Base from './collections/base';
 import withPulse from './wrappers/ReactWithPulse';
-import { uuid, normalizeMap, log, defineConfig } from './helpers';
+import { uuid, normalizeMap, log, defineConfig, parse } from './helpers';
 import { Private, RootCollectionObject, DebugType } from './interfaces';
 import { JobType } from './runtime';
 
-import RelationController from './relationController';
+import RelationController, { Key } from './relationController';
 import Dep from './dep';
 
 export default class Library {
@@ -41,6 +41,7 @@ export default class Library {
         storage: null,
         // Function aliases
         ticket: this.ticket.bind(this),
+        cleanupTickets: this.cleanupTickets.bind(this),
         dispatch: this.dispatch.bind(this),
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
@@ -336,8 +337,19 @@ export default class Library {
     else this._private.events[name].push(callback);
   }
 
-  ticket(collection: string, uuid: string, primaryKey: string | number) {
-    this.collections[collection].ticket(uuid, primaryKey);
+  // root alias for relationController to access ticket function of a given collection
+  ticket(collection: string, uuid: string, key: Key) {
+    const primaryKey = parse(key).primaryKey;
+    this._private.collections[collection].ticket(uuid, primaryKey);
+  }
+
+  // root alias for relationController to access cleanupTicket function of a given collection
+  cleanupTickets(key): void {
+    const parsed = parse(key);
+
+    this._private.collections[parsed.collection].cleanupTickets(
+      parsed.primaryKey
+    );
   }
 
   log(type: DebugType): void {
