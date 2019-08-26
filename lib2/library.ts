@@ -202,6 +202,7 @@ export default class Library {
     this._private.global.touching = true;
 
     // "touching" is simply invoking the property's getter
+
     if (typeof collection === 'string') {
       this._private.collections[collection].public.object[property];
     } else if (typeof collection === 'object') {

@@ -314,8 +314,11 @@ export default class Collection {
     // find the data's position within index
     let position: number = index.indexOf(primaryKey);
 
+    // if group is dynamic, just build the group from index.
+    if (!this.public[groupName]) return this.buildGroupFromIndex(groupName);
+
     // copy the current group output
-    let currentGroup: Array<any> = [...this.public[groupName]];
+    let currentGroup: Array<any> = [this.public[groupName]];
 
     // get data for primaryKey
     let data: { [key: string]: any } = { ...this.internalData[primaryKey] };

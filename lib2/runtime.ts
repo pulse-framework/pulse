@@ -132,6 +132,7 @@ export default class Runtime {
     // all internal data has been ingested before handling the affected indexes
     // however for direct data modifications we should update afected indexes
     if (!this.global.collecting) {
+      // affected indexes is an array of indexes that have this primary key (job.property) present.
       const affectedIndexes: Array<string> = this.collections[
         job.collection
       ].searchIndexesForPrimaryKey(job.property);
@@ -141,7 +142,7 @@ export default class Runtime {
         // rebuild the entire group, so we can soft rebuild
         let modifiedGroup = this.collections[
           job.collection
-        ].softUpdateGroupData(index);
+        ].softUpdateGroupData(job.property, index);
 
         this.ingest({
           type: JobType.GROUP_UPDATE,
