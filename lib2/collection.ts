@@ -315,12 +315,14 @@ export default class Collection {
     // for each populate() function found in the model for this collection
     this.internalDataWithPopulate.forEach(property => {
       // set runningPopulate to the key (collection/propery) of the data being modified
+      // this is fed into the relations.relate() function becoming the unique cleanupKey for the relation
       this.global.runningPopulate = key(this.name, primaryKey);
       // run populate function passing in the context and the data
       const populated = this.model[property].populate(
         this.global.getContext(),
         data
       );
+
       this.global.runningPopulate = false;
       // inject result to data
       data[property] = populated;

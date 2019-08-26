@@ -9,7 +9,8 @@ export default class Dep {
     private global: Global,
     public name: string,
     public rootProperty: string,
-    public propertyOnObject: string
+    public propertyOnObject: string,
+    public tickets: Array<string>
   ) {}
 
   register() {
@@ -22,7 +23,7 @@ export default class Dep {
       this.global.relations.relate(
         RelationTypes.DATA_DEPENDS_ON_DEP,
         this.global.runningPopulate,
-        this
+        this as Dep
       );
     }
     if (subs.subscribingComponent) {
@@ -63,5 +64,7 @@ export default class Dep {
     };
     this.subscribers.push(component);
   }
-  ticket(uuid) {}
+  ticket(uuid) {
+    this.tickets.push(uuid);
+  }
 }
