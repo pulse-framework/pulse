@@ -67,4 +67,12 @@ export default class Dep {
   ticket(uuid) {
     this.tickets.push(uuid);
   }
+  // this should fire once runtime finish a job with a dep,
+  // we can then loop back with the relationController to check
+  // for any active relations based on tickets saved in this dep class
+  changed() {
+    if (this.tickets.length > 0) {
+      this.global.relations.update([...this.tickets]);
+    }
+  }
 }

@@ -9,16 +9,16 @@ import {
 import Reactive from './reactive';
 import Action from './action';
 import Computed from './computed';
+import { JobType } from './runtime';
 import {
   Methods,
   Keys,
   CollectionObject,
   CollectionConfig,
   Global,
-  JobType,
   ExpandableObject
 } from './interfaces';
-import { RelationTypes } from './relationController';
+import { RelationTypes, Key } from './relationController';
 
 export default class Collection {
   private namespace: CollectionObject;
@@ -41,6 +41,8 @@ export default class Collection {
 
   private internalData: object = {};
   private internalDataWithPopulate: Array<string> = [];
+
+  private tickets: { [key: string]: Array<string> };
 
   dispatch: void;
 
@@ -253,13 +255,25 @@ export default class Collection {
     });
   }
 
-  ticket(uuid, primaryKey) {}
+  // called by relationController after new relation has been created
+  public ticket(uuid: string, primaryKey: string | number): void {
+    if (Array.isArray(this.tickets[primaryKey]))
+      this.tickets[primaryKey].push(uuid);
+    else this.tickets[primaryKey] = [uuid];
+  }
 
-  getData(id) {
+  // called by Runtime when job has been completed
+  public changed(primaryKey: string | number): void {
+    if (this.tickets[primaryKey]) {
+      this.global.relations.update(this.tickets[primaryKey]);
+    }
+  }
+
+  private getData(id) {
     return { ...this.internalData[id] };
   }
 
-  buildGroupFromIndex(groupName: string): Array<number> {
+  public buildGroupFromIndex(groupName: string): Array<number> {
     const constructedArray = [];
     // get index directly
     let index = this.indexes.object[groupName];
@@ -284,7 +298,7 @@ export default class Collection {
   // not nessisary if only one piece of data has changed
   // this function will replace a single piece of data without rebuilding
   // the entire group
-  softUpdateGroupData(
+  public softUpdateGroupData(
     primaryKey: string | number,
     groupName: string
   ): Array<any> {
@@ -308,7 +322,7 @@ export default class Collection {
   }
 
   // This should be called on every piece of data retrieved when building a group from an index
-  injectDynamicRelatedData(
+  private injectDynamicRelatedData(
     primaryKey: string | number,
     data: { [key: string]: any }
   ): any {
@@ -330,7 +344,7 @@ export default class Collection {
     return data;
   }
 
-  createGroups(group) {
+  public createGroups(group) {
     if (group === undefined) group = [];
     else if (!Array.isArray(group)) group = [group];
 
@@ -345,7 +359,11 @@ export default class Collection {
 
   // METHODS
 
-  collect(data, group?: string | Array<string>, config?: ExpandableObject) {
+  public collect(
+    data,
+    group?: string | Array<string>,
+    config?: ExpandableObject
+  ) {
     config = defineConfig(config, {
       append: true
     });

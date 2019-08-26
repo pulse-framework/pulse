@@ -2,7 +2,7 @@
 // It also handles subscribing mapData properties to collections
 
 import { uuid } from './helpers';
-import { Global, ComponentContainer } from './interfaces';
+import { ComponentContainer } from './interfaces';
 import Dep from './dep';
 
 interface SubscribingComponentObject {

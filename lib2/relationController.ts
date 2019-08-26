@@ -4,8 +4,9 @@
 // this is the fastest way to access relations and cleanup from the outside.
 // 5 different relationship types currently supported
 
-import { Global, JobType } from './interfaces';
+import { Global } from './interfaces';
 import Computed from './computed';
+import { JobType } from './runtime';
 import Dep from './dep';
 import { uuid, key } from './helpers';
 
@@ -108,24 +109,24 @@ export default class RelationController {
 
         break;
       //
-      case RelationTypes.DATA_DEPENDS_ON_DEP:
-        (whenThisChanges as Dep).ticket(ticket);
-        this.save(ticket, type, updateThis as Key, whenThisChanges as Dep);
-
-        break;
-      //
       case RelationTypes.DATA_DEPENDS_ON_GROUP:
         this.global.ticket(collection, ticket);
         this.save(ticket, type, updateThis as Key, whenThisChanges as Key);
+
+        break;
+      //
+      case RelationTypes.DATA_DEPENDS_ON_DEP:
+        (whenThisChanges as Dep).ticket(ticket);
+        this.save(ticket, type, updateThis as Key, whenThisChanges as Dep);
 
         break;
     }
   }
 
   // this should be called whenever the whenThisChanges value updates
-  public update(uuids: Array<string>): void {
-    uuids.forEach(uuid => {
-      const relation = this.relations[uuid];
+  public update(tickets: Array<string>): void {
+    tickets.forEach(ticket => {
+      const relation = this.relations[ticket];
 
       switch (relation.type) {
         //

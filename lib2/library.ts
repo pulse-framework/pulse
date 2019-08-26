@@ -6,12 +6,9 @@ import Request from './collections/request';
 import Base from './collections/base';
 import withPulse from './wrappers/ReactWithPulse';
 import { uuid, normalizeMap, log, defineConfig } from './helpers';
-import {
-  Private,
-  RootCollectionObject,
-  JobType,
-  DebugType
-} from './interfaces';
+import { Private, RootCollectionObject, DebugType } from './interfaces';
+import { JobType } from './runtime';
+
 import RelationController from './relationController';
 import Dep from './dep';
 

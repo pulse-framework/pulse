@@ -1,4 +1,4 @@
-import { Global, JobType } from './interfaces';
+import { Global } from './interfaces';
 
 export default class Computed {
   public relatedToGroup: Array<any> = [];
