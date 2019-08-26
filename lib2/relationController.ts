@@ -1,12 +1,13 @@
-// This class is global, since relationships can be global.
-// This class has three public functions: relate(), update() & cleanup()
-// Provides Collections & Deps with "tickets" which are UUIDs that reference relations stored on this class
-// This class has 5 different relationship types currently supported
-// upd
+// This class is global, since relationships can be between collections.
+// Three public functions: relate(), update() & cleanup()
+// Collections & Deps get "tickets" which are UUIDs that reference relations stored here.
+// this is the fastest way to access relations and cleanup from the outside.
+// 5 different relationship types currently supported
+
 import { Global, JobType } from './interfaces';
 import Computed from './computed';
 import Dep from './dep';
-import { uuid } from './helpers';
+import { uuid, key } from './helpers';
 
 // collection/primaryKey
 export type Key = string;
@@ -16,7 +17,7 @@ export type UpdateThis = Computed | Key;
 export type WhenThisChanges = Key | Dep;
 
 export enum RelationTypes {
-  COMPUTED_DEPENDS_ON_DATA, // used by findById() when run in computed
+  COMPUTED_DEPENDS_ON_DATA, // used by findById() when run in computed                  //DONE
   // { type: 0, updateThis: Computed, whenThisChanges: collection/primaryKey  }
   // how: ingest Computed
   // store uuid on collection (relations = [uuid, uuid]) [cleanup on run]
@@ -30,8 +31,8 @@ export enum RelationTypes {
   // { type: 2, updateThis: collection/primaryKey, whenThisChanges: Dep (any) }
   // store uuid on Dep (relations = [uuid, uuid]) [cleanup on data regen]
 
-  DATA_DEPENDS_ON_GROUP, // used by getGroup() when run in include()
-  // { type: 3, updateThis: collection/primaryKey, whenThisChanges: Dep (group)  }
+  DATA_DEPENDS_ON_GROUP, // used by getGroup() when run in include()                    //DONE
+  // { type: 3, updateThis: collection/primaryKey, whenThisChanges: collection/groupName (not a groups have Dep classes)  }
   // store uuid on Dep (relations = [uuid, uuid]) [cleanup on data regen]
 
   DATA_DEPENDS_ON_DATA // used by findById() when run in include()
@@ -72,25 +73,28 @@ export default class RelationController {
     // a unique identifier for this relation increases speed finding & cleaning up relations
     const id = uuid();
 
-    if (collection) whenThisChanges = `${collection}/${whenThisChanges as Key}`;
+    // if collection is set we change whenThisChanges (expected as a primaryKey)
+    // to be a key with the collection/key
+    if (collection) whenThisChanges = key(collection, whenThisChanges as Key);
 
     switch (type) {
       //
       case RelationTypes.COMPUTED_DEPENDS_ON_DATA:
         this.global.ticket(collection, id, whenThisChanges);
-        this.save(id, type, updateThis as Computed, whenThisChanges);
+        this.save(id, type, updateThis as Computed, whenThisChanges as Key);
 
         break;
       //
       case RelationTypes.COMPUTED_DEPENDS_ON_GROUP:
-        (whenThisChanges as Dep).ticket(id);
-        this.save(id, type, updateThis as Computed, whenThisChanges as Dep);
+        (whenThisChanges as Dep).ticket(id); //not all groups have Deps
+        this.global.ticket(collection, id, whenThisChanges);
+        this.save(id, type, updateThis as Computed, whenThisChanges as Key);
 
         break;
       //
       case RelationTypes.DATA_DEPENDS_ON_DATA:
         (whenThisChanges as Dep).ticket(id);
-        this.save(id, type, updateThis as Key, whenThisChanges as Dep);
+        this.save(id, type, updateThis as Key, whenThisChanges as Key);
 
         break;
       //

@@ -26,6 +26,5 @@ export default class Computed {
 
     return output;
   }
-
-  addRelationToGroup(collectionName: string, groupName: string): void {}
+  public ticket() {}
 }

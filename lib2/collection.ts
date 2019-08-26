@@ -18,6 +18,7 @@ import {
   JobType,
   ExpandableObject
 } from './interfaces';
+import { RelationTypes } from './relationController';
 
 export default class Collection {
   private namespace: CollectionObject;
@@ -254,16 +255,21 @@ export default class Collection {
 
   ticket(uuid, primaryKey) {}
 
+  getData(id) {
+    return { ...this.internalData[id] };
+  }
+
   buildGroupFromIndex(groupName: string): Array<number> {
     const constructedArray = [];
     // get index directly
     let index = this.indexes.object[groupName];
     // for every primaryKey in the index
+
     for (let i = 0; i < index.length; i++) {
       // primaryKey of data
       let id = index[i];
       // copy data from internal database
-      let data = { ...this.internalData[id] };
+      let data = this.getData(id);
       // if none found skip
       if (!data) continue;
       // inject dynamic data
@@ -305,7 +311,7 @@ export default class Collection {
   injectDynamicRelatedData(
     primaryKey: string | number,
     data: { [key: string]: any }
-  ): { [key: string]: any } {
+  ): any {
     // for each populate() function found in the model for this collection
     this.internalDataWithPopulate.forEach(property => {
       // set runningPopulate to the key (collection/propery) of the data being modified
@@ -480,9 +486,50 @@ export default class Collection {
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      this.global.relations.createInternalDataRelation(this.name, id, computed);
+      this.global.relations.relate(
+        RelationTypes.COMPUTED_DEPENDS_ON_DATA,
+        // updateThis computed instance
+        computed,
+        // primaryKey of data for whenThisChanges
+        id,
+        this.name
+      );
+    }
+    if (this.global.runningPopulate) {
+      this.global.relations.relate(
+        RelationTypes.DATA_DEPENDS_ON_DATA,
+        // this is the key ("collection/primaryKey") for the dynamically populated data for updateThis
+        this.global.runningPopulate,
+        // primaryKey of data for whenThisChanges
+        id,
+        this.name
+      );
     }
     return this.internalData[id];
+  }
+
+  getGroup(property) {
+    if (!this.indexes.exists(property))
+      return assert(warn => warn.INDEX_NOT_FOUND, 'getGroup') || [];
+
+    if (this.global.runningComputed) {
+      let computed = this.global.runningComputed as Computed;
+      this.global.relations.relate(
+        RelationTypes.COMPUTED_DEPENDS_ON_GROUP,
+        computed, // updateThis
+        property, // whenThisChanges
+        this.name
+      );
+    }
+    if (this.global.runningPopulate) {
+      this.global.relations.relate(
+        RelationTypes.DATA_DEPENDS_ON_GROUP,
+        this.global.runningPopulate, // updateThis
+        property, // whenThisChanges
+        this.name
+      );
+    }
+    return this.buildGroupFromIndex(property) || [];
   }
 
   // action functions
@@ -576,16 +623,6 @@ export default class Collection {
     });
   }
 
-  getGroup(property) {
-    if (!this.indexes.exists(property))
-      return assert(warn => warn.INDEX_NOT_FOUND, 'getGroup') || [];
-
-    if (this.global.runningComputed) {
-      let computed = this.global.runningComputed as Computed;
-      computed.addRelationToGroup(this.name, property);
-    }
-    return this.buildGroupFromIndex(property) || [];
-  }
   newGroup(groupName: string, indexValue?: Array<string | number>) {
     if (this.indexes.object.hasOwnProperty(groupName))
       return assert(warn => warn.GROUP_ALREADY_EXISTS, 'newGroup');
