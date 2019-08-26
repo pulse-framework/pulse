@@ -53,6 +53,8 @@ export default class RelationController {
     this.cleanupRefs[cleanupKey].forEach(ticket => {
       const whenThisChanges = this.relations[ticket].whenThisChanges;
 
+      if (typeof whenThisChanges !== 'string') return;
+
       this.global.cleanupTickets(whenThisChanges);
 
       delete this.relations[ticket];
@@ -101,25 +103,25 @@ export default class RelationController {
     this.saveTicketsByCleanupKey(cleanupKey, ticket);
 
     switch (type) {
-      //
+      // used to relate the result of findById() when used in a Computed method
       case RelationTypes.COMPUTED_DEPENDS_ON_DATA:
         this.global.ticket(collection, ticket, whenThisChanges); // for update
         this.save(ticket, type, updateThis as Computed, whenThisChanges as Key);
 
         break;
-      //
+      // used to relate the result of getGroup() when used in a Computed method
       case RelationTypes.COMPUTED_DEPENDS_ON_GROUP:
         this.global.ticket(collection, ticket, whenThisChanges);
         this.save(ticket, type, updateThis as Computed, whenThisChanges as Key);
 
         break;
-      //
+      // used to relate the result of findById() when used in populate()
       case RelationTypes.DATA_DEPENDS_ON_DATA:
         this.global.ticket(collection, ticket, whenThisChanges);
         this.save(ticket, type, updateThis as Key, whenThisChanges as Key);
 
         break;
-      //
+      // used to relate the result of getGroup() when used in populate()
       case RelationTypes.DATA_DEPENDS_ON_GROUP:
         this.global.ticket(collection, ticket, whenThisChanges);
         this.save(ticket, type, updateThis as Key, whenThisChanges as Key);
@@ -139,13 +141,6 @@ export default class RelationController {
     tickets.forEach(ticket => {
       const relation = this.relations[ticket];
 
-      // console.log(this.relations[ticket]);
-      // if (
-      //   relation.updateThis instanceof Computed &&
-      //   relation.updateThis.name === 'forChannel'
-      // )
-      //   debugger;
-
       switch (relation.type) {
         //
         case RelationTypes.COMPUTED_DEPENDS_ON_DATA:
@@ -159,16 +154,23 @@ export default class RelationController {
           break;
         //
         case RelationTypes.DATA_DEPENDS_ON_DATA:
-          this.privateIngestDataUpdate(relation.updateThis as Key);
+          this.ingestDataUpdate(relation.updateThis as Key);
 
           break;
         //
         case RelationTypes.DATA_DEPENDS_ON_GROUP:
-          this.privateIngestDataUpdate(relation.updateThis as Key);
+          this.ingestDataUpdate(relation.updateThis as Key);
 
           break;
         //
         case RelationTypes.DATA_DEPENDS_ON_DEP:
+          // console.log('HAHAHA', relation);
+          const parsed = parse(relation.updateThis as Key);
+          this.global.ingest({
+            type: JobType.INTERNAL_DATA_MUTATION,
+            collection: parsed.collection,
+            property: parsed.primaryKey
+          });
           break;
       }
     });
@@ -183,7 +185,7 @@ export default class RelationController {
     });
   }
 
-  privateIngestDataUpdate(updateThis: key): void {
+  private ingestDataUpdate(updateThis: key): void {
     const parsed = parse(updateThis as Key);
     this.global.ingest({
       type: JobType.INTERNAL_DATA_MUTATION,
@@ -192,27 +194,3 @@ export default class RelationController {
     });
   }
 }
-
-// export enum RelationTypes {
-//   COMPUTED_DEPENDS_ON_DATA, // used by findById() when run in computed                  //DONE
-//   // { type: 0, updateThis: Computed, whenThisChanges: collection/primaryKey  }
-//   // how: ingest Computed
-//   // store uuid on collection (relations = [uuid, uuid]) [cleanup on run]
-
-//   COMPUTED_DEPENDS_ON_GROUP, // used by getGroup() when run in computed
-//   // { type: 1, updateThis: Computed, whenThisChanges: Dep (group)  }
-//   // store uuid on Dep (relations = [uuid, uuid]) [cleanup on Computed run]
-//   // how: ingest Computed
-
-//   DATA_DEPENDS_ON_DEP, // the Dep class of a property when used in populate()            //DONE
-//   // { type: 2, updateThis: collection/primaryKey, whenThisChanges: Dep (any) }
-//   // store uuid on Dep (relations = [uuid, uuid]) [cleanup on data regen]
-
-//   DATA_DEPENDS_ON_GROUP, // used by getGroup() when run in populate()                    //DONE
-//   // { type: 3, updateThis: collection/primaryKey, whenThisChanges: collection/groupName (not a groups have Dep classes)  }
-//   // store uuid on Dep (relations = [uuid, uuid]) [cleanup on data regen]
-
-//   DATA_DEPENDS_ON_DATA // used by findById() when run in populate()
-//   // { type: 4, updateThis: collection/primaryKey, whenThisChanges: collection/primaryKey  }
-//   // store uuid on collectiternalDataRelations = [uuid, uuid]) [cleanup on data regen]
-// }

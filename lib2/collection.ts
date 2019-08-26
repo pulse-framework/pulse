@@ -282,7 +282,7 @@ export default class Collection {
   public buildGroupFromIndex(groupName: string): Array<number> {
     const constructedArray = [];
     // get index directly
-    let index = this.indexes.object[groupName];
+    let index = this.indexes.privateGetValue(groupName);
     if (!index) return [];
 
     // for every primaryKey in the index
@@ -323,6 +323,8 @@ export default class Collection {
     // get data for primaryKey
     let data: { [key: string]: any } = { ...this.internalData[primaryKey] };
 
+    console.log('REBUILD SOFT', primaryKey, groupName);
+
     data = this.injectDynamicRelatedData(primaryKey, data);
 
     // replace at known position with updated data
@@ -360,8 +362,8 @@ export default class Collection {
 
     for (let i = 0; i < group.length; i++) {
       const groupName = group[i];
-      if (!this.indexes.object[groupName]) {
-        this.indexes.object[groupName] = [];
+      if (!this.indexes.exists(groupName)) {
+        this.indexes.privateWrite(groupName, []);
       }
     }
     return group;
@@ -412,7 +414,7 @@ export default class Collection {
         type: JobType.INDEX_UPDATE,
         collection: this.name,
         property: index,
-        value: this.indexes.object[index],
+        value: this.indexes.privateGetValue(index),
         previousValue: previousIndexValues[index]
       });
     });
@@ -449,7 +451,7 @@ export default class Collection {
     // add the data to group indexes
     for (let i = 0; i < groups.length; i++) {
       const groupName = groups[i];
-      let index = [...this.indexes.object[groupName]];
+      let index = this.indexes.privateGetValue(groupName);
 
       // remove key if already present in index
       index = index.filter(k => k != key);
@@ -466,8 +468,8 @@ export default class Collection {
   private searchIndexesForPrimaryKey(
     primaryKey: string | number
   ): Array<string> {
-    // include dynamic indexes
-    const keys = Object.keys(this.indexes.object);
+    // get a fresh copy of the keys to include dynamic indexes
+    const keys = this.indexes.getKeys();
 
     let foundIndexes: Array<string> = [];
 
@@ -476,7 +478,7 @@ export default class Collection {
       const indexName = keys[i];
 
       // if the index includes the primaryKey
-      if (this.indexes.object[indexName].includes(primaryKey))
+      if (this.indexes.privateGetValue(indexName).includes(primaryKey))
         foundIndexes.push(indexName);
     }
     return foundIndexes;
@@ -486,7 +488,7 @@ export default class Collection {
     const returnData = {};
     for (let i = 0; i < groups; i++) {
       const groupName = groups[i];
-      returnData[groupName] = this.indexes.object[groupName];
+      returnData[groupName] = this.indexes.privateGetValue(groupName);
     }
     return returnData;
   }

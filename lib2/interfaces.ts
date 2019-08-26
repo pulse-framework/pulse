@@ -4,7 +4,7 @@ import Collection from './collection';
 import Dep from './dep';
 import Action from './action';
 import Computed from './computed';
-
+import { JobType } from './runtime';
 export interface ExpandableObject {
   [key: string]: any;
 }

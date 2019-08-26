@@ -13,6 +13,7 @@ export default class Reactive {
   private allowPrivateWrite: boolean = false;
   private touching: boolean = false;
   private touched: null | Dep;
+  private sneaky: boolean;
 
   constructor(
     object: Obj = {},
@@ -56,6 +57,7 @@ export default class Reactive {
 
       Object.defineProperty(object, key, {
         get: function pulseGetter() {
+          if (self.sneaky) return value;
           if (self.global.touching) {
             self.global.touched = dep;
             return;
@@ -145,12 +147,26 @@ export default class Reactive {
     this.allowPrivateWrite = false;
   }
 
+  // sneaky blocked the getter, sneaky.
   privateGetValue(property) {
-    return this.object[property];
+    this.sneaky = true;
+    const data = this.object[property];
+    this.sneaky = false;
+    return data;
   }
 
   exists(property: string): boolean {
-    return !!this.object.hasOwnProperty(property);
+    this.sneaky = true;
+    const bool = !!this.object.hasOwnProperty(property);
+    this.sneaky = false;
+    return bool;
+  }
+
+  getKeys(): Array<string> {
+    this.sneaky = true;
+    const keys = Object.keys(this.object);
+    this.sneaky = false;
+    return keys;
   }
 }
 

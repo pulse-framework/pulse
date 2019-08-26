@@ -7,8 +7,7 @@ export enum JobType {
   INTERNAL_DATA_MUTATION = 'INTERNAL_DATA_MUTATION',
   INDEX_UPDATE = 'INDEX_UPDATE',
   COMPUTED_REGEN = 'COMPUTED_REGEN',
-  GROUP_UPDATE = 'GROUP_UPDAE',
-  DEEP_PUBLIC_DATA_MUTATION = 'DEEP_PUBLIC_DATA_MUTATION',
+  GROUP_UPDATE = 'GROUP_UPDATE',
   DELETE_INTERNAL_DATA = 'DELETE_INTERNAL_DATA'
 }
 export default class Runtime {
@@ -30,6 +29,8 @@ export default class Runtime {
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
     this.ingestQueue.push(job);
+    // console.log(job);
+
     if (!this.running) {
       this.findNextJob();
     }
@@ -122,6 +123,14 @@ export default class Runtime {
   }
 
   private performInternalDataUpdate(job: Job): void {
+    // if job was not ingested with a value, get the most recent value from collection database
+    if (!job.value) {
+      if (this.collections[job.collection].internalData[job.property])
+        job.value = this.collections[job.collection].internalData[job.property];
+      // this would usually be redundant, since the data has not changed, but since the relationController has no access to the collections, but does need to trigger data to rebuild, it issues an internal data "update". It's own data has not changed, but the dynamic data related to it via populate() has.
+    }
+
+    // overwrite or insert the data into collection database saving the previous value to job.previousValue, since this.overwriteInternalData returns it.
     job.previousValue = this.overwriteInternalData(
       job.collection,
       job.property,

@@ -33,9 +33,15 @@ export function defineConfig(config, defaults) {
 }
 
 export function parse(key: string) {
+  if (typeof key !== 'string') debugger;
+  let primaryKey: string | number = key.split('/')[1];
+
+  let canBeNumber = Number(primaryKey);
+  if (canBeNumber !== NaN) primaryKey = canBeNumber;
+
   return {
     collection: key.split('/')[0],
-    primaryKey: key.split('/')[1]
+    primaryKey
   };
 }
 
