@@ -148,7 +148,7 @@ export default class Reactive {
   }
 
   // sneaky blocked the getter, sneaky.
-  privateGetValue(property) {
+  privateGet(property) {
     this.sneaky = true;
     const data = this.object[property];
     this.sneaky = false;

@@ -282,7 +282,7 @@ export default class Collection {
   public buildGroupFromIndex(groupName: string): Array<number> {
     const constructedArray = [];
     // get index directly
-    let index = this.indexes.privateGetValue(groupName);
+    let index = this.indexes.privateGet(groupName);
     if (!index) return [];
 
     // for every primaryKey in the index
@@ -309,7 +309,7 @@ export default class Collection {
     primaryKey: string | number,
     groupName: string
   ): Array<any> {
-    let index: Array<any> = this.indexes.privateGetValue(groupName);
+    let index: Array<any> = this.indexes.privateGet(groupName);
 
     // find the data's position within index
     let position: number = index.indexOf(primaryKey);
@@ -414,7 +414,7 @@ export default class Collection {
         type: JobType.INDEX_UPDATE,
         collection: this.name,
         property: index,
-        value: this.indexes.privateGetValue(index),
+        value: this.indexes.privateGet(index),
         previousValue: previousIndexValues[index]
       });
     });
@@ -451,7 +451,7 @@ export default class Collection {
     // add the data to group indexes
     for (let i = 0; i < groups.length; i++) {
       const groupName = groups[i];
-      let index = this.indexes.privateGetValue(groupName);
+      let index = this.indexes.privateGet(groupName);
 
       // remove key if already present in index
       index = index.filter(k => k != key);
@@ -478,7 +478,7 @@ export default class Collection {
       const indexName = keys[i];
 
       // if the index includes the primaryKey
-      if (this.indexes.privateGetValue(indexName).includes(primaryKey))
+      if (this.indexes.privateGet(indexName).includes(primaryKey))
         foundIndexes.push(indexName);
     }
     return foundIndexes;
@@ -488,7 +488,7 @@ export default class Collection {
     const returnData = {};
     for (let i = 0; i < groups; i++) {
       const groupName = groups[i];
-      returnData[groupName] = this.indexes.privateGetValue(groupName);
+      returnData[groupName] = this.indexes.privateGet(groupName);
     }
     return returnData;
   }
@@ -584,7 +584,7 @@ export default class Collection {
 
     if (!Array.isArray(ids)) ids = [ids];
 
-    let sourceIndex = this.indexes.privateGetValue(sourceIndexName);
+    let sourceIndex = this.indexes.privateGet(sourceIndexName);
     for (let i = 0; i < ids.length; i++) sourceIndex.map(id => id !== ids[i]);
 
     this.global.ingest({
@@ -595,7 +595,7 @@ export default class Collection {
     });
 
     if (destIndexName) {
-      let destIndex = this.indexes.privateGetValue(destIndexName);
+      let destIndex = this.indexes.privateGet(destIndexName);
 
       for (let i = 0; i < ids.length; i++) {
         // destIndex = destIndex.filter(k => k != ids[i]);
@@ -627,7 +627,7 @@ export default class Collection {
     if (!Array.isArray(ids)) ids = [ids];
 
     // get current index
-    let destIndex = this.indexes.privateGetValue(destIndexName);
+    let destIndex = this.indexes.privateGet(destIndexName);
 
     // This doesn't work because the array spead sets the object to index: value rather than just the values
     // let test = { ...destIndex };
@@ -683,7 +683,7 @@ export default class Collection {
 
     if (!Array.isArray(itemsToRemove)) itemsToRemove = [itemsToRemove];
 
-    const index = this.indexes.privateGetValue(groupName);
+    const index = this.indexes.privateGet(groupName);
 
     const newIndex = index.filter(
       id => !(itemsToRemove as Array<number | string>).includes(id)
