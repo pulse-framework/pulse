@@ -117,7 +117,7 @@ export default class Request extends Collection {
     );
 
     if (this.requestIntercept)
-      this.requestIntercept(this.global.getContext(), options);
+      this.requestIntercept(this.global.getContext('request'), options);
 
     let response: any;
 
@@ -172,7 +172,7 @@ export default class Request extends Collection {
     // intercept response
     if (this.responseIntercept) {
       response.data = body;
-      this.responseIntercept(this.global.getContext(), response);
+      this.responseIntercept(this.global.getContext('request'), response);
     }
 
     // reject if bad response status

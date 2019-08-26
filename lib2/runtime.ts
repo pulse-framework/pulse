@@ -359,22 +359,23 @@ export default class Runtime {
     primaryKey: string | number,
     newData: any
   ): object | boolean {
-    const currentData = Object.assign(
-      {},
-      this.collections[collection].internalData[primaryKey]
-    );
-    if (currentData[primaryKey]) {
+    const internalData = this.collections[collection].internalData;
+    // create a copy of the original data
+    const currentData = internalData[primaryKey]
+      ? { ...internalData[primaryKey] }
+      : false;
+
+    if (currentData) {
       // data already exists, merge objects and return previous object
       const keys = Object.keys(newData);
       for (let i = 0; i < keys.length; i++) {
         const property = keys[i];
-        this.collections[collection].internalData[primaryKey][property] =
-          newData[property];
+        internalData[primaryKey][property] = newData[property];
       }
       return currentData;
     } else {
       // data does not exist, write and return false
-      this.collections[collection].internalData[primaryKey] = newData;
+      internalData[primaryKey] = newData;
       return false;
     }
   }
