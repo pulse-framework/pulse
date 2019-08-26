@@ -7,7 +7,7 @@ export enum JobType {
   INTERNAL_DATA_MUTATION = 'INTERNAL_DATA_MUTATION',
   INDEX_UPDATE = 'INDEX_UPDATE',
   COMPUTED_REGEN = 'COMPUTED_REGEN',
-  GROUP_UPDATE = 'GROUP_UPDATE',
+  GROUP_UPDATE = 'GROUP_UPDAE',
   DEEP_PUBLIC_DATA_MUTATION = 'DEEP_PUBLIC_DATA_MUTATION',
   DELETE_INTERNAL_DATA = 'DELETE_INTERNAL_DATA'
 }
@@ -367,7 +367,7 @@ export default class Runtime {
 
     if (currentData) {
       // data already exists, merge objects and return previous object
-      const keys = Object.keys(newData);
+      const keys = Object.keys(newData || {});
       for (let i = 0; i < keys.length; i++) {
         const property = keys[i];
         internalData[primaryKey][property] = newData[property];

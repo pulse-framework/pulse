@@ -4,7 +4,13 @@ Pulse version two is a complete ground-up rewrite. For the most part it should n
 
 ## Breaking changes
 
-These are changes that could - Namespacing changes (see below) - Constructor changed from `Pulse.Library()` to just `Pulse()` - "Filters" renamed to "Computed" although using "filters" as a property name on your collections still works. - remove() renamed to removeFromGroup()
+These are changes that could
+
+    - Namespacing changes (see below)
+    - Model relations "hasOne, hasMany" removed in place of populate() function (need to update docs....)
+    - Constructor changed from `Pulse.Library()` to just `Pulse()`
+    - "Filters" renamed to "Computed" although using "filters" as a property name on your collections still works.
+    - remove() renamed to removeFromGroup()
 
 ## New Features (docs soon)
 
