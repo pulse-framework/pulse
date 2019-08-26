@@ -7,7 +7,7 @@ import typescript from 'rollup-plugin-typescript';
 const prod = process.env.PRODUCTION;
 
 export default {
-  input: './lib2/index.ts',
+  input: './lib/index.ts',
   output: [
     {
       file: 'dist/pulse.min.js',

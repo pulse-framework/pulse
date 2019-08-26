@@ -15,27 +15,21 @@ function _extends() {
   return _extends.apply(this, arguments);
 }
 
-export default function withPulse(pulse, React, ReactComponent, selectData) {
+export default function pulseHOC(pulse, React, ReactComponent, selectData) {
   return class extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
-        ...pulse.mapData(
-          selectData,
-          this,
-          {
-            waitForMount:
-              pulse._private.global.config.waitForMount === false ? false : true
-          },
-          pulse
-        )
+        ...pulse.mapData(selectData, this, {
+          waitForMount: true
+        })
       };
     }
     componentDidMount() {
-      if (pulse._private.global.config.waitForMount) pulse.mount(this);
+      if (pulse._global.config.waitForMount) pulse.mount(this);
     }
     componentWillUnmount() {
-      if (pulse._private.global.config.autoUnmount) pulse.unmount(this);
+      if (pulse._global.config.autoUnmount) pulse.unmount(this);
     }
     render() {
       return React.createElement(
