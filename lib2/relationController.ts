@@ -28,7 +28,6 @@ export interface Relation {
   type: RelationTypes;
   updateThis: UpdateThis;
   whenThisChanges: WhenThisChanges;
-  uuid: any;
 }
 export default class RelationController {
   private relations: { [key: string]: Relation } = {};
@@ -42,7 +41,6 @@ export default class RelationController {
     whenThisChanges: WhenThisChanges
   ) {
     this.relations[id] = {
-      // uuid: id,
       type,
       updateThis,
       whenThisChanges
