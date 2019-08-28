@@ -772,6 +772,18 @@ export default class Collection {
     else this.externalWatchers[property].push(callback);
   }
 
+  forceUpdate(property: string): void {
+    if (this.public.exists(property)) {
+      this.global.ingest({
+        type: JobType.PUBLIC_DATA_MUTATION,
+        property,
+        collection: this.name,
+        value: this.public.privateGet(property),
+        dep: this.global.getDep(property, this.name)
+      });
+    }
+  }
+
   // deprecate
   // added removeFromGroup to be more specific, params got switched around, keeping this for backwards compatibility
   remove(itemsToRemove, groupName) {

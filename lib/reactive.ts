@@ -72,6 +72,8 @@ export default class Reactive {
           return value;
         },
         set: function pulseSetter(newValue) {
+          // TODO: Deep reactive properties need to cause rootProperty(s) to update subscribers also
+
           // DEEP REACTIVE handler: "rootProperty" indicates if the object is "deep".
           if (rootProperty && self.mutable.includes(rootProperty)) {
             // mutate locally
@@ -89,13 +91,13 @@ export default class Reactive {
             // if backdoor open or is protected name, allow direct mutation
             if (self.allowPrivateWrite || protectedNames.includes(key)) {
               // dynamically convert new values to reactive if objects
-              if (isWatchableObject(value)) {
-                newValue = self.deepReactiveObject(
-                  newValue,
-                  rootProperty || key,
-                  currentProperty
-                );
-              }
+              // if (isWatchableObject(value) && self.mutable.includes(key)) {
+              //   newValue = self.deepReactiveObject(
+              //     newValue,
+              //     rootProperty || key,
+              //     currentProperty
+              //   );
+              // }
               return (value = newValue);
             }
 

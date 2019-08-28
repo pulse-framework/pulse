@@ -73,6 +73,7 @@ export interface Methods {
   purge?: void;
   watch?: void;
   findById?: void;
+  forceUpdate?: void;
 }
 
 export interface Keys {
