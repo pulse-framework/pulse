@@ -87,8 +87,17 @@ export default class Reactive {
             // Regular muations
           } else {
             // if backdoor open or is protected name, allow direct mutation
-            if (self.allowPrivateWrite || protectedNames.includes(key))
+            if (self.allowPrivateWrite || protectedNames.includes(key)) {
+              // dynamically convert new values to reactive if objects
+              if (isWatchableObject(value)) {
+                newValue = self.deepReactiveObject(
+                  newValue,
+                  rootProperty || key,
+                  currentProperty
+                );
+              }
               return (value = newValue);
+            }
 
             // if property is mutable dispatch update
             if (self.mutable.includes(key)) {
@@ -113,6 +122,7 @@ export default class Reactive {
       rootProperty,
       propertyOnObject
     });
+
     // repopulate custom object with incoming values
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i++) {
