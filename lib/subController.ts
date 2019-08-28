@@ -11,12 +11,12 @@ interface SubscribingComponentObject {
 }
 
 export default class SubController {
-  private uuid: any = uuid;
-  private subscribingComponentKey: number = 0;
-  private subscribingComponent: boolean | SubscribingComponentObject = false;
-  private unsubscribingComponent: boolean = false;
-  private skimmingDeepReactive: boolean = false;
-  private lastAccessedDep: null | Dep = null;
+  public subscribingComponentKey: number = 0;
+  public subscribingComponent: boolean | SubscribingComponentObject = false;
+  public unsubscribingComponent: boolean = false;
+  public skimmingDeepReactive: boolean = false;
+  public uuid: any = uuid;
+  public lastAccessedDep: null | Dep = null;
 
   public componentStore: { [key: string]: ComponentContainer } = {};
 

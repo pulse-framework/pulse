@@ -11,6 +11,12 @@ export default class Storage {
   private storageType: 'localStorage' | 'custom' = 'localStorage';
   constructor(private storageMethods: StorageMethods = {}) {
     if (storageMethods.async) this.isPromise = true;
+
+    // assume if user provided get, set or remove methods that the storage type is custom
+    if (storageMethods.get || storageMethods.set || storageMethods.remove) {
+      this.storageType = 'custom';
+    }
+
     if (this.localStorageAvaliable() && this.storageType === 'localStorage') {
       this.storageReady = true;
       storageMethods.get = localStorage.getItem.bind(localStorage);

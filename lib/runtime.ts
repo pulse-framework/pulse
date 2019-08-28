@@ -29,7 +29,6 @@ export default class Runtime {
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
     this.ingestQueue.push(job);
-    // console.log(job);
 
     if (!this.running) {
       this.findNextJob();

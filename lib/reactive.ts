@@ -58,15 +58,21 @@ export default class Reactive {
       Object.defineProperty(object, key, {
         get: function pulseGetter() {
           if (self.sneaky) return value;
+
           if (self.global.touching) {
             self.global.touched = dep;
             return;
           }
           dep.register();
+
+          // to prevent Vue from destorying our deep getters / setters
+          if (self.global.mappingData && isWatchableObject(value))
+            return Object.assign({}, value);
+
           return value;
         },
         set: function pulseSetter(newValue) {
-          // rootProperty indicates if the object is "deep".
+          // DEEP REACTIVE handler: "rootProperty" indicates if the object is "deep".
           if (rootProperty && self.mutable.includes(rootProperty)) {
             // mutate locally
             value = newValue;
@@ -77,6 +83,8 @@ export default class Reactive {
               value: self.object[rootProperty],
               dep
             });
+
+            // Regular muations
           } else {
             // if backdoor open or is protected name, allow direct mutation
             if (self.allowPrivateWrite || protectedNames.includes(key))

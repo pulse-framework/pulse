@@ -89,6 +89,7 @@ export interface Global {
   initComplete: boolean;
   collecting: boolean;
   touching: boolean;
+  mappingData: boolean;
   runningAction: boolean | Action;
   runningComputed: boolean | Computed;
   runningWatcher: boolean | Watcher;
