@@ -10,7 +10,7 @@
 
         <p class="mt-8"><router-link :to="post.path" class="bg-blue-600 text-white font-bold px-5 py-3 rounded shadow-md">Read more</router-link></p>
     </div>
-</div>
+</div> 
 </template>
 
 <script>

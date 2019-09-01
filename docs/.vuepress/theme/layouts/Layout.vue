@@ -5,16 +5,17 @@
             <Hero title="PulseJS" tagline=""/>
         </div>
         <!-- START Feature DIV -->
-        <div class="container mx-auto flex px-8 py-4 font-sans leading-loose front-content text-center">
+        <div class="container mx-auto flex px-8 my-10 py-4 font-sans leading-loose front-content text-center border-b-1">
             <!-- Features here with FeatureCard component -->
             <FeatureCard class="flex-1 overflow-y-auto" title="State Management" tagline="Drop in replacement for Vuex and Redux" />
             <FeatureCard class="flex-1 overflow-y-auto" title="Low Footprint" tagline="The minified library is only 40kb keeping your load times minimal." />
             <FeatureCard class="flex-1 overflow-y-auto" title="Accessible" tagline="An easy to understand library that will have you up and running in minutes." />
         </div>
+        
         <!-- END Feature DIV -->
-        <div class="text-3xl text-center text-blue-400">Team</div>
+        <!-- <div class="text-3xl text-center text-blue-400">Team</div> -->
         <!-- START Team DIV -->
-        <div class="container mx-auto flex-wrap px-8 py-4 font-sans leading-loose front-content text-center">
+        <!-- <div class="container mx-auto flex-wrap px-8 py-4 font-sans leading-loose front-content text-center">
             <div class="flex-1 overflow-y-auto inline-block" v-for="data in teamMembers">
                 <TeamCard 
                 :name="data.author.login" 
@@ -22,21 +23,19 @@
                 :link="data.author.html_url"
                 :commits="data.total"
                 />
-                
             </div>
-        </div>
+        </div> -->
         <!-- END Team DIV -->
         <div class="text-3xl text-center text-orange-600">Contributors</div>
         <!-- START Contributer DIV -->
-        <div class="container mx-auto flex-wrap px-8 py-4 font-sans leading-loose front-content text-center">
-            <div class="flex-1 overflow-y-auto inline-block" v-for="data in ordersContributors">
+        <div class="container mx-auto px-8 py-4 mb-10 font-sans leading-loose front-content text-center justify-center">
+            <div class="flex-1 overflow-y-auto inline-block" v-for="data in ordersContributors(items.data)">
                 <TeamCard 
-                :name="data.author.login" 
+                :name="data.author.login"
                 :image="data.author.avatar_url"
                 :link="data.author.html_url"
                 :commits="data.total"
                 />
-                
             </div>
         </div>
         <div>
@@ -61,6 +60,7 @@ import FeatureCard from '../components/FeatureCard';
 import Hero from '../components/Hero';
 import contributors from '../util/contributors.json';
 import team from '../util/team.json';
+import axios from'../../../../node_modules/axios';
 
 export default {
     components: { 
@@ -74,14 +74,25 @@ export default {
         return{
             repoContributors: contributors,
             teamMembers: team,
+            items: [],
         }
     },
-    computed: {
-        ordersContributors: function (){
-            return this.repoContributors.sort(function(a, b) {
+    methods: {
+        ordersContributors: function (data){
+            return data.sort(function(a, b) {
                 return b.total - a.total;
             });
         }
+    },
+    // WIP
+    async beforeMount() {
+        let url = 'https://api.github.com/repos/jamiepine/pulse/stats/contributors';
+        try {
+            this.$data.items = await axios.get(url);
+        } catch (e) {
+            return e
+        }
     }
+
 }
 </script>

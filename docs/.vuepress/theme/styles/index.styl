@@ -1,24 +1,12 @@
 @tailwind base;
 @tailwind components;
+body, html, #app {
+  height: 100%;
+}
 @tailwind utilities;
 
 @import 'utilities';
 @require './code'
-
-@css {
-  html, body {
-      height: 100%;
-  }
-  .wrapper {
-    min-height: 100%;
-    height: auto !important;
-    height: 100%;
-    margin: 0 auto -200px;
-  }
-  .footer {
-    height: 200px;
-  }
-}
 
 .container-warning
   margin 1rem 0
