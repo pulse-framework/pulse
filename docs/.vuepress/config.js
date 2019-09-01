@@ -39,10 +39,7 @@ module.exports = {
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Changelog', link: '/changelog' },
-<<<<<<< Updated upstream
-=======
       { text: 'Github', link: 'https://github.com/jamiepine/pulse' },
->>>>>>> Stashed changes
       { text: 'Guide', link: '/introduction/what-is-pulse' }
     ],
     lastUpdated: 'Last Updated',

@@ -18,26 +18,16 @@
 <style>
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans&display=swap');
 
-<<<<<<< Updated upstream
-.guide-content > h2, h3 {
-    border-left-width: 5px;
-    border-color: #38b2ac;
-    font-size: 1.25rem;
-=======
 h2, h3 {
     @apply border-l-4 border-teal-600;
     
->>>>>>> Stashed changes
     padding-left: 15px;
     margin-top: 10px;
     margin-bottom: 15px;
 }
-<<<<<<< Updated upstream
-=======
 .guide-content > h1 {
      
 }
->>>>>>> Stashed changes
 .header-anchor {
     @apply font-semibold text-teal-800;
 }
