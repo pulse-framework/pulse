@@ -29,12 +29,12 @@
         <div class="text-3xl text-center text-orange-600">Contributors</div>
         <!-- START Contributer DIV -->
         <div class="container mx-auto px-8 py-4 mb-10 font-sans leading-loose front-content text-center justify-center">
-            <div class="flex-1 overflow-y-auto inline-block" v-for="data in ordersContributors(items.data)">
+            <div class="flex-1 overflow-y-auto inline-block" v-for="contributor in ordersContributors(items.data)">
                 <TeamCard 
-                :name="data.author.login"
-                :image="data.author.avatar_url"
-                :link="data.author.html_url"
-                :commits="data.total"
+                :name="contributor.author.login"
+                :image="contributor.author.avatar_url"
+                :link="contributor.author.html_url"
+                :commits="contributor.total"
                 />
             </div>
         </div>
@@ -58,8 +58,6 @@ import Footer from '../components/Footer';
 import TeamCard from '../components/TeamCard';
 import FeatureCard from '../components/FeatureCard';
 import Hero from '../components/Hero';
-import contributors from '../util/contributors.json';
-import team from '../util/team.json';
 import axios from'../../../../node_modules/axios';
 
 export default {
@@ -72,8 +70,6 @@ export default {
     },
     data(){
         return{
-            repoContributors: contributors,
-            teamMembers: team,
             items: [],
         }
     },
