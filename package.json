@@ -35,7 +35,6 @@
     "markdown-it-container": "^2.0.0",
     "markdown-it-highlightjs": "^3.0.0",
     "markdown-it-plantuml": "^1.4.1",
-    "particles.js": "^2.0.0",
     "prettier": "1.16.3",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.0.0",
