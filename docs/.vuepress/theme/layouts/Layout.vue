@@ -79,7 +79,7 @@ export default {
     },
     methods: {
         ordersContributors: function (data){
-            return items.sort(function(a, b) {
+            return data.sort(function(a, b) {
                 return b.total - a.total;
             });
         }
