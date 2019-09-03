@@ -30,7 +30,7 @@ module.exports = {
   ],
   postcss: {
     plugins: [
-        require('tailwindcss')('./docs/tailwind.config.js'),
+        require('tailwindcss')('./tailwind.config.js'),
         require('autoprefixer'),
     ]
   },
@@ -40,7 +40,7 @@ module.exports = {
       { text: 'Home', link: '/' },
       { text: 'Changelog', link: '/changelog' },
       { text: 'Github', link: 'https://github.com/jamiepine/pulse' },
-      { text: 'Guide', link: '/introduction/what-is-pulse' }
+      { text: 'Guide', link: '/introduction/what-is-pulse.html' }
     ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
