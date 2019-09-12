@@ -70,7 +70,7 @@ export default class Reactive {
           if (rootProperty && self.mutable.includes(rootProperty)) {
             // mutate locally
             value = newValue;
-            // dispatch mutation for rootProperty
+            // dispatch mutation for deep property
             self.dispatch('mutation', {
               collection: self.collection,
               key: rootProperty,
