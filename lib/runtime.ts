@@ -29,7 +29,6 @@ export default class Runtime {
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
     this.ingestQueue.push(job);
-    // console.log(job);
 
     if (!this.running) {
       this.findNextJob();
@@ -50,6 +49,7 @@ export default class Runtime {
   }
 
   private performJob(job: Job): void {
+    console.log(job);
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
         this.performPublicDataUpdate(job);
@@ -286,9 +286,14 @@ export default class Runtime {
           // add to componentsToUpdate (ensuring update & component is unique)
           const uuid = subscribers[i].componentUUID;
           const key = subscribers[i].key;
+          // below is a band-aid, caused by (what I believe to be) deep reactive properties submitting several updates for the same mutation, one for each level deep, since the parent is triggered as well
+          // if (!key) continue;
+
+          // if this component isn't already registered for this particular update, add it.
           if (!componentsToUpdate[uuid]) {
             componentsToUpdate[uuid] = {};
             componentsToUpdate[uuid][key] = job.value;
+            // otherwise add the update to the component
           } else {
             componentsToUpdate[uuid][key] = job.value;
           }
@@ -301,6 +306,7 @@ export default class Runtime {
   }
 
   private updateSubscribers(componentsToUpdate) {
+    console.log('updating subscribers', componentsToUpdate);
     const componentKeys = Object.keys(componentsToUpdate);
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];
@@ -309,6 +315,7 @@ export default class Runtime {
       const propertiesToUpdate = componentsToUpdate[componentID];
       const dataKeys = Object.keys(propertiesToUpdate);
       // Switch depending on framework
+
       switch (this.global.config.framework) {
         case 'vue':
           dataKeys.forEach(property => {

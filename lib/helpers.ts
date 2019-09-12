@@ -24,6 +24,7 @@ export const collectionFunctions = [
   'put',
   'move',
   'throttle',
+  'forceUpdate',
   // deprecated
   'remove'
 ];

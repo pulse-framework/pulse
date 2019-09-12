@@ -58,15 +58,23 @@ export default class Reactive {
       Object.defineProperty(object, key, {
         get: function pulseGetter() {
           if (self.sneaky) return value;
+
           if (self.global.touching) {
             self.global.touched = dep;
             return;
           }
           dep.register();
+
+          // to prevent Vue from destorying our deep getters / setters
+          if (self.global.mappingData && isWatchableObject(value))
+            return Object.assign({}, value);
+
           return value;
         },
         set: function pulseSetter(newValue) {
-          // rootProperty indicates if the object is "deep".
+          // TODO: Deep reactive properties need to cause rootProperty(s) to update subscribers also
+
+          // DEEP REACTIVE handler: "rootProperty" indicates if the object is "deep".
           if (rootProperty && self.mutable.includes(rootProperty)) {
             // mutate locally
             value = newValue;
@@ -77,10 +85,21 @@ export default class Reactive {
               value: self.object[rootProperty],
               dep
             });
+
+            // Regular muations
           } else {
             // if backdoor open or is protected name, allow direct mutation
-            if (self.allowPrivateWrite || protectedNames.includes(key))
+            if (self.allowPrivateWrite || protectedNames.includes(key)) {
+              // dynamically convert new values to reactive if objects
+              // if (isWatchableObject(value) && self.mutable.includes(key)) {
+              //   newValue = self.deepReactiveObject(
+              //     newValue,
+              //     rootProperty || key,
+              //     currentProperty
+              //   );
+              // }
               return (value = newValue);
+            }
 
             // if property is mutable dispatch update
             if (self.mutable.includes(key)) {
@@ -105,6 +124,7 @@ export default class Reactive {
       rootProperty,
       propertyOnObject
     });
+
     // repopulate custom object with incoming values
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i++) {

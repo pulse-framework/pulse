@@ -31,6 +31,7 @@ export default class Library {
         runningWatcher: false,
         runningComputed: false,
         runningPopulate: false,
+        mappingData: false,
         collecting: false,
         touching: false,
         touched: false,
@@ -302,6 +303,8 @@ export default class Library {
       instance,
       config
     );
+
+    this._private.global.mappingData = true;
     // new cool mapData method
     if (typeof properties === 'function') {
       return pulse._private.global.subs.subscribePropertiesToComponents(
@@ -321,6 +324,7 @@ export default class Library {
           return { [key]: c[property] };
         }, componentUUID)[key];
       });
+      this._private.global.mappingData = false;
       return returnData;
     }
   }

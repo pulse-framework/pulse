@@ -73,6 +73,7 @@ export interface Methods {
   purge?: void;
   watch?: void;
   findById?: void;
+  forceUpdate?: void;
 }
 
 export interface Keys {
@@ -89,6 +90,7 @@ export interface Global {
   initComplete: boolean;
   collecting: boolean;
   touching: boolean;
+  mappingData: boolean;
   runningAction: boolean | Action;
   runningComputed: boolean | Computed;
   runningWatcher: boolean | Watcher;
