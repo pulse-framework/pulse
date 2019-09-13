@@ -73,6 +73,7 @@ export default class SubController {
       componentUUID,
       keys
     };
+
     const returnToComponent = properties(this.getContext());
 
     this.subscribingComponent = false;

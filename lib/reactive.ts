@@ -66,8 +66,8 @@ export default class Reactive {
           dep.register();
 
           // to prevent Vue from destorying our deep getters / setters
-          if (self.global.mappingData && isWatchableObject(value))
-            return Object.assign({}, value);
+          // if (self.global.mappingData && isWatchableObject(value))
+          //   return Object.assign({}, value);
 
           return value;
         },
