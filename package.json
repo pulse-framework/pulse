@@ -55,8 +55,4 @@
     "mocha": "^6.2.0",
     "vuepress": "^1.0.2"
   },
-  "dependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^6.2.0"
-  }
 }
