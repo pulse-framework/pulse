@@ -97,6 +97,7 @@ export interface Global {
   runningPopulate: boolean | string;
   touched: boolean | Dep;
   contextRef: ExpandableObject;
+  cleanGlobalContextRef: ExpandableObject;
   storage: any;
   getDep: any;
   // aliases

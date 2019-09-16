@@ -323,8 +323,6 @@ export default class Collection {
     // get data for primaryKey
     let data: { [key: string]: any } = { ...this.internalData[primaryKey] };
 
-    console.log('REBUILD SOFT', primaryKey, groupName);
-
     data = this.injectDynamicRelatedData(primaryKey, data);
 
     // replace at known position with updated data

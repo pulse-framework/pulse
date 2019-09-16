@@ -88,16 +88,23 @@ export default class Reactive {
 
             // Regular muations
           } else {
-            // if backdoor open or is protected name, allow direct mutation
-            if (self.allowPrivateWrite || protectedNames.includes(key)) {
+            // if a protected name allow direct mutation
+            if (protectedNames.includes(key)) {
+              return (value = newValue);
+            }
+            // if backdoor open allow direct mutation
+            if (self.allowPrivateWrite) {
               // dynamically convert new values to reactive if objects
-              // if (isWatchableObject(value) && self.mutable.includes(key)) {
-              //   newValue = self.deepReactiveObject(
-              //     newValue,
-              //     rootProperty || key,
-              //     currentProperty
-              //   );
-              // }
+              // This is risky as fuck and kinda doesn't even work
+              if (isWatchableObject(value) && self.mutable.includes(key)) {
+                // debugger
+                newValue = self.deepReactiveObject(
+                  newValue,
+                  rootProperty || key,
+                  currentProperty
+                );
+                console.log(value, newValue);
+              }
               return (value = newValue);
             }
 
@@ -159,6 +166,22 @@ export default class Reactive {
       });
     }
     return reactiveArray;
+  }
+
+  // when a component subscribes to data, a clean copy (with no getters or setters) must be provided
+  // to the component, otherwise frameworks such as Vue will destroy our getters and setters with
+  // its own, this removes all getters and setters for an entire object tree
+  public cleanse(object?: any) {
+    if (!object) object = this.object;
+    if (!isWatchableObject(object)) return;
+    const clean = Object.assign({}, object);
+    const properties = Object.keys(clean);
+    for (let i = 0; i < properties.length; i++) {
+      const property = properties[i];
+      if (isWatchableObject(clean[property]))
+        clean[property] = this.cleanse(clean[property]);
+    }
+    return clean;
   }
 
   privateWrite(property, value) {

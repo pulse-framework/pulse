@@ -49,7 +49,6 @@ export default class Runtime {
   }
 
   private performJob(job: Job): void {
-    console.log(job);
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
         this.performPublicDataUpdate(job);
@@ -116,7 +115,6 @@ export default class Runtime {
   }
 
   // ****************** Perform Functions ****************** //
-
   private performPublicDataUpdate(job: Job): void {
     this.writeToPublicObject(job.collection, 'data', job.property, job.value);
     this.completedJob(job);

@@ -164,7 +164,6 @@ export default class RelationController {
           break;
         //
         case RelationTypes.DATA_DEPENDS_ON_DEP:
-          // console.log('HAHAHA', relation);
           const parsed = parse(relation.updateThis as Key);
           this.global.ingest({
             type: JobType.INTERNAL_DATA_MUTATION,

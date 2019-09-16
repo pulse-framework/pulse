@@ -20,7 +20,7 @@ export default class SubController {
 
   public componentStore: { [key: string]: ComponentContainer } = {};
 
-  constructor(private getContext: any) {}
+  constructor(private cleanContext) {}
 
   registerComponent(instance, config) {
     let uuid = instance.__pulseUniqueIdentifier;
@@ -61,7 +61,7 @@ export default class SubController {
 
   subscribePropertiesToComponents(properties, componentUUID) {
     // provisionally get keys of mapped data
-    const provision = properties(this.getContext());
+    const provision = properties(this.cleanContext);
 
     const keys = Object.keys(provision);
 
@@ -74,7 +74,7 @@ export default class SubController {
       keys
     };
 
-    const returnToComponent = properties(this.getContext());
+    const returnToComponent = properties(this.cleanContext);
 
     this.subscribingComponent = false;
 
