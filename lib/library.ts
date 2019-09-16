@@ -5,7 +5,14 @@ import Storage from './storage';
 import Request from './collections/request';
 import Base from './collections/base';
 import withPulse from './wrappers/ReactWithPulse';
-import { uuid, normalizeMap, log, defineConfig, parse } from './helpers';
+import {
+  uuid,
+  normalizeMap,
+  log,
+  defineConfig,
+  parse,
+  cleanse
+} from './helpers';
 import { Private, RootCollectionObject, DebugType } from './interfaces';
 import { JobType } from './runtime';
 
@@ -36,9 +43,8 @@ export default class Library {
         touching: false,
         touched: false,
         contextRef: {},
-        cleanGlobalContextRef: {},
         // Instances
-        subs: new SubController(this.getCleanGlobalContext.bind(this)),
+        subs: new SubController(this.getContext.bind(this)),
         relations: null,
         storage: null,
         // Function aliases
@@ -74,22 +80,6 @@ export default class Library {
     this.runAllComputed();
 
     this.initComplete();
-  }
-
-  // this will generate a global context object cleansed of all getters and setters,
-  // then preserve or cache the object for additional use during runtime
-  getCleanGlobalContext() {
-    if (!this._private.global.cleanGlobalContextRef['set']) {
-      let context = {};
-      this._private.global.cleanGlobalContextRef.set = true;
-      this._private.collectionKeys.forEach(collectionName => {
-        context[collectionName] = this._private.collections[
-          collectionName
-        ].public.cleanse();
-      });
-    } else {
-      return this._private.global.cleanGlobalContextRef;
-    }
   }
 
   initCollections(root: RootCollectionObject) {
@@ -343,6 +333,9 @@ export default class Library {
         }, componentUUID)[key];
       });
       this._private.global.mappingData = false;
+
+      returnData = cleanse(returnData);
+
       return returnData;
     }
   }

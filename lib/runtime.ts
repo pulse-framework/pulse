@@ -1,4 +1,4 @@
-import { log, objectLoop, log } from './helpers';
+import { log, objectLoop, log, cleanse } from './helpers';
 import { Job, Global } from './interfaces';
 import Dep from './Dep';
 
@@ -304,7 +304,7 @@ export default class Runtime {
   }
 
   private updateSubscribers(componentsToUpdate) {
-    console.log('updating subscribers', componentsToUpdate);
+    // console.log('updating subscribers', componentsToUpdate);
     const componentKeys = Object.keys(componentsToUpdate);
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];
@@ -321,7 +321,11 @@ export default class Runtime {
             componentInstance.instance.$set(
               componentInstance.instance,
               property,
-              value
+              // this prevents vue from adding getters/setters to any objects, but might be wasteful computation
+              // considering this is not important and does not change perfomance, its probably best to not bother cleansing every
+              // value update. actually thinking about it this is terrbile. remove this soon.
+              // honestly it's only here because I have OCD.
+              cleanse(value)
             );
           });
           break;

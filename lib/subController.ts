@@ -1,9 +1,10 @@
 // This file handles external components subscribing to pulse.
 // It also handles subscribing mapData properties to collections
 
-import { uuid } from './helpers';
+import { uuid, cleanse, isWatchableObject } from './helpers';
 import { ComponentContainer } from './interfaces';
 import Dep from './dep';
+import { worker } from 'cluster';
 
 interface SubscribingComponentObject {
   componentUUID: string;
@@ -20,7 +21,7 @@ export default class SubController {
 
   public componentStore: { [key: string]: ComponentContainer } = {};
 
-  constructor(private cleanContext) {}
+  constructor(private getContext) {}
 
   registerComponent(instance, config) {
     let uuid = instance.__pulseUniqueIdentifier;
@@ -61,7 +62,7 @@ export default class SubController {
 
   subscribePropertiesToComponents(properties, componentUUID) {
     // provisionally get keys of mapped data
-    const provision = properties(this.cleanContext);
+    const provision = properties(this.getContext());
 
     const keys = Object.keys(provision);
 
@@ -74,11 +75,19 @@ export default class SubController {
       keys
     };
 
-    const returnToComponent = properties(this.cleanContext);
+    let returnToComponent = properties(this.getContext());
 
     this.subscribingComponent = false;
 
     this.subscribingComponentKey = 0;
+
+    // cleanse any deep objects of their getters/setters from Pulse and ensure object is a copy
+    // Object.keys(returnToComponent).forEach(property => {
+    //   returnToComponent[property] = cleanse(returnToComponent[property]);
+    // });
+    // returnToComponent = Object.assign({}, returnToComponent);
+
+    // console.log(returnToComponent);
 
     return returnToComponent;
   }

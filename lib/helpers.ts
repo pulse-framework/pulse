@@ -34,7 +34,7 @@ export function defineConfig(config, defaults) {
 }
 
 export function parse(key: string) {
-  if (typeof key !== 'string') debugger;
+  // if (typeof key !== 'string') debugger;
   let primaryKey: string | number = key.split('/')[1];
 
   let canBeNumber = Number(primaryKey);
@@ -61,6 +61,28 @@ export function objectLoop(object, callback, keys?: Array<any>) {
     const value: any = object[key];
     callback(key, value, objectKeys);
   }
+}
+
+export function isWatchableObject(value) {
+  function isHTMLElement(obj) {
+    try {
+      return obj instanceof HTMLElement;
+    } catch (e) {
+      return (
+        typeof obj === 'object' &&
+        obj.nodeType === 1 &&
+        typeof obj.style === 'object' &&
+        typeof obj.ownerDocument === 'object'
+      );
+    }
+  }
+  let type = typeof value;
+  return (
+    value != null &&
+    type == 'object' &&
+    !isHTMLElement(value) &&
+    !Array.isArray(value)
+  );
 }
 
 // const thing = {}
@@ -91,6 +113,21 @@ export const arrayFunctions = [
   'reverse'
 ];
 
+export function cleanse(object: any) {
+  if (!isWatchableObject(object)) return object;
+  const clean = Object.assign({}, object);
+  const properties = Object.keys(clean);
+
+  for (let i = 0; i < properties.length; i++) {
+    const property = properties[i];
+
+    if (isWatchableObject(clean[property])) {
+      clean[property] = cleanse(clean[property]);
+    }
+  }
+  return clean;
+}
+
 export function assert(
   func: (warnings: { [key: string]: any }) => any,
   funcName?: string
@@ -108,28 +145,6 @@ export function assert(
     PROPERTY_NOT_A_NUMBER: () => warn('Property is not a number!')
   };
   return func(warnings)();
-}
-
-export function isWatchableObject(value) {
-  function isHTMLElement(obj) {
-    try {
-      return obj instanceof HTMLElement;
-    } catch (e) {
-      return (
-        typeof obj === 'object' &&
-        obj.nodeType === 1 &&
-        typeof obj.style === 'object' &&
-        typeof obj.ownerDocument === 'object'
-      );
-    }
-  }
-  let type = typeof value;
-  return (
-    value != null &&
-    type == 'object' &&
-    !isHTMLElement(value) &&
-    !Array.isArray(value)
-  );
 }
 
 export function validateNumber(mutable, amount) {
