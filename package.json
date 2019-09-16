@@ -1,11 +1,12 @@
 {
   "name": "pulse-framework",
-  "version": "1.11.6",
-  "description": "",
+  "version": "2.0.0",
+  "description": "Global state and logic framework for reactive Javascript aplications.",
   "main": "dist/pulse.min.js",
   "module": "dist/pulse.esm.min.js",
   "scripts": {
-    "test": "jest",
+    "test": "mocha --exit",
+    "test-debug": "mocha --inspect-brk",
     "build": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js",
     "build:publish": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js && npm publish",
     "dev": "rollup -c build/rollup.dev.config.js --watch",
@@ -53,5 +54,9 @@
     "chai": "^4.2.0",
     "mocha": "^6.2.0",
     "vuepress": "^1.0.2"
+  },
+  "dependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0"
   }
 }

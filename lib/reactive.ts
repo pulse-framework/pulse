@@ -13,6 +13,7 @@ export default class Reactive {
   private allowPrivateWrite: boolean = false;
   private touching: boolean = false;
   private touched: null | Dep;
+  private sneaky: boolean;
 
   constructor(
     object: Obj = {},
@@ -56,29 +57,51 @@ export default class Reactive {
 
       Object.defineProperty(object, key, {
         get: function pulseGetter() {
-          if (self.touching) {
-            self.touched = dep;
+          if (self.sneaky) return value;
+
+          if (self.global.touching) {
+            self.global.touched = dep;
             return;
           }
           dep.register();
+
           return value;
         },
         set: function pulseSetter(newValue) {
-          // rootProperty indicates if the object is "deep".
+          // TODO: Deep reactive properties need to cause rootProperty(s) to update subscribers also
+
+          // DEEP REACTIVE handler: "rootProperty" indicates if the object is "deep".
           if (rootProperty && self.mutable.includes(rootProperty)) {
             // mutate locally
             value = newValue;
-            // dispatch mutation for rootProperty
+            // dispatch mutation for deep property
             self.dispatch('mutation', {
               collection: self.collection,
               key: rootProperty,
               value: self.object[rootProperty],
-              dep: dep
+              dep
             });
+
+            // Regular muations
           } else {
-            // if backdoor open or is protected name, allow direct mutation
-            if (self.allowPrivateWrite || protectedNames.includes(key))
+            // if a protected name allow direct mutation
+            if (protectedNames.includes(key)) {
               return (value = newValue);
+            }
+            // if backdoor open allow direct mutation
+            if (self.allowPrivateWrite) {
+              // dynamically convert new values to reactive if objects
+              // This is risky as fuck and kinda doesn't even work
+              if (isWatchableObject(value) && self.mutable.includes(key)) {
+                // debugger;
+                newValue = self.deepReactiveObject(
+                  newValue,
+                  rootProperty || key,
+                  currentProperty
+                );
+              }
+              return (value = newValue);
+            }
 
             // if property is mutable dispatch update
             if (self.mutable.includes(key)) {
@@ -86,7 +109,7 @@ export default class Reactive {
                 collection: self.collection,
                 key,
                 value: newValue,
-                dep: dep
+                dep
               });
               // we did not apply the mutation since runtime will privatly
               // write the result since we dispatched above
@@ -103,6 +126,7 @@ export default class Reactive {
       rootProperty,
       propertyOnObject
     });
+
     // repopulate custom object with incoming values
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i++) {
@@ -140,26 +164,31 @@ export default class Reactive {
   }
 
   privateWrite(property, value) {
-    if (value === undefined) debugger;
     this.allowPrivateWrite = true;
     this.object[property] = value;
     this.allowPrivateWrite = false;
   }
 
-  privateGetValue(property) {
-    return this.object[property];
+  // sneaky blocked the getter, sneaky.
+  privateGet(property) {
+    this.sneaky = true;
+    const data = this.object[property];
+    this.sneaky = false;
+    return data;
   }
 
   exists(property: string): boolean {
-    return !!this.object.hasOwnProperty(property);
+    this.sneaky = true;
+    const bool = !!this.object.hasOwnProperty(property);
+    this.sneaky = false;
+    return bool;
   }
 
-  getDep(property) {
-    this.touching = true;
-    const _ = this.object[property]; // eslint-disable-line no-unused-var
-    const dep = this.touched;
-    this.touching = false;
-    return dep;
+  getKeys(): Array<string> {
+    this.sneaky = true;
+    const keys = Object.keys(this.object);
+    this.sneaky = false;
+    return keys;
   }
 }
 

@@ -3,20 +3,22 @@ import {
   defineConfig,
   validateNumber,
   collectionFunctions,
-  objectLoop
+  objectLoop,
+  key
 } from './helpers';
 import Reactive from './reactive';
 import Action from './action';
 import Computed from './computed';
+import { JobType } from './runtime';
 import {
   Methods,
   Keys,
   CollectionObject,
   CollectionConfig,
   Global,
-  JobType,
   ExpandableObject
 } from './interfaces';
+import { RelationTypes, Key } from './relationController';
 
 export default class Collection {
   private namespace: CollectionObject;
@@ -32,15 +34,15 @@ export default class Collection {
   public externalWatchers: { [key: string]: any } = {};
   public persist: Array<string> = [];
   public local: { [key: string]: any } = {};
+  public model: { [key: string]: any } = {};
 
   public collectionSize: number = 0;
   public primaryKey: string | number | boolean = false;
 
   private internalData: object = {};
+  private internalDataWithPopulate: Array<string> = [];
 
-  private dataRelations: { [key: string]: any } = {};
-  private groupRelations: { [key: string]: any } = {};
-  public foreignGroupRelations: { [key: string]: any } = {};
+  private tickets: { [key: string]: Array<string> } = {};
 
   dispatch: void;
 
@@ -158,7 +160,7 @@ export default class Collection {
             value: data,
             property: dataName,
             collection: this.name,
-            dep: this.global.getDep(this.name, dataName)
+            dep: this.global.getDep(dataName, this.name)
           };
           this.global.ingest(job);
         });
@@ -238,137 +240,140 @@ export default class Collection {
   }
 
   initModel(model = {}) {
+    this.model = model;
     Object.keys(model).forEach(property => {
       Object.keys(model[property]).forEach(config => {
-        if (config === 'primaryKey') {
-          this.primaryKey = property;
-        } else if (config === 'type') {
-          // if (
-          //   [
-          //     'string',
-          //     'boolean',
-          //     'integer',
-          //     'number',
-          //     'array',
-          //     'object'
-          //   ].includes(model[property].type)
-          // ) {
-          //   // model types are properties of the model to type check & validate on collect
-          //   if (!this._modelTypes.includes(property)) {
-          //     this._modelTypes.push(property);
-          //   }
-          // }
-        } else if (config === 'parent' || config === 'hasOne') {
-          this.createDataRelation(
-            property,
-            model[property].parent || model[property].hasOne,
-            model[property].assignTo
-          );
-        } else if (config === 'has' || config === 'hasMany') {
-          this.createGroupRelation(
-            property,
-            model[property].has || model[property].hasMany,
-            model[property].assignTo
-          );
+        switch (config) {
+          case 'primaryKey':
+            this.primaryKey = property;
+            break;
+          case 'populate':
+            this.internalDataWithPopulate.push(property);
+            break;
         }
       });
     });
   }
 
-  createDataRelation(primaryKeyName, fromCollectionName, assignTo) {
-    this.dataRelations[primaryKeyName] = {};
-    this.dataRelations[primaryKeyName].fromCollectionName = fromCollectionName;
-    if (assignTo) this.dataRelations[primaryKeyName].assignTo = assignTo;
+  // called by relationController after new relation has been created
+  public ticket(uuid: string, primaryKey: string | number): void {
+    if (Array.isArray(this.tickets[primaryKey]))
+      this.tickets[primaryKey].push(uuid);
+    else this.tickets[primaryKey] = [uuid];
   }
 
-  createGroupRelation(primaryKeyName, fromCollectionName, assignTo) {
-    this.groupRelations[primaryKeyName] = {};
-    this.groupRelations[primaryKeyName].fromCollectionName = fromCollectionName;
-    if (assignTo) this.groupRelations[primaryKeyName].assignTo = assignTo;
+  public cleanupTickets(primaryKey) {
+    if (this.tickets[primaryKey]) {
+      this.tickets[primaryKey] = [];
+    }
   }
 
-  buildGroupFromIndex(groupName: string): Array<number> {
+  // called by Runtime when job has been completed
+  public changed(primaryKey: string | number): void {
+    if (this.tickets[primaryKey]) {
+      this.global.relations.update(this.tickets[primaryKey]);
+    }
+  }
+
+  private getData(id) {
+    return { ...this.internalData[id] };
+  }
+
+  public buildGroupFromIndex(groupName: string): Array<number> {
     const constructedArray = [];
-    let index = this.indexes.object[groupName];
+    // get index directly
+    let index = this.indexes.privateGet(groupName);
+    if (!index) return [];
+
+    // for every primaryKey in the index
     for (let i = 0; i < index.length; i++) {
+      // primaryKey of data
       let id = index[i];
-      let data = Object.assign({}, this.internalData[id]);
+      // copy data from internal database
+      let data = this.getData(id);
+      // if none found skip
       if (!data) continue;
-      data = this.injectDataByRelation(data);
-      data = this.injectGroupByRelation(data, groupName);
+      // inject dynamic data
+      data = this.injectDynamicRelatedData(id, data);
+
       constructedArray.push(data);
     }
     return constructedArray;
   }
 
-  injectDataByRelation(data) {
-    // if (data.hasOwnProperty('liveStreamType')) debugger;
-    let relations = Object.keys(this.dataRelations);
-    if (relations.length > 0)
-      for (let i = 0; i < relations.length; i++) {
-        const relationKey = relations[i]; // the key on the data to look at
-        const rel = this.dataRelations[relationKey]; // an object with fromCollectionName & assignTo
-        const assignTo = rel.hasOwnProperty('assignTo')
-          ? rel.assignTo
-          : rel.fromCollectionName;
+  // rebuilding an entire group is expensive on resources, but is
+  // not nessisary if only one piece of data has changed
+  // this function will replace a single piece of data without rebuilding
+  // the entire group
+  public softUpdateGroupData(
+    primaryKey: string | number,
+    groupName: string
+  ): Array<any> {
+    let index: Array<any> = this.indexes.privateGet(groupName);
 
-        if (data.hasOwnProperty(relationKey)) {
-          let foreignData = this.global.getInternalData(
-            rel.fromCollectionName,
-            data[relationKey]
-          );
-          data[assignTo] = foreignData;
-        }
-      }
+    // find the data's position within index
+    let position: number = index.indexOf(primaryKey);
+
+    // if group is dynamic, just build the group from index.
+    if (!this.public[groupName]) return this.buildGroupFromIndex(groupName);
+
+    // copy the current group output
+    let currentGroup: Array<any> = [this.public[groupName]];
+
+    // get data for primaryKey
+    let data: { [key: string]: any } = { ...this.internalData[primaryKey] };
+
+    data = this.injectDynamicRelatedData(primaryKey, data);
+
+    // replace at known position with updated data
+    currentGroup[position] = data;
+
+    return currentGroup;
+  }
+
+  // This should be called on every piece of data retrieved when building a group from an index
+  private injectDynamicRelatedData(
+    primaryKey: string | number,
+    data: { [key: string]: any }
+  ): any {
+    // for each populate() function found in the model for this collection
+    this.internalDataWithPopulate.forEach(property => {
+      // set runningPopulate to the key (collection/propery) of the data being modified
+      // this is fed into the relations.relate() function becoming the unique cleanupKey for the relation
+      this.global.runningPopulate = key(this.name, primaryKey);
+      // run populate function passing in the context and the data
+      const populated = this.model[property].populate(
+        this.global.getContext(),
+        data
+      );
+
+      this.global.runningPopulate = false;
+      // inject result to data
+      data[property] = populated;
+    });
     return data;
   }
 
-  injectGroupByRelation(data, groupName) {
-    let groupRealtions = Object.keys(this.groupRelations);
-    if (groupRealtions.length > 0)
-      for (let i = 0; i < groupRealtions.length; i++) {
-        const relationKey = groupRealtions[i];
-        const rel = this.groupRelations[relationKey];
-
-        const assignTo = rel.hasOwnProperty('assignTo') ? rel.assignTo : false;
-
-        if (data.hasOwnProperty(relationKey)) {
-          const foreignData = this.global.contextRef[rel.fromCollectionName][
-            data[relationKey]
-          ];
-
-          if (foreignData) {
-            if (assignTo) data[assignTo] = foreignData;
-            else data[rel.fromCollectionName] = foreignData;
-          }
-
-          // register this relation on the foreign collection for reactive updates
-          this.global.createForeignGroupRelation(
-            rel.fromCollectionName,
-            data[relationKey],
-            this.name,
-            groupName
-          );
-        }
-      }
-    return data;
-  }
-
-  createGroups(group) {
+  public createGroups(group) {
     if (group === undefined) group = [];
     else if (!Array.isArray(group)) group = [group];
 
     for (let i = 0; i < group.length; i++) {
       const groupName = group[i];
-      if (!this.indexes.object[groupName]) {
-        this.indexes.object[groupName] = [];
+      if (!this.indexes.exists(groupName)) {
+        this.indexes.privateWrite(groupName, []);
       }
     }
     return group;
   }
 
   // METHODS
-  collect(data, group?: string | Array<string>, config?: ExpandableObject) {
+
+  public collect(
+    data,
+    group?: string | Array<string>,
+    config?: ExpandableObject
+  ) {
     config = defineConfig(config, {
       append: true
     });
@@ -388,8 +393,13 @@ export default class Collection {
     // process data items
     for (let i = 0; i < data.length; i++) {
       const dataItem = data[i];
+
+      if (dataItem === null) continue;
       // process data item returns "success" as a boolean and affectedIndexes as an array
       const processDataItem = this.processDataItem(dataItem, groups, config);
+
+      if (!processDataItem) continue;
+
       if (processDataItem.success) this.collectionSize++;
       // ensure indexes modified by this data item are waiting to be ingested for regen
       processDataItem.affectedIndexes.forEach(index =>
@@ -402,7 +412,7 @@ export default class Collection {
         type: JobType.INDEX_UPDATE,
         collection: this.name,
         property: index,
-        value: this.indexes.object[index],
+        value: this.indexes.privateGet(index),
         previousValue: previousIndexValues[index]
       });
     });
@@ -413,16 +423,18 @@ export default class Collection {
   processDataItem(dataItem: object, groups: Array<string> = [], config) {
     if (!this.primaryKey) this.findPrimaryKey(dataItem);
 
+    if (!this.primaryKey) return false;
+
     const key = dataItem[this.primaryKey as number | string];
 
     // find affected indexes
     let affectedIndexes = [...groups];
 
-    this.global
-      .searchIndexes(this.name, key)
-      .map(
-        index => !affectedIndexes.includes(index) && affectedIndexes.push(index)
-      );
+    // searchIndexesForPrimaryKey returns an array of indexes that include that primaryKey
+    // for each index found, if it is not already known, add to affected indexes
+    this.searchIndexesForPrimaryKey(key).map(
+      index => !affectedIndexes.includes(index) && affectedIndexes.push(index)
+    );
 
     // validate against model
 
@@ -437,21 +449,44 @@ export default class Collection {
     // add the data to group indexes
     for (let i = 0; i < groups.length; i++) {
       const groupName = groups[i];
-      let index = [...this.indexes.object[groupName]];
+      let index = this.indexes.privateGet(groupName);
+
       // remove key if already present in index
-      index = index.filter(k => k !== key);
+      index = index.filter(k => k != key);
+
       if (config.append) index.push(key);
       else index.unshift(key);
+
+      // write index
       this.indexes.privateWrite(groupName, index);
     }
     return { success: true, affectedIndexes };
+  }
+
+  private searchIndexesForPrimaryKey(
+    primaryKey: string | number
+  ): Array<string> {
+    // get a fresh copy of the keys to include dynamic indexes
+    const keys = this.indexes.getKeys();
+
+    let foundIndexes: Array<string> = [];
+
+    // for every index
+    for (let i = 0; i < keys.length; i++) {
+      const indexName = keys[i];
+
+      // if the index includes the primaryKey
+      if (this.indexes.privateGet(indexName).includes(primaryKey))
+        foundIndexes.push(indexName);
+    }
+    return foundIndexes;
   }
 
   getPreviousIndexValues(groups) {
     const returnData = {};
     for (let i = 0; i < groups; i++) {
       const groupName = groups[i];
-      returnData[groupName] = this.indexes.object[groupName];
+      returnData[groupName] = this.indexes.privateGet(groupName);
     }
     return returnData;
   }
@@ -481,9 +516,50 @@ export default class Collection {
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      this.global.relations.createInternalDataRelation(this.name, id, computed);
+      this.global.relations.relate(
+        RelationTypes.COMPUTED_DEPENDS_ON_DATA,
+        // updateThis computed instance
+        computed,
+        // primaryKey of data for whenThisChanges
+        id,
+        this.name
+      );
+    }
+    if (this.global.runningPopulate) {
+      this.global.relations.relate(
+        RelationTypes.DATA_DEPENDS_ON_DATA,
+        // this is the key ("collection/primaryKey") for the dynamically populated data for updateThis
+        this.global.runningPopulate,
+        // primaryKey of data for whenThisChanges
+        id,
+        this.name
+      );
     }
     return this.internalData[id];
+  }
+
+  getGroup(property) {
+    // if called inside Computed method, create temporary relation in relationship controller
+    if (this.global.runningComputed) {
+      let computed = this.global.runningComputed as Computed;
+      this.global.relations.relate(
+        RelationTypes.COMPUTED_DEPENDS_ON_GROUP,
+        computed, // updateThis
+        property, // whenThisChanges
+        this.name
+      );
+    }
+    // if called from within populate() create another temporary relation
+    if (this.global.runningPopulate) {
+      this.global.relations.relate(
+        RelationTypes.DATA_DEPENDS_ON_GROUP,
+        this.global.runningPopulate, // updateThis
+        property, // whenThisChanges
+        this.name
+      );
+    }
+    // get group is not cached, so generate a fresh group from the index
+    return this.buildGroupFromIndex(property) || [];
   }
 
   // action functions
@@ -506,7 +582,7 @@ export default class Collection {
 
     if (!Array.isArray(ids)) ids = [ids];
 
-    let sourceIndex = this.indexes.privateGetValue(sourceIndexName);
+    let sourceIndex = this.indexes.privateGet(sourceIndexName);
     for (let i = 0; i < ids.length; i++) sourceIndex.map(id => id !== ids[i]);
 
     this.global.ingest({
@@ -517,8 +593,16 @@ export default class Collection {
     });
 
     if (destIndexName) {
-      let destIndex = this.indexes.privateGetValue(destIndexName);
-      for (let i = 0; i < ids.length; i++) destIndex[method](ids[i]);
+      let destIndex = this.indexes.privateGet(destIndexName);
+
+      for (let i = 0; i < ids.length; i++) {
+        // destIndex = destIndex.filter(k => k != ids[i]);
+
+        if (destIndex.includes(ids[i])) continue;
+
+        // push or unshift id into current index
+        destIndex[method](ids[i]);
+      }
 
       this.global.ingest({
         type: JobType.INDEX_UPDATE,
@@ -540,8 +624,26 @@ export default class Collection {
 
     if (!Array.isArray(ids)) ids = [ids];
 
-    let destIndex = this.indexes.privateGetValue(destIndexName);
-    for (let i = 0; i < ids.length; i++) destIndex[method](ids[i]);
+    // get current index
+    let destIndex = this.indexes.privateGet(destIndexName);
+
+    // This doesn't work because the array spead sets the object to index: value rather than just the values
+    // let test = { ...destIndex };
+    // ids.map(k => {
+    //   if (test[k]) return;
+    //   test[k] = true;
+    // });
+    // destIndex = Object.keys(test).map(k => Number(k));
+
+    // loop over every id user is trying to add into current index
+    for (let i = 0; i < ids.length; i++) {
+      // destIndex = destIndex.filter(k => k != ids[i]);
+
+      if (destIndex.includes(ids[i])) continue;
+
+      // push or unshift id into current index
+      destIndex[method](ids[i]);
+    }
 
     this.global.ingest({
       type: JobType.INDEX_UPDATE,
@@ -551,16 +653,6 @@ export default class Collection {
     });
   }
 
-  getGroup(property) {
-    if (!this.indexes.exists(property))
-      return assert(warn => warn.INDEX_NOT_FOUND, 'getGroup') || [];
-
-    if (this.global.runningComputed) {
-      let computed = this.global.runningComputed as Computed;
-      computed.addRelationToGroup(this.name, property);
-    }
-    return this.buildGroupFromIndex(property) || [];
-  }
   newGroup(groupName: string, indexValue?: Array<string | number>) {
     if (this.indexes.object.hasOwnProperty(groupName))
       return assert(warn => warn.GROUP_ALREADY_EXISTS, 'newGroup');
@@ -589,7 +681,7 @@ export default class Collection {
 
     if (!Array.isArray(itemsToRemove)) itemsToRemove = [itemsToRemove];
 
-    const index = this.indexes.privateGetValue(groupName);
+    const index = this.indexes.privateGet(groupName);
 
     const newIndex = index.filter(
       id => !(itemsToRemove as Array<number | string>).includes(id)
@@ -676,6 +768,18 @@ export default class Collection {
     if (!this.externalWatchers[property])
       this.externalWatchers[property] = [callback];
     else this.externalWatchers[property].push(callback);
+  }
+
+  forceUpdate(property: string): void {
+    if (this.public.exists(property)) {
+      this.global.ingest({
+        type: JobType.PUBLIC_DATA_MUTATION,
+        property,
+        collection: this.name,
+        value: this.public.privateGet(property),
+        dep: this.global.getDep(property, this.name)
+      });
+    }
   }
 
   // deprecate

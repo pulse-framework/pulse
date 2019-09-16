@@ -1,9 +1,10 @@
 // This file handles external components subscribing to pulse.
 // It also handles subscribing mapData properties to collections
 
-import { uuid } from './helpers';
-import { Global, ComponentContainer } from './interfaces';
+import { uuid, cleanse, isWatchableObject } from './helpers';
+import { ComponentContainer } from './interfaces';
 import Dep from './dep';
+import { worker } from 'cluster';
 
 interface SubscribingComponentObject {
   componentUUID: string;
@@ -11,16 +12,16 @@ interface SubscribingComponentObject {
 }
 
 export default class SubController {
-  private uuid: any = uuid;
-  private subscribingComponentKey: number = 0;
-  private subscribingComponent: boolean | SubscribingComponentObject = false;
-  private unsubscribingComponent: boolean = false;
-  private skimmingDeepReactive: boolean = false;
-  private lastAccessedDep: null | Dep = null;
+  public subscribingComponentKey: number = 0;
+  public subscribingComponent: boolean | SubscribingComponentObject = false;
+  public unsubscribingComponent: boolean = false;
+  public skimmingDeepReactive: boolean = false;
+  public uuid: any = uuid;
+  public lastAccessedDep: null | Dep = null;
 
   public componentStore: { [key: string]: ComponentContainer } = {};
 
-  constructor(private getContext: any) {}
+  constructor(private getContext) {}
 
   registerComponent(instance, config) {
     let uuid = instance.__pulseUniqueIdentifier;
@@ -55,10 +56,6 @@ export default class SubController {
     const uuid = instance.__pulseUniqueIdentifier;
     if (!uuid) return;
 
-    const componentContainer = this.componentStore[
-      instance.__pulseUniqueIdentifier
-    ];
-
     // delete refrence to this component from store
     delete this.componentStore[instance.__pulseUniqueIdentifier];
   }
@@ -66,29 +63,47 @@ export default class SubController {
   subscribePropertiesToComponents(properties, componentUUID) {
     // provisionally get keys of mapped data
     const provision = properties(this.getContext());
+
     const keys = Object.keys(provision);
 
-    // mapData has a user defined local key, we need to include that in the subscription so we know what to update on the component later.
+    // mapData has a user defined local key, we need to include that in the
+    // subscription so we know what to update on the component later.
     this.subscribingComponentKey = 0;
+
     this.subscribingComponent = {
       componentUUID,
       keys
     };
-    const returnToComponent = properties(this.getContext());
+
+    let returnToComponent = properties(this.getContext());
+
     this.subscribingComponent = false;
+
     this.subscribingComponentKey = 0;
+
+    // cleanse any deep objects of their getters/setters from Pulse and ensure object is a copy
+    // Object.keys(returnToComponent).forEach(property => {
+    //   returnToComponent[property] = cleanse(returnToComponent[property]);
+    // });
+    // returnToComponent = Object.assign({}, returnToComponent);
+
+    // console.log(returnToComponent);
+
     return returnToComponent;
   }
+
   prepareNext(dep) {
     this.lastAccessedDep = dep;
     if (!this.skimmingDeepReactive) this.subscribingComponentKey++;
   }
+
   foundDeepReactive() {
     this.skimmingDeepReactive = true;
     // undo changes
     this.lastAccessedDep.subscribers.pop();
     this.subscribingComponentKey--;
   }
+
   exitDeepReactive() {
     this.skimmingDeepReactive = false;
     //redo changes

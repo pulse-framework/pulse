@@ -24,12 +24,26 @@ export const collectionFunctions = [
   'put',
   'move',
   'throttle',
+  'forceUpdate',
   // deprecated
   'remove'
 ];
 
 export function defineConfig(config, defaults) {
   return { ...defaults, ...config };
+}
+
+export function parse(key: string) {
+  // if (typeof key !== 'string') debugger;
+  let primaryKey: string | number = key.split('/')[1];
+
+  let canBeNumber = Number(primaryKey);
+  if (canBeNumber !== NaN) primaryKey = canBeNumber;
+
+  return {
+    collection: key.split('/')[0],
+    primaryKey
+  };
 }
 
 export function uuid() {
@@ -47,50 +61,6 @@ export function objectLoop(object, callback, keys?: Array<any>) {
     const value: any = object[key];
     callback(key, value, objectKeys);
   }
-}
-
-// const thing = {}
-// objectLoop(thing, (thingKey, thingItem) => {
-
-// })
-
-export function log(value: any, payload?: any) {
-  // console.log(`Pulse / ${value}`, payload ? payload : ' ');
-}
-
-export function normalizeMap(map) {
-  return Array.isArray(map)
-    ? map.map(key => ({ key, val: key }))
-    : Object.keys(map).map(key => ({ key, val: map[key] }));
-}
-
-export const arrayFunctions = [
-  'push',
-  'pop',
-  'shift',
-  'unshift',
-  'splice',
-  'sort',
-  'reverse'
-];
-
-export function assert(
-  func: (warnings: { [key: string]: any }) => any,
-  funcName?: string
-) {
-  function warn(message) {
-    // if (funcName) console.log(`PULSE // "${funcName}()" :: ${message}`);
-    // else console.warn(`PULSE :: ${message}`);
-    return false;
-  }
-  const warnings = {
-    NO_PRIMARY_KEY: () => warn('No primary key found!'),
-    INVALID_PARAMETER: () => warn('Invalid parameter supplied to function.'),
-    INDEX_NOT_FOUND: () => warn('Index was not found on collection.'),
-    INTERNAL_DATA_NOT_FOUND: () => warn('Data was not found on collection.'),
-    PROPERTY_NOT_A_NUMBER: () => warn('Property is not a number!')
-  };
-  return func(warnings)();
 }
 
 export function isWatchableObject(value) {
@@ -113,6 +83,68 @@ export function isWatchableObject(value) {
     !isHTMLElement(value) &&
     !Array.isArray(value)
   );
+}
+
+// const thing = {}
+// objectLoop(thing, (thingKey, thingItem) => {
+
+// })
+
+export function log(value: any, payload?: any) {
+  // console.log(`Pulse / ${value}`, payload ? payload : ' ');
+}
+export function key(collection: string, property?: string | number) {
+  return `${collection}/${property}`;
+}
+
+export function normalizeMap(map) {
+  return Array.isArray(map)
+    ? map.map(key => ({ key, val: key }))
+    : Object.keys(map).map(key => ({ key, val: map[key] }));
+}
+
+export const arrayFunctions = [
+  'push',
+  'pop',
+  'shift',
+  'unshift',
+  'splice',
+  'sort',
+  'reverse'
+];
+
+export function cleanse(object: any) {
+  if (!isWatchableObject(object)) return object;
+  const clean = Object.assign({}, object);
+  const properties = Object.keys(clean);
+
+  for (let i = 0; i < properties.length; i++) {
+    const property = properties[i];
+
+    if (isWatchableObject(clean[property])) {
+      clean[property] = cleanse(clean[property]);
+    }
+  }
+  return clean;
+}
+
+export function assert(
+  func: (warnings: { [key: string]: any }) => any,
+  funcName?: string
+) {
+  function warn(message) {
+    // if (funcName) console.log(`PULSE // "${funcName}()" :: ${message}`);
+    // else console.warn(`PULSE :: ${message}`);
+    return false;
+  }
+  const warnings = {
+    NO_PRIMARY_KEY: () => warn('No primary $1 key found! $2'),
+    INVALID_PARAMETER: () => warn('Invalid parameter supplied to function.'),
+    INDEX_NOT_FOUND: () => warn('Index was not found on collection.'),
+    INTERNAL_DATA_NOT_FOUND: () => warn('Data was not found on collection.'),
+    PROPERTY_NOT_A_NUMBER: () => warn('Property is not a number!')
+  };
+  return func(warnings)();
 }
 
 export function validateNumber(mutable, amount) {

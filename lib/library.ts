@@ -5,14 +5,24 @@ import Storage from './storage';
 import Request from './collections/request';
 import Base from './collections/base';
 import withPulse from './wrappers/ReactWithPulse';
-import { uuid, normalizeMap, log, defineConfig } from './helpers';
-import { Private, RootCollectionObject, JobType } from './interfaces';
-import RelationController from './relationController';
+import {
+  uuid,
+  normalizeMap,
+  log,
+  defineConfig,
+  parse,
+  cleanse
+} from './helpers';
+import { Private, RootCollectionObject, DebugType } from './interfaces';
+import { JobType } from './runtime';
+
+import RelationController, { Key } from './relationController';
+import Dep from './dep';
 
 export default class Library {
   _private: Private;
   [key: string]: any;
-  constructor(root: RootCollectionObject) {
+  constructor(root: RootCollectionObject = {}) {
     // Private object contains all internal Pulse data
     this._private = {
       runtime: null,
@@ -27,17 +37,22 @@ export default class Library {
         runningAction: false,
         runningWatcher: false,
         runningComputed: false,
+        runningPopulate: false,
+        mappingData: false,
         collecting: false,
+        touching: false,
+        touched: false,
         contextRef: {},
         // Instances
         subs: new SubController(this.getContext.bind(this)),
         relations: null,
         storage: null,
         // Function aliases
+        ticket: this.ticket.bind(this),
+        cleanupTickets: this.cleanupTickets.bind(this),
         dispatch: this.dispatch.bind(this),
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
-        createForeignGroupRelation: this.createForeignGroupRelation.bind(this),
         getDep: this.getDep.bind(this),
         uuid
       }
@@ -68,19 +83,23 @@ export default class Library {
   }
 
   initCollections(root: RootCollectionObject) {
-    this._private.collectionKeys = Object.keys(root.collections);
-
-    for (let i = 0; i < this._private.collectionKeys.length; i++) {
-      // Create collection instance
-      this._private.collections[
-        this._private.collectionKeys[i]
-      ] = new Collection(
-        this._private.collectionKeys[i], // name
-        this._private.global, // global
-        root.collections[this._private.collectionKeys[i]] // collection config
-      );
+    this._private.collectionKeys = [];
+    if (root.collections) {
+      this._private.collectionKeys = [
+        ...Object.keys(root.collections),
+        ...this._private.collectionKeys
+      ];
+      for (let i = 0; i < this._private.collectionKeys.length; i++) {
+        // Create collection instance
+        this._private.collections[
+          this._private.collectionKeys[i]
+        ] = new Collection(
+          this._private.collectionKeys[i], // name
+          this._private.global, // global
+          root.collections[this._private.collectionKeys[i]] // collection config
+        );
+      }
     }
-
     // Create request class
     if (this._private.global.config.enableRequest !== false)
       this._private.collectionKeys.push('request');
@@ -110,6 +129,7 @@ export default class Library {
       ];
       this._private.global.contextRef[this._private.collectionKeys[i]] =
         collection.public.object;
+
       this[this._private.collectionKeys[i]] = collection.public.object;
     }
   }
@@ -141,8 +161,6 @@ export default class Library {
         window._pulse = this;
       } catch (e) {}
     }
-
-    console.log(this);
   }
 
   public wrapped(ReactComponent, mapData) {
@@ -180,7 +198,6 @@ export default class Library {
       if (config.waitForMount != false) config.waitForMount = true;
       if (config.autoUnmount != false) config.autoUnmount = true;
     }
-
     return config;
   }
 
@@ -188,8 +205,25 @@ export default class Library {
     return this._private.collections[collection].findById(primaryKey);
   }
 
-  getDep(collection, name) {
-    return this._private.collections[collection].public.getDep(name);
+  // returns Dep instance by "touching" reactive property revealing its Dep class
+  // if collection param is present we'll assume the property param is the name of the property, not a reference to the property itself
+  getDep(property: any, collection: string): Dep {
+    this._private.global.touching = true;
+
+    // "touching" is simply invoking the property's getter
+
+    if (typeof collection === 'string') {
+      this._private.collections[collection].public.object[property];
+    } else if (typeof collection === 'object') {
+      collection[property];
+    }
+
+    // Extract the dep
+    const dep = this._private.global.touched as Dep;
+    this._private.global.touching = false;
+    this._private.global.touched = null;
+
+    return dep as Dep;
   }
 
   dispatch(type: string, payload) {
@@ -277,6 +311,8 @@ export default class Library {
       instance,
       config
     );
+
+    this._private.global.mappingData = true;
     // new cool mapData method
     if (typeof properties === 'function') {
       return pulse._private.global.subs.subscribePropertiesToComponents(
@@ -296,22 +332,12 @@ export default class Library {
           return { [key]: c[property] };
         }, componentUUID)[key];
       });
+      this._private.global.mappingData = false;
+
+      returnData = cleanse(returnData);
+
       return returnData;
     }
-  }
-
-  createForeignGroupRelation(
-    foreignCollection,
-    foreignData,
-    dependentCollection,
-    dependentGroup
-  ) {
-    this._private.collections[foreignCollection].foreignGroupRelations[
-      foreignData
-    ] = {
-      collection: dependentCollection,
-      groupToRegen: dependentGroup
-    };
   }
 
   emit(name: string, payload: any): void {
@@ -325,5 +351,36 @@ export default class Library {
     if (!Array.isArray(this._private.events[name]))
       this._private.events[name] = [callback];
     else this._private.events[name].push(callback);
+  }
+
+  // root alias for relationController to access ticket function of a given collection
+  ticket(collection: string, uuid: string, key: Key) {
+    const primaryKey = parse(key).primaryKey;
+    this._private.collections[collection].ticket(uuid, primaryKey);
+  }
+
+  // root alias for relationController to access cleanupTicket function of a given collection
+  cleanupTickets(key): void {
+    const parsed = parse(key);
+
+    this._private.collections[parsed.collection].cleanupTickets(
+      parsed.primaryKey
+    );
+  }
+
+  log(type: DebugType): void {
+    // let debugMode: Set<DebugType> = this._private.global.config.debugMode;
+    // if (debugMode.size === 0) return;
+    // if (debugMode.has(DebugType.ERRORS)) {
+    // }
+    // log(DebugType.ASSERT, `There was an error with "${thing}", bad :(`);
+    // const AssertMessages = {
+    //   INDEX_UPDATE_FAILED: (collection, property) =>
+    //     `The type ${collection} is ${property}.`
+    //   // and more
+    // };
+    // function _log(callback) {
+    // }
+    // _log(({ AssertMessages }) => AssertMessages.INDEX_UPDATE_FAILED(thing, thing2));
   }
 }
