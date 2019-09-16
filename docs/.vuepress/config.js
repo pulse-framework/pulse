@@ -1,36 +1,13 @@
+const path = require('path');
 module.exports = {
   title: 'PulseJS',
   description: 'Application logic library for reactive Javascript frameworks',
   dest: 'dist',
   serviceWorker: true,
   base: '/',
-  plugins: [
-    // you can use it multiple times
-    // so babel-style may be a better choice
-    ['container', {
-      type: 'warning',
-      before: info => `<div class="container-warning">${info}`,
-      after: '</div>',
-    }],
-    ['container', {
-      type: 'tip',
-      before: info => `<div class="container-tip">${info}`,
-      after: '</div>',
-    }],
-    ['container', {
-      type: 'note',
-      before: info => `<div class="container-note">${info}`,
-      after: '</div>',
-    }],
-    ['container', {
-      type: 'flex',
-      before: info => `<div class="flex">${info}`,
-      after: '</div>',
-    }],
-  ],
   postcss: {
     plugins: [
-        require('tailwindcss')('./docs/tailwind.config.js'),
+        require('tailwindcss')(path.join(__dirname + '/tailwind.config.js')),
         require('autoprefixer'),
     ]
   },

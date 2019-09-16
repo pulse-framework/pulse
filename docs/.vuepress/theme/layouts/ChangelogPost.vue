@@ -1,6 +1,6 @@
 <template>
     <div>
-        <Nav style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
+        <Header style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
         <div class="container mx-auto my-10 py-10 px-20 rounded border shadow-xl" style="width: 100%">
             <!-- Main Content -->
             <Content class="change-content"/>
@@ -24,11 +24,11 @@
 </style>
 
 <script>
-import Nav from '@theme/components/Nav';
+import Header from '@theme/components/Header';
 import Footer from '@theme/components/Footer';
 export default {
     components: { 
-        Nav,
+        Header,
         Footer,
     },
 }

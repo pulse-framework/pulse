@@ -18,11 +18,11 @@ const msgs = [
   `Looks like we've got some broken links.`
 ];
 
-import Nav from '@theme/components/Nav';
+import Header from '@theme/components/header';
 import Footer from '@theme/components/Footer';
 export default {
   components: { 
-    Nav,
+    Header,
     Footer,
   },
   methods: {

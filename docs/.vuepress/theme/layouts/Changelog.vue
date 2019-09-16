@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper">
-        <Nav style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
+        <Header style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
         <div class="font-sans leading-loose text-grey-900">
             <div class="ml-16 pr-20 pb-16 pt-16">
                 <!-- Main Content -->
@@ -23,12 +23,12 @@ body, html, #app {
 </style>
 
 <script>
-import Nav from '@theme/components/Nav';
+import Header from '@theme/components/Header';
 import ChangelogIndex from '@theme/components/ChangelogIndex';
 import Footer from '@theme/components/Footer';
 export default {
     components: { 
-        Nav,
+        Header,
         ChangelogIndex,
         Footer,
     },

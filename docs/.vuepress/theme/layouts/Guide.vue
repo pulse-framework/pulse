@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper">
-        <Nav style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
+        <Header style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
         <div class="container mx-auto flex font-sans leading-loose">
             <div class="flex-auto px-auto">
                 <!-- Sidebar generator -->
@@ -15,34 +15,13 @@
     </div>
 </template>
 
-<style>
-@import url('https://fonts.googleapis.com/css?family=Noto+Sans&display=swap');
-
-h2, h3 {
-    @apply border-l-4 border-teal-600;
-    
-    padding-left: 15px;
-    margin-top: 10px;
-    margin-bottom: 15px;
-}
-.guide-content > h1 {
-     
-}
-.header-anchor {
-    @apply font-semibold text-teal-800;
-}
-tr, th, td {
-    @apply border text-center px-2 py-1;
-}
-</style>
-
 <script>
 import Sidebar from '@theme/components/Sidebar'
-import Nav from '@theme/components/Nav';
+import Header from '@theme/components/Header';
 import Footer from '@theme/components/Footer';
 export default {
     components: { 
-        Nav,
+        Header,
         Sidebar,
         Footer,
     },
