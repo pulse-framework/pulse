@@ -1,10 +1,12 @@
 <template>
-    <div class="wrapper">
-        <div style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
+    <div class="">
+        <div class="flex-1 mx-auto p-8" style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
             <Header class="container mx-auto"/>
+        </div>
+        <div class="flex-1 mx-auto p-8" style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
             <Hero title="PulseJS"/>
         </div>
-        <div>
+        <div class="flex-1 mx-auto p-8">
             <Features />
         </div>
         <Footer />

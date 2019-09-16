@@ -1,5 +1,5 @@
 <template>
-    <footer style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
+    <footer class='w-full text-center border-t border-grey p-4 pin-b' style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
       <div class="container mx-auto flex items-center justify-center p-2 pb-4">
           <div class="text-gray-400 text-center">©2019 James Pine. All rights reserved.</div>
       </div>

@@ -14,7 +14,11 @@
         <Footer />
     </div>
 </template>
-
+<style scoped>
+body, html, #app {
+    height: calc(100vh - 30px);
+}
+</style>
 <script>
 import Sidebar from '@theme/components/Sidebar'
 import Header from '@theme/components/Header';
