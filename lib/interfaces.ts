@@ -94,7 +94,7 @@ export interface Global {
   runningAction: boolean | Action;
   runningComputed: boolean | Computed;
   runningWatcher: boolean | Watcher;
-  runningPopulate: boolean | string;
+  runningPopulate: boolean | Dep;
   touched: boolean | Dep;
   contextRef: ExpandableObject;
   cleanGlobalContextRef: ExpandableObject;

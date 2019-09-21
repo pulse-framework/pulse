@@ -2,7 +2,8 @@ import { Global } from './interfaces';
 import Computed from './computed';
 import Dep from './dep';
 
-// NOTE TODO: make sure all internal data jobs include their dep class
+// TODO: make sure all internal data jobs include their dep class
+// TODO: give dynamic groups a dep class
 export class DynamicRelation {
   public watching: Set<Dep> = new Set();
   constructor(

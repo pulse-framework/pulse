@@ -320,8 +320,12 @@ export default class Collection {
     this.internalDataWithPopulate.forEach(property => {
       // set runningPopulate to the key (collection/propery) of the data being modified
       // this is fed into the relations.relate() function becoming the unique cleanupKey for the relation
-      this.global.runningPopulate = 
-      
+      this.global.runningPopulate = this.global.getDep(
+        primaryKey,
+        this.name,
+        true
+      );
+
       key(this.name, primaryKey);
       // run populate function passing in the context and the data
       const populated = this.model[property].populate(
@@ -506,7 +510,10 @@ export default class Collection {
       this.global.relations.relate(computed, this.internalDataDeps[id]);
     }
     if (this.global.runningPopulate) {
-      this.global.relations.relate(, this.internalDataDeps[id]);
+      this.global.relations.relate(
+        this.global.runningPopulate as Dep,
+        this.internalDataDeps[id]
+      );
     }
     return this.internalData[id];
   }
@@ -515,12 +522,7 @@ export default class Collection {
     // if called inside Computed method, create temporary relation in relationship controller
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      this.global.relations.relate(
-        RelationTypes.COMPUTED_DEPENDS_ON_GROUP,
-        computed, // updateThis
-        property, // whenThisChanges
-        this
-      );
+      this.global.relations.relate(computed, this.global.getDep());
     }
     // if called from within populate() create another temporary relation
     if (this.global.runningPopulate) {
