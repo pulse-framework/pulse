@@ -102,7 +102,6 @@ export interface Global {
   getDep: any;
   // aliases
   ticket: any;
-  cleanupTickets: any;
   dispatch: any;
   getContext: any;
   getInternalData: any;

@@ -43,7 +43,7 @@ export default class Dep {
       // this.subscribers.delete(this.global.subscribingComponent);
     }
   }
-  // matteo just rolled over my toe with alijah's chair :(
+  // matteo just rolled over my toe with elijah's chair :(
   changed() {}
 
   subscribeComponent() {

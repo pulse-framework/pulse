@@ -49,7 +49,6 @@ export default class Library {
         storage: null,
         // Function aliases
         ticket: this.ticket.bind(this),
-        cleanupTickets: this.cleanupTickets.bind(this),
         dispatch: this.dispatch.bind(this),
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
@@ -357,15 +356,6 @@ export default class Library {
   ticket(collection: string, uuid: string, key: Key) {
     const primaryKey = parse(key).primaryKey;
     this._private.collections[collection].ticket(uuid, primaryKey);
-  }
-
-  // root alias for relationController to access cleanupTicket function of a given collection
-  cleanupTickets(key): void {
-    const parsed = parse(key);
-
-    this._private.collections[parsed.collection].cleanupTickets(
-      parsed.primaryKey
-    );
   }
 
   log(type: DebugType): void {

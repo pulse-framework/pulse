@@ -44,8 +44,6 @@ export default class Collection {
   private internalDataDeps: object = {}; // this contains the dep classes for all internal data
   private internalDataWithPopulate: Array<string> = [];
 
-  private tickets: { [key: string]: Array<string> } = {};
-
   dispatch: void;
 
   constructor(
@@ -257,26 +255,6 @@ export default class Collection {
     });
   }
 
-  // called by relationController after new relation has been created
-  public ticket(uuid: string, primaryKey: string | number): void {
-    if (Array.isArray(this.tickets[primaryKey]))
-      this.tickets[primaryKey].push(uuid);
-    else this.tickets[primaryKey] = [uuid];
-  }
-
-  public cleanupTickets(primaryKey) {
-    if (this.tickets[primaryKey]) {
-      this.tickets[primaryKey] = [];
-    }
-  }
-
-  // called by Runtime when job has been completed
-  public changed(primaryKey: string | number): void {
-    if (this.tickets[primaryKey]) {
-      this.global.relations.update(this.tickets[primaryKey]);
-    }
-  }
-
   private getData(id) {
     return { ...this.internalData[id] };
   }
@@ -342,7 +320,9 @@ export default class Collection {
     this.internalDataWithPopulate.forEach(property => {
       // set runningPopulate to the key (collection/propery) of the data being modified
       // this is fed into the relations.relate() function becoming the unique cleanupKey for the relation
-      this.global.runningPopulate = key(this.name, primaryKey);
+      this.global.runningPopulate = 
+      
+      key(this.name, primaryKey);
       // run populate function passing in the context and the data
       const populated = this.model[property].populate(
         this.global.getContext(),
@@ -523,24 +503,10 @@ export default class Collection {
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      this.global.relations.relate(
-        RelationTypes.COMPUTED_DEPENDS_ON_DATA,
-        // updateThis computed instance
-        computed,
-        // primaryKey of data for whenThisChanges
-        id,
-        this
-      );
+      this.global.relations.relate(computed, this.internalDataDeps[id]);
     }
     if (this.global.runningPopulate) {
-      this.global.relations.relate(
-        RelationTypes.DATA_DEPENDS_ON_DATA,
-        // this is the key ("collection/primaryKey") for the dynamically populated data for updateThis
-        this.global.runningPopulate,
-        // primaryKey of data for whenThisChanges
-        id,
-        this
-      );
+      this.global.relations.relate(, this.internalDataDeps[id]);
     }
     return this.internalData[id];
   }

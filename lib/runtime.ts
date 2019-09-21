@@ -87,9 +87,9 @@ export default class Runtime {
     }
 
     // unpack dependents
-    if (job.dep && job.dep.dependents.size > 0) {
+    if (job.dep && job.dep.dependents.size > 0) 
       this.ingestDependents(job.dep.dependents)
-    }
+    
     this.finished();
   }
 
