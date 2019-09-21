@@ -1,6 +1,7 @@
 import { protectedNames, arrayFunctions, isWatchableObject } from './helpers';
 import Dep from './dep';
 import { Global } from './interfaces';
+import Collection from './collection';
 
 interface Obj {
   [key: string]: any;
@@ -18,7 +19,7 @@ export default class Reactive {
   constructor(
     object: Obj = {},
     private global: Global,
-    private collection: string,
+    private collection: Collection,
     public mutable: Array<string>,
     public type: string
   ) {
@@ -53,7 +54,13 @@ export default class Reactive {
       }
 
       // Create an instance of the dependency tracker
-      const dep = new Dep(this.global, key, rootProperty, currentProperty);
+      const dep = new Dep(
+        this.global,
+        'reactive',
+        this.collection,
+        currentProperty,
+        rootProperty
+      );
 
       Object.defineProperty(object, key, {
         get: function pulseGetter() {
@@ -76,7 +83,7 @@ export default class Reactive {
             value = newValue;
             // dispatch mutation for deep property
             self.dispatch('mutation', {
-              collection: self.collection,
+              collection: self.collection.name,
               key: rootProperty,
               value: self.object[rootProperty],
               dep
@@ -106,7 +113,7 @@ export default class Reactive {
             // if property is mutable dispatch update
             if (self.mutable.includes(key)) {
               self.dispatch('mutation', {
-                collection: self.collection,
+                collection: self.collection.name,
                 key,
                 value: newValue,
                 dep
@@ -121,10 +128,10 @@ export default class Reactive {
     return object;
   }
 
-  deepReactiveObject(value, rootProperty?: string, propertyOnObject?: string) {
+  deepReactiveObject(value, rootProperty?: string, propertyName?: string) {
     let objectWithCustomPrototype = Object.create({
       rootProperty,
-      propertyOnObject
+      propertyName
     });
 
     // repopulate custom object with incoming values
@@ -152,7 +159,7 @@ export default class Reactive {
           const result = original.apply(this, arguments);
           if (self.global.initComplete)
             self.dispatch('mutation', {
-              collection: self.collection,
+              collection: self.collection.name,
               key,
               value: result
             });

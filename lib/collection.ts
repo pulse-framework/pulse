@@ -9,6 +9,7 @@ import {
 import Reactive from './reactive';
 import Action from './action';
 import Computed from './computed';
+import Dep from './dep';
 import { JobType } from './runtime';
 import {
   Methods,
@@ -40,6 +41,7 @@ export default class Collection {
   public primaryKey: string | number | boolean = false;
 
   private internalData: object = {};
+  private internalDataDeps: object = {}; // this contains the dep classes for all internal data
   private internalDataWithPopulate: Array<string> = [];
 
   private tickets: { [key: string]: Array<string> } = {};
@@ -127,7 +129,7 @@ export default class Collection {
     this.indexes = new Reactive(
       groups, // object
       this.global, // global
-      this.name, // collection
+      this, // collection
       this.keys.indexes, // mutable
       'indexes' // type
     );
@@ -137,7 +139,7 @@ export default class Collection {
     this.public = new Reactive(
       this.namespace,
       this.global,
-      this.name,
+      this,
       [...this.keys.data, ...this.keys.indexes],
       'root'
     );
@@ -336,7 +338,7 @@ export default class Collection {
     primaryKey: string | number,
     data: { [key: string]: any }
   ): any {
-    // for each populate() function found in the model for this collection
+    // for each populate function extracted from the model for this data
     this.internalDataWithPopulate.forEach(property => {
       // set runningPopulate to the key (collection/propery) of the data being modified
       // this is fed into the relations.relate() function becoming the unique cleanupKey for the relation
@@ -438,12 +440,17 @@ export default class Collection {
 
     // validate against model
 
+    // create the dep class
+    if (!this.internalDataDeps[key])
+      this.internalDataDeps[key] = new Dep(this.global, 'internal', this, key);
+
     // ingest the data
     this.global.ingest({
       type: JobType.INTERNAL_DATA_MUTATION,
       collection: this.name,
       property: key,
-      value: dataItem
+      value: dataItem,
+      dep: this.internalDataDeps[key]
     });
 
     // add the data to group indexes
@@ -522,7 +529,7 @@ export default class Collection {
         computed,
         // primaryKey of data for whenThisChanges
         id,
-        this.name
+        this
       );
     }
     if (this.global.runningPopulate) {
@@ -532,7 +539,7 @@ export default class Collection {
         this.global.runningPopulate,
         // primaryKey of data for whenThisChanges
         id,
-        this.name
+        this
       );
     }
     return this.internalData[id];
@@ -546,7 +553,7 @@ export default class Collection {
         RelationTypes.COMPUTED_DEPENDS_ON_GROUP,
         computed, // updateThis
         property, // whenThisChanges
-        this.name
+        this
       );
     }
     // if called from within populate() create another temporary relation
@@ -555,7 +562,7 @@ export default class Collection {
         RelationTypes.DATA_DEPENDS_ON_GROUP,
         this.global.runningPopulate, // updateThis
         property, // whenThisChanges
-        this.name
+        this
       );
     }
     // get group is not cached, so generate a fresh group from the index
@@ -771,14 +778,26 @@ export default class Collection {
   }
 
   forceUpdate(property: string): void {
+    // ensure property exists on collection
     if (this.public.exists(property)) {
-      this.global.ingest({
-        type: JobType.PUBLIC_DATA_MUTATION,
-        property,
-        collection: this.name,
-        value: this.public.privateGet(property),
-        dep: this.global.getDep(property, this.name)
-      });
+      // if property is directly mutable
+      if (this.public.mutable.includes(property)) {
+        this.global.ingest({
+          type: JobType.PUBLIC_DATA_MUTATION,
+          property,
+          collection: this.name,
+          value: this.public.privateGet(property),
+          dep: this.global.getDep(property, this.name)
+        });
+        // if property is a computed method
+      } else if (this.computed[property]) {
+        this.global.ingest({
+          type: JobType.COMPUTED_REGEN,
+          property,
+          collection: this.name,
+          dep: this.global.getDep(property, this.name)
+        });
+      }
     }
   }
 

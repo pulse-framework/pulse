@@ -1,6 +1,7 @@
 import { log, objectLoop, log, cleanse } from './helpers';
 import { Job, Global } from './interfaces';
 import Dep from './Dep';
+import Computed from './computed';
 
 export enum JobType {
   PUBLIC_DATA_MUTATION = 'PUBLIC_DATA_MUTATION',
@@ -8,6 +9,7 @@ export enum JobType {
   INDEX_UPDATE = 'INDEX_UPDATE',
   COMPUTED_REGEN = 'COMPUTED_REGEN',
   GROUP_UPDATE = 'GROUP_UPDATE',
+  SOFT_GROUP_UPDATE = 'SOFT_GROUP_UPDATE',
   DELETE_INTERNAL_DATA = 'DELETE_INTERNAL_DATA'
 }
 export default class Runtime {
@@ -21,13 +23,17 @@ export default class Runtime {
   // private collections: Object;
   private config: Object;
 
+  // T wan is the best
   constructor(private collections: Object, private global: Global) {
     global.ingest = this.ingest.bind(this);
+    global.ingestDependents = this.ingestDependents.bind(this)
     this.config = global.config;
   }
 
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
+    // console.log(job);
+
     this.ingestQueue.push(job);
 
     if (!this.running) {
@@ -49,6 +55,7 @@ export default class Runtime {
   }
 
   private performJob(job: Job): void {
+
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
         this.performPublicDataUpdate(job);
@@ -68,6 +75,10 @@ export default class Runtime {
         this.performGroupRebuild(job);
         this.collections[job.collection].runWatchers(job.property);
         break;
+      case JobType.SOFT_GROUP_UPDATE:
+        this.performGroupRebuild(job);
+        this.collections[job.collection].runWatchers(job.property);
+        break;
       case JobType.DELETE_INTERNAL_DATA:
         this.performInternalDataDeletion(job);
         break;
@@ -77,19 +88,35 @@ export default class Runtime {
 
     // unpack dependents
     if (job.dep && job.dep.dependents.size > 0) {
-      // log(`Queueing ${dep.dependents.size} dependents`);
-      job.dep.dependents.forEach(computed => {
-        // get dep from public computed output
-        this.ingest({
-          type: JobType.COMPUTED_REGEN,
-          collection: computed.collection,
-          property: computed,
-          dep: this.global.getDep(computed.name, computed.collection)
-        });
-      });
+      this.ingestDependents(job.dep.dependents)
     }
     this.finished();
   }
+
+  public ingestDependents(dependents: Set<any>): void {
+    dependents.forEach(dependent => {
+      if (dependent instanceof Computed) {
+
+        this.ingest({
+          type: JobType.COMPUTED_REGEN,
+          collection: dependent.collection,
+          property: dependent,
+          dep: this.global.getDep(dependent.name, dependent.collection)
+        });
+
+      // if a Dep is within a Dep it should be for internal data within a colleciton
+      } else if (dependent instanceof Dep && dependent.type === 'internal') {
+
+        this.ingest({
+          type: JobType.INTERNAL_DATA_MUTATION,
+          collection: dependent.colleciton.name,
+          property: dependent.propertyName,
+        })
+      }
+    });
+  }
+
+  // Hello, if you can read this message, then you are okay.
 
   // handle job loop flow
   private finished(): void {
@@ -130,7 +157,7 @@ export default class Runtime {
 
     // overwrite or insert the data into collection database saving the previous value to job.previousValue, since this.overwriteInternalData returns it.
     job.previousValue = this.overwriteInternalData(
-      job.collection,
+      job.collection
       job.property,
       job.value
     );
@@ -152,7 +179,7 @@ export default class Runtime {
         ].softUpdateGroupData(job.property, index);
 
         this.ingest({
-          type: JobType.GROUP_UPDATE,
+          type: JobType.SOFT_GROUP_UPDATE,
           collection: job.collection,
           value: modifiedGroup,
           property: index,
@@ -247,17 +274,14 @@ export default class Runtime {
   // ****************** Handlers ****************** //
 
   private completedJob(job: Job): void {
+    // console.log(job);
+
     // if action is running, save that action instance inside job payload
     job.fromAction = this.global.runningAction;
     // during runtime log completed job ready for component updates
     if (this.global.initComplete) this.completedJobs.push(job);
     // if data is persistable ensure storage is updated with new data
     this.persistData(job);
-    // inform Dep class that the job is complete
-    if (job.dep) (job.dep as Dep).changed();
-    // inform the collection that the job is complete
-    this.collections[job.collection].changed(job.property);
-    // if either of these contain tickets, the relation controller will ingest updates
   }
 
   // ****************** End Runtime Events ****************** //
@@ -304,7 +328,7 @@ export default class Runtime {
   }
 
   private updateSubscribers(componentsToUpdate) {
-    // console.log('updating subscribers', componentsToUpdate);
+    console.log('updating subscribers', componentsToUpdate);
     const componentKeys = Object.keys(componentsToUpdate);
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];

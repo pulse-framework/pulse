@@ -108,6 +108,7 @@ export interface Global {
   getInternalData: any;
   uuid: any;
   ingest?: any;
+  ingestDependents?: any;
   request?: any;
   relations?: any;
 }
@@ -130,7 +131,7 @@ export enum DebugType {
 export interface Job {
   type: JobType;
   collection: string;
-  property: string;
+  property: string | number | Computed;
   value?: any;
   previousValue?: any;
   dep?: Dep;
