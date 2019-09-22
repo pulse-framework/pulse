@@ -41,7 +41,7 @@ export default class Collection {
   public primaryKey: string | number | boolean = false;
 
   private internalData: object = {};
-  private internalDataDeps: object = {}; // this contains the dep classes for all internal data
+  public internalDataDeps: object = {}; // this contains the dep classes for all internal data
   private internalDataWithPopulate: Array<string> = [];
 
   dispatch: void;
@@ -318,8 +318,6 @@ export default class Collection {
   ): any {
     // for each populate function extracted from the model for this data
     this.internalDataWithPopulate.forEach(property => {
-      // set runningPopulate to the key (collection/propery) of the data being modified
-      // this is fed into the relations.relate() function becoming the unique cleanupKey for the relation
       this.global.runningPopulate = this.global.getDep(
         primaryKey,
         this.name,
@@ -347,7 +345,8 @@ export default class Collection {
     for (let i = 0; i < group.length; i++) {
       const groupName = group[i];
       if (!this.indexes.exists(groupName)) {
-        this.indexes.privateWrite(groupName, []);
+        this.indexes.addProperty(groupName, []);
+        // this.indexes.privateWrite(groupName, []);
       }
     }
     return group;
@@ -507,6 +506,7 @@ export default class Collection {
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
+      // if (computed.name === 'currentViewing') debugger;
       this.global.relations.relate(computed, this.internalDataDeps[id]);
     }
     if (this.global.runningPopulate) {
@@ -522,15 +522,16 @@ export default class Collection {
     // if called inside Computed method, create temporary relation in relationship controller
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      this.global.relations.relate(computed, this.global.getDep());
+      this.global.relations.relate(
+        computed,
+        this.global.getDep(property, this.indexes.object)
+      );
     }
     // if called from within populate() create another temporary relation
     if (this.global.runningPopulate) {
       this.global.relations.relate(
-        RelationTypes.DATA_DEPENDS_ON_GROUP,
-        this.global.runningPopulate, // updateThis
-        property, // whenThisChanges
-        this
+        this.global.runningPopulate as Dep,
+        this.global.getDep(property, this.indexes.object)
       );
     }
     // get group is not cached, so generate a fresh group from the index
@@ -749,6 +750,7 @@ export default class Collection {
     // ensure property exists on collection
     if (this.public.exists(property)) {
       // if property is directly mutable
+
       if (this.public.mutable.includes(property)) {
         this.global.ingest({
           type: JobType.PUBLIC_DATA_MUTATION,
@@ -757,6 +759,7 @@ export default class Collection {
           value: this.public.privateGet(property),
           dep: this.global.getDep(property, this.name)
         });
+
         // if property is a computed method
       } else if (this.computed[property]) {
         this.global.ingest({

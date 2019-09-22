@@ -30,102 +30,112 @@ export default class Reactive {
   }
 
   reactiveObject(object: Obj, rootProperty?: string): object {
-    const self = this;
     const objectKeys = Object.keys(object);
 
     // Loop over all properties of the to-be reactive object
     for (let i = 0; i < objectKeys.length; i++) {
       const key = objectKeys[i];
-      const rootProperty = object.rootProperty;
-      const currentProperty = key;
-      let value = object[key];
-
-      // If property is an array, make it reactive
-      if (Array.isArray(value)) {
-        // value = this.reactiveArray(value, key);
-        // if property is an object, make it reactive also
-      } else if (isWatchableObject(value) && !protectedNames.includes(key)) {
-        // rootProperty should be the current key if first deep object
-        value = this.deepReactiveObject(
-          value,
-          rootProperty || key,
-          currentProperty
-        );
-      }
-
-      // Create an instance of the dependency tracker
-      const dep = new Dep(
-        this.global,
-        'reactive',
-        this.collection,
-        currentProperty,
-        rootProperty
-      );
-
-      Object.defineProperty(object, key, {
-        get: function pulseGetter() {
-          if (self.sneaky) return value;
-
-          if (self.global.touching) {
-            self.global.touched = dep;
-            return;
-          }
-          dep.register();
-
-          return value;
-        },
-        set: function pulseSetter(newValue) {
-          // TODO: Deep reactive properties need to cause rootProperty(s) to update subscribers also
-
-          // DEEP REACTIVE handler: "rootProperty" indicates if the object is "deep".
-          if (rootProperty && self.mutable.includes(rootProperty)) {
-            // mutate locally
-            value = newValue;
-            // dispatch mutation for deep property
-            self.dispatch('mutation', {
-              collection: self.collection.name,
-              key: rootProperty,
-              value: self.object[rootProperty],
-              dep
-            });
-
-            // Regular muations
-          } else {
-            // if a protected name allow direct mutation
-            if (protectedNames.includes(key)) {
-              return (value = newValue);
-            }
-            // if backdoor open allow direct mutation
-            if (self.allowPrivateWrite) {
-              // dynamically convert new values to reactive if objects
-              // This is risky as fuck and kinda doesn't even work
-              if (isWatchableObject(value) && self.mutable.includes(key)) {
-                // debugger;
-                newValue = self.deepReactiveObject(
-                  newValue,
-                  rootProperty || key,
-                  currentProperty
-                );
-              }
-              return (value = newValue);
-            }
-
-            // if property is mutable dispatch update
-            if (self.mutable.includes(key)) {
-              self.dispatch('mutation', {
-                collection: self.collection.name,
-                key,
-                value: newValue,
-                dep
-              });
-              // we did not apply the mutation since runtime will privatly
-              // write the result since we dispatched above
-            }
-          }
-        }
-      });
+      this.defineProperty(object, key, rootProperty);
     }
     return object;
+  }
+
+  private defineProperty(
+    object: Obj,
+    key: string,
+    rootProperty?: string
+  ): object {
+    const self = this;
+    let value = object[key];
+    if (object.rootProperty) rootProperty = object.rootProperty;
+
+    // // If property is an array, make it reactive
+    // if (Array.isArray(value)) {
+    //   // value = this.reactiveArray(value, key);
+    // }
+
+    // rootProperty should be the current key if first deep object
+    if (isWatchableObject(value) && !protectedNames.includes(key)) {
+      value = this.deepReactiveObject(value, rootProperty || key, key);
+    }
+
+    // Create an instance of the dependency tracker
+    const dep = new Dep(
+      this.global,
+      'reactive',
+      this.collection,
+      key,
+      rootProperty
+    );
+
+    Object.defineProperty(object, key, {
+      get: function pulseGetter() {
+        if (self.sneaky) return value;
+
+        if (self.global.touching) {
+          self.global.touched = dep;
+          return;
+        }
+        dep.register();
+
+        return value;
+      },
+      set: function pulseSetter(newValue) {
+        // TODO: Deep reactive properties need to cause rootProperty(s) to update subscribers also
+
+        // DEEP REACTIVE handler: "rootProperty" indicates if the object is "deep".
+        if (rootProperty && self.mutable.includes(rootProperty)) {
+          // mutate locally
+          value = newValue;
+          // dispatch mutation for deep property
+          self.dispatch('mutation', {
+            collection: self.collection.name,
+            key: rootProperty,
+            value: self.object[rootProperty],
+            dep
+          });
+
+          // Regular muations
+        } else {
+          // if a protected name allow direct mutation
+          if (protectedNames.includes(key)) {
+            return (value = newValue);
+          }
+          // if backdoor open allow direct mutation
+          if (self.allowPrivateWrite) {
+            // dynamically convert new values to reactive if objects
+            // This is risky as fuck and kinda doesn't even work
+            if (isWatchableObject(value) && self.mutable.includes(key)) {
+              // debugger;
+              newValue = self.deepReactiveObject(
+                newValue,
+                rootProperty || key,
+                key
+              );
+            }
+            return (value = newValue);
+          }
+
+          // if property is mutable dispatch update
+          if (self.mutable.includes(key)) {
+            self.dispatch('mutation', {
+              collection: self.collection.name,
+              key,
+              value: newValue,
+              dep
+            });
+            // we did not apply the mutation since runtime will privatly
+            // write the result since we dispatched above
+          }
+        }
+      }
+    });
+    return object;
+  }
+
+  addProperty(key, value) {
+    this.object[key] === [value];
+    this.defineProperty(this.object, key);
   }
 
   deepReactiveObject(value, rootProperty?: string, propertyName?: string) {

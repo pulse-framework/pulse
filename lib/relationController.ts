@@ -4,6 +4,7 @@ import Dep from './dep';
 
 // TODO: make sure all internal data jobs include their dep class
 // TODO: give dynamic groups a dep class
+
 export class DynamicRelation {
   public watching: Set<Dep> = new Set();
   constructor(
@@ -20,23 +21,32 @@ export class DynamicRelation {
 
 export default class RelationController {
   // used to determine if to create a new dynamic relation, or use the current one
-  public relating: DynamicRelation;
-  // used to store the dynamic relations. not needed, but great for debugging
+  public lastRelation: DynamicRelation;
+  // used to store the dynamic relations. not needed, but great for  ugging
   private relationBank: Set<DynamicRelation> = new Set();
 
   constructor(private global: Global) {}
 
   // function called during runningComputed and runningPopulate
   public relate(updateThis: Computed | Dep, whenDepChanges: Dep) {
+    if (!whenDepChanges) return; // if a dep is not found, abort
+
     let relation: DynamicRelation;
+
+    // if (updateThis instanceof Computed && updateThis.name === 'currentChannel')
+    //   debugger;
+
     // if we're dealing with the same evaluation
-    if (this.relating.updateThis !== updateThis) {
+    if (
+      !this.lastRelation ||
+      (this.lastRelation && this.lastRelation.updateThis !== updateThis)
+    ) {
       // create dynamic relation class per relation
       relation = new DynamicRelation(updateThis);
       this.relationBank.add(relation);
-      this.relating = relation;
+      this.lastRelation = relation;
     } else {
-      relation = this.relating;
+      relation = this.lastRelation;
     }
 
     // add this relation instance to parent
@@ -51,6 +61,8 @@ export default class RelationController {
   // this is called when a dep updates
   public update(dynamicRelations: Set<DynamicRelation>): void {
     let thingsToUpdate: Set<Computed | Dep> = new Set();
+
+    if (dynamicRelations.size > 0) debugger;
 
     dynamicRelations.forEach(dynamicRelation => {
       // save the thing we're updating

@@ -222,7 +222,7 @@ export default class Library {
       this._private.global.touching = false;
       this._private.global.touched = null;
     } else {
-      dep = this.collections[collection].internalDataDeps[property];
+      dep = this._private.collections[collection].internalDataDeps[property];
     }
     return dep as Dep;
   }

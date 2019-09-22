@@ -26,13 +26,13 @@ export default class Runtime {
   // T wan is the best
   constructor(private collections: Object, private global: Global) {
     global.ingest = this.ingest.bind(this);
-    global.ingestDependents = this.ingestDependents.bind(this)
+    global.ingestDependents = this.ingestDependents.bind(this);
     this.config = global.config;
   }
 
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
-    // console.log(job);
+    console.log(job);
 
     this.ingestQueue.push(job);
 
@@ -55,7 +55,6 @@ export default class Runtime {
   }
 
   private performJob(job: Job): void {
-
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
         this.performPublicDataUpdate(job);
@@ -87,16 +86,15 @@ export default class Runtime {
     }
 
     // unpack dependents
-    if (job.dep && job.dep.dependents.size > 0) 
-      this.ingestDependents(job.dep.dependents)
-    
+    if (job.dep && job.dep.dependents.size > 0)
+      this.ingestDependents(job.dep.dependents);
+
     this.finished();
   }
 
   public ingestDependents(dependents: Set<any>): void {
     dependents.forEach(dependent => {
       if (dependent instanceof Computed) {
-
         this.ingest({
           type: JobType.COMPUTED_REGEN,
           collection: dependent.collection,
@@ -104,14 +102,13 @@ export default class Runtime {
           dep: this.global.getDep(dependent.name, dependent.collection)
         });
 
-      // if a Dep is within a Dep it should be for internal data within a colleciton
+        // if a Dep is within a Dep it should be for internal data within a colleciton
       } else if (dependent instanceof Dep && dependent.type === 'internal') {
-
         this.ingest({
           type: JobType.INTERNAL_DATA_MUTATION,
           collection: dependent.colleciton.name,
-          property: dependent.propertyName,
-        })
+          property: dependent.propertyName
+        });
       }
     });
   }
@@ -157,8 +154,8 @@ export default class Runtime {
 
     // overwrite or insert the data into collection database saving the previous value to job.previousValue, since this.overwriteInternalData returns it.
     job.previousValue = this.overwriteInternalData(
-      job.collection
-      job.property,
+      job.collection,
+      job.property as string | number,
       job.value
     );
 
@@ -282,6 +279,8 @@ export default class Runtime {
     if (this.global.initComplete) this.completedJobs.push(job);
     // if data is persistable ensure storage is updated with new data
     this.persistData(job);
+    // update dynamic relations
+    // if (job.dep) this.global.relations.update(job.dep.dynamicRelations);
   }
 
   // ****************** End Runtime Events ****************** //
@@ -328,7 +327,7 @@ export default class Runtime {
   }
 
   private updateSubscribers(componentsToUpdate) {
-    console.log('updating subscribers', componentsToUpdate);
+    // console.log('updating subscribers', componentsToUpdate);
     const componentKeys = Object.keys(componentsToUpdate);
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];

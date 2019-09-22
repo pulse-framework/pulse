@@ -31,8 +31,7 @@ export default class Dep {
     }
     if (this.global.runningPopulate) {
       this.global.relations.relate(
-        RelationTypes.DATA_DEPENDS_ON_DEP,
-        this.global.runningPopulate,
+        this.global.runningPopulate as Dep,
         this as Dep
       );
     }
