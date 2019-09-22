@@ -15,7 +15,7 @@ export class DynamicRelation {
   // perform cleanup of all refrences to this instance, before self desruct
   public destroy() {
     this.watching.forEach(dep => dep.dependents.delete(this));
-    this.updateThis.dynamicRelations.delete(this);
+    delete this.updateThis.dynamicRelation;
   }
 }
 
@@ -29,12 +29,10 @@ export default class RelationController {
 
   // function called during runningComputed and runningPopulate
   public relate(updateThis: Computed | Dep, whenDepChanges: Dep) {
-    if (!whenDepChanges) return; // if a dep is not found, abort
-
+    if (!whenDepChanges) {
+      return; // if a dep is not found, abort
+    }
     let relation: DynamicRelation;
-
-    // if (updateThis instanceof Computed && updateThis.name === 'currentChannel')
-    //   debugger;
 
     // if we're dealing with the same evaluation
     if (
@@ -50,27 +48,25 @@ export default class RelationController {
     }
 
     // add this relation instance to parent
-    updateThis.dynamicRelations.add(relation);
-    // ^^ this might be better as a single property, as there will only be
-    // one DynamicRelation per updateThis
+    updateThis.dynamicRelation = relation;
 
     // add dynamic relation to dependents inside Dep
     whenDepChanges.dependents.add(relation);
   }
 
   // this is called when a dep updates
-  public update(dynamicRelations: Set<DynamicRelation>): void {
-    let thingsToUpdate: Set<Computed | Dep> = new Set();
+  public update(dynamicRelation: DynamicRelation): void {
+    // save the thing we're updating
 
-    if (dynamicRelations.size > 0) debugger;
+    if (!dynamicRelation) return;
 
-    dynamicRelations.forEach(dynamicRelation => {
-      // save the thing we're updating
-      thingsToUpdate.add(dynamicRelation.updateThis);
-      // perform cleanup, destroy dynamic relation
-      dynamicRelation.destroy(); // destory all refrences
-      this.relationBank.delete(dynamicRelation); // remove last reference from bank
-    });
+    debugger;
+
+    const thingsToUpdate = dynamicRelation.watching;
+
+    // perform cleanup, destroy dynamic relation
+    dynamicRelation.destroy(); // destory all refrences
+    this.relationBank.delete(dynamicRelation); // remove last reference from bank
 
     // ingest thing to update into runtime
     this.global.ingestDependents(thingsToUpdate);

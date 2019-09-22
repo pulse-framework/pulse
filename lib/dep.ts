@@ -8,7 +8,7 @@ export default class Dep {
   public subscribers: Array<object> = [];
 
   // these are temporary relations created by the relation controller
-  public dynamicRelations: Set<DynamicRelation> = new Set();
+  public dynamicRelation: DynamicRelation = null;
 
   constructor(
     private global: Global,

@@ -500,19 +500,34 @@ export default class Collection {
     });
   }
 
-  findById(id) {
+  // if a computed function evaluates and creates a relation to internal data
+  // that does not exist yet, we create the dep class and save it in advance
+  // so that if the data ever arrives, it will reactively dependent update accordingly
+  depForInternalData(primaryKey: string | number): Dep {
+    let dep: Dep;
+    // debugger;
+    if (!this.internalDataDeps[primaryKey]) {
+      dep = new Dep(this.global, 'internal', this, primaryKey);
+      this.internalDataDeps[primaryKey] = dep;
+    } else {
+      dep = this.internalDataDeps[primaryKey];
+    }
+    return dep;
+  }
+
+  findById(id: string | number) {
     // if (!this.internalData.hasOwnProperty(id))
     //   return assert(warn => warn.INTERNAL_DATA_NOT_FOUND, 'findById');
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
       // if (computed.name === 'currentViewing') debugger;
-      this.global.relations.relate(computed, this.internalDataDeps[id]);
+      this.global.relations.relate(computed, this.depForInternalData(id));
     }
     if (this.global.runningPopulate) {
       this.global.relations.relate(
         this.global.runningPopulate as Dep,
-        this.internalDataDeps[id]
+        this.depForInternalData(id)
       );
     }
     return this.internalData[id];

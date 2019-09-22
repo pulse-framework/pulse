@@ -2,7 +2,7 @@ import { Global } from './interfaces';
 import { DynamicRelation } from './relationController2';
 export default class Computed {
   public relatedToGroup: Array<any> = [];
-  public dynamicRelations: Set<DynamicRelation> = new Set();
+  public dynamicRelation: DynamicRelation = null;
 
   constructor(
     private global: Global,

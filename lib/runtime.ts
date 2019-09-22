@@ -32,7 +32,7 @@ export default class Runtime {
 
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
-    console.log(job);
+    // if (job.property instanceof Computed) console.log(job);
 
     this.ingestQueue.push(job);
 
@@ -280,7 +280,9 @@ export default class Runtime {
     // if data is persistable ensure storage is updated with new data
     this.persistData(job);
     // update dynamic relations
-    // if (job.dep) this.global.relations.update(job.dep.dynamicRelations);
+    if (job.dep) {
+      // this.global.relations.update(job.dep.dynamicRelation);
+    }
   }
 
   // ****************** End Runtime Events ****************** //
