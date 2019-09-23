@@ -43,7 +43,9 @@ export default class Dep {
     }
   }
 
-  changed() {}
+  changed() {
+    this.global.relations.cleanup(this.dynamicRelation);
+  }
 
   subscribeComponent() {
     const subs = this.global.subs;

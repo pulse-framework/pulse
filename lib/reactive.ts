@@ -74,7 +74,7 @@ export default class Reactive {
 
         if (self.global.touching) {
           self.global.touched = dep;
-          return;
+          return value;
         }
         dep.register();
 
@@ -134,7 +134,7 @@ export default class Reactive {
   }
 
   addProperty(key, value) {
-    this.object[key] === [value];
+    this.object[key] = value;
     this.defineProperty(this.object, key);
   }
 

@@ -2,6 +2,7 @@ import { log, objectLoop, log, cleanse } from './helpers';
 import { Job, Global } from './interfaces';
 import Dep from './Dep';
 import Computed from './computed';
+import { DynamicRelation } from './relationController';
 
 export enum JobType {
   PUBLIC_DATA_MUTATION = 'PUBLIC_DATA_MUTATION',
@@ -23,7 +24,6 @@ export default class Runtime {
   // private collections: Object;
   private config: Object;
 
-  // T wan is the best
   constructor(private collections: Object, private global: Global) {
     global.ingest = this.ingest.bind(this);
     global.ingestDependents = this.ingestDependents.bind(this);
@@ -32,10 +32,10 @@ export default class Runtime {
 
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
-    // if (job.property instanceof Computed) console.log(job);
-
+    console.log(job);
     this.ingestQueue.push(job);
 
+    // don't begin the next job until this one is fully complete
     if (!this.running) {
       this.findNextJob();
     }
@@ -86,34 +86,40 @@ export default class Runtime {
     }
 
     // unpack dependents
-    if (job.dep && job.dep.dependents.size > 0)
+    if (job.dep && job.dep.dependents.size > 0) {
       this.ingestDependents(job.dep.dependents);
+    }
 
     this.finished();
   }
 
   public ingestDependents(dependents: Set<any>): void {
-    dependents.forEach(dependent => {
-      if (dependent instanceof Computed) {
-        this.ingest({
-          type: JobType.COMPUTED_REGEN,
-          collection: dependent.collection,
-          property: dependent,
-          dep: this.global.getDep(dependent.name, dependent.collection)
-        });
+    // this is called twice below
+    const ingestComputed = (computed: Computed) =>
+      this.ingest({
+        type: JobType.COMPUTED_REGEN,
+        collection: computed.collection,
+        property: computed,
+        dep: this.global.getDep(computed.name, computed.collection)
+      });
 
-        // if a Dep is within a Dep it should be for internal data within a colleciton
-      } else if (dependent instanceof Dep && dependent.type === 'internal') {
-        this.ingest({
-          type: JobType.INTERNAL_DATA_MUTATION,
-          collection: dependent.colleciton.name,
-          property: dependent.propertyName
-        });
+    // for each dependent stored in dep class
+    dependents.forEach(dependent => {
+      // there are two types of dependents stored: Computed and DynamicRelation
+      if (dependent instanceof Computed) ingestComputed(dependent);
+      else if (dependent instanceof DynamicRelation) {
+        const updateThis = dependent.updateThis;
+        // DynamicRelation can store either Computed or Dep (internal)
+        if (updateThis instanceof Computed) ingestComputed(updateThis);
+        else if (updateThis instanceof Dep)
+          this.ingest({
+            type: JobType.INTERNAL_DATA_MUTATION,
+            collection: updateThis.colleciton.name,
+            property: updateThis.propertyName
+          });
       }
     });
   }
-
-  // Hello, if you can read this message, then you are okay.
 
   // handle job loop flow
   private finished(): void {
@@ -271,18 +277,15 @@ export default class Runtime {
   // ****************** Handlers ****************** //
 
   private completedJob(job: Job): void {
-    // console.log(job);
-
     // if action is running, save that action instance inside job payload
     job.fromAction = this.global.runningAction;
     // during runtime log completed job ready for component updates
     if (this.global.initComplete) this.completedJobs.push(job);
     // if data is persistable ensure storage is updated with new data
     this.persistData(job);
-    // update dynamic relations
-    if (job.dep) {
-      // this.global.relations.update(job.dep.dynamicRelation);
-    }
+
+    // tell the dep the parent changed
+    if (job.dep) job.dep.changed();
   }
 
   // ****************** End Runtime Events ****************** //

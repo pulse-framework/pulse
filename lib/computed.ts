@@ -12,6 +12,8 @@ export default class Computed {
   ) {}
 
   public run() {
+    this.global.relations.cleanup(this.dynamicRelation);
+
     this.global.runningComputed = this;
 
     let output = this.computedFunction(this.global.getContext(this.collection));

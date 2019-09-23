@@ -2,11 +2,8 @@ import { Global } from './interfaces';
 import Computed from './computed';
 import Dep from './dep';
 
-// TODO: make sure all internal data jobs include their dep class
-// TODO: give dynamic groups a dep class
-
 export class DynamicRelation {
-  public watching: Set<Dep> = new Set();
+  public depsToClean: Set<Dep> = new Set();
   constructor(
     // refrence to the parent (the thing to update)
     public updateThis: Dep | Computed
@@ -14,14 +11,12 @@ export class DynamicRelation {
 
   // perform cleanup of all refrences to this instance, before self desruct
   public destroy() {
-    this.watching.forEach(dep => dep.dependents.delete(this));
+    this.depsToClean.forEach(dep => dep.dependents.delete(this));
     delete this.updateThis.dynamicRelation;
   }
 }
 
 export default class RelationController {
-  // used to determine if to create a new dynamic relation, or use the current one
-  public lastRelation: DynamicRelation;
   // used to store the dynamic relations. not needed, but great for  ugging
   private relationBank: Set<DynamicRelation> = new Set();
 
@@ -29,47 +24,28 @@ export default class RelationController {
 
   // function called during runningComputed and runningPopulate
   public relate(updateThis: Computed | Dep, whenDepChanges: Dep) {
-    if (!whenDepChanges) {
-      return; // if a dep is not found, abort
-    }
-    let relation: DynamicRelation;
+    if (!whenDepChanges) return; // if a dep is not found, abort
+    let dep = whenDepChanges;
 
-    // if we're dealing with the same evaluation
-    if (
-      !this.lastRelation ||
-      (this.lastRelation && this.lastRelation.updateThis !== updateThis)
-    ) {
-      // create dynamic relation class per relation
-      relation = new DynamicRelation(updateThis);
-      this.relationBank.add(relation);
-      this.lastRelation = relation;
-    } else {
-      relation = this.lastRelation;
+    if (!updateThis.dynamicRelation) {
+      updateThis.dynamicRelation = new DynamicRelation(updateThis);
+      this.relationBank.add(updateThis.dynamicRelation);
     }
 
-    // add this relation instance to parent
-    updateThis.dynamicRelation = relation;
+    // save Dep inside relation so relation knows where to remove dependent from on cleanup
+    updateThis.dynamicRelation.depsToClean.add(dep);
 
-    // add dynamic relation to dependents inside Dep
-    whenDepChanges.dependents.add(relation);
+    // add dynamic relation as a dependent inside Dep
+    dep.dependents.add(updateThis.dynamicRelation);
   }
 
-  // this is called when a dep updates
-  public update(dynamicRelation: DynamicRelation): void {
-    // save the thing we're updating
-
-    if (!dynamicRelation) return;
-
-    debugger;
-
-    const thingsToUpdate = dynamicRelation.watching;
-
+  // when a job is complete with a dep that includes a dynamic
+  public cleanup(dynamicRelation: DynamicRelation): void {
     // perform cleanup, destroy dynamic relation
+    if (!dynamicRelation) return;
+    console.log('cleaning', this.relationBank.size);
     dynamicRelation.destroy(); // destory all refrences
     this.relationBank.delete(dynamicRelation); // remove last reference from bank
-
-    // ingest thing to update into runtime
-    this.global.ingestDependents(thingsToUpdate);
   }
 }
 

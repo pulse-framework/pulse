@@ -521,33 +521,26 @@ export default class Collection {
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      // if (computed.name === 'currentViewing') debugger;
       this.global.relations.relate(computed, this.depForInternalData(id));
     }
     if (this.global.runningPopulate) {
-      this.global.relations.relate(
-        this.global.runningPopulate as Dep,
-        this.depForInternalData(id)
-      );
+      let populate = this.global.runningPopulate as Dep;
+      this.global.relations.relate(populate, this.depForInternalData(id));
     }
     return this.internalData[id];
   }
 
   getGroup(property) {
+    let groupDep: Dep = this.global.getDep(property, this.indexes.object);
     // if called inside Computed method, create temporary relation in relationship controller
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      this.global.relations.relate(
-        computed,
-        this.global.getDep(property, this.indexes.object)
-      );
+      this.global.relations.relate(computed, groupDep);
     }
     // if called from within populate() create another temporary relation
     if (this.global.runningPopulate) {
-      this.global.relations.relate(
-        this.global.runningPopulate as Dep,
-        this.global.getDep(property, this.indexes.object)
-      );
+      let dataDep = this.global.runningPopulate as Dep;
+      this.global.relations.relate(dataDep, groupDep);
     }
     // get group is not cached, so generate a fresh group from the index
     return this.buildGroupFromIndex(property) || [];
