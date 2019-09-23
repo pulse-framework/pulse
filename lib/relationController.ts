@@ -43,7 +43,6 @@ export default class RelationController {
   public cleanup(dynamicRelation: DynamicRelation): void {
     // perform cleanup, destroy dynamic relation
     if (!dynamicRelation) return;
-    console.log('cleaning', this.relationBank.size);
     dynamicRelation.destroy(); // destory all refrences
     this.relationBank.delete(dynamicRelation); // remove last reference from bank
   }

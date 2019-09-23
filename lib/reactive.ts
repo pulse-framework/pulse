@@ -15,13 +15,14 @@ export default class Reactive {
   private touching: boolean = false;
   private touched: null | Dep;
   private sneaky: boolean;
+  private tempDeps: { [key: string]: Dep } = {};
 
   constructor(
     object: Obj = {},
     private global: Global,
     private collection: Collection,
     public mutable: Array<string>,
-    public type: string
+    public type: 'root' | 'indexes'
   ) {
     this.dispatch = this.global.dispatch;
     this.properties = Object.keys(object);
@@ -60,13 +61,7 @@ export default class Reactive {
     }
 
     // Create an instance of the dependency tracker
-    const dep = new Dep(
-      this.global,
-      'reactive',
-      this.collection,
-      key,
-      rootProperty
-    );
+    const dep = this.createDep(key, rootProperty);
 
     Object.defineProperty(object, key, {
       get: function pulseGetter() {
@@ -81,8 +76,6 @@ export default class Reactive {
         return value;
       },
       set: function pulseSetter(newValue) {
-        // TODO: Deep reactive properties need to cause rootProperty(s) to update subscribers also
-
         // DEEP REACTIVE handler: "rootProperty" indicates if the object is "deep".
         if (rootProperty && self.mutable.includes(rootProperty)) {
           // mutate locally
@@ -133,12 +126,45 @@ export default class Reactive {
     return object;
   }
 
-  addProperty(key, value) {
+  public addProperty(key, value) {
     this.object[key] = value;
     this.defineProperty(this.object, key);
   }
 
-  deepReactiveObject(value, rootProperty?: string, propertyName?: string) {
+  public tempDep(property) {
+    const dep = this.createDep(property);
+    this.tempDeps[property] = dep;
+    return dep;
+  }
+
+  private cloneDep(dep: Dep) {
+    dep = Object.assign(Object.create(Object.getPrototypeOf(dep)), dep);
+    // debugger;
+    // delete this.tempDeps[dep.propertyName];
+    return dep;
+  }
+
+  private createDep(key: string, rootProperty?: string) {
+    let dep: Dep;
+    if (this.tempDeps.hasOwnProperty(key) && !rootProperty) {
+      dep = this.cloneDep(this.tempDeps[key]);
+    } else {
+      dep = new Dep(
+        this.global,
+        this.type === 'indexes' ? 'index' : 'reactive',
+        this.collection,
+        key,
+        rootProperty
+      );
+    }
+    return dep;
+  }
+
+  private deepReactiveObject(
+    value,
+    rootProperty?: string,
+    propertyName?: string
+  ) {
     let objectWithCustomPrototype = Object.create({
       rootProperty,
       propertyName
@@ -180,28 +206,28 @@ export default class Reactive {
     return reactiveArray;
   }
 
-  privateWrite(property, value) {
+  public privateWrite(property, value) {
     this.allowPrivateWrite = true;
     this.object[property] = value;
     this.allowPrivateWrite = false;
   }
 
   // sneaky blocked the getter, sneaky.
-  privateGet(property) {
+  public privateGet(property) {
     this.sneaky = true;
     const data = this.object[property];
     this.sneaky = false;
     return data;
   }
 
-  exists(property: string): boolean {
+  public exists(property: string): boolean {
     this.sneaky = true;
     const bool = !!this.object.hasOwnProperty(property);
     this.sneaky = false;
     return bool;
   }
 
-  getKeys(): Array<string> {
+  public getKeys(): Array<string> {
     this.sneaky = true;
     const keys = Object.keys(this.object);
     this.sneaky = false;

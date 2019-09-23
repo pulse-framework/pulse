@@ -318,13 +318,8 @@ export default class Collection {
   ): any {
     // for each populate function extracted from the model for this data
     this.internalDataWithPopulate.forEach(property => {
-      this.global.runningPopulate = this.global.getDep(
-        primaryKey,
-        this.name,
-        true
-      );
-
-      key(this.name, primaryKey);
+      const dep = this.global.getDep(primaryKey, this.name, true);
+      this.global.runningPopulate = dep;
       // run populate function passing in the context and the data
       const populated = this.model[property].populate(
         this.global.getContext(),
@@ -398,7 +393,8 @@ export default class Collection {
         collection: this.name,
         property: index,
         value: this.indexes.privateGet(index),
-        previousValue: previousIndexValues[index]
+        previousValue: previousIndexValues[index],
+        dep: this.global.getDep(index, this.indexes.object)
       });
     });
 
@@ -515,23 +511,36 @@ export default class Collection {
     return dep;
   }
 
+  //
+  depForGroup(groupName: string): Dep {
+    let dep: Dep;
+    // no group is found publically, use index instead
+    if (this.public.exists(groupName)) {
+      dep = this.global.getDep(groupName, this.name);
+    } else if (this.indexes.exists(groupName)) {
+      dep = this.global.getDep(groupName, this.indexes.object);
+    } else {
+      dep = this.indexes.tempDep(groupName);
+    }
+    return dep;
+  }
+
   findById(id: string | number) {
-    // if (!this.internalData.hasOwnProperty(id))
-    //   return assert(warn => warn.INTERNAL_DATA_NOT_FOUND, 'findById');
+    let internalDep: Dep = this.depForInternalData(id);
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      this.global.relations.relate(computed, this.depForInternalData(id));
+      this.global.relations.relate(computed, internalDep);
     }
     if (this.global.runningPopulate) {
       let populate = this.global.runningPopulate as Dep;
-      this.global.relations.relate(populate, this.depForInternalData(id));
+      this.global.relations.relate(populate, internalDep);
     }
     return this.internalData[id];
   }
 
   getGroup(property) {
-    let groupDep: Dep = this.global.getDep(property, this.indexes.object);
+    let groupDep: Dep = this.depForGroup(property);
     // if called inside Computed method, create temporary relation in relationship controller
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
@@ -567,7 +576,8 @@ export default class Collection {
     if (!Array.isArray(ids)) ids = [ids];
 
     let sourceIndex = this.indexes.privateGet(sourceIndexName);
-    for (let i = 0; i < ids.length; i++) sourceIndex.map(id => id !== ids[i]);
+    for (let i = 0; i < ids.length; i++)
+      sourceIndex = sourceIndex.filter(id => id !== ids[i]);
 
     this.global.ingest({
       type: JobType.INDEX_UPDATE,

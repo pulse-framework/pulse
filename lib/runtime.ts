@@ -32,7 +32,6 @@ export default class Runtime {
 
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
-    console.log(job);
     this.ingestQueue.push(job);
 
     // don't begin the next job until this one is fully complete
@@ -46,7 +45,7 @@ export default class Runtime {
     // shift the next job from the queue
     let next = this.ingestQueue.shift();
 
-    if (!next.dep)
+    if (!next.dep && next.type !== JobType.INDEX_UPDATE)
       // groups, computed and indexes will not have their Dep class, so get it.
       next.dep = this.global.getDep(next.property, next.collection);
 
@@ -108,15 +107,21 @@ export default class Runtime {
       // there are two types of dependents stored: Computed and DynamicRelation
       if (dependent instanceof Computed) ingestComputed(dependent);
       else if (dependent instanceof DynamicRelation) {
-        const updateThis = dependent.updateThis;
+        // one might think using "instanceOf" would work as expected below
+        // but it doesn't, alas I hate javascript.
+        // temp fix: constructor.name - be my guest try and fix this??
+        const type = dependent.updateThis.constructor.name;
         // DynamicRelation can store either Computed or Dep (internal)
-        if (updateThis instanceof Computed) ingestComputed(updateThis);
-        else if (updateThis instanceof Dep)
+        if (type === Computed.name)
+          ingestComputed(dependent.updateThis as Computed);
+        else if (type === Dep.name) {
+          // ingest internal data mutation without a value will result in a soft group update
           this.ingest({
             type: JobType.INTERNAL_DATA_MUTATION,
-            collection: updateThis.colleciton.name,
-            property: updateThis.propertyName
+            collection: (dependent.updateThis as Dep).colleciton.name,
+            property: (dependent.updateThis as Dep).propertyName
           });
+        }
       }
     });
   }

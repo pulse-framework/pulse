@@ -13,7 +13,7 @@ export default class Dep {
   constructor(
     private global: Global,
     // if this dep is for public or internal data within a collection
-    public type: 'reactive' | 'internal' = 'reactive',
+    public type: 'reactive' | 'internal' | 'index' = 'reactive',
     // the name of the coll
     public colleciton: Collection,
     // either the name of the object if rective or the primaryKey if internal

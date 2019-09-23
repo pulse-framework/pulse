@@ -206,11 +206,10 @@ export default class Library {
   // returns Dep instance by "touching" reactive property revealing its Dep class
   // if collection param is present we'll assume the property param is the name of the property, not a reference to the property itself
   getDep(property: any, collection: string, forData?: boolean = false): Dep {
-    this._private.global.touching = true;
-
     // "touching" is simply invoking the property's getter
     let dep: Dep;
     if (!forData) {
+      this._private.global.touching = true;
       if (typeof collection === 'string') {
         this._private.collections[collection].public.object[property];
       } else if (typeof collection === 'object') {
