@@ -205,7 +205,7 @@ export default class Library {
 
   // returns Dep instance by "touching" reactive property revealing its Dep class
   // if collection param is present we'll assume the property param is the name of the property, not a reference to the property itself
-  getDep(property: any, collection: string, forData?: boolean = false): Dep {
+  getDep(property: any, collection: string, forData?: boolean): Dep {
     let dep: Dep;
     // if forData is true we'll go straight for the internal dep
     if (!forData) {

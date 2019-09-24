@@ -32,8 +32,7 @@ export default class Runtime {
 
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
-    console.log(job);
-
+    // console.log(job);
     this.ingestQueue.push(job);
 
     // don't begin the next job until this one is fully complete
@@ -339,7 +338,7 @@ export default class Runtime {
   }
 
   private updateSubscribers(componentsToUpdate) {
-    console.log('updating subscribers', componentsToUpdate);
+    // console.log('updating subscribers', componentsToUpdate);
     const componentKeys = Object.keys(componentsToUpdate);
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];
