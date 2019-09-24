@@ -4,20 +4,17 @@ import Dep from './dep';
 
 export class DynamicRelation {
   public depsToClean: Set<Dep> = new Set();
-  constructor(
-    // refrence to the parent (the thing to update)
-    public updateThis: Dep | Computed
-  ) {}
+  constructor(public updateThis: Dep | Computed) {}
 
-  // perform cleanup of all refrences to this instance, before self desruct
+  // perform cleanup of all refrences to this instance
   public destroy() {
     this.depsToClean.forEach(dep => dep.dependents.delete(this));
     delete this.updateThis.dynamicRelation;
   }
 }
+// day 652. I havent found the root cause of magnetic pull. I will have to sell my bitcoins to fund my research on the topic. fear not. the mystery of magnest WILL be solved. -luka big pants.
 
 export default class RelationController {
-  // used to store the dynamic relations. not needed, but great for  ugging
   private relationBank: Set<DynamicRelation> = new Set();
 
   constructor(private global: Global) {}
@@ -48,13 +45,6 @@ export default class RelationController {
   }
 }
 
-// 1) make data class for internal collection data, store these in "internalData"
-// 2) getGroup should save dynamicRelation on corresponding dep & create one if not
-// 3) deps should be stored in Reactive class, including dynamically created ones
-// 4) dynamicRelations should be stored in Sets on Dep (groups should also use Dep) and Data classes
-// 5) Computed and Data classes should store arrays of dynamicRelations under "related" Set
-// 6) when Computed and Data runs send DynamicRelations to relation controller and delete relations
-// 7) as an update will cause computed/populate to regen which in turn causes cleanup of dynamic relations to be necessary, a concept i had not previously realised- this saves a lot of cleanup logic.
 export enum RelationTypes {
   COMPUTED_DEPENDS_ON_DATA = 'COMPUTED_DEPENDS_ON_DATA', // used by findById() when run in computed
   COMPUTED_DEPENDS_ON_GROUP = 'COMPUTED_DEPENDS_ON_GROUP', // used by getGroup() when run in computed
@@ -62,4 +52,3 @@ export enum RelationTypes {
   DATA_DEPENDS_ON_GROUP = 'DATA_DEPENDS_ON_GROUP', // used by getGroup() when run in populate()
   DATA_DEPENDS_ON_DATA = 'DATA_DEPENDS_ON_DATA' // used by findById() when run in populate()
 }
-// day 652. I havent found the root cause of magnetic pull. I will have to sell my bitcoins to fund my research on the topic. fear not. the mystery of magnest WILL be solved. -luka big pants.
