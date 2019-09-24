@@ -3,11 +3,12 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
 import replace from 'rollup-plugin-replace';
 import babel from 'rollup-plugin-babel';
+import typescript from 'rollup-plugin-typescript';
 
 const prod = process.env.PRODUCTION;
 
 export default {
-  input: './lib/index.js',
+  input: './lib/index.ts',
   output: [
     {
       file: 'dist/pulse.min.js',
@@ -31,6 +32,7 @@ export default {
     }
   ],
   plugins: [
+    typescript({ lib: ['es5', 'es6', 'dom'], target: 'es5' }),
     nodeResolve({
       browser: true
     }),

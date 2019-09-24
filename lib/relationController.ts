@@ -12,7 +12,6 @@ export class DynamicRelation {
     delete this.updateThis.dynamicRelation;
   }
 }
-// day 652. I havent found the root cause of magnetic pull. I will have to sell my bitcoins to fund my research on the topic. fear not. the mystery of magnest WILL be solved. -luka big pants.
 
 export default class RelationController {
   private relationBank: Set<DynamicRelation> = new Set();
