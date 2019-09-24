@@ -206,9 +206,10 @@ export default class Library {
   // returns Dep instance by "touching" reactive property revealing its Dep class
   // if collection param is present we'll assume the property param is the name of the property, not a reference to the property itself
   getDep(property: any, collection: string, forData?: boolean = false): Dep {
-    // "touching" is simply invoking the property's getter
     let dep: Dep;
+    // if forData is true we'll go straight for the internal dep
     if (!forData) {
+      // "touching" is simply invoking the property's getter
       this._private.global.touching = true;
       if (typeof collection === 'string') {
         this._private.collections[collection].public.object[property];
@@ -220,6 +221,10 @@ export default class Library {
       dep = this._private.global.touched as Dep;
       this._private.global.touching = false;
       this._private.global.touched = null;
+
+      // if still no dep found, look inward lol
+      if (!dep)
+        dep = this._private.collections[collection].internalDataDeps[property];
     } else {
       dep = this._private.collections[collection].internalDataDeps[property];
     }
