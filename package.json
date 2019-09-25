@@ -32,10 +32,6 @@
     "babel-eslint": "^10.0.1",
     "eslint-config-prettier": "^4.0.0",
     "jest": "^24.7.1",
-    "markdown-it-admonition": "^1.0.4",
-    "markdown-it-container": "^2.0.0",
-    "markdown-it-highlightjs": "^3.0.0",
-    "markdown-it-plantuml": "^1.4.1",
     "prettier": "1.16.3",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.0.0",
@@ -47,8 +43,9 @@
     "tailwindcss": "^1.1.2",
     "tslib": "^1.10.0",
     "typescript": "^3.5.3",
-  "dependencies": {
     "vuepress-plugin-container": "^2.0.2"
+  },
+  "dependencies": {
     "chai": "^4.2.0",
     "mocha": "^6.2.0",
     "vuepress": "^1.0.2"
