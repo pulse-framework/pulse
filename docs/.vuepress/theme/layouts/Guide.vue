@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper">
         <Header style="background: linear-gradient(45deg, #064789 0%, #427aa1 100%)"/>
-        <div class="container mx-auto flex font-sans leading-loose">
+        <div id="content" class="container mx-auto flex font-sans leading-loose">
             <div class="flex-auto px-auto">
                 <!-- Sidebar generator -->
                 <Sidebar class="text-black" style="font-family: 'Noto Sans', sans-serif;"/>
@@ -14,11 +14,7 @@
         <Footer />
     </div>
 </template>
-<style scoped>
-body, html, #app {
-    height: calc(100vh - 30px);
-}
-</style>
+
 <script>
 import Sidebar from '@theme/components/Sidebar'
 import Header from '@theme/components/Header';
