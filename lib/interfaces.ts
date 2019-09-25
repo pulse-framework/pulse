@@ -94,7 +94,7 @@ export interface Global {
   runningAction: boolean | Action;
   runningComputed: boolean | Computed;
   runningWatcher: boolean | Watcher;
-  runningPopulate: boolean | string;
+  runningPopulate: boolean | Dep;
   touched: boolean | Dep;
   contextRef: ExpandableObject;
   cleanGlobalContextRef: ExpandableObject;
@@ -102,12 +102,12 @@ export interface Global {
   getDep: any;
   // aliases
   ticket: any;
-  cleanupTickets: any;
   dispatch: any;
   getContext: any;
   getInternalData: any;
   uuid: any;
   ingest?: any;
+  ingestDependents?: any;
   request?: any;
   relations?: any;
 }
@@ -130,7 +130,7 @@ export enum DebugType {
 export interface Job {
   type: JobType;
   collection: string;
-  property: string;
+  property: string | number | Computed;
   value?: any;
   previousValue?: any;
   dep?: Dep;

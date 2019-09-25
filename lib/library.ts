@@ -48,8 +48,6 @@ export default class Library {
         relations: null,
         storage: null,
         // Function aliases
-        ticket: this.ticket.bind(this),
-        cleanupTickets: this.cleanupTickets.bind(this),
         dispatch: this.dispatch.bind(this),
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
@@ -207,22 +205,29 @@ export default class Library {
 
   // returns Dep instance by "touching" reactive property revealing its Dep class
   // if collection param is present we'll assume the property param is the name of the property, not a reference to the property itself
-  getDep(property: any, collection: string): Dep {
-    this._private.global.touching = true;
+  getDep(property: any, collection: string, forData?: boolean): Dep {
+    let dep: Dep;
+    // if forData is true we'll go straight for the internal dep
+    if (!forData) {
+      // "touching" is simply invoking the property's getter
+      this._private.global.touching = true;
+      if (typeof collection === 'string') {
+        this._private.collections[collection].public.object[property];
+      } else if (typeof collection === 'object') {
+        collection[property];
+      }
 
-    // "touching" is simply invoking the property's getter
+      // Extract the dep
+      dep = this._private.global.touched as Dep;
+      this._private.global.touching = false;
+      this._private.global.touched = null;
 
-    if (typeof collection === 'string') {
-      this._private.collections[collection].public.object[property];
-    } else if (typeof collection === 'object') {
-      collection[property];
+      // if still no dep found, look inward lol
+      if (!dep)
+        dep = this._private.collections[collection].internalDataDeps[property];
+    } else {
+      dep = this._private.collections[collection].internalDataDeps[property];
     }
-
-    // Extract the dep
-    const dep = this._private.global.touched as Dep;
-    this._private.global.touching = false;
-    this._private.global.touched = null;
-
     return dep as Dep;
   }
 
@@ -351,21 +356,6 @@ export default class Library {
     if (!Array.isArray(this._private.events[name]))
       this._private.events[name] = [callback];
     else this._private.events[name].push(callback);
-  }
-
-  // root alias for relationController to access ticket function of a given collection
-  ticket(collection: string, uuid: string, key: Key) {
-    const primaryKey = parse(key).primaryKey;
-    this._private.collections[collection].ticket(uuid, primaryKey);
-  }
-
-  // root alias for relationController to access cleanupTicket function of a given collection
-  cleanupTickets(key): void {
-    const parsed = parse(key);
-
-    this._private.collections[parsed.collection].cleanupTickets(
-      parsed.primaryKey
-    );
   }
 
   log(type: DebugType): void {

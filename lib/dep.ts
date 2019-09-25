@@ -1,18 +1,28 @@
 import { Global } from './interfaces';
 import { RelationTypes } from './relationController';
-
+import { DynamicRelation } from './relationController2';
+import Collection from './collection';
 export default class Dep {
+  // these
   public dependents: any = new Set();
   public subscribers: Array<object> = [];
-  public tickets: Array<string> = [];
+
+  // these are temporary relations created by the relation controller
+  public dynamicRelation: DynamicRelation = null;
 
   constructor(
     private global: Global,
-    public name: string,
-    public rootProperty: string,
-    public propertyOnObject: string
+    // if this dep is for public or internal data within a collection
+    public type: 'reactive' | 'internal' | 'index' = 'reactive',
+    // the name of the coll
+    public colleciton: Collection,
+    // either the name of the object if rective or the primaryKey if internal
+    public propertyName: string | number,
+    // if the dep is part of a deep reactive object, this is the root property name
+    public rootProperty: string = null
   ) {}
 
+  // for when public data is accessed, reactive class will trigger this function
   register() {
     const subs = this.global.subs;
 
@@ -21,8 +31,7 @@ export default class Dep {
     }
     if (this.global.runningPopulate) {
       this.global.relations.relate(
-        RelationTypes.DATA_DEPENDS_ON_DEP,
-        this.global.runningPopulate,
+        this.global.runningPopulate as Dep,
         this as Dep
       );
     }
@@ -32,6 +41,10 @@ export default class Dep {
     if (subs.unsubscribingComponent) {
       // this.subscribers.delete(this.global.subscribingComponent);
     }
+  }
+
+  changed() {
+    this.global.relations.cleanup(this.dynamicRelation);
   }
 
   subscribeComponent() {
@@ -63,16 +76,5 @@ export default class Dep {
       key: key
     };
     this.subscribers.push(component);
-  }
-  ticket(uuid) {
-    this.tickets.push(uuid);
-  }
-  // this should fire once runtime finish a job with a dep,
-  // we can then loop back with the relationController to check
-  // for any active relations based on tickets saved in this dep class
-  changed() {
-    if (this.tickets.length > 0) {
-      this.global.relations.update([...this.tickets]);
-    }
   }
 }

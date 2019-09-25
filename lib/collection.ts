@@ -9,6 +9,7 @@ import {
 import Reactive from './reactive';
 import Action from './action';
 import Computed from './computed';
+import Dep from './dep';
 import { JobType } from './runtime';
 import {
   Methods,
@@ -40,9 +41,8 @@ export default class Collection {
   public primaryKey: string | number | boolean = false;
 
   private internalData: object = {};
+  public internalDataDeps: object = {}; // this contains the dep classes for all internal data
   private internalDataWithPopulate: Array<string> = [];
-
-  private tickets: { [key: string]: Array<string> } = {};
 
   dispatch: void;
 
@@ -127,7 +127,7 @@ export default class Collection {
     this.indexes = new Reactive(
       groups, // object
       this.global, // global
-      this.name, // collection
+      this, // collection
       this.keys.indexes, // mutable
       'indexes' // type
     );
@@ -137,7 +137,7 @@ export default class Collection {
     this.public = new Reactive(
       this.namespace,
       this.global,
-      this.name,
+      this,
       [...this.keys.data, ...this.keys.indexes],
       'root'
     );
@@ -255,26 +255,6 @@ export default class Collection {
     });
   }
 
-  // called by relationController after new relation has been created
-  public ticket(uuid: string, primaryKey: string | number): void {
-    if (Array.isArray(this.tickets[primaryKey]))
-      this.tickets[primaryKey].push(uuid);
-    else this.tickets[primaryKey] = [uuid];
-  }
-
-  public cleanupTickets(primaryKey) {
-    if (this.tickets[primaryKey]) {
-      this.tickets[primaryKey] = [];
-    }
-  }
-
-  // called by Runtime when job has been completed
-  public changed(primaryKey: string | number): void {
-    if (this.tickets[primaryKey]) {
-      this.global.relations.update(this.tickets[primaryKey]);
-    }
-  }
-
   private getData(id) {
     return { ...this.internalData[id] };
   }
@@ -336,11 +316,10 @@ export default class Collection {
     primaryKey: string | number,
     data: { [key: string]: any }
   ): any {
-    // for each populate() function found in the model for this collection
+    // for each populate function extracted from the model for this data
     this.internalDataWithPopulate.forEach(property => {
-      // set runningPopulate to the key (collection/propery) of the data being modified
-      // this is fed into the relations.relate() function becoming the unique cleanupKey for the relation
-      this.global.runningPopulate = key(this.name, primaryKey);
+      const dep = this.global.getDep(primaryKey, this.name, true);
+      this.global.runningPopulate = dep;
       // run populate function passing in the context and the data
       const populated = this.model[property].populate(
         this.global.getContext(),
@@ -361,7 +340,8 @@ export default class Collection {
     for (let i = 0; i < group.length; i++) {
       const groupName = group[i];
       if (!this.indexes.exists(groupName)) {
-        this.indexes.privateWrite(groupName, []);
+        this.indexes.addProperty(groupName, []);
+        // this.indexes.privateWrite(groupName, []);
       }
     }
     return group;
@@ -413,7 +393,8 @@ export default class Collection {
         collection: this.name,
         property: index,
         value: this.indexes.privateGet(index),
-        previousValue: previousIndexValues[index]
+        previousValue: previousIndexValues[index],
+        dep: this.global.getDep(index, this.indexes.object)
       });
     });
 
@@ -438,12 +419,17 @@ export default class Collection {
 
     // validate against model
 
+    // create the dep class
+    if (!this.internalDataDeps[key])
+      this.internalDataDeps[key] = new Dep(this.global, 'internal', this, key);
+
     // ingest the data
     this.global.ingest({
       type: JobType.INTERNAL_DATA_MUTATION,
       collection: this.name,
       property: key,
-      value: dataItem
+      value: dataItem,
+      dep: this.internalDataDeps[key]
     });
 
     // add the data to group indexes
@@ -510,53 +496,60 @@ export default class Collection {
     });
   }
 
-  findById(id) {
-    // if (!this.internalData.hasOwnProperty(id))
-    //   return assert(warn => warn.INTERNAL_DATA_NOT_FOUND, 'findById');
+  // if a computed function evaluates and creates a relation to internal data
+  // that does not exist yet, we create the dep class and save it in advance
+  // so that if the data ever arrives, it will reactively dependent update accordingly
+  depForInternalData(primaryKey: string | number): Dep {
+    let dep: Dep;
+    // debugger;
+    if (!this.internalDataDeps[primaryKey]) {
+      dep = new Dep(this.global, 'internal', this, primaryKey);
+      this.internalDataDeps[primaryKey] = dep;
+    } else {
+      dep = this.internalDataDeps[primaryKey];
+    }
+    return dep;
+  }
+
+  //
+  depForGroup(groupName: string): Dep {
+    let dep: Dep;
+    // no group is found publically, use index instead
+    if (this.public.exists(groupName)) {
+      dep = this.global.getDep(groupName, this.name);
+    } else if (this.indexes.exists(groupName)) {
+      dep = this.global.getDep(groupName, this.indexes.object);
+    } else {
+      dep = this.indexes.tempDep(groupName);
+    }
+    return dep;
+  }
+
+  findById(id: string | number) {
+    let internalDep: Dep = this.depForInternalData(id);
 
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      this.global.relations.relate(
-        RelationTypes.COMPUTED_DEPENDS_ON_DATA,
-        // updateThis computed instance
-        computed,
-        // primaryKey of data for whenThisChanges
-        id,
-        this.name
-      );
+      this.global.relations.relate(computed, internalDep);
     }
     if (this.global.runningPopulate) {
-      this.global.relations.relate(
-        RelationTypes.DATA_DEPENDS_ON_DATA,
-        // this is the key ("collection/primaryKey") for the dynamically populated data for updateThis
-        this.global.runningPopulate,
-        // primaryKey of data for whenThisChanges
-        id,
-        this.name
-      );
+      let populate = this.global.runningPopulate as Dep;
+      this.global.relations.relate(populate, internalDep);
     }
     return this.internalData[id];
   }
 
   getGroup(property) {
+    let groupDep: Dep = this.depForGroup(property);
     // if called inside Computed method, create temporary relation in relationship controller
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
-      this.global.relations.relate(
-        RelationTypes.COMPUTED_DEPENDS_ON_GROUP,
-        computed, // updateThis
-        property, // whenThisChanges
-        this.name
-      );
+      this.global.relations.relate(computed, groupDep);
     }
     // if called from within populate() create another temporary relation
     if (this.global.runningPopulate) {
-      this.global.relations.relate(
-        RelationTypes.DATA_DEPENDS_ON_GROUP,
-        this.global.runningPopulate, // updateThis
-        property, // whenThisChanges
-        this.name
-      );
+      let dataDep = this.global.runningPopulate as Dep;
+      this.global.relations.relate(dataDep, groupDep);
     }
     // get group is not cached, so generate a fresh group from the index
     return this.buildGroupFromIndex(property) || [];
@@ -583,7 +576,8 @@ export default class Collection {
     if (!Array.isArray(ids)) ids = [ids];
 
     let sourceIndex = this.indexes.privateGet(sourceIndexName);
-    for (let i = 0; i < ids.length; i++) sourceIndex.map(id => id !== ids[i]);
+    for (let i = 0; i < ids.length; i++)
+      sourceIndex = sourceIndex.filter(id => id !== ids[i]);
 
     this.global.ingest({
       type: JobType.INDEX_UPDATE,
@@ -771,14 +765,28 @@ export default class Collection {
   }
 
   forceUpdate(property: string): void {
+    // ensure property exists on collection
     if (this.public.exists(property)) {
-      this.global.ingest({
-        type: JobType.PUBLIC_DATA_MUTATION,
-        property,
-        collection: this.name,
-        value: this.public.privateGet(property),
-        dep: this.global.getDep(property, this.name)
-      });
+      // if property is directly mutable
+
+      if (this.public.mutable.includes(property)) {
+        this.global.ingest({
+          type: JobType.PUBLIC_DATA_MUTATION,
+          property,
+          collection: this.name,
+          value: this.public.privateGet(property),
+          dep: this.global.getDep(property, this.name)
+        });
+
+        // if property is a computed method
+      } else if (this.computed[property]) {
+        this.global.ingest({
+          type: JobType.COMPUTED_REGEN,
+          property,
+          collection: this.name,
+          dep: this.global.getDep(property, this.name)
+        });
+      }
     }
   }
 

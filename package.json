@@ -1,7 +1,7 @@
 {
   "name": "pulse-framework",
   "version": "2.0.0",
-  "description": "Global state and logic framework for reactive Javascript aplications.",
+  "description": "Global state and logic framework for reactive Javascript applications.",
   "main": "dist/pulse.min.js",
   "module": "dist/pulse.esm.min.js",
   "scripts": {
@@ -43,14 +43,12 @@
     "rollup-plugin-node-resolve": "^5.1.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-serve": "^1.0.1",
-    "rollup-plugin-terser": "^5.0.0",
     "rollup-plugin-typescript": "^1.0.1",
     "tailwindcss": "^1.1.2",
     "tslib": "^1.10.0",
     "typescript": "^3.5.3",
-    "vuepress-plugin-container": "^2.0.2"
-  },
   "dependencies": {
+    "vuepress-plugin-container": "^2.0.2"
     "chai": "^4.2.0",
     "mocha": "^6.2.0",
     "vuepress": "^1.0.2"

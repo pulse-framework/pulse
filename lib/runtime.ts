@@ -1,6 +1,8 @@
 import { log, objectLoop, log, cleanse } from './helpers';
 import { Job, Global } from './interfaces';
 import Dep from './Dep';
+import Computed from './computed';
+import { DynamicRelation } from './relationController';
 
 export enum JobType {
   PUBLIC_DATA_MUTATION = 'PUBLIC_DATA_MUTATION',
@@ -8,6 +10,7 @@ export enum JobType {
   INDEX_UPDATE = 'INDEX_UPDATE',
   COMPUTED_REGEN = 'COMPUTED_REGEN',
   GROUP_UPDATE = 'GROUP_UPDATE',
+  SOFT_GROUP_UPDATE = 'SOFT_GROUP_UPDATE',
   DELETE_INTERNAL_DATA = 'DELETE_INTERNAL_DATA'
 }
 export default class Runtime {
@@ -23,13 +26,16 @@ export default class Runtime {
 
   constructor(private collections: Object, private global: Global) {
     global.ingest = this.ingest.bind(this);
+    global.ingestDependents = this.ingestDependents.bind(this);
     this.config = global.config;
   }
 
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
+    // console.log(job);
     this.ingestQueue.push(job);
 
+    // don't begin the next job until this one is fully complete
     if (!this.running) {
       this.findNextJob();
     }
@@ -40,7 +46,7 @@ export default class Runtime {
     // shift the next job from the queue
     let next = this.ingestQueue.shift();
 
-    if (!next.dep)
+    if (!next.dep && next.type !== JobType.INDEX_UPDATE)
       // groups, computed and indexes will not have their Dep class, so get it.
       next.dep = this.global.getDep(next.property, next.collection);
 
@@ -68,6 +74,10 @@ export default class Runtime {
         this.performGroupRebuild(job);
         this.collections[job.collection].runWatchers(job.property);
         break;
+      case JobType.SOFT_GROUP_UPDATE:
+        this.performGroupRebuild(job);
+        this.collections[job.collection].runWatchers(job.property);
+        break;
       case JobType.DELETE_INTERNAL_DATA:
         this.performInternalDataDeletion(job);
         break;
@@ -77,18 +87,44 @@ export default class Runtime {
 
     // unpack dependents
     if (job.dep && job.dep.dependents.size > 0) {
-      // log(`Queueing ${dep.dependents.size} dependents`);
-      job.dep.dependents.forEach(computed => {
-        // get dep from public computed output
-        this.ingest({
-          type: JobType.COMPUTED_REGEN,
-          collection: computed.collection,
-          property: computed,
-          dep: this.global.getDep(computed.name, computed.collection)
-        });
-      });
+      this.ingestDependents(job.dep.dependents);
     }
+
     this.finished();
+  }
+
+  public ingestDependents(dependents: Set<any>): void {
+    // this is called twice below
+    const ingestComputed = (computed: Computed) =>
+      this.ingest({
+        type: JobType.COMPUTED_REGEN,
+        collection: computed.collection,
+        property: computed,
+        dep: this.global.getDep(computed.name, computed.collection)
+      });
+
+    // for each dependent stored in dep class
+    dependents.forEach(dependent => {
+      // there are two types of dependents stored: Computed and DynamicRelation
+      if (dependent instanceof Computed) ingestComputed(dependent);
+      else if (dependent instanceof DynamicRelation) {
+        // one might think using "instanceOf" would work as expected below
+        // but it doesn't, alas I hate javascript.
+        // temp fix: constructor.name - be my guest try and fix this??
+        const type = dependent.updateThis.constructor.name;
+        // DynamicRelation can store either Computed or Dep (internal)
+        if (type === Computed.name)
+          ingestComputed(dependent.updateThis as Computed);
+        else if (type === Dep.name) {
+          // ingest internal data mutation without a value will result in a soft group update
+          this.ingest({
+            type: JobType.INTERNAL_DATA_MUTATION,
+            collection: (dependent.updateThis as Dep).colleciton.name,
+            property: (dependent.updateThis as Dep).propertyName
+          });
+        }
+      }
+    });
   }
 
   // handle job loop flow
@@ -131,7 +167,7 @@ export default class Runtime {
     // overwrite or insert the data into collection database saving the previous value to job.previousValue, since this.overwriteInternalData returns it.
     job.previousValue = this.overwriteInternalData(
       job.collection,
-      job.property,
+      job.property as string | number,
       job.value
     );
 
@@ -152,7 +188,7 @@ export default class Runtime {
         ].softUpdateGroupData(job.property, index);
 
         this.ingest({
-          type: JobType.GROUP_UPDATE,
+          type: JobType.SOFT_GROUP_UPDATE,
           collection: job.collection,
           value: modifiedGroup,
           property: index,
@@ -253,11 +289,9 @@ export default class Runtime {
     if (this.global.initComplete) this.completedJobs.push(job);
     // if data is persistable ensure storage is updated with new data
     this.persistData(job);
-    // inform Dep class that the job is complete
-    if (job.dep) (job.dep as Dep).changed();
-    // inform the collection that the job is complete
-    this.collections[job.collection].changed(job.property);
-    // if either of these contain tickets, the relation controller will ingest updates
+
+    // tell the dep the parent changed
+    if (job.dep) job.dep.changed();
   }
 
   // ****************** End Runtime Events ****************** //
