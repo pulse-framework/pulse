@@ -1,6 +1,6 @@
 <template>
 	<!-- START Feature DIV -->
-	<div class="container mx-auto flex px-8 my-10 py-4 font-sans leading-loose front-content text-center border-b-1">
+	<div id="features" class="container mx-auto flex px-8 my-10 py-4 font-sans leading-loose front-content text-center border-b-1">
 		<!-- Features here with FeatureCard component -->
 		<FeatureCard class="flex-1 overflow-y-auto" title="State Management" tagline="Drop in replacement for Vuex and Redux" />
 		<FeatureCard class="flex-1 overflow-y-auto" title="Low Footprint" tagline="The minified library is only 40kb keeping your load times minimal." />

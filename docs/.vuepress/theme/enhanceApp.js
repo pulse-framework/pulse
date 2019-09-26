@@ -6,4 +6,5 @@ export default ({
 }) => {
     // ...apply enhancements to the app
     Vue.config.debug = true;
+    
 }

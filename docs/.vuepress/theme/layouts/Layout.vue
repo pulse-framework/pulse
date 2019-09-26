@@ -1,13 +1,15 @@
 <template>
-    <div class="">
-        <div class="flex-1 mx-auto p-8" style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
+    <div class="wrapper">
+        <div class="flex-1 mx-auto" style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
             <Header class="container mx-auto"/>
         </div>
-        <div class="flex-1 mx-auto p-8" style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
-            <Hero title="PulseJS"/>
-        </div>
-        <div class="flex-1 mx-auto p-8">
-            <Features />
+        <div id="content">
+            <div class="flex-1 mx-auto p-8" style="background: linear-gradient(90deg, #064789 0%, #427aa1 100%)">
+                <Hero title="PulseJS"/>
+            </div>
+            <div class="flex-1 mx-auto">
+                <Features />
+            </div>
         </div>
         <Footer />
     </div>

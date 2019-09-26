@@ -6,7 +6,7 @@
                 <!-- Sidebar generator -->
                 <Sidebar class="text-black" style="font-family: 'Noto Sans', sans-serif;"/>
             </div>
-            <div class="flex-auto ml-16 pr-20 pb-16 pt-16" style="width: 100%">
+            <div class="flex-auto ml-16 pb-16 pt-16" style="width: 70%">
                 <!-- Main Content -->
                 <Content class="guide-content" />
             </div>
@@ -19,6 +19,7 @@
 import Sidebar from '@theme/components/Sidebar'
 import Header from '@theme/components/Header';
 import Footer from '@theme/components/Footer';
+
 export default {
     components: { 
         Header,

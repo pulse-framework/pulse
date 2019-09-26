@@ -4,6 +4,7 @@
         class="mx-auto py-2 px-4 font-sans text-center flex justify-between static container"
       >
         <a
+          id="title"
           href="/"
           class="text-left no-underline font-bold text-white uppercase py-3 px-3"
         >{{$site.title}}</a>
@@ -23,6 +24,9 @@
   </header>
 </template>
 <style scoped>
+#title {
+  padding-top: 1rem;
+}
 a:hover {
   color: #fffb1e;
 }

@@ -7,8 +7,12 @@
         >{{item.text}}</span>
         <ul class="list-none">
           <li v-for="child in item.children" class="no-underline whitespace-no-wrap">
+            <!-- if the current router path is the same as the page link clicked (plus .html), add the active class to that link -->
           <router-link
             :to="child.link"
+            :class="{
+              'active-link' : $route.fullPath === child.link + '.html'
+              }"
             class="border-transparent border-l-4 hover:border-blue-800 pl-12"
           >{{ child.title }}</router-link>
           </li>
