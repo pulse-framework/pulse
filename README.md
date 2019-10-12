@@ -15,7 +15,7 @@
 
 ### PULSE V2 IS OUT
 
-Please read the [changelog](https://pulsejs.org/docs/introduction/changelog) to ensure your old code is compatible.
+Please read the [changelog](https://pulsejs.org/introduction/changelog.html) to ensure your old code is compatible.
 
 Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. Lightweight, modular and powerful, but most importantly easy to understand.
 
