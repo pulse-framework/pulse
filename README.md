@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://patreon.com/jamiepine"><img src="https://img.shields.io/badge/donate-patreon-F96854.svg" alt="Donate on patreon"></a>
   <a href="https://twitter.com/jamiepine"><img src="https://img.shields.io/twitter/follow/jamiepine.svg?label=Follow" alt="Follow on twitter"></a>
-  <a href="https://twitter.com/pulseframework"><img src="https://img.shields.io/twitter/follow/pulseframework.svg?label=Pulse+Twitter" alt="Follow Pulse on twitter"></a>
+  <a href="https://twitter.com/pulseframework"><img src="https://img.shields.io/twitter/follow/pulseframework.svg?label=Pulse+Twitter" alt="Follow Pulse on twitter"></a> 
   <a href="https://discord.gg/Jc2kgYb"><img src="https://discordapp.com/api/guilds/453678030850752532/embed.png" alt="Join Discord"></a>
   <a href="https://npmjs.com/pulse-framework"><img src="https://img.shields.io/npm/v/pulse-framework.svg" alt="NPM Package Version"></a>
   <a href="https://npmjs.com/pulse-framework"><img src="https://img.shields.io/npm/dm/pulse-framework.svg" alt="NPM Monthly Downloads"></a>
@@ -12,6 +12,10 @@
   <a href="https://github.com/jamiepine/pulse"><img src="https://img.shields.io/github/languages/code-size/jamiepine/pulse.svg" alt="GitHub Code Size"></a>
   <a href="https://github.com/jamiepine/pulse"><img src="https://img.shields.io/github/repo-size/jamiepine/pulse.svg" alt="GitHub Repo Size"></a>
 </p>
+
+### PULSE V2 IS OUT
+
+Please read the [changelog](https://pulsejs.org/docs/getting-started/changelog) to ensure your old code is compatible.
 
 Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. Lightweight, modular and powerful, but most importantly easy to understand.
 
@@ -45,4 +49,4 @@ I built this framework reflective of the architecture in which we use at Notify.
 
 If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001
 
-FULL DOCUMENTATION HERE: [pulsejs.org](https://pulsejs-docs.ijamespine.now.sh)
+FULL DOCUMENTATION HERE: [pulsejs.org](https://pulsejs.org)
