@@ -36,6 +36,7 @@ export default class Collection {
   public persist: Array<string> = [];
   public local: { [key: string]: any } = {};
   public model: { [key: string]: any } = {};
+  public throttles: Array<Action> = [];
 
   public collectionSize: number = 0;
   public primaryKey: string | number | boolean = false;
@@ -122,10 +123,9 @@ export default class Collection {
   }
 
   initReactive(data: object = {}, groups: Array<any> | object = []) {
-    groups = this.normalizeGroups(groups);
     // Make indexes reactive
     this.indexes = new Reactive(
-      groups, // object
+      this.normalizeGroups(groups), // object
       this.global, // global
       this, // collection
       this.keys.indexes, // mutable
@@ -149,20 +149,19 @@ export default class Collection {
     for (let i = 0; i < persist.length; i++) {
       const dataName = persist[i];
 
-      // TODO: validate
-
+      // register this
       this.persist.push(dataName);
+
       if (this.global.storage.isPromise) {
         this.global.storage.get(this.name, dataName).then(data => {
           if (data === undefined || data === null) return;
-          const job = {
+          this.global.ingest({
             type: JobType.PUBLIC_DATA_MUTATION,
             value: data,
             property: dataName,
             collection: this.name,
             dep: this.global.getDep(dataName, this.name)
-          };
-          this.global.ingest(job);
+          });
         });
       } else {
         let data = this.global.storage.get(this.name, dataName);
@@ -347,6 +346,63 @@ export default class Collection {
     return group;
   }
 
+  private getPreviousIndexValues(groups) {
+    const returnData = {};
+    for (let i = 0; i < groups; i++) {
+      const groupName = groups[i];
+      returnData[groupName] = this.indexes.privateGet(groupName);
+    }
+    return returnData;
+  }
+
+  private findPrimaryKey(dataItem) {
+    if (dataItem.hasOwnProperty('id')) this.primaryKey = 'id';
+    else if (dataItem.hasOwnProperty('_id')) this.primaryKey = '_id';
+    else if (dataItem.hasOwnProperty('key')) this.primaryKey = 'key';
+    if (this.primaryKey) return true;
+    else return assert(warn => warn.NO_PRIMARY_KEY);
+  }
+  // if a computed function evaluates and creates a relation to internal data
+  // that does not exist yet, we create the dep class and save it in advance
+  // so that if the data ever arrives, it will reactively dependent update accordingly
+  private depForInternalData(primaryKey: string | number): Dep {
+    let dep: Dep;
+    // debugger;
+    if (!this.internalDataDeps[primaryKey]) {
+      dep = new Dep(this.global, 'internal', this, primaryKey);
+      this.internalDataDeps[primaryKey] = dep;
+    } else {
+      dep = this.internalDataDeps[primaryKey];
+    }
+    return dep;
+  }
+
+  // search the collection for the appropriate dep for a given group
+  // consider relacting this with a more absolute
+  private depForGroup(groupName: string): Dep {
+    let dep: Dep;
+    // no group is found publically, use index instead
+    if (this.public.exists(groupName)) {
+      dep = this.global.getDep(groupName, this.name);
+    } else if (this.indexes.exists(groupName)) {
+      dep = this.global.getDep(groupName, this.indexes.object);
+    } else {
+      dep = this.indexes.tempDep(groupName);
+    }
+    return dep;
+  }
+
+  replaceIndex(indexName: string, newIndex: Array<string | number>) {
+    if (!Array.isArray(newIndex) || typeof indexName !== 'string')
+      return assert(warn => warn.INVALID_PARAMETER, 'replaceIndex');
+    this.global.ingest({
+      type: JobType.INDEX_UPDATE,
+      collection: this.name,
+      property: indexName,
+      value: newIndex
+    });
+  }
+
   // METHODS
 
   public collect(
@@ -401,7 +457,11 @@ export default class Collection {
     this.global.collecting = false;
   }
 
-  processDataItem(dataItem: object, groups: Array<string> = [], config) {
+  private processDataItem(
+    dataItem: object,
+    groups: Array<string> = [],
+    config
+  ) {
     if (!this.primaryKey) this.findPrimaryKey(dataItem);
 
     if (!this.primaryKey) return false;
@@ -468,96 +528,73 @@ export default class Collection {
     return foundIndexes;
   }
 
-  getPreviousIndexValues(groups) {
-    const returnData = {};
-    for (let i = 0; i < groups; i++) {
-      const groupName = groups[i];
-      returnData[groupName] = this.indexes.privateGet(groupName);
-    }
-    return returnData;
-  }
-
-  findPrimaryKey(dataItem) {
-    if (dataItem.hasOwnProperty('id')) this.primaryKey = 'id';
-    else if (dataItem.hasOwnProperty('_id')) this.primaryKey = '_id';
-    else if (dataItem.hasOwnProperty('key')) this.primaryKey = 'key';
-    if (this.primaryKey) return true;
-    else return assert(warn => warn.NO_PRIMARY_KEY);
-  }
-
-  replaceIndex(indexName: string, newIndex: Array<string | number>) {
-    if (!Array.isArray(newIndex) || typeof indexName !== 'string')
-      return assert(warn => warn.INVALID_PARAMETER, 'replaceIndex');
-    this.global.ingest({
-      type: JobType.INDEX_UPDATE,
-      collection: this.name,
-      property: indexName,
-      value: newIndex
-    });
-  }
-
-  // if a computed function evaluates and creates a relation to internal data
-  // that does not exist yet, we create the dep class and save it in advance
-  // so that if the data ever arrives, it will reactively dependent update accordingly
-  depForInternalData(primaryKey: string | number): Dep {
-    let dep: Dep;
-    // debugger;
-    if (!this.internalDataDeps[primaryKey]) {
-      dep = new Dep(this.global, 'internal', this, primaryKey);
-      this.internalDataDeps[primaryKey] = dep;
-    } else {
-      dep = this.internalDataDeps[primaryKey];
-    }
-    return dep;
-  }
-
-  //
-  depForGroup(groupName: string): Dep {
-    let dep: Dep;
-    // no group is found publically, use index instead
-    if (this.public.exists(groupName)) {
-      dep = this.global.getDep(groupName, this.name);
-    } else if (this.indexes.exists(groupName)) {
-      dep = this.global.getDep(groupName, this.indexes.object);
-    } else {
-      dep = this.indexes.tempDep(groupName);
-    }
-    return dep;
-  }
-
-  findById(id: string | number) {
+  // return a piece of intenral data from the collection
+  // can create dynamic relationships when used in certain circumstances
+  public findById(id: string | number): { [key: string]: any } {
     let internalDep: Dep = this.depForInternalData(id);
 
+    // if used in computed function, create a dynamic relation
     if (this.global.runningComputed) {
       let computed = this.global.runningComputed as Computed;
       this.global.relations.relate(computed, internalDep);
     }
+
+    // if used in populate() function, create a dynamic relation
     if (this.global.runningPopulate) {
       let populate = this.global.runningPopulate as Dep;
       this.global.relations.relate(populate, internalDep);
     }
+
     return this.internalData[id];
   }
 
-  getGroup(property) {
+  // return a group of data from a collection
+  // can create dynamic relationships when used in certain circumstances
+  public getGroup(property): Array<any> {
     let groupDep: Dep = this.depForGroup(property);
-    // if called inside Computed method, create temporary relation in relationship controller
+
+    // if used in computed function, create a dynamic relation
     if (this.global.runningComputed) {
-      let computed = this.global.runningComputed as Computed;
+      let computed: Computed = this.global.runningComputed as Computed;
       this.global.relations.relate(computed, groupDep);
     }
-    // if called from within populate() create another temporary relation
+
+    // if used in populate() function, create a dynamic relation
     if (this.global.runningPopulate) {
-      let dataDep = this.global.runningPopulate as Dep;
+      let dataDep: Dep = this.global.runningPopulate as Dep;
       this.global.relations.relate(dataDep, groupDep);
     }
+
     // get group is not cached, so generate a fresh group from the index
     return this.buildGroupFromIndex(property) || [];
   }
 
   // action functions
-  undo() {}
-  throttle() {}
+  undo(action: Action) {
+    // runtime stores changes in action
+    action.changes.forEach(job => {
+      if (job.hasOwnProperty('previousValue')) {
+        const currentValue = job.value;
+        job.value = job.previousValue;
+        job.previousValue = currentValue;
+        this.global.ingest(job);
+      }
+    });
+  }
+
+  throttle(amount: number = 0) {
+    // if action is currently running save in throttles
+    if (this.global.runningAction) {
+      this.throttles.push(this.global.runningAction as Action);
+    }
+
+    // after the certain amount has possed remove the throttle via filter
+    setTimeout(() => {
+      this.throttles = this.throttles.filter(
+        action => action !== (this.global.runningAction as Action)
+      );
+    }, amount);
+  }
 
   // group functions
   move(
@@ -620,14 +657,6 @@ export default class Collection {
 
     // get current index
     let destIndex = this.indexes.privateGet(destIndexName);
-
-    // This doesn't work because the array spead sets the object to index: value rather than just the values
-    // let test = { ...destIndex };
-    // ids.map(k => {
-    //   if (test[k]) return;
-    //   test[k] = true;
-    // });
-    // destIndex = Object.keys(test).map(k => Number(k));
 
     // loop over every id user is trying to add into current index
     for (let i = 0; i < ids.length; i++) {

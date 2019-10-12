@@ -13,6 +13,10 @@
   <a href="https://github.com/jamiepine/pulse"><img src="https://img.shields.io/github/repo-size/jamiepine/pulse.svg" alt="GitHub Repo Size"></a>
 </p>
 
+### PULSE V2 IS OUT
+
+Please read the [changelog](https://pulsejs.org/docs/getting-started/changelog) to ensure your old code is compatible.
+
 Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. Lightweight, modular and powerful, but most importantly easy to understand.
 
 ## Why Pulse?
@@ -45,4 +49,4 @@ I built this framework reflective of the architecture in which we use at Notify.
 
 If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001
 
-FULL DOCUMENTATION HERE: [pulsejs.org](https://pulsejs-docs.ijamespine.now.sh)
+FULL DOCUMENTATION HERE: [pulsejs.org](https://pulsejs.org)

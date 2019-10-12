@@ -231,7 +231,7 @@ export default class Library {
     return dep as Dep;
   }
 
-  dispatch(type: string, payload) {
+  public dispatch(type: string, payload: { [key: string]: any }): void {
     switch (type) {
       case 'mutation':
         this._private.runtime.ingest({
@@ -248,7 +248,7 @@ export default class Library {
     }
   }
 
-  getContext(collection) {
+  public getContext(collection: string): { [key: string]: any } {
     const c = this._private.collections[collection];
     if (!c) return this._private.global.contextRef;
     return {

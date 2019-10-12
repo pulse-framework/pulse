@@ -71,6 +71,7 @@ export interface Methods {
   decrement?: void;
   delete?: void;
   purge?: void;
+  throttle?: void;
   watch?: void;
   findById?: void;
   forceUpdate?: void;

@@ -1,8 +1,19 @@
 import { log, objectLoop, log, cleanse } from './helpers';
-import { Job, Global } from './interfaces';
+import { Global } from './interfaces';
 import Dep from './Dep';
 import Computed from './computed';
 import { DynamicRelation } from './relationController';
+import Action from './action';
+
+export interface Job {
+  type: JobType;
+  collection: string;
+  property: string | number | Computed;
+  value?: any;
+  previousValue?: any;
+  dep?: Dep;
+  fromAction?: boolean | Action;
+}
 
 export enum JobType {
   PUBLIC_DATA_MUTATION = 'PUBLIC_DATA_MUTATION',
@@ -54,7 +65,20 @@ export default class Runtime {
     this.performJob(next);
   }
 
+  private loadPreviousValue(job: Job) {
+    let location: string;
+    if (job.type === JobType.INDEX_UPDATE) location = 'indexes';
+    else if (
+      job.type === JobType.COMPUTED_REGEN ||
+      job.type === JobType.SOFT_GROUP_UPDATE
+    )
+      location = 'public';
+    return this.collections[job.collection][location].privateGet(job.property);
+  }
+
   private performJob(job: Job): void {
+    const pre = job.hasOwnProperty(job.previousValue);
+
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
         this.performPublicDataUpdate(job);
@@ -64,9 +88,12 @@ export default class Runtime {
         this.performInternalDataUpdate(job);
         break;
       case JobType.INDEX_UPDATE:
+        if (!pre) job.previousValue = this.loadPreviousValue(job);
+
         this.performIndexUpdate(job);
         break;
       case JobType.COMPUTED_REGEN:
+        if (!pre) job.previousValue = this.loadPreviousValue(job);
         this.performComputedOutput(job);
         this.collections[job.collection].runWatchers(job.property.name);
         break;
@@ -75,6 +102,7 @@ export default class Runtime {
         this.collections[job.collection].runWatchers(job.property);
         break;
       case JobType.SOFT_GROUP_UPDATE:
+        if (!pre) job.previousValue = this.loadPreviousValue(job);
         this.performGroupRebuild(job);
         this.collections[job.collection].runWatchers(job.property);
         break;
@@ -164,8 +192,8 @@ export default class Runtime {
       // this would usually be redundant, since the data has not changed, but since the relationController has no access to the collections, but does need to trigger data to rebuild, it issues an internal data "update". It's own data has not changed, but the dynamic data related to it via populate() has.
     }
 
-    // overwrite or insert the data into collection database saving the previous value to job.previousValue, since this.overwriteInternalData returns it.
-    job.previousValue = this.overwriteInternalData(
+    // overwrite or insert the data into collection database
+    this.overwriteInternalData(
       job.collection,
       job.property as string | number,
       job.value
@@ -204,7 +232,7 @@ export default class Runtime {
   private performInternalDataDeletion(job: Job): void {
     const c = this.collections[job.collection];
     // preserve previous value
-    job.previousValue = { ...c.internalData[job.property] };
+    // job.previousValue = { ...c.internalData[job.property] };
     // delete data
     delete c.internalData[job.property];
     // find indexes affected by this data deletion
@@ -230,8 +258,6 @@ export default class Runtime {
   }
 
   private performIndexUpdate(job: Job): void {
-    // preserve old index
-    job.previousValue = this.collections[job.collection].indexes[job.property];
     // Update Index
     this.collections[job.collection].indexes.privateWrite(
       job.property,
@@ -292,6 +318,10 @@ export default class Runtime {
 
     // tell the dep the parent changed
     if (job.dep) job.dep.changed();
+
+    // if running action save this job inside the action class
+    if (this.global.runningAction)
+      (this.global.runningAction as Action).changes.add(job);
   }
 
   // ****************** End Runtime Events ****************** //

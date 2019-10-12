@@ -1,5 +1,5 @@
 import { Global } from './interfaces';
-import { DynamicRelation } from './relationController2';
+
 export default class Computed {
   public relatedToGroup: Array<any> = [];
   public dynamicRelation: DynamicRelation = null;
