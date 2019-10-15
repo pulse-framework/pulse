@@ -2,7 +2,7 @@
     "version": 2,
     "name": "pulsejs-docs",
     "public": true,
-    "alias": ["pulsejs.org", "pulse.js.org"],
+    "alias": ["pulsejs.org"],
     "regions": ["sfo1", "lhr1"],
     "builds": [
         {
