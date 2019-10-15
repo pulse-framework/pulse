@@ -1,7 +1,7 @@
 ---
 home: true
 actionText: Getting Started →
-actionLink: /v2/
+actionLink: /introduction/what-is-pulse
 footer: MIT Licensed | Copyright © 2018 - Jamie Pine
 ---
 
