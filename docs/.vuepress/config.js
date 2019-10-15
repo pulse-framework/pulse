@@ -4,11 +4,14 @@ module.exports = {
   dest: 'dist',
   serviceWorker: true,
   base: '/',
+  head: [
+    ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }]
+  ],
   themeConfig: {
     logo: '/logo.svg',
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/introduction/what-is-pulse' }
+      { text: 'Guide', link: '/v2/' }
     ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
@@ -30,55 +33,106 @@ module.exports = {
     markdown: {
       lineNumbers: true
     },
-    sidebar: [
+    sidebar: {
       // These links will appear in the sidebar
       // Create heading groups
-      {
-        title: 'Introduction',
-        collapsable: false,
-        children: [
-          // These are pages we'll add later
-          '/introduction/what-is-pulse',
-          '/introduction/changelog'
-        ]
-      },
-      {
-        title: 'Getting Started',
-        collapsable: false,
-        children: [
-          // These are pages we'll add later
-          '/getting-started/setup-with-react',
-          '/getting-started/setup-with-vue'
-        ]
-      },
-      {
-        title: 'Guide',
-        collapsable: false,
-        children: [
-          // These are pages we'll add later
-          '/guide/library',
-          '/guide/collections',
-          '/guide/namespacing',
-          '/guide/using-data',
-          '/guide/persisting-data',
-          '/guide/mutating-data',
-          '/guide/context-object',
-          '/guide/filters',
-          '/guide/data-relations',
-          '/guide/http-requests',
-          '/guide/models',
-          '/guide/debugging'
-        ]
-      },
-      {
-        title: 'Examples',
-        collapsable: false,
-        children: [
-          // These are pages we'll add later
-          //   '/examples/UsageWithVueJS',
-          //   '/examples/authentication'
-        ]
-      }
-    ]
+      '/v1/': [
+        {
+          title: 'Introduction',
+          collapsable: false,
+          children: [
+            // These are pages we'll add later
+            'introduction/what-is-pulse'
+          ]
+        },
+        {
+          title: 'Getting Started',
+          collapsable: false,
+          children: [
+            // These are pages we'll add later
+            'getting-started/setup-with-react',
+            'getting-started/setup-with-vue'
+          ]
+        },
+        {
+          title: 'Guide',
+          collapsable: false,
+          children: [
+            // These are pages we'll add later
+            'guide/library',
+            'guide/collections',
+            'guide/namespacing',
+            'guide/using-data',
+            'guide/persisting-data',
+            'guide/mutating-data',
+            'guide/context-object',
+            'guide/filters',
+            'guide/data-relations',
+            'guide/http-requests',
+            'guide/models',
+            'guide/debugging'
+          ]
+        },
+        {
+          title: 'Examples',
+          collapsable: false,
+          children: [
+            // These are pages we'll add later
+            //   '/examples/UsageWithVueJS',
+            //   '/examples/authentication'
+          ]
+        }
+      ],
+      // These links will appear in the sidebar
+      // Create heading groups
+      '/v2/': [
+        {
+          title: 'Introduction',
+          collapsable: false,
+          children: [
+            // These are pages we'll add later
+            'introduction/what-is-pulse'
+          ]
+        },
+        {
+          title: 'Getting Started',
+          collapsable: false,
+          children: [
+            // These are pages we'll add later
+            'getting-started/setup-with-react',
+            'getting-started/setup-with-vue'
+          ]
+        },
+        {
+          title: 'Guide',
+          collapsable: false,
+          children: [
+            // These are pages we'll add later
+            'guide/library',
+            'guide/collections',
+            'guide/namespacing',
+            'guide/using-data',
+            'guide/persisting-data',
+            'guide/mutating-data',
+            'guide/context-object',
+            'guide/filters',
+            'guide/data-relations',
+            'guide/http-requests',
+            'guide/models',
+            'guide/debugging'
+          ]
+        },
+        {
+          title: 'Examples',
+          collapsable: false,
+          children: [
+            // These are pages we'll add later
+              'examples/UsageWithVueJS',
+              'examples/UsageWithReact',
+              'examples/authentication'
+          ]
+        }
+      ]
+    }
   }
 };
