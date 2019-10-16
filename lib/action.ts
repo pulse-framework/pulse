@@ -23,7 +23,7 @@ export default class Action {
 
     this.exec = function() {
       // empty actions previous cached changes
-      this.changes.clear();
+      _this.changes.clear();
 
       const context = global.getContext(_this.collection);
       context.undo = error => {
@@ -41,7 +41,7 @@ export default class Action {
       _this.executing = false;
       global.runningAction = false;
 
-      this.changes.clear();
+      _this.changes.clear();
 
       return result;
     };
