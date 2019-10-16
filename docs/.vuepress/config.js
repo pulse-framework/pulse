@@ -11,7 +11,7 @@ module.exports = {
     logo: '/logo.svg',
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/v2/' }
+      { text: 'Guide', link: '/v2/introduction/what-is-pulse.html' }
     ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.

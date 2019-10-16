@@ -18,8 +18,7 @@ export default {
   methods: {
     getVer,
     changedocs(url){
-      location.pathname = url
-      this.$router.push(url)
+      location.pathname = url+this.firstpage
     }
   },
   mounted() {

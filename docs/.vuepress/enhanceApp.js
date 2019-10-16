@@ -1,4 +1,4 @@
-export default ({ Vue, router}) => {
+export default ({ Vue }) => {
     Vue.mixin({
       computed: {
         versions() {
@@ -14,13 +14,12 @@ export default ({ Vue, router}) => {
           else {
             return true
           }
-        },
+        }
+      },
+      data() {
+        return{
+          firstpage: '/introduction/what-is-pulse.html'
+        }
       }
-    }),
-    router.addRoutes([
-      { path: '/v1.html', redirect: '/v1/introduction/what-is-pulse' },
-      { path: '/v1', redirect: '/v1/introduction/what-is-pulse' },
-      { path: '/v2.html', redirect: '/v2/introduction/what-is-pulse' },
-      { path: '/v2', redirect: '/v2/introduction/what-is-pulse' },
-    ])
+    })
 }
