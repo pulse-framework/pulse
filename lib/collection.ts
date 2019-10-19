@@ -37,7 +37,7 @@ export default class Collection {
   public local: { [key: string]: any } = {};
   public model: { [key: string]: any } = {};
   public throttles: Array<Action> = [];
-
+  public onReady?: Function;
   public collectionSize: number = 0;
   public primaryKey: string | number | boolean = false;
 
@@ -60,6 +60,7 @@ export default class Collection {
 
     root = this.prepareNamespace(root);
 
+    if (root.onReady) this.onReady = root.onReady;
     this.initReactive(root.data, root.groups);
     this.initRoutes(root.routes);
     this.initActions(root.actions);

@@ -76,6 +76,7 @@ export default class Library {
     // Finalize
     this.bindCollectionPublicData();
     this.runAllComputed();
+    this.runAllOnReady();
 
     this.initComplete();
   }
@@ -148,6 +149,14 @@ export default class Library {
         });
         collection.runWatchers(computedName);
       }
+    }
+  }
+  runAllOnReady() {
+    for (let i = 0; i < this._private.collectionKeys.length; i++) {
+      let collectionName = this._private.collectionKeys[i];
+      let collection = this._private.collections[collectionName];
+      if (collection.onReady)
+        collection.onReady(this._private.global.getContext(collectionName));
     }
   }
 
@@ -248,19 +257,27 @@ export default class Library {
     }
   }
 
-  public getContext(collection: string): { [key: string]: any } {
-    const c = this._private.collections[collection];
-    if (!c) return this._private.global.contextRef;
-    return {
-      ...this._private.global.contextRef,
-      ...c.methods,
-      data: c.public.object,
-      indexes: c.indexes.object,
-      groups: c.public.object,
-      computed: c.public.object,
-      routes: c.public.object.routes,
-      local: c.local
-    };
+  public getContext(collection?: string | Collection): { [key: string]: any } {
+    if (!collection) return this._private.global.contextRef;
+
+    let c: Collection;
+    if (typeof collection === 'string')
+      c = this._private.collections[collection];
+    else if (collection instanceof Collection) c = collection;
+
+    if (c instanceof Collection) {
+      return {
+        ...this._private.global.contextRef,
+        ...c.methods,
+        data: c.public.object,
+        indexes: c.indexes.object,
+        groups: c.public.object,
+        computed: c.public.object,
+        routes: c.public.object.routes,
+        local: c.local
+      };
+    }
+    return this._private.global.contextRef;
   }
 
   install(Vue) {

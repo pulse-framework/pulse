@@ -18,6 +18,7 @@ These are changes that could
     - Added more config options
     - Better debugging helpers
     - Added more defaults to Base class
+    - onReady()
 
 ## Namespacing updates
 

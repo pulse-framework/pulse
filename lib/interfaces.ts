@@ -49,6 +49,7 @@ export interface CollectionObject {
   routes?: object;
   model?: object;
   local?: object;
+  onReady?: Function;
   // private
   indexes?: object;
 }

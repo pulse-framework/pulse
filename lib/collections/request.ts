@@ -135,6 +135,7 @@ export default class Request extends Collection {
     const contentType = response.headers.get('content-type');
 
     // extract body
+    // debugger;
     if (contentType && contentType.indexOf('application/json') !== -1) {
       body = await response.json();
     } else {
