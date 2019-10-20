@@ -91,7 +91,8 @@ module.exports = {
           collapsable: false,
           children: [
             // These are pages we'll add later
-            'introduction/what-is-pulse'
+            'introduction/what-is-pulse',
+            'introduction/changelog'
           ]
         },
         {
