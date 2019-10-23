@@ -16,11 +16,11 @@ export default class Request extends Collection {
     if (!root.persist) root.persist = [];
 
     // can be used to preserve authenticated state
-    // automatically persists if local storage is availible
+    // automatically persists if local storage is available
     root.data['isAuthenticated'] = false;
     root.persist.push('isAuthenticated');
 
-    // can be used to declare once the app has finished initilazation, does not affect Pulse
+    // can be used to declare once the app has finished initialization, does not affect Pulse
     root.data['appReady'] = false;
 
     super('base', global, root);

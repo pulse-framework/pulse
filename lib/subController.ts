@@ -56,7 +56,7 @@ export default class SubController {
     const uuid = instance.__pulseUniqueIdentifier;
     if (!uuid) return;
 
-    // delete refrence to this component from store
+    // delete reference to this component from store
     delete this.componentStore[instance.__pulseUniqueIdentifier];
   }
 

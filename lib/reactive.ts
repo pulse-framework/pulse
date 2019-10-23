@@ -88,7 +88,7 @@ export default class Reactive {
             dep
           });
 
-          // Regular muations
+          // Regular mutations
         } else {
           // if a protected name allow direct mutation
           if (protectedNames.includes(key)) {
@@ -117,7 +117,7 @@ export default class Reactive {
               value: newValue,
               dep
             });
-            // we did not apply the mutation since runtime will privatly
+            // we did not apply the mutation since runtime will privately
             // write the result since we dispatched above
           }
         }

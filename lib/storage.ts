@@ -17,7 +17,7 @@ export default class Storage {
       this.storageType = 'custom';
     }
 
-    if (this.localStorageAvaliable() && this.storageType === 'localStorage') {
+    if (this.localStorageAvailable() && this.storageType === 'localStorage') {
       this.storageReady = true;
       storageMethods.get = localStorage.getItem.bind(localStorage);
       storageMethods.set = localStorage.setItem.bind(localStorage);
@@ -79,7 +79,7 @@ export default class Storage {
     return typeof func === 'function';
   }
 
-  private localStorageAvaliable() {
+  private localStorageAvailable() {
     try {
       localStorage.setItem('_', '_');
       localStorage.removeItem('_');
