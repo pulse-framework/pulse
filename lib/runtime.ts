@@ -147,7 +147,7 @@ export default class Runtime {
           // ingest internal data mutation without a value will result in a soft group update
           this.ingest({
             type: JobType.INTERNAL_DATA_MUTATION,
-            collection: (dependent.updateThis as Dep).colleciton.name,
+            collection: (dependent.updateThis as Dep).collection.name,
             property: (dependent.updateThis as Dep).propertyName
           });
         }

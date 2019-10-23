@@ -6,7 +6,7 @@ export class DynamicRelation {
   public depsToClean: Set<Dep> = new Set();
   constructor(public updateThis: Dep | Computed) {}
 
-  // perform cleanup of all refrences to this instance
+  // perform cleanup of all references to this instance
   public destroy() {
     this.depsToClean.forEach(dep => dep.dependents.delete(this));
     delete this.updateThis.dynamicRelation;
@@ -39,7 +39,7 @@ export default class RelationController {
   public cleanup(dynamicRelation: DynamicRelation): void {
     // perform cleanup, destroy dynamic relation
     if (!dynamicRelation) return;
-    dynamicRelation.destroy(); // destory all refrences
+    dynamicRelation.destroy(); // destroy all references
     this.relationBank.delete(dynamicRelation); // remove last reference from bank
   }
 }

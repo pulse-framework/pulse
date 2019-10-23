@@ -15,8 +15,8 @@ export default class Dep {
     // if this dep is for public or internal data within a collection
     public type: 'reactive' | 'internal' | 'index' = 'reactive',
     // the name of the coll
-    public colleciton: Collection,
-    // either the name of the object if rective or the primaryKey if internal
+    public collection: Collection,
+    // either the name of the object if reactive or the primaryKey if internal
     public propertyName: string | number,
     // if the dep is part of a deep reactive object, this is the root property name
     public rootProperty: string = null
