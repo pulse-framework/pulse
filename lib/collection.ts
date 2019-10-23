@@ -599,7 +599,7 @@ export default class Collection {
 
   // group functions
   move(
-    ids: number | Array<string | number>,
+    ids: number | string | Array<string | number>,
     sourceIndexName: string,
     destIndexName?: string,
     method: 'push' | 'unshift' = 'push'
