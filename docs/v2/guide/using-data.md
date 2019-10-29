@@ -4,11 +4,13 @@ title: Using Data
 
 ### Using data with mapData()
 
-Using data in VueJS and React is simple with `mapData()`. It will return an object containing Pulse data properties that you request. The string must contain a slash, first the name of the collection, then the data property.
+Using data in VueJS and React is simple with `mapData()`. It will return an object containing Pulse data properties that you request.
 
 ```js
-pulse.mapData({
-  localName: 'collection/property'
+pulse.mapData(({ collectionName }) => {
+  return {
+    localName: collectionName.thing
+  };
 });
 // returns: { localName: value }
 ```

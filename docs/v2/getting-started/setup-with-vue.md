@@ -13,7 +13,7 @@ Firstly create your [Pulse library](/guide/library.html), here we're going to ma
 ```js
 import Pulse from 'pulse-framework';
 
-const pulse = new Pulse.Library({
+const pulse = new Pulse({
   collections: {
     myCollection: {
       data: {
@@ -30,7 +30,7 @@ Somewhere in your Vue project you're going to need to import this file and call 
 
 ```js
 import Vue from 'vue';
-import pulse from '../';
+import pulse from '../pulse';
 
 Vue.use(pulse);
 ```

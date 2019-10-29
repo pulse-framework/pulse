@@ -14,9 +14,16 @@ Firstly create your Pulse library, here we're going to make a file named `pulse.
 import Pulse from 'pulse-framework';
 import React from 'react';
 
-export default new Pulse.Library({
+export default new Pulse({
   config: {
     framework: React
+  },
+  collections: {
+    myCollection: {
+      data: {
+        something: true
+      }
+    }
   }
 });
 ```
@@ -43,8 +50,10 @@ function myComponent(props) {
   return <div />;
 }
 
-export default pulse.wrapped(myComponent, {
-  something: 'collection/something'
+export default pulse.wrapped(({ myCollection }) => {
+  return {
+    something: myCollection.something;
+  }
 });
 ```
 
@@ -66,8 +75,10 @@ export default class PulseComponent extends React.Component {
   constructor(props) {
     super(props);
 
-    const mapData = {
-      something: 'collection/something'
+    const mapData = ({ myCollection }) => {
+      return {
+        something: myCollection.something
+      };
     };
     this.state = {
       ...core.mapData(mapData, this, {
