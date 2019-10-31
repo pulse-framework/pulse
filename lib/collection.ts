@@ -721,6 +721,8 @@ export default class Collection {
 
   // internal data functions
   update(primaryKey: string | number, newObject: { [key: string]: any }) {
+    // if the primary key has changed, we should update it internally for this data
+    let updateDataKey = false;
     if (!this.internalData.hasOwnProperty(primaryKey))
       return assert(warn => warn.INTERNAL_DATA_NOT_FOUND, 'update');
 
@@ -729,6 +731,7 @@ export default class Collection {
 
     for (let i = 0; i < newObjectKeys.length; i++) {
       const key = newObjectKeys[i];
+      if (key === this.primaryKey) updateDataKey = true;
       currentData[key] = newObject[key];
     }
     this.global.ingest({
@@ -737,6 +740,12 @@ export default class Collection {
       property: primaryKey,
       value: currentData
     });
+
+    if (updateDataKey)
+      this.updateDataKey(
+        newObject[primaryKey], // old primary key
+        currentData[this.primaryKey as string | number] // new primary key
+      );
   }
   increment(
     primaryKey: string | number,
@@ -782,6 +791,20 @@ export default class Collection {
         property: primaryKey
       });
     }
+  }
+
+  updateDataKey(oldKey: string | number, newKey: string | number): void {
+    // create copy of data & data dep
+    const dataCopy = { ...this.internalData[oldKey] },
+      depCopy = { ...this.internalDataDeps[oldKey] };
+
+    // delete old refrences
+    delete this.internalData[oldKey];
+    delete this.internalDataDeps[oldKey];
+
+    // apply the data and dependency in storage
+    this.internalData[newKey] = dataCopy;
+    this.internalDataDeps[newKey] = depCopy;
   }
 
   // remove all dynamic indexes, empty all indexes, delete all internal data
