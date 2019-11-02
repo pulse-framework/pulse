@@ -13,7 +13,12 @@ import {
   parse,
   cleanse
 } from './helpers';
-import { Private, RootCollectionObject, DebugType } from './interfaces';
+import {
+  Private,
+  RootCollectionObject,
+  DebugType,
+  RootConfig
+} from './interfaces';
 import { JobType } from './runtime';
 
 import RelationController, { Key } from './relationController';
@@ -31,7 +36,7 @@ export default class Library {
       collectionKeys: [],
       // global is passed in to all classes, must not contain cyclic references
       global: {
-        config: this.prepareConfig(root.config),
+        config: this.initConfig(root.config),
         // State
         initComplete: false,
         runningAction: false,
@@ -179,16 +184,24 @@ export default class Library {
         ReactComponent,
         mapData
       );
-    } else return false;
+    } else {
+      throw '[PULSE ERROR]: Error using pulse.wrapped(), framework not defined in Pulse global config (set to React constructor)';
+    }
   }
 
-  private prepareConfig(config) {
-    // defaults
-    config = defineConfig(config, {
-      framework: null,
-      waitForMount: false,
-      autoUnmount: false
-    });
+  public initConfig(config: RootConfig): RootConfig {
+    // if constructor already init
+    if (!this._private) {
+      // define config
+      config = defineConfig(config, {
+        framework: null,
+        waitForMount: false,
+        autoUnmount: false
+      });
+    } else {
+      // merge config
+      config = { ...this._private.global.config, ...config };
+    }
 
     // detect if framework passed in is a React constructor
     if (
@@ -205,6 +218,9 @@ export default class Library {
       if (config.waitForMount != false) config.waitForMount = true;
       if (config.autoUnmount != false) config.autoUnmount = true;
     }
+
+    if (this._private) this._private.global.config = config;
+
     return config;
   }
 
@@ -373,6 +389,11 @@ export default class Library {
     if (!Array.isArray(this._private.events[name]))
       this._private.events[name] = [callback];
     else this._private.events[name].push(callback);
+  }
+
+  // re-init storage object with new config
+  public updateStorage(storageConfig: {}): void {
+    this._private.global.storage = new Storage(storageConfig);
   }
 
   log(type: DebugType): void {

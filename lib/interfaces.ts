@@ -31,9 +31,9 @@ export interface RootConfig {
   frameworkConstructor?: any;
   waitForMount?: boolean;
   autoUnmount?: boolean;
-  enableBase: boolean;
-  enableRequest: boolean;
-  debugMode: Set<DebugType>;
+  enableBase?: boolean;
+  enableRequest?: boolean;
+  debugMode?: Set<DebugType>;
 }
 export interface CollectionConfig {}
 
@@ -99,11 +99,9 @@ export interface Global {
   runningPopulate: boolean | Dep;
   touched: boolean | Dep;
   contextRef: ExpandableObject;
-  cleanGlobalContextRef: ExpandableObject;
   storage: any;
   getDep: any;
   // aliases
-  ticket: any;
   dispatch: any;
   getContext: any;
   getInternalData: any;
