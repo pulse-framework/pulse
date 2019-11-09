@@ -50,7 +50,7 @@ export default class Collection {
   constructor(
     public name: string,
     protected global: Global,
-    root: CollectionObject
+    public root: CollectionObject
   ) {
     this.config = root.config;
     this.dispatch = this.global.dispatch;
@@ -144,7 +144,7 @@ export default class Collection {
     );
   }
 
-  initPersist(persist: Array<string>): void {
+  public initPersist(persist: Array<string>): void {
     if (!Array.isArray(persist)) return;
 
     for (let i = 0; i < persist.length; i++) {

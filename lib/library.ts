@@ -394,6 +394,11 @@ export default class Library {
   // re-init storage object with new config
   public updateStorage(storageConfig: {}): void {
     this._private.global.storage = new Storage(storageConfig);
+    // re-init all collections persist to ensure correct values
+    this._private.collectionKeys.forEach(collectionName => {
+      let collection = this._private.collections[collectionName];
+      collection.initPersist(collection.root.persist);
+    });
   }
 
   log(type: DebugType): void {
