@@ -1,7 +1,6 @@
 import { Global } from './interfaces';
-import { RelationTypes } from './relationController';
-import { DynamicRelation } from './relationController2';
-import Collection from './collection';
+import { DynamicRelation, RelationTypes } from './relationController';
+import Collection from './module/modules/collection';
 export default class Dep {
   // these
   public dependents: any = new Set();

@@ -1,242 +1,36 @@
-import {
-  assert,
-  defineConfig,
-  validateNumber,
-  collectionFunctions,
-  objectLoop,
-  key
-} from './helpers';
-import Reactive from './reactive';
-import Action from './action';
-import Computed from './computed';
-import Dep from './dep';
-import { JobType } from './runtime';
-import {
-  Methods,
-  Keys,
-  CollectionObject,
-  CollectionConfig,
-  Global,
-  ExpandableObject
-} from './interfaces';
-import { RelationTypes, Key } from './relationController';
+import Module from '..';
+import { normalizeGroups, assert, defineConfig } from '../../helpers';
+import Reactive from '../../Reactive';
+import { CollectionObject, Global, ExpandableObject } from '../../interfaces';
+import Dep from '../../dep';
+import { JobType } from '../../runtime';
+import Computed from '../../computed';
+import Action from '../../action';
 
-export default class Collection {
-  private namespace: CollectionObject;
-  public public: Reactive;
-  public indexes: Reactive;
-  public config: CollectionConfig = {};
-  public keys: Keys = {};
-  public methods: Methods = {};
-
-  public actions: { [key: string]: Action } = {};
-  public computed: { [key: string]: Computed } = {};
-  public watchers: { [key: string]: any } = {};
-  public externalWatchers: { [key: string]: any } = {};
-  public persist: Array<string> = [];
-  public local: { [key: string]: any } = {};
-  public model: { [key: string]: any } = {};
-  public throttles: Array<Action> = [];
-  public onReady?: Function;
-  public collectionSize: number = 0;
-  public primaryKey: string | number | boolean = false;
-
+export default class Collection extends Module {
+  private primaryKey: string | number | boolean = false;
   private internalData: object = {};
-  public internalDataDeps: object = {}; // this contains the dep classes for all internal data
-  private internalDataWithPopulate: Array<string> = [];
+  private internaldataPropertiesUsingPopulate: Array<string> = [];
+  private internalDataDeps: object = {}; // contains the deps for internal data
 
-  dispatch: void;
+  public indexes: Reactive;
+  public collectionSize: number = 0;
 
-  constructor(
-    public name: string,
-    protected global: Global,
-    public root: CollectionObject
-  ) {
-    this.config = root.config;
-    this.dispatch = this.global.dispatch;
+  constructor(name: string, global: Global, root: CollectionObject) {
+    // init module constructor
+    super(name, global, root);
 
-    // legacy support ("filters" changed to "computed")
-    root.computed = { ...root.computed, ...root.filters };
-
-    root = this.prepareNamespace(root);
-
-    if (root.onReady) this.onReady = root.onReady;
-    this.initReactive(root.data, root.groups);
-    this.initRoutes(root.routes);
-    this.initActions(root.actions);
-    this.initWatchers(root.watch);
-    this.initComputed(root.computed);
-
-    this.initModel(root.model);
-    this.initPersist(root.persist);
+    //collection only preperation
+    this.initIndexes(this.namespace.groups);
   }
 
-  prepareNamespace(root: CollectionObject) {
-    // map collection methods
-    collectionFunctions.map(
-      func => (this.methods[func] = this[func].bind(this))
-    );
-
-    if (root.local) this.local = root.local;
-
-    // for each type set default and register keys
-    ['data', 'actions', 'computed', 'indexes', 'routes', 'watch'].forEach(
-      type => {
-        if (type !== 'indexes' && !root[type]) root[type] = {};
-        this.keys[type] =
-          type === 'indexes' ? root['groups'] || [] : Object.keys(root[type]);
-      }
-    );
-
-    // assign namespace, this is used by initReactive
-    this.namespace = Object.assign(
-      Object.create({ ...this.methods }), // bind methods to prototype
-      {
-        routes: {},
-        indexes: {},
-        actions: root.actions,
-        ...root.computed,
-        ...root.data,
-        ...this.normalizeGroups(root.groups)
-      }
-    );
-    return root;
+  getDataDep(primaryKey: string | number) {
+    return this.internalDataDeps[primaryKey] || false;
   }
 
-  // groups are defined by the user as an array of strings, this converts them into object/keys
-  normalizeGroups(groupsAsArray: any = []) {
-    const groups: object = {};
-    for (let i = 0; i < groupsAsArray.length; i++) {
-      const groupName = groupsAsArray[i];
-      groups[groupName] = [];
-    }
-    return groups;
-  }
-
-  runWatchers(property) {
-    const watcher = this.watchers[property];
-    if (watcher) watcher();
-    const externalWatchers = this.externalWatchers[property];
-    if (externalWatchers)
-      externalWatchers.forEach(func =>
-        typeof func === 'function' ? func() : false
-      );
-  }
-
-  initReactive(data: object = {}, groups: Array<any> | object = []) {
-    // Make indexes reactive
-    this.indexes = new Reactive(
-      this.normalizeGroups(groups), // object
-      this.global, // global
-      this, // collection
-      this.keys.indexes, // mutable
-      'indexes' // type
-    );
+  initIndexes(groups: Array<any>) {
+    this.indexes = new Reactive(this, normalizeGroups(groups), 'indexes');
     this.namespace.indexes = this.indexes.object;
-
-    // Make entire public object Reactive
-    this.public = new Reactive(
-      this.namespace,
-      this.global,
-      this,
-      [...this.keys.data, ...this.keys.indexes],
-      'root'
-    );
-  }
-
-  public initPersist(persist: Array<string>): void {
-    if (!Array.isArray(persist)) return;
-
-    for (let i = 0; i < persist.length; i++) {
-      const dataName = persist[i];
-
-      // register this
-      this.persist.push(dataName);
-
-      if (this.global.storage.isPromise) {
-        this.global.storage.get(this.name, dataName).then(data => {
-          if (data === undefined || data === null) return;
-          this.global.ingest({
-            type: JobType.PUBLIC_DATA_MUTATION,
-            value: data,
-            property: dataName,
-            collection: this.name,
-            dep: this.global.getDep(dataName, this.name)
-          });
-        });
-      } else {
-        let data = this.global.storage.get(this.name, dataName);
-        if (data === undefined || data === null) continue;
-        this.public.privateWrite(dataName, data);
-      }
-    }
-  }
-
-  initActions(actions: object = {}) {
-    let actionKeys = Object.keys(actions);
-    for (let i = 0; i < actionKeys.length; i++) {
-      const action = actions[actionKeys[i]];
-      this.actions[actionKeys[i]] = new Action(
-        this.name,
-        this.global,
-        action,
-        actionKeys[i]
-      );
-
-      this.public.privateWrite(actionKeys[i], this.actions[actionKeys[i]].exec);
-    }
-  }
-
-  initWatchers(watchers: object = {}) {
-    let watcherKeys = Object.keys(watchers);
-    for (let i = 0; i < watcherKeys.length; i++) {
-      const watcher = watchers[watcherKeys[i]];
-      this.watchers[watcherKeys[i]] = () => {
-        this.global.runningWatcher = {
-          collection: this.name,
-          property: watcherKeys[i]
-        };
-        const watcherOutput = watcher(this.global.getContext(this.name));
-        this.global.runningWatcher = false;
-        return watcherOutput;
-      };
-    }
-    this.watchers._keys = watcherKeys;
-  }
-
-  initComputed(computed: object): void {
-    objectLoop(
-      computed,
-      (computedName: string, computedFunction: () => void) => {
-        this.computed[computedName] = new Computed(
-          this.global,
-          this.name,
-          computedName,
-          computedFunction
-        );
-        this.public.object[computedName] = [];
-      },
-      this.keys.computed
-    );
-  }
-
-  initRoutes(routes: ExpandableObject) {
-    const self = this;
-    const routeWrapped = routeName => {
-      return function() {
-        let requestObject = Object.assign({}, self.global.request);
-        requestObject.context = self.global.getContext();
-        return routes[routeName].apply(
-          null,
-          [requestObject].concat(Array.prototype.slice.call(arguments))
-        );
-      };
-    };
-    objectLoop(
-      routes,
-      routeName =>
-        (this.public.object.routes[routeName] = routeWrapped(routeName))
-    );
   }
 
   initModel(model = {}) {
@@ -248,7 +42,7 @@ export default class Collection {
             this.primaryKey = property;
             break;
           case 'populate':
-            this.internalDataWithPopulate.push(property);
+            this.internaldataPropertiesUsingPopulate.push(property);
             break;
         }
       });
@@ -258,7 +52,6 @@ export default class Collection {
   private getData(id) {
     return { ...this.internalData[id] };
   }
-
   public buildGroupFromIndex(groupName: string): Array<number> {
     const constructedArray = [];
     // get index directly
@@ -317,7 +110,7 @@ export default class Collection {
     data: { [key: string]: any }
   ): any {
     // for each populate function extracted from the model for this data
-    this.internalDataWithPopulate.forEach(property => {
+    this.internaldataPropertiesUsingPopulate.forEach(property => {
       const dep = this.global.getDep(primaryKey, this.name, true);
       this.global.runningPopulate = dep;
       // run populate function passing in the context and the data
@@ -806,43 +599,8 @@ export default class Collection {
     this.internalData[newKey] = dataCopy;
     this.internalDataDeps[newKey] = depCopy;
   }
-
   // remove all dynamic indexes, empty all indexes, delete all internal data
   purge() {}
-
-  // external functions
-  watch(property, callback) {
-    if (!this.externalWatchers[property])
-      this.externalWatchers[property] = [callback];
-    else this.externalWatchers[property].push(callback);
-  }
-
-  forceUpdate(property: string): void {
-    // ensure property exists on collection
-    if (this.public.exists(property)) {
-      // if property is directly mutable
-
-      if (this.public.mutable.includes(property)) {
-        this.global.ingest({
-          type: JobType.PUBLIC_DATA_MUTATION,
-          property,
-          collection: this.name,
-          value: this.public.privateGet(property),
-          dep: this.global.getDep(property, this.name)
-        });
-
-        // if property is a computed method
-      } else if (this.computed[property]) {
-        this.global.ingest({
-          type: JobType.COMPUTED_REGEN,
-          property,
-          collection: this.name,
-          dep: this.global.getDep(property, this.name)
-        });
-      }
-    }
-  }
-
   // deprecate
   // added removeFromGroup to be more specific, params got switched around, keeping this for backwards compatibility
   remove(itemsToRemove, groupName) {

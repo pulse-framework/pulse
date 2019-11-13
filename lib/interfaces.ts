@@ -1,6 +1,6 @@
 import SubController from './subController';
 import Runtime from './runtime';
-import Collection from './collection';
+import Collection from './module/modules/collection';
 import Dep from './dep';
 import Action from './action';
 import Computed from './computed';

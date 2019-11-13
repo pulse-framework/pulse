@@ -1,4 +1,4 @@
-import Collection from '../collection';
+import Collection from '../module/modules/collection';
 import { Global, ExpandableObject, RequestConfig } from '../interfaces';
 
 type Method = 'get' | 'put' | 'post' | 'patch' | 'delete';

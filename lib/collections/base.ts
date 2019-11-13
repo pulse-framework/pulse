@@ -1,4 +1,4 @@
-import Collection from '../collection';
+import Collection from '../module/modules/collection';
 import { Global, RootCollectionObject } from '../interfaces';
 
 export default class Request extends Collection {

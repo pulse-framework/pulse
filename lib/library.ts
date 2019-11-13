@@ -1,5 +1,5 @@
 import Runtime from './runtime';
-import Collection from './collection';
+import Collection from './module/modules/collection';
 import SubController from './subController';
 import Storage from './storage';
 import Request from './collections/request';
@@ -38,6 +38,7 @@ export default class Library {
       global: {
         config: this.initConfig(root.config),
         // State
+
         initComplete: false,
         runningAction: false,
         runningWatcher: false,
@@ -75,8 +76,8 @@ export default class Library {
     );
 
     // Prepare
-    this.initCollections(root);
     this.initRuntime();
+    this.initCollections(root);
 
     // Finalize
     this.bindCollectionPublicData();
@@ -249,9 +250,9 @@ export default class Library {
 
       // if still no dep found, look inward lol
       if (!dep)
-        dep = this._private.collections[collection].internalDataDeps[property];
+        dep = this._private.collections[collection].getDataDep(property);
     } else {
-      dep = this._private.collections[collection].internalDataDeps[property];
+      dep = this._private.collections[collection].getDataDep(property);
     }
     return dep as Dep;
   }

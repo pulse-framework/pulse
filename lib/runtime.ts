@@ -43,7 +43,6 @@ export default class Runtime {
 
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
-    // console.log(job);
     this.ingestQueue.push(job);
 
     // don't begin the next job until this one is fully complete
@@ -420,19 +419,23 @@ export default class Runtime {
   // ****************** Misc Handlers ****************** //
 
   private writeToPublicObject(
-    collection: string,
+    collectionName: string,
     type: string,
     key: string,
     value: any
   ): void {
-    if (type === 'indexes') {
-      if (!this.collections[collection][type].object.hasOwnProperty(key))
-        return;
-      this.collections[collection][type].privateWrite(key, value);
-    } else {
-      if (!this.collections[collection].public.object.hasOwnProperty(key))
-        return;
-      this.collections[collection].public.privateWrite(key, value);
+    try {
+      if (type === 'indexes') {
+        if (!this.collections[collectionName][type].object.hasOwnProperty(key))
+          return;
+        this.collections[collectionName][type].privateWrite(key, value);
+      } else {
+        if (!this.collections[collectionName].public.object.hasOwnProperty(key))
+          return;
+        this.collections[collectionName].public.privateWrite(key, value);
+      }
+    } catch (e) {
+      // debugger;
     }
   }
 

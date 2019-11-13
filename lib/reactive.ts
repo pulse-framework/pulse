@@ -1,7 +1,7 @@
 import { protectedNames, arrayFunctions, isWatchableObject } from './helpers';
 import Dep from './dep';
 import { Global } from './interfaces';
-import Collection from './collection';
+import Module from './module';
 
 interface Obj {
   [key: string]: any;
@@ -10,6 +10,8 @@ interface Obj {
 export default class Reactive {
   public properties: Array<string>;
   public object: Obj;
+  public global: Global;
+
   private dispatch: any;
   private allowPrivateWrite: boolean = false;
   private touching: boolean = false;
@@ -18,15 +20,13 @@ export default class Reactive {
   private tempDeps: { [key: string]: Dep } = {};
 
   constructor(
+    private collection: Module,
     object: Obj = {},
-    private global: Global,
-    private collection: Collection,
-    public mutable: Array<string>,
-    public type: 'root' | 'indexes'
+    public type: 'public' | 'indexes' = 'public'
   ) {
+    this.global = collection.global;
     this.dispatch = this.global.dispatch;
     this.properties = Object.keys(object);
-
     this.object = this.reactiveObject(object);
   }
 
@@ -77,7 +77,7 @@ export default class Reactive {
       },
       set: function pulseSetter(newValue) {
         // DEEP REACTIVE handler: "rootProperty" indicates if the object is "deep".
-        if (rootProperty && self.mutable.includes(rootProperty)) {
+        if (rootProperty && self.properties.includes(rootProperty)) {
           // mutate locally
           value = newValue;
           // dispatch mutation for deep property
@@ -98,7 +98,7 @@ export default class Reactive {
           if (self.allowPrivateWrite) {
             // dynamically convert new values to reactive if objects
             // This is risky as fuck and kinda doesn't even work
-            if (isWatchableObject(value) && self.mutable.includes(key)) {
+            if (isWatchableObject(value) && self.properties.includes(key)) {
               // debugger;
               newValue = self.deepReactiveObject(
                 newValue,
@@ -110,7 +110,7 @@ export default class Reactive {
           }
 
           // if property is mutable dispatch update
-          if (self.mutable.includes(key)) {
+          if (self.properties.includes(key)) {
             self.dispatch('mutation', {
               collection: self.collection.name,
               key,

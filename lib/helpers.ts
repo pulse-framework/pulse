@@ -153,3 +153,12 @@ export function validateNumber(mutable, amount) {
   }
   return true;
 }
+// groups are defined by the user as an array of strings, this converts them into object/keys
+export function normalizeGroups(groupsAsArray: any = []) {
+  const groups: object = {};
+  for (let i = 0; i < groupsAsArray.length; i++) {
+    const groupName = groupsAsArray[i];
+    groups[groupName] = [];
+  }
+  return groups;
+}
