@@ -22,6 +22,7 @@ export default class Collection extends Module {
 
     //collection only preperation
     this.initIndexes(this.namespace.groups);
+    this.initModel(root.model);
   }
 
   getDataDep(primaryKey: string | number) {
