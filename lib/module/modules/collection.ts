@@ -21,7 +21,7 @@ export default class Collection extends Module {
     super(name, global, root);
 
     //collection only preperation
-    this.initIndexes(this.namespace.groups);
+    this.initIndexes(root.groups);
     this.initModel(root.model);
   }
 
@@ -30,6 +30,7 @@ export default class Collection extends Module {
   }
 
   initIndexes(groups: Array<any>) {
+    // if (this.name === 'channels') debugger;
     this.indexes = new Reactive(this, normalizeGroups(groups), 'indexes');
     this.namespace.indexes = this.indexes.object;
   }
