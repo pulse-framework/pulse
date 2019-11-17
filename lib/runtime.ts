@@ -1,8 +1,8 @@
-import { log, objectLoop, log, cleanse } from './helpers';
-import { Global } from './interfaces';
+import {log, objectLoop, log, cleanse} from './helpers';
+import {Global} from './interfaces';
 import Dep from './Dep';
 import Computed from './computed';
-import { DynamicRelation } from './relationController';
+import {DynamicRelation} from './relationController';
 import Action from './action';
 
 export interface Job {
@@ -447,7 +447,7 @@ export default class Runtime {
     const internalData = this.collections[collection].internalData;
     // create a copy of the original data
     const currentData = internalData[primaryKey]
-      ? { ...internalData[primaryKey] }
+      ? {...internalData[primaryKey]}
       : false;
 
     if (currentData) {

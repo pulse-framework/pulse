@@ -25,12 +25,13 @@ export const collectionFunctions = [
   'move',
   'throttle',
   'forceUpdate',
+  'debounce',
   // deprecated
   'remove'
 ];
 
 export function defineConfig(config, defaults) {
-  return { ...defaults, ...config };
+  return {...defaults, ...config};
 }
 
 export function parse(key: string) {
@@ -99,8 +100,8 @@ export function key(collection: string, property?: string | number) {
 
 export function normalizeMap(map) {
   return Array.isArray(map)
-    ? map.map(key => ({ key, val: key }))
-    : Object.keys(map).map(key => ({ key, val: map[key] }));
+    ? map.map(key => ({key, val: key}))
+    : Object.keys(map).map(key => ({key, val: map[key]}));
 }
 
 export const arrayFunctions = [
@@ -129,7 +130,7 @@ export function cleanse(object: any) {
 }
 
 export function assert(
-  func: (warnings: { [key: string]: any }) => any,
+  func: (warnings: {[key: string]: any}) => any,
   funcName?: string
 ) {
   function warn(message) {

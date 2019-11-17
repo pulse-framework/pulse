@@ -4,7 +4,7 @@ import Collection from './module/modules/collection';
 import Dep from './dep';
 import Action from './action';
 import Computed from './computed';
-import { JobType } from './runtime';
+import {JobType} from './runtime';
 export interface ExpandableObject {
   [key: string]: any;
 }
@@ -61,21 +61,22 @@ export interface RootCollectionObject extends CollectionObject {
 }
 
 export interface Methods {
-  collect?: void;
-  replaceIndex?: void;
-  getGroup?: void;
-  newGroup?: void;
-  deleteGroup?: void;
-  removeFromGroup?: void;
-  update?: void;
-  increment?: void;
-  decrement?: void;
-  delete?: void;
-  purge?: void;
-  throttle?: void;
-  watch?: void;
-  findById?: void;
-  forceUpdate?: void;
+  collect?: Function;
+  replaceIndex?: Function;
+  getGroup?: Function;
+  newGroup?: Function;
+  deleteGroup?: Function;
+  removeFromGroup?: Function;
+  update?: Function;
+  increment?: Function;
+  decrement?: Function;
+  delete?: Function;
+  purge?: Function;
+  throttle?: Function;
+  watch?: Function;
+  findById?: Function;
+  forceUpdate?: Function;
+  debounce?: Function;
 }
 
 export interface Keys {
@@ -99,25 +100,25 @@ export interface Global {
   runningPopulate: boolean | Dep;
   touched: boolean | Dep;
   contextRef: ExpandableObject;
-  storage: any;
-  getDep: any;
+  storage: Function;
+  getDep: Function;
   // aliases
-  dispatch: any;
-  getContext: any;
-  getInternalData: any;
-  uuid: any;
-  ingest?: any;
-  ingestDependents?: any;
-  request?: any;
-  relations?: any;
+  dispatch: Function;
+  getContext: Function;
+  getInternalData: Function;
+  uuid: Function;
+  ingest?: Function;
+  ingestDependents?: Function;
+  request?: Function;
+  relations?: Function;
 }
 
 export interface Private {
   global: Global;
   runtime: Runtime;
   collectionKeys: Array<string>;
-  collections?: { [key: string]: Collection };
-  events?: { [key: string]: Array<(payload?: any) => any> };
+  collections?: {[key: string]: Collection};
+  events?: {[key: string]: Array<(payload?: any) => any>};
 }
 
 export enum DebugType {
