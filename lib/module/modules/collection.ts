@@ -31,7 +31,8 @@ export default class Collection extends Module {
 
   initIndexes(groups: Array<any>) {
     // if (this.name === 'channels') debugger;
-    this.indexes = new Reactive(this, normalizeGroups(groups), 'indexes');
+    // FIXME: if you want indexes to be reactive Jamie, that empty array right there is your answer
+    this.indexes = new Reactive(this, normalizeGroups(groups), [], 'indexes');
     this.namespace.indexes = this.indexes.object;
   }
 

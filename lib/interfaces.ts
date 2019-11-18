@@ -111,6 +111,7 @@ export interface Global {
   ingestDependents?: Function;
   request?: Function;
   relations?: Function;
+  log: Function;
 }
 
 export interface Private {

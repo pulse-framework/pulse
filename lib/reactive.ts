@@ -1,6 +1,6 @@
-import { protectedNames, arrayFunctions, isWatchableObject } from './helpers';
+import {protectedNames, arrayFunctions, isWatchableObject} from './helpers';
 import Dep from './dep';
-import { Global } from './interfaces';
+import {Global} from './interfaces';
 import Module from './module';
 
 interface Obj {
@@ -17,11 +17,12 @@ export default class Reactive {
   private touching: boolean = false;
   private touched: null | Dep;
   private sneaky: boolean;
-  private tempDeps: { [key: string]: Dep } = {};
+  private tempDeps: {[key: string]: Dep} = {};
 
   constructor(
     private collection: Module,
     object: Obj = {},
+    public mutableProperties: Array<string>,
     public type: 'public' | 'indexes' = 'public'
   ) {
     this.global = collection.global;
@@ -77,7 +78,7 @@ export default class Reactive {
       },
       set: function pulseSetter(newValue) {
         // DEEP REACTIVE handler: "rootProperty" indicates if the object is "deep".
-        if (rootProperty && self.properties.includes(rootProperty)) {
+        if (rootProperty && self.mutableProperties.includes(rootProperty)) {
           // mutate locally
           value = newValue;
           // dispatch mutation for deep property

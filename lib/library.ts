@@ -5,23 +5,16 @@ import Storage from './storage';
 import Request from './collections/request';
 import Base from './collections/base';
 import withPulse from './wrappers/ReactWithPulse';
-import {
-  uuid,
-  normalizeMap,
-  log,
-  defineConfig,
-  parse,
-  cleanse
-} from './helpers';
+import {uuid, normalizeMap, log, defineConfig, parse, cleanse} from './helpers';
 import {
   Private,
   RootCollectionObject,
   DebugType,
   RootConfig
 } from './interfaces';
-import { JobType } from './runtime';
+import {JobType} from './runtime';
 
-import RelationController, { Key } from './relationController';
+import RelationController, {Key} from './relationController';
 import Dep from './dep';
 
 export default class Library {
@@ -58,6 +51,7 @@ export default class Library {
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
         getDep: this.getDep.bind(this),
+        log: this.log.bind(this),
         uuid
       }
     };
@@ -195,13 +189,14 @@ export default class Library {
     if (!this._private) {
       // define config
       config = defineConfig(config, {
+        logJobs: false,
         framework: null,
         waitForMount: false,
         autoUnmount: false
       });
     } else {
       // merge config
-      config = { ...this._private.global.config, ...config };
+      config = {...this._private.global.config, ...config};
     }
 
     // detect if framework passed in is a React constructor
@@ -257,7 +252,7 @@ export default class Library {
     return dep as Dep;
   }
 
-  public dispatch(type: string, payload: { [key: string]: any }): void {
+  public dispatch(type: string, payload: {[key: string]: any}): void {
     switch (type) {
       case 'mutation':
         this._private.runtime.ingest({
@@ -274,7 +269,7 @@ export default class Library {
     }
   }
 
-  public getContext(collection?: string | Collection): { [key: string]: any } {
+  public getContext(collection?: string | Collection): {[key: string]: any} {
     if (!collection) return this._private.global.contextRef;
 
     let c: Collection;
@@ -361,14 +356,14 @@ export default class Library {
       // legacy support....
     } else if (typeof properties === 'object') {
       let returnData = {};
-      normalizeMap(properties).forEach(({ key, val }) => {
+      normalizeMap(properties).forEach(({key, val}) => {
         let collection = val.split('/')[0];
         let property = val.split('/')[1];
         let c = pulse._private.global.getContext()[collection];
         returnData[
           key
         ] = pulse._private.global.subs.subscribePropertiesToComponents(() => {
-          return { [key]: c[property] };
+          return {[key]: c[property]};
         }, componentUUID)[key];
       });
       this._private.global.mappingData = false;
@@ -402,7 +397,10 @@ export default class Library {
     });
   }
 
-  log(type: DebugType): void {
+  log(thing): void {
+    if (!this._private.global.config.logJobs) return;
+
+    console.log(thing);
     // let debugMode: Set<DebugType> = this._private.global.config.debugMode;
     // if (debugMode.size === 0) return;
     // if (debugMode.has(DebugType.ERRORS)) {

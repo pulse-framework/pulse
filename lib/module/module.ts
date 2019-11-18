@@ -47,7 +47,7 @@ export default class Module {
     root = this.prepareNamespace(root);
 
     // create public object
-    this.public = new Reactive(this, this.namespace);
+    this.public = new Reactive(this, this.namespace, Object.keys(root.data));
 
     // init module features
     this.initRoutes(root.routes);
@@ -203,7 +203,7 @@ export default class Module {
     if (this.public.exists(property)) {
       // if property is directly mutable
 
-      if (this.public.properties.includes(property)) {
+      if (this.public.mutableProperties.includes(property)) {
         this.global.ingest({
           type: JobType.PUBLIC_DATA_MUTATION,
           property,

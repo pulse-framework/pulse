@@ -44,7 +44,7 @@ export default class Runtime {
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
     this.ingestQueue.push(job);
-
+    this.global.log(job);
     // don't begin the next job until this one is fully complete
     if (!this.running) {
       this.findNextJob();
