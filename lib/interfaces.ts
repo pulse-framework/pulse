@@ -5,6 +5,7 @@ import Dep from './dep';
 import Action from './action';
 import Computed from './computed';
 import {JobType} from './runtime';
+import RelationController from './relationController';
 export interface ExpandableObject {
   [key: string]: any;
 }
@@ -77,6 +78,8 @@ export interface Methods {
   findById?: Function;
   forceUpdate?: Function;
   debounce?: Function;
+  stash?: Function;
+  flush?: Function;
 }
 
 export interface Keys {
@@ -94,12 +97,12 @@ export interface Global {
   collecting: boolean;
   touching: boolean;
   mappingData: boolean;
-  runningAction: boolean | Action;
   runningComputed: boolean | Computed;
   runningWatcher: boolean | Watcher;
-  runningPopulate: boolean | Dep;
+  runningPopulate: boolean | Object;
   touched: boolean | Dep;
   contextRef: ExpandableObject;
+  relations?: RelationController;
   storage: Function;
   getDep: Function;
   // aliases
@@ -110,7 +113,6 @@ export interface Global {
   ingest?: Function;
   ingestDependents?: Function;
   request?: Function;
-  relations?: Function;
   log: Function;
 }
 

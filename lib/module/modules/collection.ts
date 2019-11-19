@@ -1,14 +1,19 @@
 import Module from '..';
-import {normalizeGroups, assert, defineConfig} from '../../helpers';
+import {
+  normalizeGroups,
+  assert,
+  defineConfig,
+  validateNumber
+} from '../../helpers';
 import Reactive from '../../Reactive';
-import {CollectionObject, Global, ExpandableObject} from '../../interfaces';
+import { CollectionObject, Global, ExpandableObject } from '../../interfaces';
 import Dep from '../../dep';
-import {JobType} from '../../runtime';
+import { JobType, Job } from '../../runtime';
 import Computed from '../../computed';
 import Action from '../../action';
 
 export default class Collection extends Module {
-  private primaryKey: string | number | boolean = false;
+  public primaryKey: string | number | boolean = false;
   private internalData: object = {};
   private internaldataPropertiesUsingPopulate: Array<string> = [];
   private internalDataDeps: object = {}; // contains the deps for internal data
@@ -30,7 +35,6 @@ export default class Collection extends Module {
   }
 
   initIndexes(groups: Array<any>) {
-    // if (this.name === 'channels') debugger;
     // FIXME: if you want indexes to be reactive Jamie, that empty array right there is your answer
     this.indexes = new Reactive(this, normalizeGroups(groups), [], 'indexes');
     this.namespace.indexes = this.indexes.object;
@@ -54,7 +58,7 @@ export default class Collection extends Module {
 
   private getData(id) {
     if (!this.internalData.hasOwnProperty(id)) return false;
-    return {...this.internalData[id]};
+    return { ...this.internalData[id] };
   }
   public buildGroupFromIndex(groupName: string): Array<number> {
     const constructedArray = [];
@@ -98,7 +102,7 @@ export default class Collection extends Module {
     let currentGroup: Array<any> = [this.public[groupName]];
 
     // get data for primaryKey
-    let data: {[key: string]: any} = {...this.internalData[primaryKey]};
+    let data: { [key: string]: any } = { ...this.internalData[primaryKey] };
 
     data = this.injectDynamicRelatedData(primaryKey, data);
 
@@ -109,21 +113,32 @@ export default class Collection extends Module {
   }
 
   // This should be called on every piece of data retrieved when building a group from an index
-  private injectDynamicRelatedData(
+  public injectDynamicRelatedData(
     primaryKey: string | number,
-    data: {[key: string]: any}
+    data: { [key: string]: any }
   ): any {
     // for each populate function extracted from the model for this data
     this.internaldataPropertiesUsingPopulate.forEach(property => {
+      // conditions to skip populate
       const dep = this.global.getDep(primaryKey, this.name, true);
+      const job = this.global.runtime.runningJob as Job;
+      if (!dep || (job && job.config && job.config.important)) return;
+
+      // get the current action index in runtime action stack
+      // this is used to stop properties from getting tracked as dependencies in nested actions
+      dep.currentActionIndex = this.global.runtime.runningActions.length;
+
       this.global.runningPopulate = dep;
+
       // run populate function passing in the context and the data
       const populated = this.model[property].populate(
-        this.global.getContext(),
+        this.global.contextRef,
         data
       );
 
+      dep.currentActionIndex = false;
       this.global.runningPopulate = false;
+
       // inject result to data
       data[property] = populated;
     });
@@ -165,7 +180,6 @@ export default class Collection extends Module {
   // so that if the data ever arrives, it will reactively dependent update accordingly
   private depForInternalData(primaryKey: string | number): Dep {
     let dep: Dep;
-    // debugger;
     if (!this.internalDataDeps[primaryKey]) {
       dep = new Dep(this.global, 'internal', this, primaryKey);
       this.internalDataDeps[primaryKey] = dep;
@@ -304,7 +318,7 @@ export default class Collection extends Module {
       // write index
       this.indexes.privateWrite(groupName, index);
     }
-    return {success: true, affectedIndexes};
+    return { success: true, affectedIndexes };
   }
 
   private searchIndexesForPrimaryKey(
@@ -328,7 +342,7 @@ export default class Collection extends Module {
 
   // return a piece of intenral data from the collection
   // can create dynamic relationships when used in certain circumstances
-  public findById(id: string | number): {[key: string]: any} {
+  public findById(id: string | number): { [key: string]: any } {
     let internalDep: Dep = this.depForInternalData(id);
 
     // if used in computed function, create a dynamic relation
@@ -367,7 +381,7 @@ export default class Collection extends Module {
     return this.buildGroupFromIndex(property) || [];
   }
 
-  // action functions
+  // FIXME: action functions
   undo(action: Action) {
     // runtime stores changes in action
     action.changes.forEach(job => {
@@ -503,7 +517,14 @@ export default class Collection extends Module {
   }
 
   // internal data functions
-  update(primaryKey: string | number, newObject: {[key: string]: any}) {
+  update(
+    primaryKey: string | number,
+    newObject: { [key: string]: any } = {},
+    options?: { [key: string]: any }
+  ) {
+    options = defineConfig(options, {
+      important: false
+    });
     // if the primary key has changed, we should update it internally for this data
     let updateDataKey = false;
     if (!this.internalData.hasOwnProperty(primaryKey))
@@ -521,7 +542,8 @@ export default class Collection extends Module {
       type: JobType.INTERNAL_DATA_MUTATION,
       collection: this.name,
       property: primaryKey,
-      value: currentData
+      value: currentData,
+      config: options
     });
 
     if (updateDataKey)
@@ -578,8 +600,8 @@ export default class Collection extends Module {
 
   updateDataKey(oldKey: string | number, newKey: string | number): void {
     // create copy of data & data dep
-    const dataCopy = {...this.internalData[oldKey]},
-      depCopy = {...this.internalDataDeps[oldKey]};
+    const dataCopy = { ...this.internalData[oldKey] },
+      depCopy = { ...this.internalDataDeps[oldKey] };
 
     // delete old refrences
     delete this.internalData[oldKey];
@@ -588,6 +610,13 @@ export default class Collection extends Module {
     // apply the data and dependency in storage
     this.internalData[newKey] = dataCopy;
     this.internalDataDeps[newKey] = depCopy;
+  }
+
+  // TODO: make cleanup unsubscribe func, possible memory leak, you'll need to track the component
+  private watchData(primaryKey, callback) {
+    const dep = this.internalDataDeps[primaryKey] as Dep;
+    if (!dep) return;
+    dep.subscribersAsCallbacks.push(callback);
   }
   // remove all dynamic indexes, empty all indexes, delete all internal data
   purge() {}

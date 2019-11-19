@@ -9,6 +9,11 @@ export default class Dep {
   // these are temporary relations created by the relation controller
   public dynamicRelation: DynamicRelation = null;
 
+  // used to stop computed methods from tracking properties accessed within nested actions as dependecies
+  public currentActionIndex: boolean | number = false;
+
+  public subscribersAsCallbacks: Array<Function> = [];
+
   constructor(
     private global: Global,
     // if this dep is for public or internal data within a collection
@@ -25,25 +30,43 @@ export default class Dep {
   register() {
     const subs = this.global.subs;
 
-    if (this.global.runningComputed) {
+    if (this.global.runningComputed)
       this.dependents.add(this.global.runningComputed);
-    }
-    if (this.global.runningPopulate) {
-      this.global.relations.relate(
-        this.global.runningPopulate as Dep,
-        this as Dep
-      );
-    }
-    if (subs.subscribingComponent) {
-      this.subscribeComponent();
-    }
+
+    let dataDep = this.global.runningPopulate as Dep;
+
+    // if the data's dep class
+    // action index matches the current action create dynamic relation
+    if (
+      dataDep &&
+      dataDep.currentActionIndex === this.global.runtime.runningActions.length
+    )
+      this.global.relations.relate(dataDep, this);
+
+    if (subs.subscribingComponent) this.subscribeComponent();
+
     if (subs.unsubscribingComponent) {
       // this.subscribers.delete(this.global.subscribingComponent);
     }
   }
 
-  changed() {
+  changed(newValue, config) {
     this.global.relations.cleanup(this.dynamicRelation);
+
+    // get dynamic data
+    const dataWithDynamicProperties = this.collection.injectDynamicRelatedData(
+      newValue[this.collection.primaryKey as string],
+      newValue
+    );
+
+    // run all callbacks and pass in dynamic data, unless important
+    this.subscribersAsCallbacks.forEach(callback =>
+      callback(
+        config.important
+          ? { ...dataWithDynamicProperties, ...newValue }
+          : dataWithDynamicProperties
+      )
+    );
   }
 
   subscribeComponent() {

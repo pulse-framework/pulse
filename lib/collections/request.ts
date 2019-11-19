@@ -1,5 +1,5 @@
 import Collection from '../module/modules/collection';
-import {Global, ExpandableObject, RequestConfig} from '../interfaces';
+import { Global, ExpandableObject, RequestConfig } from '../interfaces';
 
 type Method = 'get' | 'put' | 'post' | 'patch' | 'delete';
 
@@ -38,7 +38,7 @@ export default class Request extends Collection {
     if (requestConfig.credentials) data.credentials = requestConfig.credentials;
     if (requestConfig.mode) data.mode = requestConfig.mode;
 
-    super('request', global, {groups, data, persist});
+    super('request', global, { groups, data, persist });
 
     this.requestIntercept = requestConfig.requestIntercept;
     this.responseIntercept = requestConfig.responseIntercept;
@@ -132,12 +132,9 @@ export default class Request extends Collection {
       response = await fetch(fullURL, options);
     }
 
-    console.log(response);
-
     const contentType = response.headers.get('content-type');
 
     // extract body
-    // debugger;
     if (contentType && contentType.indexOf('application/json') !== -1) {
       body = await response.json();
     } else {

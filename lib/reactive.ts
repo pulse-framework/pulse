@@ -1,6 +1,6 @@
-import {protectedNames, arrayFunctions, isWatchableObject} from './helpers';
+import { protectedNames, arrayFunctions, isWatchableObject } from './helpers';
 import Dep from './dep';
-import {Global} from './interfaces';
+import { Global } from './interfaces';
 import Module from './module';
 
 interface Obj {
@@ -17,7 +17,7 @@ export default class Reactive {
   private touching: boolean = false;
   private touched: null | Dep;
   private sneaky: boolean;
-  private tempDeps: {[key: string]: Dep} = {};
+  private tempDeps: { [key: string]: Dep } = {};
 
   constructor(
     private collection: Module,
@@ -100,7 +100,6 @@ export default class Reactive {
             // dynamically convert new values to reactive if objects
             // This is risky as fuck and kinda doesn't even work
             if (isWatchableObject(value) && self.properties.includes(key)) {
-              // debugger;
               newValue = self.deepReactiveObject(
                 newValue,
                 rootProperty || key,
@@ -140,7 +139,6 @@ export default class Reactive {
 
   private cloneDep(dep: Dep) {
     dep = Object.assign(Object.create(Object.getPrototypeOf(dep)), dep);
-    // debugger;
     // delete this.tempDeps[dep.propertyName];
     return dep;
   }

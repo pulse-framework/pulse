@@ -30,10 +30,9 @@ export default class Library {
       // global is passed in to all classes, must not contain cyclic references
       global: {
         config: this.initConfig(root.config),
-        // State
 
+        // State
         initComplete: false,
-        runningAction: false,
         runningWatcher: false,
         runningComputed: false,
         runningPopulate: false,
@@ -41,6 +40,7 @@ export default class Library {
         collecting: false,
         touching: false,
         touched: false,
+
         contextRef: {},
         // Instances
         subs: new SubController(this.getContext.bind(this)),
@@ -115,7 +115,7 @@ export default class Library {
   }
 
   initRuntime() {
-    this._private.runtime = new Runtime(
+    this._private.global.runtime = new Runtime(
       this._private.collections,
       this._private.global
     );
@@ -142,7 +142,7 @@ export default class Library {
       const computedKeys = collection.keys.computed;
       for (let i = 0; i < computedKeys.length; i++) {
         const computedName = computedKeys[i];
-        this._private.runtime.performComputedOutput({
+        this._private.global.runtime.performComputedOutput({
           collection: collection.name,
           property: computedName,
           type: JobType.COMPUTED_REGEN
@@ -255,7 +255,7 @@ export default class Library {
   public dispatch(type: string, payload: {[key: string]: any}): void {
     switch (type) {
       case 'mutation':
-        this._private.runtime.ingest({
+        this._private.global.runtime.ingest({
           type: JobType.PUBLIC_DATA_MUTATION,
           collection: payload.collection,
           property: payload.key,
@@ -359,7 +359,7 @@ export default class Library {
       normalizeMap(properties).forEach(({key, val}) => {
         let collection = val.split('/')[0];
         let property = val.split('/')[1];
-        let c = pulse._private.global.getContext()[collection];
+        let c = pulse._private.global.contextRef[collection];
         returnData[
           key
         ] = pulse._private.global.subs.subscribePropertiesToComponents(() => {

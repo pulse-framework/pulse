@@ -31,6 +31,7 @@ export default class Module {
   protected local: {[key: string]: any} = {};
   protected model: {[key: string]: any} = {};
   protected throttles: Array<Action> = [];
+  protected stashed: Array<Object> = [];
 
   constructor(
     public name: string,
@@ -98,7 +99,7 @@ export default class Module {
     const routeWrapped = routeName => {
       return function() {
         let requestObject = Object.assign({}, self.global.request);
-        requestObject.context = self.global.getContext();
+        requestObject.context = self.global.contextRef;
         return routes[routeName].apply(
           null,
           [requestObject].concat(Array.prototype.slice.call(arguments))
@@ -220,19 +221,26 @@ export default class Module {
           collection: this.name,
           dep: this.global.getDep(property, this.name)
         });
+      } else if (this.indexes && this.indexes.exists(property)) {
+        this.global.ingest({
+          type: JobType.GROUP_UPDATE,
+          property,
+          collection: this.name,
+          dep: this.global.getDep(property, this.name)
+        });
       }
     }
   }
   private throttle(amount: number = 0): void {
     // if action is currently running save in throttles
-    if (this.global.runningAction) {
-      this.throttles.push(this.global.runningAction as Action);
+    if (this.global.runtime.runningAction) {
+      this.throttles.push(this.global.runtime.runningAction as Action);
     }
 
     // after the certain amount has possed remove the throttle via filter
     setTimeout(() => {
       this.throttles = this.throttles.filter(
-        action => action !== (this.global.runningAction as Action)
+        action => action !== (this.global.runtime.runningAction as Action)
       );
     }, amount);
   }
@@ -241,13 +249,23 @@ export default class Module {
     amount: number,
     options?: Array<string>
   ) {
-    // if (!this.global.runningAction) return await setTimeout(func, amount);
+    // if (!this.global.runtime.runningAction) return await setTimeout(func, amount);
 
-    let action = this.global.runningAction as Action;
+    let action = this.global.runtime.runningAction as Action;
 
     action.softDebounce(func, amount);
     return;
 
     return await action.softDebounce(func, amount);
+  }
+  public stash(callback) {
+    this.stashed.push({
+      fromAction: this.global.runtime.runningAction,
+      callback
+    });
+  }
+  public flush() {
+    this.stashed.forEach(stash => stash.callback());
+    this.stashed = [];
   }
 }

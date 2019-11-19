@@ -1,8 +1,7 @@
-import {log, objectLoop, log, cleanse} from './helpers';
-import {Global} from './interfaces';
+import { Global } from './interfaces';
 import Dep from './Dep';
 import Computed from './computed';
-import {DynamicRelation} from './relationController';
+import { DynamicRelation } from './relationController';
 import Action from './action';
 
 export interface Job {
@@ -13,6 +12,7 @@ export interface Job {
   previousValue?: any;
   dep?: Dep;
   fromAction?: boolean | Action;
+  config?: Object;
 }
 
 export enum JobType {
@@ -25,12 +25,16 @@ export enum JobType {
   DELETE_INTERNAL_DATA = 'DELETE_INTERNAL_DATA'
 }
 export default class Runtime {
-  public running: Boolean = false;
   public updatingSubscribers: Boolean = false;
 
+  public runningJob: Job | boolean = false;
   private ingestQueue: Array<Job> = [];
   private completedJobs: Array<Job> = [];
   private archivedJobs: Array<Job> = [];
+
+  // global action state
+  public runningActions: Array<Action> = [];
+  public runningAction: Action | boolean = false;
 
   // private collections: Object;
   private config: Object;
@@ -46,13 +50,12 @@ export default class Runtime {
     this.ingestQueue.push(job);
     this.global.log(job);
     // don't begin the next job until this one is fully complete
-    if (!this.running) {
+    if (!this.runningJob) {
       this.findNextJob();
     }
   }
 
   private findNextJob() {
-    this.running = true;
     // shift the next job from the queue
     let next = this.ingestQueue.shift();
 
@@ -60,6 +63,7 @@ export default class Runtime {
       // groups, computed and indexes will not have their Dep class, so get it.
       next.dep = this.global.getDep(next.property, next.collection);
 
+    this.runningJob = next;
     // execute the next task in the queue
     this.performJob(next);
   }
@@ -156,7 +160,7 @@ export default class Runtime {
 
   // handle job loop flow
   private finished(): void {
-    this.running = false;
+    this.runningJob = false;
     if (this.completedJobs.length > 5000) return;
 
     // If there's already more stuff in the queue, loop.
@@ -309,18 +313,17 @@ export default class Runtime {
 
   private completedJob(job: Job): void {
     // if action is running, save that action instance inside job payload
-    job.fromAction = this.global.runningAction;
+    job.fromAction = this.runningAction;
     // during runtime log completed job ready for component updates
     if (this.global.initComplete) this.completedJobs.push(job);
     // if data is persistable ensure storage is updated with new data
     this.persistData(job);
 
     // tell the dep the parent changed
-    if (job.dep) job.dep.changed();
+    if (job.dep) job.dep.changed(job.value, job.config);
 
     // if running action save this job inside the action class
-    if (this.global.runningAction)
-      (this.global.runningAction as Action).changes.add(job);
+    if (this.runningAction) (this.runningAction as Action).changes.add(job);
   }
 
   // ****************** End Runtime Events ****************** //
@@ -328,8 +331,8 @@ export default class Runtime {
   private compileComponentUpdates(): void {
     if (!this.global.initComplete) return;
     this.updatingSubscribers = true;
-    log('ALL JOBS COMPLETE', this.completedJobs);
-    log('Updating components...');
+    this.global.log('ALL JOBS COMPLETE', this.completedJobs);
+    this.global.log('Updating components...');
 
     const componentsToUpdate = {};
 
@@ -388,7 +391,8 @@ export default class Runtime {
               // considering this is not important and does not change perfomance, its probably best to not bother cleansing every
               // value update. actually thinking about it this is terrbile. remove this soon.
               // honestly it's only here because I have OCD.
-              cleanse(value)
+              // cleanse(value)
+              value
             );
           });
           break;
@@ -434,9 +438,7 @@ export default class Runtime {
           return;
         this.collections[collectionName].public.privateWrite(key, value);
       }
-    } catch (e) {
-      // debugger;
-    }
+    } catch (e) {}
   }
 
   private overwriteInternalData(
@@ -447,7 +449,7 @@ export default class Runtime {
     const internalData = this.collections[collection].internalData;
     // create a copy of the original data
     const currentData = internalData[primaryKey]
-      ? {...internalData[primaryKey]}
+      ? { ...internalData[primaryKey] }
       : false;
 
     if (currentData) {
