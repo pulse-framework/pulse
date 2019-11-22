@@ -50,7 +50,7 @@ export default class Dep {
     }
   }
 
-  changed(newValue, config) {
+  changed(newValue, config: any = {}) {
     this.global.relations.cleanup(this.dynamicRelation);
 
     // get dynamic data
