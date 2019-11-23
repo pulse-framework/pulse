@@ -4,7 +4,7 @@ import Collection from './module/modules/collection';
 import Dep from './dep';
 import Action from './action';
 import Computed from './computed';
-import {JobType} from './runtime';
+import { JobType } from './runtime';
 import RelationController from './relationController';
 export interface ExpandableObject {
   [key: string]: any;
@@ -40,19 +40,20 @@ export interface CollectionConfig {}
 
 export interface CollectionObject {
   config?: CollectionConfig;
-  data?: object;
+  data?: Object;
   persist?: Array<string>;
   groups?: Array<string>;
-  actions?: object;
-  computed?: object;
-  filters?: object;
-  watch?: object;
-  routes?: object;
-  model?: object;
-  local?: object;
+  actions?: Object;
+  computed?: Object;
+  filters?: Object;
+  watch?: Object;
+  routes?: Object;
+  model?: Object;
+  local?: Object;
   onReady?: Function;
+  staticData?: Object;
   // private
-  indexes?: object;
+  indexes?: Object;
 }
 
 export interface RootCollectionObject extends CollectionObject {
@@ -120,8 +121,8 @@ export interface Private {
   global: Global;
   runtime: Runtime;
   collectionKeys: Array<string>;
-  collections?: {[key: string]: Collection};
-  events?: {[key: string]: Array<(payload?: any) => any>};
+  collections?: { [key: string]: Collection };
+  events?: { [key: string]: Array<(payload?: any) => any> };
 }
 
 export enum DebugType {

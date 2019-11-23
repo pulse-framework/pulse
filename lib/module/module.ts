@@ -1,8 +1,8 @@
-import {collectionFunctions, objectLoop} from '../helpers';
+import { collectionFunctions, objectLoop } from '../helpers';
 import Reactive from '../reactive';
 import Action from '../action';
 import Computed from '../computed';
-import {JobType} from '../runtime';
+import { JobType } from '../runtime';
 import {
   Methods,
   Keys,
@@ -11,7 +11,7 @@ import {
   CollectionConfig,
   Global
 } from '../interfaces';
-import {normalizeGroups} from '../helpers';
+import { normalizeGroups } from '../helpers';
 
 // modules have a contained reactivity system which is the base
 // of collections, services and
@@ -23,13 +23,13 @@ export default class Module {
   protected namespace: CollectionObject;
   protected config: CollectionConfig = {}; //rename
   protected methods: Methods = {};
-  protected actions: {[key: string]: Action} = {};
-  protected computed: {[key: string]: Computed} = {};
-  protected watchers: {[key: string]: any} = {};
-  protected externalWatchers: {[key: string]: any} = {};
+  protected actions: { [key: string]: Action } = {};
+  protected computed: { [key: string]: Computed } = {};
+  protected watchers: { [key: string]: any } = {};
+  protected externalWatchers: { [key: string]: any } = {};
   protected persist: Array<string> = [];
-  protected local: {[key: string]: any} = {};
-  protected model: {[key: string]: any} = {};
+  protected local: { [key: string]: any } = {};
+  protected model: { [key: string]: any } = {};
   protected throttles: Array<Action> = [];
   protected stashed: Array<Object> = [];
 
@@ -42,7 +42,7 @@ export default class Module {
     this.config = root.config;
 
     // legacy support ("filters" changed to "computed")
-    root.computed = {...root.computed, ...root.filters};
+    root.computed = { ...root.computed, ...root.filters };
 
     // create this.namespace
     root = this.prepareNamespace(root);
@@ -71,22 +71,29 @@ export default class Module {
 
     if (root.local) this.local = root.local;
 
-    // for each type set default and register keys
-    ['data', 'actions', 'computed', 'indexes', 'routes', 'watch'].forEach(
-      type => {
-        if (type !== 'indexes' && !root[type]) root[type] = {};
-        this.keys[type] =
-          type === 'indexes' ? root['groups'] || [] : Object.keys(root[type]);
-      }
-    );
+    // for each type set default values on root and register keys
+    [
+      'data',
+      'actions',
+      'computed',
+      'indexes',
+      'routes',
+      'watch',
+      'staticData'
+    ].forEach(type => {
+      if (type !== 'indexes' && !root[type]) root[type] = {};
+      this.keys[type] =
+        type === 'indexes' ? root['groups'] || [] : Object.keys(root[type]);
+    });
 
     // assign namespace
     this.namespace = Object.assign(
-      Object.create({...this.methods}), // bind methods to prototype
+      Object.create({ ...this.methods }), // bind methods to prototype
       {
         routes: {},
         indexes: {},
         actions: root.actions,
+        ...root.staticData,
         ...root.computed,
         ...root.data,
         ...normalizeGroups(root.groups)

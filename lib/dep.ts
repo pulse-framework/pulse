@@ -51,7 +51,8 @@ export default class Dep {
   }
 
   changed(newValue, config: any = {}) {
-    this.global.relations.cleanup(this.dynamicRelation);
+    if (this.dynamicRelation)
+      this.global.relations.cleanup(this.dynamicRelation);
 
     // get dynamic data
     const dataWithDynamicProperties = this.collection.injectDynamicRelatedData(
