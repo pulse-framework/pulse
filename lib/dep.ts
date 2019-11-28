@@ -1,4 +1,4 @@
-import { Global } from './interfaces';
+import { Global, ModuleInstance } from './interfaces';
 import { DynamicRelation, RelationTypes } from './relationController';
 import Collection from './module/modules/collection';
 export default class Dep {
@@ -12,14 +12,14 @@ export default class Dep {
   // used to stop computed methods from tracking properties accessed within nested actions as dependecies
   public currentActionIndex: boolean | number = false;
 
-  public subscribersAsCallbacks: Array<Function> = [];
+  public subscribersToInternalDataAsCallbacks: Array<Function> = [];
 
   constructor(
     private global: Global,
     // if this dep is for public or internal data within a collection
     public type: 'reactive' | 'internal' | 'index' = 'reactive',
     // the name of the coll
-    public collection: Collection,
+    public parentModuleInstance: ModuleInstance,
     // either the name of the object if reactive or the primaryKey if internal
     public propertyName: string | number,
     // if the dep is part of a deep reactive object, this is the root property name
@@ -30,8 +30,12 @@ export default class Dep {
   register() {
     const subs = this.global.subs;
 
-    if (this.global.runningComputed)
+    // debugger;
+
+    if (this.global.runningComputed && !this.global.gettingContext) {
       this.dependents.add(this.global.runningComputed);
+      console.log('adding dependent for', this.global.runningComputed);
+    }
 
     let dataDep = this.global.runningPopulate as Dep;
 
@@ -51,23 +55,27 @@ export default class Dep {
   }
 
   changed(newValue, config: any = {}) {
+    let collection = this.parentModuleInstance as Collection;
+
     if (this.dynamicRelation)
       this.global.relations.cleanup(this.dynamicRelation);
 
-    // get dynamic data
-    const dataWithDynamicProperties = this.collection.injectDynamicRelatedData(
-      newValue[this.collection.primaryKey as string],
-      newValue
-    );
+    if (this.type === 'internal') {
+      // get dynamic data
+      const dataWithDynamicProperties = collection.injectDynamicRelatedData(
+        newValue[collection.primaryKey as string],
+        newValue
+      );
 
-    // run all callbacks and pass in dynamic data, unless important
-    this.subscribersAsCallbacks.forEach(callback =>
-      callback(
-        config.important
-          ? { ...dataWithDynamicProperties, ...newValue }
-          : dataWithDynamicProperties
-      )
-    );
+      // run all callbacks and pass in dynamic data, unless important
+      this.subscribersToInternalDataAsCallbacks.forEach(callback =>
+        callback(
+          config.important
+            ? { ...dataWithDynamicProperties, ...newValue }
+            : dataWithDynamicProperties
+        )
+      );
+    }
   }
 
   subscribeComponent() {

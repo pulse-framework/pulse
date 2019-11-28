@@ -8,6 +8,9 @@ describe('Pulse Basic Environment', function() {
   it('"_private" should be present on the instance', () =>
     expect(typeof pulse._private).to.be.equal('object'));
 
-  it('Collections should be initialized', () =>
-    expect(typeof pulse._private.collections).to.be.equal('object'));
+  it('Modules should be initialized', () => {
+    expect(typeof pulse._private.collections).to.be.equal('object');
+    expect(typeof pulse._private.modules).to.be.equal('object');
+    expect(typeof pulse._private.services).to.be.equal('object');
+  });
 });

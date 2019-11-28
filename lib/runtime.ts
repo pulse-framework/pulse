@@ -1,12 +1,14 @@
-import { Global } from './interfaces';
+import { Global, ModuleInstance } from './interfaces';
 import Dep from './Dep';
 import Computed from './computed';
 import { DynamicRelation } from './relationController';
 import Action from './action';
+import Collection from './module/modules/collection';
+import Module from './module';
 
 export interface Job {
   type: JobType;
-  collection: string;
+  collection: ModuleInstance;
   property: string | number | Computed;
   value?: any;
   previousValue?: any;
@@ -47,21 +49,42 @@ export default class Runtime {
 
   // The primary entry point for Runtime, all jobs should come through here
   public ingest(job: Job): void {
+    // if last job is identical to current job
+    // since completed jobs is cleared after a component update is issued this SHOULDN't prevent
+    // the same thing happening twice (pls test tho)
+
+    if (
+      this.runningJob &&
+      job.property === (this.runningJob as Job).property &&
+      job.collection === (this.runningJob as Job).collection
+    ) {
+      // console.error('Pulse: Infinate job loop prevented', job);
+      // return;
+    }
     this.ingestQueue.push(job);
-    this.global.log(job);
     // don't begin the next job until this one is fully complete
     if (!this.runningJob) {
       this.findNextJob();
     }
   }
 
+  public queue(job: Job): void {
+    this.ingestQueue.push(job);
+  }
+
+  public run(): void {
+    if (!this.runningJob) this.findNextJob();
+  }
+
   private findNextJob() {
     // shift the next job from the queue
     let next = this.ingestQueue.shift();
 
+    this.global.log(next);
+
     if (!next.dep && next.type !== JobType.INDEX_UPDATE)
       // groups, computed and indexes will not have their Dep class, so get it.
-      next.dep = this.global.getDep(next.property, next.collection);
+      next.dep = next.collection.getDep(next.property as string) as Dep;
 
     this.runningJob = next;
     // execute the next task in the queue
@@ -69,14 +92,14 @@ export default class Runtime {
   }
 
   private loadPreviousValue(job: Job) {
-    let location: string;
+    let location: 'indexes' | 'public';
     if (job.type === JobType.INDEX_UPDATE) location = 'indexes';
     else if (
       job.type === JobType.COMPUTED_REGEN ||
       job.type === JobType.SOFT_GROUP_UPDATE
     )
       location = 'public';
-    return this.collections[job.collection][location].privateGet(job.property);
+    return job.collection[location].privateGet(job.property);
   }
 
   private performJob(job: Job): void {
@@ -85,7 +108,7 @@ export default class Runtime {
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
         this.performPublicDataUpdate(job);
-        this.collections[job.collection].runWatchers(job.property);
+        job.collection.runWatchers(job.property);
         break;
       case JobType.INTERNAL_DATA_MUTATION:
         this.performInternalDataUpdate(job);
@@ -98,16 +121,16 @@ export default class Runtime {
       case JobType.COMPUTED_REGEN:
         if (!pre) job.previousValue = this.loadPreviousValue(job);
         this.performComputedOutput(job);
-        this.collections[job.collection].runWatchers(job.property.name);
+        job.collection.runWatchers((job.property as Computed).name);
         break;
       case JobType.GROUP_UPDATE:
         this.performGroupRebuild(job);
-        this.collections[job.collection].runWatchers(job.property);
+        job.collection.runWatchers(job.property);
         break;
       case JobType.SOFT_GROUP_UPDATE:
         if (!pre) job.previousValue = this.loadPreviousValue(job);
         this.performGroupRebuild(job);
-        this.collections[job.collection].runWatchers(job.property);
+        job.collection.runWatchers(job.property);
         break;
       case JobType.DELETE_INTERNAL_DATA:
         this.performInternalDataDeletion(job);
@@ -129,9 +152,9 @@ export default class Runtime {
     const ingestComputed = (computed: Computed) =>
       this.ingest({
         type: JobType.COMPUTED_REGEN,
-        collection: computed.collection,
+        collection: computed.parentModuleInstance,
         property: computed,
-        dep: this.global.getDep(computed.name, computed.collection)
+        dep: computed.parentModuleInstance.getDep(computed.name) as Dep
       });
 
     // for each dependent stored in dep class
@@ -150,7 +173,7 @@ export default class Runtime {
           // ingest internal data mutation without a value will result in a soft group update
           this.ingest({
             type: JobType.INTERNAL_DATA_MUTATION,
-            collection: (dependent.updateThis as Dep).collection.name,
+            collection: (dependent.updateThis as Dep).parentModuleInstance,
             property: (dependent.updateThis as Dep).propertyName
           });
         }
@@ -183,21 +206,23 @@ export default class Runtime {
 
   // ****************** Perform Functions ****************** //
   private performPublicDataUpdate(job: Job): void {
-    this.writeToPublicObject(job.collection, 'data', job.property, job.value);
+    job.collection.public.privateWrite(job.property, job.value);
     this.completedJob(job);
   }
 
   private performInternalDataUpdate(job: Job): void {
     // if job was not ingested with a value, get the most recent value from collection database
+    let collection = job.collection as Collection;
+    let property = job.property as string | number;
     if (!job.value) {
-      if (this.collections[job.collection].internalData[job.property])
-        job.value = this.collections[job.collection].internalData[job.property];
+      if (collection.internalData[property])
+        job.value = collection.internalData[property];
       // this would usually be redundant, since the data has not changed, but since the relationController has no access to the collections, but does need to trigger data to rebuild, it issues an internal data "update". It's own data has not changed, but the dynamic data related to it via populate() has.
     }
 
     // overwrite or insert the data into collection database
     this.overwriteInternalData(
-      job.collection,
+      collection,
       job.property as string | number,
       job.value
     );
@@ -207,23 +232,21 @@ export default class Runtime {
     // however for direct data modifications we should update afected indexes
     if (!this.global.collecting) {
       // affected indexes is an array of indexes that have this primary key (job.property) present.
-      const affectedIndexes: Array<string> = this.collections[
-        job.collection
-      ].searchIndexesForPrimaryKey(job.property);
+      const affectedIndexes: Array<
+        string
+      > = collection.searchIndexesForPrimaryKey(property);
 
       affectedIndexes.forEach(index => {
         // since this is a singular piece of data that has changed, we do not need to
         // rebuild the entire group, so we can soft rebuild
-        let modifiedGroup = this.collections[
-          job.collection
-        ].softUpdateGroupData(job.property, index);
+        let modifiedGroup = collection.softUpdateGroupData(property, index);
 
         this.ingest({
           type: JobType.SOFT_GROUP_UPDATE,
-          collection: job.collection,
+          collection: collection,
           value: modifiedGroup,
           property: index,
-          dep: this.global.getDep(index, job.collection)
+          dep: collection.getDep(index) as Dep
           // we do not need a previousValue because groups are cached outputs and reversing the internal data update will do the trick
         });
       });
@@ -233,15 +256,14 @@ export default class Runtime {
   }
 
   private performInternalDataDeletion(job: Job): void {
-    const c = this.collections[job.collection];
+    const c = job.collection as Collection;
+    const property = job.property as string | number;
     // preserve previous value
     // job.previousValue = { ...c.internalData[job.property] };
     // delete data
-    delete c.internalData[job.property];
+    delete c.internalData[property];
     // find indexes affected by this data deletion
-    const indexesToUpdate = this.collections[
-      job.collection
-    ].searchIndexesForPrimaryKey(job.collection, job.property);
+    const indexesToUpdate = c.searchIndexesForPrimaryKey(property);
 
     // for each found index, perform index update
     for (let i = 0; i < indexesToUpdate.length; i++) {
@@ -251,10 +273,10 @@ export default class Runtime {
       );
       this.ingest({
         type: JobType.INDEX_UPDATE,
-        collection: c.name,
+        collection: c,
         property: indexName,
         value: newIndex,
-        dep: this.global.getDep(job.property, job.collection)
+        dep: c.getDep(job.property as string) as Dep
       });
     }
     this.completedJob(job);
@@ -262,10 +284,8 @@ export default class Runtime {
 
   private performIndexUpdate(job: Job): void {
     // Update Index
-    this.collections[job.collection].indexes.privateWrite(
-      job.property,
-      job.value
-    );
+    const c = job.collection as Collection;
+    c.indexes.privateWrite(job.property, job.value);
     this.completedJob(job);
 
     // Group must also be updated
@@ -273,39 +293,33 @@ export default class Runtime {
       type: JobType.GROUP_UPDATE,
       collection: job.collection,
       property: job.property,
-      dep: this.global.getDep(job.property, job.collection)
+      dep: job.collection.getDep(job.property as string) as Dep
     });
   }
 
   private performGroupRebuild(job: Job): void {
+    const c = job.collection as Collection;
+    const property = job.property as string;
     // soft group rebuilds already have a generated value, otherwise generate the value
     if (!job.value) {
-      job.value = this.collections[job.collection].buildGroupFromIndex(
-        job.property
-      );
+      job.value = c.buildGroupFromIndex(property);
     }
 
     // TODO: trigger relaction controller to update group relations
     // this.global.relations.groupModified(job.collection, job.property);
-
-    this.writeToPublicObject(job.collection, 'group', job.property, job.value);
+    job.collection.public.privateWrite(job.property, job.value);
     this.completedJob(job);
   }
 
   public performComputedOutput(job: Job): void {
     const computed =
       typeof job.property === 'string'
-        ? this.collections[job.collection].computed[job.property]
+        ? job.collection.computed[job.property]
         : job.property;
 
     job.value = computed.run();
     // Commit Update
-    this.writeToPublicObject(
-      job.collection,
-      'computed',
-      computed.name,
-      job.value
-    );
+    job.collection.public.privateWrite(computed.name, job.value);
     this.completedJob(job);
   }
 
@@ -332,7 +346,6 @@ export default class Runtime {
     if (!this.global.initComplete) return;
     this.updatingSubscribers = true;
     this.global.log('ALL JOBS COMPLETE', this.completedJobs);
-    this.global.log('Updating components...');
 
     const componentsToUpdate = {};
 
@@ -407,10 +420,11 @@ export default class Runtime {
     }
   }
 
+  // TODO: add moduleType to module class and store persist keys with that in mind, since persisting data won't work for modules with the same name, although devs should not be creating modules with the same name, i don't even think thats possible
   private persistData(job: Job): void {
     if (job.type === JobType.INTERNAL_DATA_MUTATION) return;
-    if (this.collections[job.collection].persist.includes(job.property)) {
-      this.global.storage.set(job.collection, job.property, job.value);
+    if (job.collection.persist.includes(job.property)) {
+      this.global.storage.set(job.collection.name, job.property, job.value);
     }
   }
 
@@ -422,31 +436,12 @@ export default class Runtime {
 
   // ****************** Misc Handlers ****************** //
 
-  private writeToPublicObject(
-    collectionName: string,
-    type: string,
-    key: string,
-    value: any
-  ): void {
-    try {
-      if (type === 'indexes') {
-        if (!this.collections[collectionName][type].object.hasOwnProperty(key))
-          return;
-        this.collections[collectionName][type].privateWrite(key, value);
-      } else {
-        if (!this.collections[collectionName].public.object.hasOwnProperty(key))
-          return;
-        this.collections[collectionName].public.privateWrite(key, value);
-      }
-    } catch (e) {}
-  }
-
   private overwriteInternalData(
-    collection: string,
+    collection: Collection,
     primaryKey: string | number,
     newData: any
   ): object | boolean {
-    const internalData = this.collections[collection].internalData;
+    const internalData = collection.internalData;
     // create a copy of the original data
     const currentData = internalData[primaryKey]
       ? { ...internalData[primaryKey] }

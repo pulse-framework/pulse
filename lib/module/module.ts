@@ -9,9 +9,11 @@ import {
   CollectionObject,
   ExpandableObject,
   CollectionConfig,
-  Global
+  Global,
+  ModuleInstance
 } from '../interfaces';
 import { normalizeGroups } from '../helpers';
+import Dep from '../dep';
 
 // modules have a contained reactivity system which is the base
 // of collections, services and
@@ -19,19 +21,18 @@ export default class Module {
   public public: Reactive;
   public keys: Keys = {};
   public onReady?: Function;
+  public methods: Methods = {};
+  public local: { [key: string]: any } = {};
 
   protected namespace: CollectionObject;
   protected config: CollectionConfig = {}; //rename
-  protected methods: Methods = {};
   protected actions: { [key: string]: Action } = {};
   protected computed: { [key: string]: Computed } = {};
   protected watchers: { [key: string]: any } = {};
   protected externalWatchers: { [key: string]: any } = {};
   protected persist: Array<string> = [];
-  protected local: { [key: string]: any } = {};
   protected model: { [key: string]: any } = {};
   protected throttles: Array<Action> = [];
-  protected stashed: Array<Object> = [];
 
   constructor(
     public name: string,
@@ -41,20 +42,23 @@ export default class Module {
     // define aliases
     this.config = root.config;
 
-    // legacy support ("filters" changed to "computed")
-    root.computed = { ...root.computed, ...root.filters };
-
     // create this.namespace
     root = this.prepareNamespace(root);
 
     // create public object
-    this.public = new Reactive(this, this.namespace, Object.keys(root.data));
+    let mutableKeys = Object.keys(root.data || {});
+    this.public = new Reactive(this, root.data, mutableKeys);
+
+    if (root.staticData)
+      for (let property in root.staticData)
+        if (root.staticData.hasOwnProperty(property))
+          this.public.privateWrite(property, root.staticData[property]);
 
     // init module features
-    this.initRoutes(root.routes);
     this.initActions(root.actions);
     this.initWatchers(root.watch);
     this.initComputed(root.computed);
+    if (this.global.request) this.initRoutes(root.routes);
 
     // load persisted data from storage
     this.initPersist(root.persist);
@@ -62,48 +66,40 @@ export default class Module {
     // init finished
     if (root.onReady) this.onReady = root.onReady;
   }
+
   private prepareNamespace(root: CollectionObject) {
-    // map collection methods
+    if (this.name !== 'base')
+      collectionFunctions.map(
+        func => this[func] && (this.methods[func] = this[func].bind(this))
+      );
 
-    collectionFunctions.map(
-      func => this[func] && (this.methods[func] = this[func].bind(this))
-    );
+    // legacy support ("filters" changed to "computed")
+    root.computed = { ...root.computed, ...root.filters };
 
-    if (root.local) this.local = root.local;
+    interface PublicNamespace {
+      routes?: Object;
+      indexes?: Object;
+      local?: Object;
+    }
 
-    // for each type set default values on root and register keys
-    [
-      'data',
-      'actions',
-      'computed',
-      'indexes',
-      'routes',
-      'watch',
-      'staticData'
-    ].forEach(type => {
-      if (type !== 'indexes' && !root[type]) root[type] = {};
-      this.keys[type] =
-        type === 'indexes' ? root['groups'] || [] : Object.keys(root[type]);
-    });
+    const publicNamespace: PublicNamespace = {},
+      types = ['routes', 'indexes', 'local'];
 
-    // assign namespace
+    types.forEach(type => root[type] && (publicNamespace[type] = root[type]));
+
     this.namespace = Object.assign(
-      Object.create({ ...this.methods }), // bind methods to prototype
-      {
-        routes: {},
-        indexes: {},
-        actions: root.actions,
-        ...root.staticData,
-        ...root.computed,
-        ...root.data,
-        ...normalizeGroups(root.groups)
-      }
+      Object.create(this.methods),
+      publicNamespace
     );
+
     return root;
   }
-  private initRoutes(routes: ExpandableObject) {
-    const self = this;
+
+  private initRoutes(routes: ExpandableObject = {}) {
+    this.keys.routes = Object.keys(routes);
+
     const routeWrapped = routeName => {
+      let self = this;
       return function() {
         let requestObject = Object.assign({}, self.global.request);
         requestObject.context = self.global.contextRef;
@@ -113,58 +109,54 @@ export default class Module {
         );
       };
     };
-    objectLoop(
-      routes,
-      routeName =>
-        (this.public.object.routes[routeName] = routeWrapped(routeName))
-    );
-  }
-  private initActions(actions: object = {}) {
-    let actionKeys = Object.keys(actions);
-    for (let i = 0; i < actionKeys.length; i++) {
-      const action = actions[actionKeys[i]];
-      this.actions[actionKeys[i]] = new Action(
-        this.name,
-        this.global,
-        action,
-        actionKeys[i]
-      );
 
-      this.public.privateWrite(actionKeys[i], this.actions[actionKeys[i]].exec);
+    for (let routeName in routes) {
+      if (!this.public.exists('routes')) this.public.object.routes = {};
+      this.public.object.routes[routeName] = routeWrapped(routeName);
     }
   }
-  private initWatchers(watchers: object = {}) {
-    let watcherKeys = Object.keys(watchers);
-    for (let i = 0; i < watcherKeys.length; i++) {
-      const watcher = watchers[watcherKeys[i]];
-      this.watchers[watcherKeys[i]] = () => {
-        this.global.runningWatcher = {
-          collection: this.name,
-          property: watcherKeys[i]
-        };
-        const watcherOutput = watcher(this.global.getContext(this.name));
-        this.global.runningWatcher = false;
+
+  private initActions(actions: object = {}) {
+    this.keys.actions = Object.keys(actions);
+
+    for (let actionName in actions) {
+      this.actions[actionName] = new Action(
+        this,
+        this.global,
+        actions[actionName],
+        actionName
+      );
+      this.public.privateWrite(actionName, this.actions[actionName].exec);
+    }
+  }
+
+  private initWatchers(watchers: object = {}): void {
+    this.keys.watchers = Object.keys(watchers);
+
+    for (let watcherName in watchers) {
+      let watcher = watchers[watcherName];
+
+      this.watchers[watcherName] = () => {
+        let watcherOutput = watcher(this.global.getContext(this));
         return watcherOutput;
       };
     }
-    this.watchers._keys = watcherKeys;
   }
-  private initComputed(computed: object): void {
-    objectLoop(
-      computed,
-      (computedName: string, computedFunction: () => void) => {
-        this.computed[computedName] = new Computed(
-          this.global,
-          this.name,
-          computedName,
-          computedFunction
-        );
-        this.public.privateWrite(computedName, []);
-      },
-      this.keys.computed
-    );
+  private initComputed(computed: object = {}): void {
+    this.keys.computed = Object.keys(computed);
+
+    for (let computedName in computed) {
+      this.computed[computedName] = new Computed(
+        this.global,
+        this,
+        computedName,
+        computed[computedName]
+      );
+      this.public.addProperty(computedName, this.global.config.computedDefault);
+    }
   }
-  public initPersist(persist: Array<string>): void {
+
+  public initPersist(persist: Array<string> = []): void {
     if (!Array.isArray(persist)) return;
 
     for (let i = 0; i < persist.length; i++) {
@@ -180,8 +172,8 @@ export default class Module {
             type: JobType.PUBLIC_DATA_MUTATION,
             value: data,
             property: dataName,
-            collection: this.name,
-            dep: this.global.getDep(dataName, this.name)
+            collection: this,
+            dep: this.getDep(dataName)
           });
         });
       } else {
@@ -204,8 +196,31 @@ export default class Module {
   private watch(property, callback) {
     if (!this.externalWatchers[property])
       this.externalWatchers[property] = [callback];
-    else this.externalWatchers[property].push(callback);
+    else this.externalWatchers[property].push(callback); // luka was here
   }
+
+  public getSelfContext() {
+    const globalContext = this.global.contextRef;
+
+    // module only context
+    const localContext = {
+      ...this.methods,
+      data: this.public.object,
+      computed: this.public.object,
+      routes: this.public.object.routes,
+      local: this.namespace.local
+    };
+
+    // collection + module context
+    // typescript will always complain about this, nothing much can be done
+    if (this.indexes) {
+      localContext.indexes = this.indexes.object;
+      localContext.groups = this.public.object;
+    }
+
+    return { ...globalContext, ...localContext };
+  }
+
   private forceUpdate(property: string): void {
     // ensure property exists on collection
     if (this.public.exists(property)) {
@@ -215,9 +230,9 @@ export default class Module {
         this.global.ingest({
           type: JobType.PUBLIC_DATA_MUTATION,
           property,
-          collection: this.name,
+          collection: this,
           value: this.public.privateGet(property),
-          dep: this.global.getDep(property, this.name)
+          dep: this.getDep(property)
         });
 
         // if property is a computed method
@@ -225,15 +240,15 @@ export default class Module {
         this.global.ingest({
           type: JobType.COMPUTED_REGEN,
           property,
-          collection: this.name,
-          dep: this.global.getDep(property, this.name)
+          collection: this,
+          dep: this.getDep(property)
         });
       } else if (this.indexes && this.indexes.exists(property)) {
         this.global.ingest({
           type: JobType.GROUP_UPDATE,
           property,
-          collection: this.name,
-          dep: this.global.getDep(property, this.name)
+          collection: this,
+          dep: this.getDep(property, this.indexes.object)
         });
       }
     }
@@ -265,14 +280,26 @@ export default class Module {
 
     return await action.softDebounce(func, amount);
   }
-  public stash(callback) {
-    this.stashed.push({
-      fromAction: this.global.runtime.runningAction,
-      callback
-    });
-  }
-  public flush() {
-    this.stashed.forEach(stash => stash.callback());
-    this.stashed = [];
+
+  public getDep(
+    propertyName: string | number,
+    reactiveObject?: Object
+  ): Dep | boolean {
+    let dep: Dep;
+
+    this.global.touching = true;
+    // if the property is on a deep reactive object or an index
+    if (reactiveObject) reactiveObject[propertyName];
+    // by default we assume the module's public object
+    else this.public.object[propertyName];
+
+    // extract the dep from global
+    dep = this.global.touched as Dep;
+
+    // reset state
+    this.global.touching = false;
+    this.global.touched = null;
+
+    return dep;
   }
 }

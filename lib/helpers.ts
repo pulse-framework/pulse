@@ -27,8 +27,6 @@ export const collectionFunctions = [
   'forceUpdate',
   'debounce',
   'watchData',
-  'stash',
-  'flush',
   // 'unsubscribe',
   // deprecated
   'remove'

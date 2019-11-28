@@ -1,7 +1,9 @@
 import { protectedNames, arrayFunctions, isWatchableObject } from './helpers';
 import Dep from './dep';
-import { Global } from './interfaces';
+import { Global, ModuleInstance } from './interfaces';
 import Module from './module';
+import { JobType } from './runtime';
+import Computed from './computed';
 
 interface Obj {
   [key: string]: any;
@@ -11,8 +13,8 @@ export default class Reactive {
   public properties: Array<string>;
   public object: Obj;
   public global: Global;
+  public ghosts: Object = {}; // used by indexes only
 
-  private dispatch: any;
   private allowPrivateWrite: boolean = false;
   private touching: boolean = false;
   private touched: null | Dep;
@@ -20,13 +22,12 @@ export default class Reactive {
   private tempDeps: { [key: string]: Dep } = {};
 
   constructor(
-    private collection: Module,
+    private parentModuleInstance: ModuleInstance,
     object: Obj = {},
     public mutableProperties: Array<string>,
     public type: 'public' | 'indexes' = 'public'
   ) {
-    this.global = collection.global;
-    this.dispatch = this.global.dispatch;
+    this.global = parentModuleInstance.global;
     this.properties = Object.keys(object);
     this.object = this.reactiveObject(object);
   }
@@ -81,10 +82,11 @@ export default class Reactive {
         if (rootProperty && self.mutableProperties.includes(rootProperty)) {
           // mutate locally
           value = newValue;
-          // dispatch mutation for deep property
-          self.dispatch('mutation', {
-            collection: self.collection.name,
-            key: rootProperty,
+          // ingest mutation for deep property
+          self.global.runtime.ingest({
+            type: JobType.PUBLIC_DATA_MUTATION,
+            collection: self.parentModuleInstance,
+            property: rootProperty,
             value: self.object[rootProperty],
             dep
           });
@@ -111,9 +113,10 @@ export default class Reactive {
 
           // if property is mutable dispatch update
           if (self.properties.includes(key)) {
-            self.dispatch('mutation', {
-              collection: self.collection.name,
-              key,
+            self.global.runtime.ingest({
+              type: JobType.PUBLIC_DATA_MUTATION,
+              collection: self.parentModuleInstance,
+              property: key,
               value: newValue,
               dep
             });
@@ -151,7 +154,7 @@ export default class Reactive {
       dep = new Dep(
         this.global,
         this.type === 'indexes' ? 'index' : 'reactive',
-        this.collection,
+        this.parentModuleInstance,
         key,
         rootProperty
       );
@@ -193,12 +196,12 @@ export default class Reactive {
         value: function() {
           const result = original.apply(this, arguments);
           if (self.global.initComplete)
-            self.dispatch('mutation', {
-              collection: self.collection.name,
-              key,
-              value: result
-            });
-          return result;
+            // self.dispatch('mutation', {
+            //   collection: self.collection.name,
+            //   key,
+            //   value: result
+            // });
+            return result;
         }
       });
     }
@@ -232,7 +235,23 @@ export default class Reactive {
     this.sneaky = false;
     return keys;
   }
+  public createReactiveAlias(destObj: any, propertyName: string) {
+    const self = this;
+    Object.defineProperty(destObj, propertyName, {
+      get: function pulseGetterAlias() {
+        return self.object[propertyName];
+      },
+      set: function pulseSetterAlias(newValue) {
+        console.log('alias setter', propertyName);
+        // if (
+        //   // self.global.runningComputed &&
+        //   // (self.global.runningComputed as Computed).name === propertyName
+        // )
+        //   return;
+        self.object[propertyName] = newValue;
+        return;
+      }
+    });
+    return destObj;
+  }
 }
-
-// look for computed output access to determine dependencies
-// remove computed categories from public object on default config

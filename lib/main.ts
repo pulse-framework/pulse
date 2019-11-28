@@ -1,39 +1,38 @@
 import Runtime from './runtime';
 import Collection from './module/modules/collection';
 import SubController from './subController';
+import RelationController from './relationController';
 import Storage from './storage';
 import Request from './collections/request';
-import Base from './collections/base';
 import withPulse from './wrappers/ReactWithPulse';
-import {
-  uuid,
-  normalizeMap,
-  log,
-  defineConfig,
-  parse,
-  cleanse
-} from './helpers';
+import { uuid, normalizeMap, log, defineConfig, cleanse } from './helpers';
 import {
   Private,
   RootCollectionObject,
-  DebugType,
-  RootConfig
+  RootConfig,
+  ModuleInstance
 } from './interfaces';
 import { JobType } from './runtime';
-
-import RelationController, { Key } from './relationController';
 import Dep from './dep';
+import Module from './module';
+import { createReactiveAlias } from './reactive';
 
-export default class Library {
+export default class Pulse {
   _private: Private;
   [key: string]: any;
   constructor(root: RootCollectionObject = {}) {
     // Private object contains all internal Pulse data
     this._private = {
-      runtime: null,
-      events: {},
+      modules: {},
       collections: {},
-      collectionKeys: [],
+      helpers: {},
+      services: {},
+      keys: {
+        modules: ['base'],
+        collections: [],
+        services: []
+      },
+      events: {},
       // global is passed in to all classes, must not contain cyclic references
       global: {
         config: this.initConfig(root.config),
@@ -47,6 +46,7 @@ export default class Library {
         collecting: false,
         touching: false,
         touched: false,
+        gettingContext: false,
 
         contextRef: {},
         // Instances
@@ -54,117 +54,164 @@ export default class Library {
         relations: null,
         storage: null,
         // Function aliases
-        dispatch: this.dispatch.bind(this),
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
-        getDep: this.getDep.bind(this),
         log: this.log.bind(this),
         uuid
       }
     };
+    const self = this._private;
 
-    // Bind static objects to instance (utils and services eventually should be initialized)
-    ['utils', 'services', 'staticData'].forEach(type => {
+    // Bind static objects directly to instance
+    ['utils', 'staticData'].forEach(type => {
       if (root[type]) this[type] = root[type];
     });
 
     // Create storage instance
-    this._private.global.storage = new Storage(root.storage);
+    self.global.storage = new Storage(root.storage);
 
     // Create relation controller instance
-    this._private.global.relations = new RelationController(
-      this._private.global
-    );
+    self.global.relations = new RelationController(self.global);
 
-    // Prepare
+    // init Runtime class into the global object
     this.initRuntime();
-    this.initCollections(root);
 
-    // Finalize
-    this.bindCollectionPublicData();
+    this.registerModules(root);
+
     this.runAllComputed();
+
     this.runAllOnReady();
 
     this.initComplete();
   }
 
-  initCollections(root: RootCollectionObject) {
-    this._private.collectionKeys = [];
-    if (root.collections) {
-      this._private.collectionKeys = [
-        ...Object.keys(root.collections),
-        ...this._private.collectionKeys
-      ];
-      for (let i = 0; i < this._private.collectionKeys.length; i++) {
-        // Create collection instance
-        this._private.collections[
-          this._private.collectionKeys[i]
-        ] = new Collection(
-          this._private.collectionKeys[i], // name
-          this._private.global, // global
-          root.collections[this._private.collectionKeys[i]] // collection config
-        );
-      }
-    }
-    // Create request class
-    if (this._private.global.config.enableRequest !== false)
-      this._private.collectionKeys.push('request');
-    this._private.collections['request'] = new Request(
-      this._private.global,
-      root.request || {}
-    );
+  registerModules(root: RootCollectionObject) {
+    let self = this._private,
+      namespace = {};
 
-    // Create base class
-    if (this._private.global.config.enableBase !== false) {
-      this._private.collectionKeys.push('base');
-      this._private.collections['base'] = new Base(this._private.global, root);
+    // register base module
+    self.modules.base = new Module('base', self.global, root);
+
+    // alias base module public properties
+    let aliasedProperties = [
+      ...self.modules.base.public.mutableProperties,
+      ...self.modules.base.keys.computed
+    ];
+    for (let property in self.modules.base.public.object)
+      if (aliasedProperties.includes(property))
+        self.modules.base.public.createReactiveAlias(this, property);
+      else this[property] = self.modules.base.public.object[property];
+
+    // optionally register request module
+    if (root.request) {
+      self.modules.request = new Request(self.global, root.request);
+      self.keys.modules.unshift('request');
+      namespace['request'] = self.modules.request.public.object;
     }
+
+    // for each module type, and if module type exits on root, create module instances
+    ['modules', 'collections', 'services'].forEach(category => {
+      if (!root[category]) return;
+
+      // declare module names as keys within respective category
+      self.keys[category] = [
+        ...self.keys[category],
+        ...Object.keys(root[category])
+      ];
+
+      // for each module instance within this category
+      self.keys[category].forEach(instanceName => {
+        if (instanceName === 'base' || instanceName === 'request') return;
+
+        let instanceConfig = root[category][instanceName],
+          moduleStore: any = self[category],
+          useCat: boolean = false;
+
+        // switch differnet categories to init the correct constructor
+        switch (category) {
+          case 'modules':
+            moduleStore[instanceName] = new Module(
+              instanceName,
+              self.global,
+              instanceConfig
+            );
+
+            break;
+          case 'collections':
+            moduleStore[instanceName] = new Collection(
+              instanceName,
+              self.global,
+              instanceConfig
+            );
+            break;
+          case 'services':
+            moduleStore[instanceName] = new Module(
+              instanceName,
+              self.global,
+              instanceConfig
+            );
+            useCat = true;
+            break;
+        }
+
+        let publicObject = moduleStore[instanceName].public.object;
+
+        // assign instance to namespace
+        if (useCat) {
+          // if the category does not exist on the namespace create it
+          if (!namespace[category]) namespace[category] = {};
+          // assign the public object from the module instance to the corresponding namspace with category
+          namespace[category][instanceName] = publicObject;
+          // the same thing as above except without category
+        } else namespace[instanceName] = publicObject;
+      });
+    });
+
+    // preserve refrence of clean namespace object
+    self.global.contextRef = namespace;
+
+    // bind namespace to root of pulse
+    for (let key in namespace) this[key] = namespace[key];
   }
 
-  initRuntime() {
+  public loopModules(callback: Function) {
+    const keys = this._private.keys;
+    for (let moduleType in keys)
+      keys[moduleType].forEach(moduleName =>
+        callback(this._private[moduleType][moduleName])
+      );
+  }
+
+  private initRuntime() {
     this._private.global.runtime = new Runtime(
       this._private.collections,
       this._private.global
     );
   }
 
-  private bindCollectionPublicData(): void {
-    for (let i = 0; i < this._private.collectionKeys.length; i++) {
-      const collection = this._private.collections[
-        this._private.collectionKeys[i]
-      ];
-      this._private.global.contextRef[this._private.collectionKeys[i]] =
-        collection.public.object;
-
-      this[this._private.collectionKeys[i]] = collection.public.object;
-    }
+  private runAllComputed(): void {
+    this.loopModules(
+      moduleInstance =>
+        moduleInstance.keys.computed &&
+        moduleInstance.keys.computed.forEach(computedKey => {
+          const computed = moduleInstance.computed[computedKey];
+          // console.log(computed);
+          this._private.global.runtime.queue({
+            type: JobType.COMPUTED_REGEN,
+            collection: moduleInstance,
+            property: computed
+          });
+          // moduleInstance.runWatchers(computed.name);
+        })
+    );
+    // console.log(this._private.global.runtime);
+    this._private.global.runtime.run();
   }
-
-  runAllComputed() {
-    for (let i = 0; i < this._private.collectionKeys.length; i++) {
-      const collection = this._private.collections[
-        this._private.collectionKeys[i]
-      ];
-
-      const computedKeys = collection.keys.computed;
-      for (let i = 0; i < computedKeys.length; i++) {
-        const computedName = computedKeys[i];
-        this._private.global.runtime.performComputedOutput({
-          collection: collection.name,
-          property: computedName,
-          type: JobType.COMPUTED_REGEN
-        });
-        collection.runWatchers(computedName);
-      }
-    }
-  }
-  runAllOnReady() {
-    for (let i = 0; i < this._private.collectionKeys.length; i++) {
-      let collectionName = this._private.collectionKeys[i];
-      let collection = this._private.collections[collectionName];
-      if (collection.onReady)
-        collection.onReady(this._private.global.getContext(collectionName));
-    }
+  private runAllOnReady(): void {
+    this.loopModules(moduleInstance => {
+      if (moduleInstance.onReady)
+        moduleInstance.onReady(this._private.global.getContext(moduleInstance));
+    });
   }
 
   initComplete() {
@@ -172,7 +219,8 @@ export default class Library {
     log('INIT COMPLETE', Object.assign({}, this));
     if (!this._private.global.config.ssr) {
       try {
-        window._pulse = this;
+        window.pulse = this;
+        window._pulse = this._private;
       } catch (e) {}
     }
   }
@@ -199,7 +247,8 @@ export default class Library {
         logJobs: false,
         framework: null,
         waitForMount: false,
-        autoUnmount: false
+        autoUnmount: false,
+        computedDefault: null
       });
     } else {
       // merge config
@@ -227,76 +276,27 @@ export default class Library {
     return config;
   }
 
+  // THIS WONT WORK
   getInternalData(collection, primaryKey) {
     return this._private.collections[collection].findById(primaryKey);
   }
 
-  // returns Dep instance by "touching" reactive property revealing its Dep class
-  // if collection param is present we'll assume the property param is the name of the property, not a reference to the property itself
-  getDep(property: any, collection: string, forData?: boolean): Dep {
-    let dep: Dep;
-    // if forData is true we'll go straight for the internal dep
-    if (!forData) {
-      // "touching" is simply invoking the property's getter
-      this._private.global.touching = true;
-      if (typeof collection === 'string') {
-        this._private.collections[collection].public.object[property];
-      } else if (typeof collection === 'object') {
-        collection[property];
-      }
+  public getContext(moduleInstance?: ModuleInstance): { [key: string]: any } {
+    let context: Object = {};
+    this._private.global.gettingContext = true; // prevent reactive getters from tracking dependencies while building context
 
-      // Extract the dep
-      dep = this._private.global.touched as Dep;
-      this._private.global.touching = false;
-      this._private.global.touched = null;
+    if (!moduleInstance) context = this._private.global.contextRef;
+    else context = (moduleInstance as ModuleInstance).getSelfContext();
 
-      // if still no dep found, look inward lol
-      if (!dep)
-        dep = this._private.collections[collection].getDataDep(property);
-    } else {
-      dep = this._private.collections[collection].getDataDep(property);
-    }
-    return dep as Dep;
-  }
+    // spread base context
+    context = {
+      base: this._private.modules.base.public.object,
+      ...this._private.modules.base.public.object, // invokes getters, dat bad
+      ...context
+    };
 
-  public dispatch(type: string, payload: { [key: string]: any }): void {
-    switch (type) {
-      case 'mutation':
-        this._private.global.runtime.ingest({
-          type: JobType.PUBLIC_DATA_MUTATION,
-          collection: payload.collection,
-          property: payload.key,
-          value: payload.value,
-          dep: payload.dep
-        });
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  public getContext(collection?: string | Collection): { [key: string]: any } {
-    if (!collection) return this._private.global.contextRef;
-
-    let c: Collection;
-    if (typeof collection === 'string')
-      c = this._private.collections[collection];
-    else if (collection instanceof Collection) c = collection;
-
-    if (c instanceof Collection) {
-      return {
-        ...this._private.global.contextRef,
-        ...c.methods,
-        data: c.public.object,
-        indexes: c.indexes.object,
-        groups: c.public.object,
-        computed: c.public.object,
-        routes: c.public.object.routes,
-        local: c.local
-      };
-    }
-    return this._private.global.contextRef;
+    this._private.global.gettingContext = false;
+    return context;
   }
 
   install(Vue) {
@@ -398,7 +398,7 @@ export default class Library {
   public updateStorage(storageConfig: {}): void {
     this._private.global.storage = new Storage(storageConfig);
     // re-init all collections persist to ensure correct values
-    this._private.collectionKeys.forEach(collectionName => {
+    this._private.keys.collections.forEach(collectionName => {
       let collection = this._private.collections[collectionName];
       collection.initPersist(collection.root.persist);
     });

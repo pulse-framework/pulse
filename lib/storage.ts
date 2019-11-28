@@ -38,13 +38,13 @@ export default class Storage {
     }
   }
 
-  public get(collection, key) {
+  public get(moduleName: string, key) {
     if (!this.storageReady) return;
 
     if (this.isPromise) {
       return new Promise((resolve, reject) => {
         this.storageMethods
-          .get(this.getKey(collection, key))
+          .get(this.getKey(moduleName, key))
           .then(res => {
             // if result is not JSON for some reason, return it.
             if (typeof res !== 'string') return resolve(res);
@@ -54,25 +54,25 @@ export default class Storage {
           .catch(reject);
       });
     } else {
-      return JSON.parse(this.storageMethods.get(this.getKey(collection, key)));
+      return JSON.parse(this.storageMethods.get(this.getKey(moduleName, key)));
     }
   }
 
-  public set(collection, key, value) {
+  public set(moduleName: string, key, value) {
     if (!this.storageReady) return;
     this.storageMethods.set(
-      this.getKey(collection, key),
+      this.getKey(moduleName, key),
       JSON.stringify(value)
     );
   }
 
-  public remove(collection, key) {
+  public remove(moduleName: string, key) {
     if (!this.storageReady) return;
-    this.storageMethods.remove(this.getKey(collection, key));
+    this.storageMethods.remove(this.getKey(moduleName, key));
   }
 
-  private getKey(collection, key) {
-    return `_${collection}_${key}`;
+  private getKey(moduleName: string, key) {
+    return `_${moduleName}_${key}`;
   }
 
   private check(func) {
