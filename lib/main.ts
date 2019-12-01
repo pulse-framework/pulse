@@ -50,7 +50,7 @@ export default class Pulse {
 
         contextRef: {},
         // Instances
-        subs: new SubController(this.getContext.bind(this)),
+        subs: new SubController(this.getContextRef.bind(this)),
         relations: null,
         storage: null,
         // Function aliases
@@ -168,7 +168,10 @@ export default class Pulse {
     });
 
     // preserve refrence of clean namespace object
-    self.global.contextRef = namespace;
+    self.global.contextRef = {
+      ...namespace,
+      base: self.modules.base.public.object
+    };
 
     // bind namespace to root of pulse
     for (let key in namespace) this[key] = namespace[key];
@@ -285,8 +288,9 @@ export default class Pulse {
     let context: Object = {};
     this._private.global.gettingContext = true; // prevent reactive getters from tracking dependencies while building context
 
-    if (!moduleInstance) context = this._private.global.contextRef;
-    else context = (moduleInstance as ModuleInstance).getSelfContext();
+    if (!moduleInstance) {
+      context = this._private.global.contextRef;
+    } else context = (moduleInstance as ModuleInstance).getSelfContext();
 
     // spread base context
     context = {
@@ -297,6 +301,10 @@ export default class Pulse {
 
     this._private.global.gettingContext = false;
     return context;
+  }
+
+  public getContextRef() {
+    return this._private.global.contextRef;
   }
 
   install(Vue) {

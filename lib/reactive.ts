@@ -67,7 +67,7 @@ export default class Reactive {
 
     Object.defineProperty(object, key, {
       get: function pulseGetter() {
-        if (self.sneaky) return value;
+        if (self.sneaky || self.global.gettingContext) return value;
 
         if (self.global.touching) {
           self.global.touched = dep;

@@ -80,6 +80,8 @@ export default class Runtime {
     // shift the next job from the queue
     let next = this.ingestQueue.shift();
 
+    if (!next) return;
+
     this.global.log(next);
 
     if (!next.dep && next.type !== JobType.INDEX_UPDATE)

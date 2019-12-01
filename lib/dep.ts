@@ -32,7 +32,7 @@ export default class Dep {
 
     // debugger;
 
-    if (this.global.runningComputed && !this.global.gettingContext) {
+    if (this.global.runningComputed) {
       this.dependents.add(this.global.runningComputed);
       console.log('adding dependent for', this.global.runningComputed);
     }

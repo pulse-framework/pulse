@@ -21,7 +21,7 @@ export default class SubController {
 
   public componentStore: { [key: string]: ComponentContainer } = {};
 
-  constructor(private getContext) {}
+  constructor(private getContextRef) {}
 
   registerComponent(instance, config) {
     let uuid = instance.__pulseUniqueIdentifier;
@@ -62,7 +62,7 @@ export default class SubController {
 
   subscribePropertiesToComponents(properties, componentUUID) {
     // provisionally get keys of mapped data
-    const provision = properties(this.getContext());
+    const provision = properties(this.getContextRef());
 
     const keys = Object.keys(provision);
 
@@ -75,19 +75,11 @@ export default class SubController {
       keys
     };
 
-    let returnToComponent = properties(this.getContext());
+    let returnToComponent = properties(this.getContextRef());
 
     this.subscribingComponent = false;
 
     this.subscribingComponentKey = 0;
-
-    // cleanse any deep objects of their getters/setters from Pulse and ensure object is a copy
-    // Object.keys(returnToComponent).forEach(property => {
-    //   returnToComponent[property] = cleanse(returnToComponent[property]);
-    // });
-    // returnToComponent = Object.assign({}, returnToComponent);
-
-    // console.log(returnToComponent);
 
     return returnToComponent;
   }
