@@ -7,7 +7,7 @@ import { JobType } from './runtime';
 export default class Computed {
   public relatedToGroup: Array<any> = [];
   public dynamicRelation: DynamicRelation = null;
-
+  public hasRun: boolean = false;
   constructor(
     private global: Global,
     public parentModuleInstance: ModuleInstance,
@@ -16,30 +16,21 @@ export default class Computed {
   ) {}
 
   public run() {
+    this.hasRun = true;
+
     this.global.relations.cleanup(this.dynamicRelation);
 
     this.global.runningComputed = this;
 
     let context = this.global.getContext(this.parentModuleInstance);
     let output: any;
-
     try {
       output = this.computedFunction(context);
     } catch (error) {
-      // if the computed function ran during init and an error is caught
-      // theres a high chance it's because it depends on another computed function that
-      // hasn't ran yet, so we re-ingest
-      if (!this.global.initComplete) {
-        // alert('yes');
-        this.global.runtime.ingest({
-          type: JobType.COMPUTED_REGEN,
-          property: this,
-          collection: this.parentModuleInstance
-        });
-        return;
-      } else console.error(error);
+      // during init computed functions that depend on the output of other computed functions will
+      // throw an error, we want to ingore this error and
+      if (this.global.initComplete) console.error(error);
     }
-
     // override output with default if undefined or null
     if (
       (output === undefined || output === null) &&

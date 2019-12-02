@@ -1,6 +1,8 @@
 import { Global, ModuleInstance } from './interfaces';
 import { DynamicRelation, RelationTypes } from './relationController';
 import Collection from './module/modules/collection';
+import { JobType } from './runtime';
+import Computed from './computed';
 export default class Dep {
   // these
   public dependents: any = new Set();
@@ -29,23 +31,43 @@ export default class Dep {
   // for when public data is accessed, reactive class will trigger this function
   register() {
     const subs = this.global.subs;
+    const name = this.propertyName as string;
 
-    // debugger;
+    if (this.type === 'reactive') {
+      if (this.global.runningComputed && !this.global.runningWatcher) {
+        // register dependent
+        this.dependents.add(this.global.runningComputed);
 
-    if (this.global.runningComputed) {
-      this.dependents.add(this.global.runningComputed);
-      console.log('adding dependent for', this.global.runningComputed);
+        // if this property is a computed function that has not ran at least once
+
+        if (
+          this.parentModuleInstance.keys.computed.includes(this
+            .propertyName as string) &&
+          !this.parentModuleInstance.isComputedReady(this
+            .propertyName as string)
+        ) {
+          // re-queue the computed function that is currently running
+          // (not the one that is being accessed) this will give the unready computed
+          // function a chance to run before this one is ran again, since runningComputed depends on the
+          // output of this computed function
+          // console.log('reingesting');
+          this.global.runtime.ingest({
+            type: JobType.COMPUTED_REGEN,
+            property: this.global.runningComputed as Computed,
+            collection: this.parentModuleInstance
+          });
+        }
+      }
+    } else if (this.type === 'internal') {
+      let dataDep = this.global.runningPopulate as Dep;
+      // if the data's dep class
+      // action index matches the current action, create dynamic relation
+      if (
+        dataDep &&
+        dataDep.currentActionIndex === this.global.runtime.runningActions.length
+      )
+        this.global.relations.relate(dataDep, this);
     }
-
-    let dataDep = this.global.runningPopulate as Dep;
-
-    // if the data's dep class
-    // action index matches the current action create dynamic relation
-    if (
-      dataDep &&
-      dataDep.currentActionIndex === this.global.runtime.runningActions.length
-    )
-      this.global.relations.relate(dataDep, this);
 
     if (subs.subscribingComponent) this.subscribeComponent();
 

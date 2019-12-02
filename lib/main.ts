@@ -293,11 +293,11 @@ export default class Pulse {
     } else context = (moduleInstance as ModuleInstance).getSelfContext();
 
     // spread base context
-    context = {
-      base: this._private.modules.base.public.object,
-      ...this._private.modules.base.public.object, // invokes getters, dat bad
-      ...context
-    };
+    // context = {
+    //   base: this._private.modules.base.public.object,
+    //   ...this._private.modules.base.public.object, // invokes getters, dat bad
+    //   ...context
+    // };
 
     this._private.global.gettingContext = false;
     return context;

@@ -137,7 +137,9 @@ export default class Module {
       let watcher = watchers[watcherName];
 
       this.watchers[watcherName] = () => {
+        this.global.runningWatcher = true;
         let watcherOutput = watcher(this.global.getContext(this));
+        this.global.runningWatcher = false;
         return watcherOutput;
       };
     }
@@ -301,5 +303,10 @@ export default class Module {
     this.global.touched = null;
 
     return dep;
+  }
+
+  public isComputedReady(computedName: string) {
+    // if (this.computed.hasOwnProperty(computedName)) return true;
+    return this.computed[computedName].hasRun;
   }
 }

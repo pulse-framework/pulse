@@ -116,12 +116,12 @@ export default class Runtime {
         this.performInternalDataUpdate(job);
         break;
       case JobType.INDEX_UPDATE:
-        if (!pre) job.previousValue = this.loadPreviousValue(job);
+        // if (!pre) job.previousValue = this.loadPreviousValue(job);
 
         this.performIndexUpdate(job);
         break;
       case JobType.COMPUTED_REGEN:
-        if (!pre) job.previousValue = this.loadPreviousValue(job);
+        // if (!pre) job.previousValue = this.loadPreviousValue(job);
         this.performComputedOutput(job);
         job.collection.runWatchers((job.property as Computed).name);
         break;
@@ -130,7 +130,7 @@ export default class Runtime {
         job.collection.runWatchers(job.property);
         break;
       case JobType.SOFT_GROUP_UPDATE:
-        if (!pre) job.previousValue = this.loadPreviousValue(job);
+        // if (!pre) job.previousValue = this.loadPreviousValue(job);
         this.performGroupRebuild(job);
         job.collection.runWatchers(job.property);
         break;

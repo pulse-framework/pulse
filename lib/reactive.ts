@@ -242,7 +242,6 @@ export default class Reactive {
         return self.object[propertyName];
       },
       set: function pulseSetterAlias(newValue) {
-        console.log('alias setter', propertyName);
         // if (
         //   // self.global.runningComputed &&
         //   // (self.global.runningComputed as Computed).name === propertyName

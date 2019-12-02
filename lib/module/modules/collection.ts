@@ -37,7 +37,11 @@ export default class Collection extends Module {
   initIndexes(groups: Array<any>) {
     // FIXME: if you want indexes to be reactive Jamie, that empty array right there is your answer
     this.indexes = new Reactive(this, normalizeGroups(groups), [], 'indexes');
-    this.namespace.indexes = this.indexes.object;
+    this.public.privateWrite('indexes', this.indexes.object);
+    for (let indexName of this.indexes.properties) {
+      // init empty group
+      this.public.privateWrite(indexName, []);
+    }
   }
 
   initModel(model = {}) {
