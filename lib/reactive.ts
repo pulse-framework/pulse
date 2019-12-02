@@ -229,6 +229,10 @@ export default class Reactive {
     return bool;
   }
 
+  public injectIntoPrototype(obj) {
+    this.object = Object.create(obj);
+  }
+
   public getKeys(): Array<string> {
     this.sneaky = true;
     const keys = Object.keys(this.object);
@@ -242,11 +246,6 @@ export default class Reactive {
         return self.object[propertyName];
       },
       set: function pulseSetterAlias(newValue) {
-        // if (
-        //   // self.global.runningComputed &&
-        //   // (self.global.runningComputed as Computed).name === propertyName
-        // )
-        //   return;
         self.object[propertyName] = newValue;
         return;
       }

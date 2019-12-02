@@ -47,7 +47,14 @@ export default class Module {
 
     // create public object
     let mutableKeys = Object.keys(root.data || {});
+
     this.public = new Reactive(this, root.data, mutableKeys);
+
+    // TESTING
+    collectionFunctions.map(
+      func => this[func] && (this.methods[func] = this[func].bind(this))
+    );
+    this.public.injectIntoPrototype(this.methods);
 
     if (root.staticData)
       for (let property in root.staticData)
@@ -68,10 +75,7 @@ export default class Module {
   }
 
   private prepareNamespace(root: CollectionObject) {
-    if (this.name !== 'base')
-      collectionFunctions.map(
-        func => this[func] && (this.methods[func] = this[func].bind(this))
-      );
+    // if (this.name !== 'base')
 
     // legacy support ("filters" changed to "computed")
     root.computed = { ...root.computed, ...root.filters };
