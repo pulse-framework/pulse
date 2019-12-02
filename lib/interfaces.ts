@@ -118,6 +118,7 @@ export interface Global {
   log: Function;
 }
 
+  modules: any;
 export type ModuleInstance = Module | Collection;
 
 export interface Private {

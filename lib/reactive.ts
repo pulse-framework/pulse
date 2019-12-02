@@ -28,12 +28,12 @@ export default class Reactive {
     public type: 'public' | 'indexes' = 'public'
   ) {
     this.global = parentModuleInstance.global;
-    this.properties = Object.keys(object);
+    this.properties = [...Object.keys(object), ...mutableProperties];
     this.object = this.reactiveObject(object);
   }
 
   reactiveObject(object: Obj, rootProperty?: string): object {
-    const objectKeys = Object.keys(object);
+    const objectKeys = this.mutableProperties
 
     // Loop over all properties of the to-be reactive object
     for (let i = 0; i < objectKeys.length; i++) {

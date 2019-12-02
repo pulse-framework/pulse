@@ -48,13 +48,13 @@ export default class Module {
     // create public object
     let mutableKeys = Object.keys(root.data || {});
 
-    this.public = new Reactive(this, root.data, mutableKeys);
+    this.public = new Reactive(this, this.namespace, mutableKeys);
 
     // TESTING
     collectionFunctions.map(
       func => this[func] && (this.methods[func] = this[func].bind(this))
     );
-    this.public.injectIntoPrototype(this.methods);
+    // this.public.injectIntoPrototype(this.methods);
 
     if (root.staticData)
       for (let property in root.staticData)
@@ -65,6 +65,7 @@ export default class Module {
     this.initActions(root.actions);
     this.initWatchers(root.watch);
     this.initComputed(root.computed);
+
     if (this.global.request || root.request) this.initRoutes(root.routes);
 
     // load persisted data from storage
@@ -96,6 +97,8 @@ export default class Module {
       publicNamespace
     );
 
+    console.log(root)
+
     return root;
   }
 
@@ -115,7 +118,6 @@ export default class Module {
     };
 
     for (let routeName in routes) {
-      if (!this.public.exists('routes')) this.public.privateWrite('routes', {});
       this.public.object.routes[routeName] = routeWrapped(routeName);
     }
   }

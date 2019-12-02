@@ -97,7 +97,8 @@ export default class Pulse {
       ...self.modules.base.public.mutableProperties,
       ...self.modules.base.keys.computed
     ];
-    for (let property in self.modules.base.public.object)
+    
+    for (let property of self.modules.base.public.properties)
       if (aliasedProperties.includes(property))
         self.modules.base.public.createReactiveAlias(this, property);
       else this[property] = self.modules.base.public.object[property];
