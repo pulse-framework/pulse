@@ -93,13 +93,14 @@ export default class Pulse {
     self.modules.base = new Module('base', self.global, root);
 
     // alias base module public properties
-    let aliasedProperties = [
-      ...self.modules.base.public.mutableProperties,
-      ...self.modules.base.keys.computed
-    ];
-    
+    console.log('properties', self.modules.base.public.properties);
     for (let property of self.modules.base.public.properties)
-      if (aliasedProperties.includes(property))
+      if (
+        [
+          ...self.modules.base.public.mutableProperties,
+          ...self.modules.base.keys.computed
+        ].includes(property)
+      )
         self.modules.base.public.createReactiveAlias(this, property);
       else this[property] = self.modules.base.public.object[property];
 

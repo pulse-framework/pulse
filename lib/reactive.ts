@@ -33,7 +33,7 @@ export default class Reactive {
   }
 
   reactiveObject(object: Obj, rootProperty?: string): object {
-    const objectKeys = this.mutableProperties
+    const objectKeys = this.mutableProperties;
 
     // Loop over all properties of the to-be reactive object
     for (let i = 0; i < objectKeys.length; i++) {
@@ -240,6 +240,7 @@ export default class Reactive {
     return keys;
   }
   public createReactiveAlias(destObj: any, propertyName: string) {
+    if (destObj.hasOwnProperty(propertyName)) return destObj;
     const self = this;
     Object.defineProperty(destObj, propertyName, {
       get: function pulseGetterAlias() {

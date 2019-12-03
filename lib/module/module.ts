@@ -42,19 +42,22 @@ export default class Module {
     // define aliases
     this.config = root.config;
 
-    // create this.namespace
-    root = this.prepareNamespace(root);
+    // create this.root
+    root = this.prepareRoot(root);
+
+    // Prepare methods
+    collectionFunctions.map(
+      func => this[func] && (this.methods[func] = this[func].bind(this))
+    );
+
+    let publicObject = this.preparePublicNamespace(root);
 
     // create public object
     let mutableKeys = Object.keys(root.data || {});
 
-    this.public = new Reactive(this, this.namespace, mutableKeys);
+    this.public = new Reactive(this, publicObject, mutableKeys);
 
-    // TESTING
-    collectionFunctions.map(
-      func => this[func] && (this.methods[func] = this[func].bind(this))
-    );
-    // this.public.injectIntoPrototype(this.methods);
+    console.log(this.public.object);
 
     if (root.staticData)
       for (let property in root.staticData)
@@ -75,31 +78,39 @@ export default class Module {
     if (root.onReady) this.onReady = root.onReady;
   }
 
-  private prepareNamespace(root: CollectionObject) {
-    // if (this.name !== 'base')
-
+  private prepareRoot(root: CollectionObject) {
     // legacy support ("filters" changed to "computed")
     root.computed = { ...root.computed, ...root.filters };
 
+    console.log('prepareRoot', root);
+
+    return root;
+  }
+
+  private preparePublicNamespace(root) {
     interface PublicNamespace {
       routes?: Object;
       indexes?: Object;
       local?: Object;
     }
 
-    const publicNamespace: PublicNamespace = {},
-      types = ['routes', 'indexes', 'local'];
+    const publicNamespace: PublicNamespace = {};
 
+    // insert static properties
+    const types = ['routes', 'indexes', 'local'];
     types.forEach(type => root[type] && (publicNamespace[type] = root[type]));
 
-    this.namespace = Object.assign(
+    let namespaceWithMethods = Object.assign(
       Object.create(this.methods),
-      publicNamespace
+      publicNamespace,
+      ...root.data,
+      ...root.computed,
+      ...root.actions
     );
 
-    console.log(root)
+    console.log('namespaceWithMethods', namespaceWithMethods);
 
-    return root;
+    return namespaceWithMethods;
   }
 
   private initRoutes(routes: ExpandableObject = {}) {
@@ -216,7 +227,7 @@ export default class Module {
       data: this.public.object,
       computed: this.public.object,
       routes: this.public.object.routes,
-      local: this.namespace.local
+      local: this.root.local
     };
 
     // collection + module context
