@@ -93,7 +93,6 @@ export default class Pulse {
     self.modules.base = new Module('base', self.global, root);
 
     // alias base module public properties
-    console.log('properties', self.modules.base.public.properties);
     for (let property of self.modules.base.public.properties)
       if (
         [

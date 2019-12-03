@@ -57,8 +57,6 @@ export default class Module {
 
     this.public = new Reactive(this, publicObject, mutableKeys);
 
-    console.log(this.public.object);
-
     if (root.staticData)
       for (let property in root.staticData)
         if (root.staticData.hasOwnProperty(property))
@@ -78,12 +76,12 @@ export default class Module {
     if (root.onReady) this.onReady = root.onReady;
   }
 
+  // this function is where any transforms to the root object
+  // should be done, before namspace is initilized
   private prepareRoot(root: CollectionObject) {
-    // legacy support ("filters" changed to "computed")
-    root.computed = { ...root.computed, ...root.filters };
+    root.computed = { ...root.computed, ...root.filters }; // legacy support
 
-    console.log('prepareRoot', root);
-
+    this.root = root;
     return root;
   }
 
@@ -107,8 +105,6 @@ export default class Module {
       ...root.computed,
       ...root.actions
     );
-
-    console.log('namespaceWithMethods', namespaceWithMethods);
 
     return namespaceWithMethods;
   }
