@@ -176,6 +176,9 @@ export default class Pulse {
 
     // bind namespace to root of pulse
     for (let key in namespace) this[key] = namespace[key];
+
+    if (self.global.config.baseModuleAlias)
+      this['base'] = self.modules.base.public.object;
   }
 
   public loopModules(callback: Function) {
@@ -248,11 +251,13 @@ export default class Pulse {
     if (!this._private) {
       // define config
       config = defineConfig(config, {
-        logJobs: false,
         framework: null,
+        frameworkConstructor: null,
         waitForMount: false,
         autoUnmount: false,
-        computedDefault: null
+        computedDefault: null,
+        logJobs: false,
+        baseModuleAlias: false
       });
     } else {
       // merge config

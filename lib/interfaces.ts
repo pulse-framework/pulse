@@ -29,13 +29,13 @@ export interface Watcher {
 }
 
 export interface RootConfig {
-  computedDefault: boolean;
   framework?: any;
   frameworkConstructor?: any;
   waitForMount?: boolean;
   autoUnmount?: boolean;
-  enableBase?: boolean;
-  enableRequest?: boolean;
+  logJobs: boolean;
+  computedDefault: boolean;
+  baseModuleAlias?: boolean;
   debugMode?: Set<DebugType>;
 }
 export interface CollectionConfig {}
@@ -118,7 +118,7 @@ export interface Global {
   log: Function;
 }
 
-  modules: any;
+modules: any;
 export type ModuleInstance = Module | Collection;
 
 export interface Private {
