@@ -31,7 +31,7 @@ A few new config options have been added:
 
 ### Ghosting
 
-This is a handy feature built into the `move()` function for Collections. By using `{ ghost: true }` as the third parameter of `move()` the data will appear to remain in the group it was moved from, but will be removed from the groups' index. The data object will have the property `_isGhost: true` injected. This is extremely useful if you have a list of users, clicking "follow" might move them from that group of users into another, but for UX purposes you want it to remain in case they want to undo the action. The `_isGhost: true` property can be used to change the UI accordingly. All ghosts will be removed when `collection.cleanse()` is called.
+This is a handy feature built into the `move()` function for Collections. By using `{ ghost: true }` as the third parameter of `move()` the data will appear to remain in the group it was moved from, but will be removed from the groups' index. The data object will have the property `isGhost: true` injected. This is extremely useful if you have a list of users, clicking "follow" might move them from that group of users into another, but for UX purposes you want it to remain in case they want to undo the action. The `isGhost: true` property can be used to change the UI accordingly. All ghosts will be removed when `collection.cleanse()` is called.
 
 ### Internal Changes
 
