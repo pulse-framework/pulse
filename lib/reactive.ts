@@ -33,7 +33,7 @@ export default class Reactive {
   }
 
   reactiveObject(object: Obj, rootProperty?: string): object {
-    const objectKeys = this.mutableProperties;
+    const objectKeys = rootProperty ? Object.keys(object) : this.properties;
 
     // Loop over all properties of the to-be reactive object
     for (let i = 0; i < objectKeys.length; i++) {
@@ -101,7 +101,7 @@ export default class Reactive {
           if (self.allowPrivateWrite) {
             // dynamically convert new values to reactive if objects
             // This is risky as fuck and kinda doesn't even work
-            if (isWatchableObject(value) && self.properties.includes(key)) {
+            if (isWatchableObject(newValue) && self.properties.includes(key)) {
               newValue = self.deepReactiveObject(
                 newValue,
                 rootProperty || key,
@@ -182,6 +182,7 @@ export default class Reactive {
     this.allowPrivateWrite = true;
     const obj = this.reactiveObject(objectWithCustomPrototype, rootProperty);
     this.allowPrivateWrite = false;
+
     return obj;
   }
 
@@ -227,10 +228,6 @@ export default class Reactive {
     const bool = !!this.object.hasOwnProperty(property);
     this.sneaky = false;
     return bool;
-  }
-
-  public injectIntoPrototype(obj) {
-    this.object = Object.create(obj);
   }
 
   public getKeys(): Array<string> {

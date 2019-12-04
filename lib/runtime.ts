@@ -52,15 +52,14 @@ export default class Runtime {
     // if last job is identical to current job
     // since completed jobs is cleared after a component update is issued this SHOULDN't prevent
     // the same thing happening twice (pls test tho)
-
-    if (
-      this.runningJob &&
-      job.property === (this.runningJob as Job).property &&
-      job.collection === (this.runningJob as Job).collection
-    ) {
-      // console.error('Pulse: Infinate job loop prevented', job);
-      // return;
-    }
+    // if (
+    //   this.runningJob &&
+    //   job.property === (this.runningJob as Job).property &&
+    //   job.collection === (this.runningJob as Job).collection
+    // ) {
+    //   // console.error('Pulse: Infinate job loop prevented', job);
+    //   // return;
+    // }
     this.ingestQueue.push(job);
     // don't begin the next job until this one is fully complete
     if (!this.runningJob) {

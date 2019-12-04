@@ -40,7 +40,7 @@ export default class Collection extends Module {
     this.public.privateWrite('indexes', this.indexes.object);
     for (let indexName of this.indexes.properties) {
       // init empty group
-      this.public.privateWrite(indexName, []);
+      this.public.addProperty(indexName, []);
     }
   }
 

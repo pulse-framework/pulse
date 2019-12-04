@@ -170,7 +170,10 @@ export default class Module {
         computedName,
         computed[computedName]
       );
-      this.public.addProperty(computedName, this.global.config.computedDefault);
+      this.public.privateWrite(
+        computedName,
+        this.global.config.computedDefault
+      );
     }
   }
 

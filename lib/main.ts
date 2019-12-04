@@ -378,9 +378,9 @@ export default class Pulse {
     } else if (typeof properties === 'object') {
       let returnData = {};
       normalizeMap(properties).forEach(({ key, val }) => {
-        let collection = val.split('/')[0];
+        let moduleInstance = val.split('/')[0];
         let property = val.split('/')[1];
-        let c = pulse._private.global.contextRef[collection];
+        let c = pulse._private.global.contextRef[moduleInstance];
         returnData[
           key
         ] = pulse._private.global.subs.subscribePropertiesToComponents(() => {
