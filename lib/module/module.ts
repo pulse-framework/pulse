@@ -96,7 +96,9 @@ export default class Module {
 
     // insert static properties
     const types = ['routes', 'indexes', 'local'];
-    types.forEach(type => root[type] && (publicNamespace[type] = root[type]));
+    types.forEach(
+      type => root[type] && (publicNamespace[type] = { ...root[type] })
+    );
 
     let namespaceWithMethods = Object.assign(
       Object.create(this.methods),
@@ -117,6 +119,7 @@ export default class Module {
       return function() {
         let requestObject = Object.assign({}, self.global.request);
         requestObject.context = self.global.contextRef;
+
         return routes[routeName].apply(
           null,
           [requestObject].concat(Array.prototype.slice.call(arguments))
