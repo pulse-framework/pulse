@@ -83,9 +83,11 @@ export interface Methods {
   findById?: Function;
   forceUpdate?: Function;
   debounce?: Function;
+  cleanse?: Function;
 }
 
 export interface Keys {
+  staticData: string[];
   data?: Array<string>;
   computed?: Array<string>;
   actions?: Array<string>;

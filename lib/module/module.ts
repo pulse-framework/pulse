@@ -1,4 +1,4 @@
-import { collectionFunctions, objectLoop } from '../helpers';
+import { collectionFunctions, objectLoop, createObj } from '../helpers';
 import Reactive from '../reactive';
 import Action from '../action';
 import Computed from '../computed';
@@ -33,6 +33,7 @@ export default class Module {
   protected persist: Array<string> = [];
   protected model: { [key: string]: any } = {};
   protected throttles: Array<Action> = [];
+  protected localContext: any;
 
   constructor(
     public name: string,
@@ -53,14 +54,16 @@ export default class Module {
     let publicObject = this.preparePublicNamespace(root);
 
     // create public object
-    let mutableKeys = Object.keys(root.data || {});
+    this.keys.data = Object.keys(root.data || {});
 
-    this.public = new Reactive(this, publicObject, mutableKeys);
+    this.public = new Reactive(this, publicObject, this.keys.data);
 
-    if (root.staticData)
+    if (root.staticData) {
+      this.keys.staticData = Object.keys(root.staticData);
       for (let property in root.staticData)
         if (root.staticData.hasOwnProperty(property))
           this.public.privateWrite(property, root.staticData[property]);
+    }
 
     // init module features
     this.initActions(root.actions);
@@ -71,6 +74,8 @@ export default class Module {
 
     // load persisted data from storage
     this.initPersist(root.persist);
+
+    this.prepareLocalContext();
 
     // init finished
     if (root.onReady) this.onReady = root.onReady;
@@ -104,8 +109,8 @@ export default class Module {
       Object.create(this.methods),
       publicNamespace,
       ...root.data,
-      ...root.computed,
-      ...root.actions
+      ...root.computed
+      // ...root.actions
     );
 
     return namespaceWithMethods;
@@ -220,26 +225,38 @@ export default class Module {
     else this.externalWatchers[property].push(callback); // luka was here
   }
 
-  public getSelfContext() {
-    const globalContext = this.global.contextRef;
-
-    // module only context
-    const localContext = {
-      ...this.methods,
-      data: this.public.object,
-      computed: this.public.object,
-      routes: this.public.object.routes,
-      local: this.root.local
+  public prepareLocalContext() {
+    this.localContext = {
+      data: {},
+      computed: {}
     };
 
-    // collection + module context
-    // typescript will always complain about this, nothing much can be done
-    if (this.indexes) {
-      localContext.indexes = this.indexes.object;
-      localContext.groups = this.public.object;
+    let l = this.localContext;
+
+    for (let type in l)
+      for (let propertyName of this.keys[type])
+        this.public.createReactiveAlias(l[type], propertyName);
+
+    if (this.keys.staticData)
+      for (let property of this.keys.staticData)
+        l.data[property] = this.public.privateGet(property);
+
+    // insert static properties
+    l.local = this.root.local;
+    l.actions = createObj(this.keys.actions, this.public.object);
+    l.routes = this.public.object.routes;
+
+    if (this.keys.indexes) {
+      l.indexes = this.indexes.public.object;
     }
 
-    return { ...globalContext, ...localContext };
+    for (let method in this.methods) l[method] = this.methods[method];
+  }
+
+  public getSelfContext() {
+    const globalContext = this.global.contextRef;
+    let context = { ...globalContext, ...this.localContext };
+    return context;
   }
 
   private forceUpdate(property: string): void {

@@ -103,6 +103,10 @@ export default class Pulse {
         self.modules.base.public.createReactiveAlias(this, property);
       else this[property] = self.modules.base.public.object[property];
 
+    // assign actions to root
+    for (let property of self.modules.base.keys.actions)
+      this[property] = self.modules.base.public.object[property];
+
     // optionally register request module
     if (root.request) {
       self.modules.request = new Request(self.global, root.request);

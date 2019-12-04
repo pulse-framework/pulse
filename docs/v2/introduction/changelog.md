@@ -1,24 +1,61 @@
+# 2.1.0 - Introducing Modules
+
+Pulse 2.1 is everything that should have been part of 2.0. There have been a large amount of internal changes but a few forward facing changes that could very well break your code.
+
+## The biggest change
+
+TLDR: The base collection (or now "Module") has changed from `pulse.base.someData` to simply `pulse.someData` HOWEVER can still be baqckwards compatible with the `baseModuleAlias` config option.
+
+## New features
+
+- Added [Modules](###Modules)
+- Added [baseModuleAlias](###Config) config option
+- Added [Index Ghosting](###Ghosting)
+
+### Modules
+
+Modules are just like collections, but without the collection functions. I added this because I felt like most applications need reactive modules to represent areas of their application that do not rely on a data structure (for example: UI related logic, error handlers or debug logic). Calling these sections "collections" and instantiating the collection logic is wasteful, enter Modules.
+
+Modules have the abilty to maintain state (as data), computed functions, actions, persisted state, watchers and routes.
+
+Collections have everything a Module does, but with additional features such as the `collect()` function for internal data, groups (with internal indexes) and functions like `move()`, `put()`, `replaceIndex()` and so on. This is better explained in the documentation for Collections.
+
+Interally the Collection class now extends the Module class. Collection logic is built on top of the Module logic.
+
+### Config
+
+A few new config options have been added:
+
+- baseModuleAlias
+  - by default the root instance of Pulse is a Module called "base", before it was always accessable as "base" like any other named collection, but now Pulse hides the "base" module instance and exposes the properties of base on the root of Pulse, so `pulse.base.someData` is now `pulse.someData`. `baseModuleAlias: true` will add `pulse.base` again as it was before, although base's properties will still be exposed directly on the pulse object.
+
+### Ghosting
+
+This is a handy feature built into the `move()` function for Collections. By using `{ ghost: true }` as the third parameter of `move()` the data will appear to remain in the group it was moved from, but will be removed from the groups' index. The data object will have the property `_isGhost: true` injected. This is extremely useful if you have a list of users, clicking "follow" might move them from that group of users into another, but for UX purposes you want it to remain in case they want to undo the action. The `_isGhost: true` property can be used to change the UI accordingly. All ghosts will be removed when `collection.cleanse()` is called.
+
+### Internal Changes
+
+Before collections were referred to internally using the name as a string, now since there are Modules,Collections and Services the instance is passed around Pulse as `moduleInstance` as a direct refrence instead.
+
 # 2.0 - Internal rewrite
 
 Pulse version two is a complete ground-up rewrite. For the most part it should not affect your code, it is indeed backwards compatible. However there are a few things that have changed externally that you should know about before updating to V2.
 
 ## Breaking changes
 
-These are changes that could
-
-    - Namespacing changes (see below)
-    - Model relations "hasOne, hasMany" removed in place of populate() function (need to update docs....)
-    - Constructor changed from `Pulse.Library()` to just `Pulse()`
-    - "Filters" renamed to "Computed" although using "filters" as a property name on your collections still works.
-    - remove() renamed to removeFromGroup()
+- Namespacing changes (see below)
+- Model relations "hasOne, hasMany" removed in place of populate() function (need to update docs....)
+- Constructor changed from `Pulse.Library()` to just `Pulse()`
+- "Filters" renamed to "Computed" although using "filters" as a property name on your collections still works.
+- remove() renamed to removeFromGroup()
 
 ## New Features (docs soon)
 
-    - Global events
-    - Added more config options
-    - Better debugging helpers
-    - Added more defaults to Base class
-    - onReady()
+- Global events
+- Added more config options
+- Better debugging helpers
+- Added more defaults to Base class
+- onReady()
 
 ## Namespacing updates
 

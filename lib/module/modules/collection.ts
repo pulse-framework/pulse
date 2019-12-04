@@ -692,6 +692,21 @@ export default class Collection extends Module {
     });
   }
 
+  private cleanse() {
+    // loop over ghosts to get index names
+    const groupsToRegen = Object.keys(this.indexes.ghosts);
+
+    this.indexes.ghosts = {};
+
+    groupsToRegen.forEach(groupName => {
+      this.global.runtime.ingest({
+        type: JobType.GROUP_UPDATE,
+        collection: this,
+        property: groupName
+      })
+    })
+  }
+
   // remove all dynamic indexes, empty all indexes, delete all internal data
   purge() {}
   // deprecate
