@@ -240,7 +240,6 @@ export default class Collection extends Module {
   }
 
   // METHODS
-
   public collect(
     data,
     group?: string | Array<string>,
@@ -703,8 +702,8 @@ export default class Collection extends Module {
         type: JobType.GROUP_UPDATE,
         collection: this,
         property: groupName
-      })
-    })
+      });
+    });
   }
 
   // remove all dynamic indexes, empty all indexes, delete all internal data
