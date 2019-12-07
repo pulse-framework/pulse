@@ -86,13 +86,17 @@ export default class SubController {
 
   // returns all deps accessed within a function,
   // does not register any dependencies
-  getAllDepsForProperties(properties: Function): Set<Dep> {
+  getAllDepsForProperties(properties: Function): any {
     let deps: Set<Dep> = new Set();
     this.trackAllDeps = true;
-    const evaluate = properties();
-    this.trackedDeps.forEach(dep => deps.add(dep));
+    const evaluated = properties();
+    this.trackedDeps.forEach(dep => {
+      if (!dep.rootProperty) deps.add(dep);
+    });
     this.trackedDeps = new Set();
     this.trackAllDeps = false;
-    return deps;
+
+    let isMapData = !Array.isArray(evaluated) && typeof evaluated === 'object';
+    return { isMapData, deps, evaluated };
   }
 }

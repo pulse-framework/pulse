@@ -30,8 +30,13 @@ export function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
       if (global.config.autoUnmount) global.subs.untrack(this);
     }
     registerDeps(componentContainer: ComponentContainer) {
-      this.deps = global.subs.getAllDepsForProperties(depsFunc);
+      let { deps, isMapData, evaluated } = global.subs.getAllDepsForProperties(
+        depsFunc
+      );
+      this.deps = deps;
+      this.isMapData = isMapData;
       this.deps.forEach(dep => dep.subscribe(componentContainer));
+      if (isMapData) this.mappedData = evaluated;
     }
     render() {
       let componentContainer: ComponentContainer = global.subs.get(
@@ -46,7 +51,15 @@ export function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
       if (!global.subs.trackingComponent && !manualDepTracking)
         console.error('Pulse x React: React component not found!');
 
-      const component = React.createElement(ReactComponent, this.props);
+      let component: any;
+      if (this.isMapData) {
+        component = React.createElement(ReactComponent, {
+          ...this.props,
+          ...this.mappedData
+        });
+      } else {
+        component = React.createElement(ReactComponent, this.props);
+      }
       return component;
     }
   };
