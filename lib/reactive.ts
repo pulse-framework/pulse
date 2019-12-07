@@ -69,10 +69,18 @@ export default class Reactive {
       get: function pulseGetter() {
         if (self.sneaky || self.global.gettingContext) return value;
 
+        // used by getDep on Module instance
         if (self.global.touching) {
           self.global.touched = dep;
           return value;
         }
+
+        // used by subController to get several deps at once
+        if (self.global.subs.trackAllDeps) {
+          self.global.subs.trackedDeps.add(dep);
+          return value;
+        }
+
         dep.register();
 
         return value;

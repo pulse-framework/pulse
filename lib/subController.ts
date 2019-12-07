@@ -4,6 +4,7 @@
 import { genId, cleanse, isWatchableObject, defineConfig } from './helpers';
 import Dep from './dep';
 import { worker } from 'cluster';
+import { Global } from './interfaces';
 
 interface SubscribingComponentObject {
   componentUUID: string;
@@ -11,8 +12,9 @@ interface SubscribingComponentObject {
 }
 
 export class ComponentContainer {
-  public uuid: string;
-  public ready: boolean;
+  public uuid: string = genId();
+  public ready: boolean = true;
+  public deps: Set<Dep> = new Set();
   constructor(
     public instance: any,
     public config: {
@@ -20,37 +22,34 @@ export class ComponentContainer {
       blindSubscribe: boolean;
     }
   ) {
-    this.uuid = genId();
     instance.__pulseUniqueIdentifier = this.uuid;
     if (config.waitForMount) this.ready = false;
+    console.log('new component tracker', this.uuid);
   }
 }
 
 export default class SubController {
   public subscribingComponentKey: number = 0;
   public trackingComponent: boolean | string = false;
-  // public unsubscribingComponent: boolean = false;
-  public skimmingDeepReactive: boolean = false;
   public lastAccessedDep: null | Dep = null;
 
+  // used by getAllDepsForProperties to get several dep classes
+  public trackAllDeps: boolean = false;
+  public trackedDeps: Set<Dep> = new Set();
   public componentStore: { [key: string]: ComponentContainer } = {};
 
-  constructor(private getContextRef) {}
+  constructor() {}
 
   registerComponent(instance, config) {
     config = defineConfig(config, {
       waitForMount: false,
       blindSubscribe: false
     });
-    let uuid = instance.__pulseUniqueIdentifier;
-    if (!uuid) {
-      let componentContainer = new ComponentContainer(instance, config);
+    let componentContainer = new ComponentContainer(instance, config);
 
-      this.componentStore[componentContainer.uuid] = componentContainer;
-    } else {
-      this.mount(instance);
-    }
-    return uuid;
+    this.componentStore[componentContainer.uuid] = componentContainer;
+
+    return componentContainer.uuid;
   }
 
   get(id: string): ComponentContainer | boolean {
@@ -58,19 +57,42 @@ export default class SubController {
   }
 
   mount(instance) {
-    let component = this.componentStore[instance.__pulseUniqueIdentifier];
+    console.log(instance.__pulseUniqueIdentifier);
+    let component: ComponentContainer = this.componentStore[
+      instance.__pulseUniqueIdentifier
+    ];
 
     if (component) {
       component.instance = instance;
       component.ready = true;
+    } else {
+      console.error('you did something wrong');
     }
   }
 
-  unmount(instance) {
+  untrack(instance) {
     const uuid = instance.__pulseUniqueIdentifier;
     if (!uuid) return;
 
-    // delete reference to this component from store
+    let component: ComponentContainer = this.componentStore[
+      instance.__pulseUniqueIdentifier
+    ];
+
+    // clean up deps to avoid memory leaks
+    component.deps.forEach(dep => dep.subscribers.delete(component));
+    // delete reference to this component instance from store
     delete this.componentStore[instance.__pulseUniqueIdentifier];
+  }
+
+  // returns all deps accessed within a function,
+  // does not register any dependencies
+  getAllDepsForProperties(properties: Function): Set<Dep> {
+    let deps: Set<Dep> = new Set();
+    this.trackAllDeps = true;
+    const evaluate = properties();
+    this.trackedDeps.forEach(dep => deps.add(dep));
+    this.trackedDeps = new Set();
+    this.trackAllDeps = false;
+    return deps;
   }
 }

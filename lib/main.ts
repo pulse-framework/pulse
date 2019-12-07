@@ -51,7 +51,7 @@ export default class Pulse {
 
         contextRef: {},
         // Instances
-        subs: new SubController(this.getContextRef.bind(this)),
+        subs: null,
         relations: null,
         storage: null,
         // Function aliases
@@ -71,8 +71,9 @@ export default class Pulse {
     // Create storage instance
     self.global.storage = new Storage(root.storage);
 
-    // Create relation controller instance
+    // Create controller instances
     self.global.relations = new RelationController(self.global);
+    self.global.subs = new SubController();
 
     // init Runtime class into the global object
     this.initRuntime();
@@ -261,7 +262,7 @@ export default class Pulse {
         framework: null,
         frameworkConstructor: null,
         waitForMount: false,
-        autoUnmount: false,
+        autoUnmount: true,
         computedDefault: null,
         logJobs: false,
         baseModuleAlias: false
