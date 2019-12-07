@@ -222,7 +222,7 @@ export default class Module {
   private watch(property, callback) {
     if (!this.externalWatchers[property])
       this.externalWatchers[property] = [callback];
-    else this.externalWatchers[property].push(callback); // luka was here
+    else this.externalWatchers[property].push(callback);
   }
 
   public prepareLocalContext() {

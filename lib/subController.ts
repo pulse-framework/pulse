@@ -1,8 +1,7 @@
 // This file handles external components subscribing to pulse.
 // It also handles subscribing mapData properties to collections
 
-import { uuid, cleanse, isWatchableObject } from './helpers';
-import { ComponentContainer } from './interfaces';
+import { genId, cleanse, isWatchableObject, defineConfig } from './helpers';
 import Dep from './dep';
 import { worker } from 'cluster';
 
@@ -11,12 +10,27 @@ interface SubscribingComponentObject {
   keys: Array<string>;
 }
 
+export class ComponentContainer {
+  public uuid: string;
+  public ready: boolean;
+  constructor(
+    public instance: any,
+    public config: {
+      waitForMount: boolean;
+      blindSubscribe: boolean;
+    }
+  ) {
+    this.uuid = genId();
+    instance.__pulseUniqueIdentifier = this.uuid;
+    if (config.waitForMount) this.ready = false;
+  }
+}
+
 export default class SubController {
   public subscribingComponentKey: number = 0;
-  public subscribingComponent: boolean | SubscribingComponentObject = false;
-  public unsubscribingComponent: boolean = false;
+  public trackingComponent: boolean | string = false;
+  // public unsubscribingComponent: boolean = false;
   public skimmingDeepReactive: boolean = false;
-  public uuid: any = uuid;
   public lastAccessedDep: null | Dep = null;
 
   public componentStore: { [key: string]: ComponentContainer } = {};
@@ -24,23 +38,23 @@ export default class SubController {
   constructor(private getContextRef) {}
 
   registerComponent(instance, config) {
+    config = defineConfig(config, {
+      waitForMount: false,
+      blindSubscribe: false
+    });
     let uuid = instance.__pulseUniqueIdentifier;
     if (!uuid) {
-      // generate UUID
-      uuid = this.uuid();
-      // inject uuid into component instance
-      const componentContainer = {
-        instance: instance,
-        uuid,
-        ready: config.waitForMount ? false : true
-      };
-      instance.__pulseUniqueIdentifier = uuid;
+      let componentContainer = new ComponentContainer(instance, config);
 
-      this.componentStore[uuid] = componentContainer;
+      this.componentStore[componentContainer.uuid] = componentContainer;
     } else {
       this.mount(instance);
     }
     return uuid;
+  }
+
+  get(id: string): ComponentContainer | boolean {
+    return this.componentStore[id] || false;
   }
 
   mount(instance) {
@@ -58,48 +72,5 @@ export default class SubController {
 
     // delete reference to this component from store
     delete this.componentStore[instance.__pulseUniqueIdentifier];
-  }
-
-  subscribePropertiesToComponents(properties, componentUUID) {
-    // provisionally get keys of mapped data
-    const provision = properties(this.getContextRef());
-
-    const keys = Object.keys(provision);
-
-    // mapData has a user defined local key, we need to include that in the
-    // subscription so we know what to update on the component later.
-    this.subscribingComponentKey = 0;
-
-    this.subscribingComponent = {
-      componentUUID,
-      keys
-    };
-
-    let returnToComponent = properties(this.getContextRef());
-
-    this.subscribingComponent = false;
-
-    this.subscribingComponentKey = 0;
-
-    return returnToComponent;
-  }
-
-  prepareNext(dep) {
-    this.lastAccessedDep = dep;
-    if (!this.skimmingDeepReactive) this.subscribingComponentKey++;
-  }
-
-  foundDeepReactive() {
-    this.skimmingDeepReactive = true;
-    // undo changes
-    this.lastAccessedDep.subscribers.pop();
-    this.subscribingComponentKey--;
-  }
-
-  exitDeepReactive() {
-    this.skimmingDeepReactive = false;
-    //redo changes
-    this.lastAccessedDep.subscribe();
-    this.subscribingComponentKey++;
   }
 }

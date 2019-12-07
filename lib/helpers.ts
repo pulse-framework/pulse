@@ -49,7 +49,7 @@ export function parse(key: string) {
   };
 }
 
-export function uuid() {
+export function genId(): string {
   return (
     Math.random()
       .toString()

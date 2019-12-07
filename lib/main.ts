@@ -4,8 +4,8 @@ import SubController from './subController';
 import RelationController from './relationController';
 import Storage from './storage';
 import Request from './collections/request';
-import withPulse from './wrappers/ReactWithPulse';
-import { uuid, normalizeMap, log, defineConfig, cleanse } from './helpers';
+import { ReactWrapper, useFramework } from './wrappers/ReactWithPulse';
+import { genId, log, defineConfig } from './helpers';
 import {
   Private,
   RootCollectionObject,
@@ -13,12 +13,13 @@ import {
   ModuleInstance
 } from './interfaces';
 import { JobType } from './runtime';
-import Dep from './dep';
 import Module from './module';
-import { createReactiveAlias } from './reactive';
 
 export default class Pulse {
   _private: Private;
+  static instance = null;
+  static useFramework = useFramework;
+  static React = ReactWrapper.bind(Pulse);
   [key: string]: any;
   constructor(root: RootCollectionObject = {}) {
     // Private object contains all internal Pulse data
@@ -57,7 +58,7 @@ export default class Pulse {
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
         log: this.log.bind(this),
-        uuid
+        uuid: genId
       }
     };
     const self = this._private;
@@ -230,25 +231,27 @@ export default class Pulse {
     log('INIT COMPLETE', Object.assign({}, this));
     if (!this._private.global.config.ssr) {
       try {
+        globalThis.__pulse = this;
+
         window.pulse = this;
         window._pulse = this._private;
       } catch (e) {}
     }
   }
 
-  public wrapped(ReactComponent, mapData) {
-    const config = this._private.global.config;
-    if (config.framework === 'react' && config.frameworkConstructor) {
-      return withPulse(
-        this,
-        config.frameworkConstructor,
-        ReactComponent,
-        mapData
-      );
-    } else {
-      throw '[PULSE ERROR]: Error using pulse.wrapped(), framework not defined in Pulse global config (set to React constructor)';
-    }
-  }
+  // public wrapped(ReactComponent, mapData) {
+  //   const config = this._private.global.config;
+  //   if (config.framework === 'react' && config.frameworkConstructor) {
+  //     return withPulse(
+  //       this,
+  //       config.frameworkConstructor,
+  //       ReactComponent,
+  //       mapData
+  //     );
+  //   } else {
+  //     throw '[PULSE ERROR]: Error using pulse.wrapped(), framework not defined in Pulse global config (set to React constructor)';
+  //   }
+  // }
 
   public initConfig(config: RootConfig): RootConfig {
     // if constructor already init
@@ -360,43 +363,11 @@ export default class Pulse {
     this._private.global.subs.unmount(instance);
   }
 
-  mapData(properties, instance = {}, _config = {}, pulseAlias?: any) {
-    let pulse = pulseAlias ? pulseAlias : this;
-    const config = {
-      waitForMount: true,
-      ..._config
-    };
-    const componentUUID = pulse._private.global.subs.registerComponent(
-      instance,
-      config
-    );
+  subscribe(instance: any, properties: Function): Function {
+    console.log(arguments);
+    const uuid = instance.uuid;
 
-    this._private.global.mappingData = true;
-    // new cool mapData method
-    if (typeof properties === 'function') {
-      return pulse._private.global.subs.subscribePropertiesToComponents(
-        properties,
-        componentUUID
-      );
-      // legacy support....
-    } else if (typeof properties === 'object') {
-      let returnData = {};
-      normalizeMap(properties).forEach(({ key, val }) => {
-        let moduleInstance = val.split('/')[0];
-        let property = val.split('/')[1];
-        let c = pulse._private.global.contextRef[moduleInstance];
-        returnData[
-          key
-        ] = pulse._private.global.subs.subscribePropertiesToComponents(() => {
-          return { [key]: c[property] };
-        }, componentUUID)[key];
-      });
-      this._private.global.mappingData = false;
-
-      returnData = cleanse(returnData);
-
-      return returnData;
-    }
+    return (() => this.unmount(instance)).bind(this);
   }
 
   emit(name: string, payload: any): void {

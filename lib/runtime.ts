@@ -1,4 +1,4 @@
-import { Global, ModuleInstance } from './interfaces';
+import { Global, ModuleInstance, ComponentContainer } from './interfaces';
 import Dep from './Dep';
 import Computed from './computed';
 import { DynamicRelation } from './relationController';
@@ -357,25 +357,30 @@ export default class Runtime {
       // if job has a Dep class present
       // Dep class contains subscribers to that property (as a completed job)
       if (job.dep) {
-        let subscribers: Array<any> = job.dep.subscribers;
+        let subscribers: Set<any> = job.dep.subscribers;
 
         // for all the subscribers
-        for (let i = 0; i < subscribers.length; i++) {
+        subscribers.forEach(componentContainer => {
           // add to componentsToUpdate (ensuring update & component is unique)
-          const uuid = subscribers[i].componentUUID;
-          const key = subscribers[i].key;
+
+          let uuid: string = componentContainer.uuid;
+          let key: string | undefined = componentContainer.key;
           // below is a band-aid, caused by (what I believe to be) deep reactive properties submitting several updates for the same mutation, one for each level deep, since the parent is triggered as well
           // if (!key) continue;
 
-          // if this component isn't already registered for this particular update, add it.
-          if (!componentsToUpdate[uuid]) {
-            componentsToUpdate[uuid] = {};
-            componentsToUpdate[uuid][key] = job.value;
-            // otherwise add the update to the component
+          if (!key) {
+            if (!componentsToUpdate[uuid]) componentsToUpdate[uuid] = false; // will cause blind re-render
           } else {
-            componentsToUpdate[uuid][key] = job.value;
+            // if this component isn't already registered for this particular update, add it.
+            if (!componentsToUpdate[uuid]) {
+              componentsToUpdate[uuid] = {};
+              componentsToUpdate[uuid][key] = job.value;
+              // otherwise add the update to the component
+            } else {
+              componentsToUpdate[uuid][key] = job.value;
+            }
           }
-        }
+        });
       }
     }
 
@@ -390,8 +395,11 @@ export default class Runtime {
       const componentID = componentKeys[i];
       const componentInstance = this.global.subs.componentStore[componentID];
       if (!componentInstance || !componentInstance.instance) return;
+
       const propertiesToUpdate = componentsToUpdate[componentID];
-      const dataKeys = Object.keys(propertiesToUpdate);
+
+      let dataKeys = [];
+      if (propertiesToUpdate) dataKeys = Object.keys(propertiesToUpdate);
       // Switch depending on framework
 
       switch (this.global.config.framework) {
@@ -411,8 +419,9 @@ export default class Runtime {
           });
           break;
         case 'react':
-          componentInstance.instance.setState(propertiesToUpdate);
-          // console.log(propertiesToUpdate);
+          componentInstance.config.blindSubscribe
+            ? componentInstance.instance.forceUpdate()
+            : componentInstance.instance.setState(propertiesToUpdate);
           break;
 
         default:

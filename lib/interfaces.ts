@@ -151,6 +151,7 @@ export interface Job {
 }
 
 export interface ComponentContainer {
+  config: any;
   instance: any;
   uuid: string;
   ready: boolean;

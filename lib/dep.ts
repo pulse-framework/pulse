@@ -3,10 +3,11 @@ import { DynamicRelation, RelationTypes } from './relationController';
 import Collection from './module/modules/collection';
 import { JobType } from './runtime';
 import Computed from './computed';
+import { ComponentContainer } from './subController';
 export default class Dep {
   // these
-  public dependents: any = new Set();
-  public subscribers: Array<object> = [];
+  public dependents: Set<Computed> = new Set();
+  public subscribers: Set<ComponentContainer> = new Set();
 
   // these are temporary relations created by the relation controller
   public dynamicRelation: DynamicRelation = null;
@@ -69,7 +70,8 @@ export default class Dep {
         this.global.relations.relate(dataDep, this);
     }
 
-    if (subs.subscribingComponent) this.subscribeComponent();
+    if (this.global.subs.trackingComponent)
+      this.subscribe(this.global.subs.trackingComponent);
 
     if (subs.unsubscribingComponent) {
       // this.subscribers.delete(this.global.subscribingComponent);
@@ -100,34 +102,8 @@ export default class Dep {
     }
   }
 
-  subscribeComponent() {
-    const subs = this.global.subs;
-
-    if (this.rootProperty && subs.skimmingDeepReactive) {
-      subs.prepareNext(this);
-      return;
-    }
-    if (this.rootProperty) {
-      subs.foundDeepReactive();
-      subs.prepareNext(this);
-      return;
-    }
-    if (!this.rootProperty && subs.skimmingDeepReactive) {
-      subs.exitDeepReactive();
-    }
-
-    this.subscribe();
-
-    subs.prepareNext(this);
-  }
-  subscribe() {
-    const subs = this.global.subs;
-    const keys = subs.subscribingComponent.keys;
-    const key = keys[subs.subscribingComponentKey];
-    const component = {
-      componentUUID: subs.subscribingComponent.componentUUID,
-      key: key
-    };
-    this.subscribers.push(component);
+  subscribe(componentContainer: ComponentContainer) {
+    if (!this.global.runtime.runningAction)
+      this.subscribers.add(componentContainer);
   }
 }
