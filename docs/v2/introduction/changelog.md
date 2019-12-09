@@ -1,12 +1,43 @@
-# 2.1.0 - Introducing Modules
+---
+title: Changelog
+---
+
+## 2.2.0 - Introducing Pulse.React()
+
+::: warning SO IT DOESN'T BREAK YOUR OLD CODE...
+Pulse 2.2 has some breaking changes, but I made sure to allow you to delay updating your code with these handy config options.
+:::
+
+Set the following config to enable all backwards compatibility features in the global config object:
+
+```js
+config: {
+    mapDataUnderPropName: 'pulse',
+    baseModuleAlias: true
+}
+```
+
+Pulse.React() is now the simplest way to get started with Pulse, check out the new [Setup With React](/v2/getting-started/setup-with-react).
+
+### Changes
+
+- Added Pulse.React() as a replacement to Pulse.wrapped()
+- Added Pulse.use() for initilizing React/Vue or now even custom framework intergration.
+- Added mapDataUnderPropName
+- Cleaned up lots of under-the-hood code
+- staticData is now mapped to data
+
+### Feature: mapDataUnderPropName
+
+## 2.1.0 - Introducing Modules
 
 Pulse 2.1 is everything that should have been part of 2.0. There have been a large amount of internal changes but a few forward facing changes that could very well break your code.
 
-## The biggest change
+### The biggest change
 
 TLDR: The base collection (or now "Module") has changed from `pulse.base.someData` to simply `pulse.someData` HOWEVER can still be baqckwards compatible with the `baseModuleAlias` config option.
 
-## New features
+### New features
 
 - Added [Modules](###Modules)
 - Added [baseModuleAlias](###Config) config option
@@ -37,11 +68,11 @@ This is a handy feature built into the `move()` function for Collections. By usi
 
 Before collections were referred to internally using the name as a string, now since there are Modules,Collections and Services the instance is passed around Pulse as `moduleInstance` as a direct refrence instead.
 
-# 2.0 - Internal rewrite
+## 2.0 - Major Internal Rewrite
 
 Pulse version two is a complete ground-up rewrite. For the most part it should not affect your code, it is indeed backwards compatible. However there are a few things that have changed externally that you should know about before updating to V2.
 
-## Breaking changes
+### Breaking changes
 
 - Namespacing changes (see below)
 - Model relations "hasOne, hasMany" removed in place of populate() function (need to update docs....)
@@ -49,7 +80,7 @@ Pulse version two is a complete ground-up rewrite. For the most part it should n
 - "Filters" renamed to "Computed" although using "filters" as a property name on your collections still works.
 - remove() renamed to removeFromGroup()
 
-## New Features (docs soon)
+### New Features (docs soon)
 
 - Global events
 - Added more config options
@@ -57,11 +88,11 @@ Pulse version two is a complete ground-up rewrite. For the most part it should n
 - Added more defaults to Base class
 - onReady()
 
-## Namespacing updates
+### Namespacing updates
 
 Reactive properties on collections are no longer accessible under their type names, so a data property on a collection called `thing` is now only accessible via `collection.thing`. Before a reactive copy (or alias) of a data property could be found under `collection.data.thing`. With the new reactivity system
 
-## Main Improvements Under The Hood
+### Main Improvements Under The Hood
 
 - Written in Typescript
 - Improved internal structure

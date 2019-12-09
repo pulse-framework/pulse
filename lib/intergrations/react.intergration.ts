@@ -2,7 +2,7 @@ import Pulse from '..';
 import Dep from '../dep';
 import { ComponentContainer } from '../subController';
 
-export function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
+function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
   const pulse = globalThis.__pulse;
   if (!pulse)
     console.error(
@@ -30,12 +30,15 @@ export function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
       if (global.config.autoUnmount) global.subs.untrack(this);
     }
     registerDeps(componentContainer: ComponentContainer) {
-      let { deps, isMapData, evaluated } = global.subs.getAllDepsForProperties(
-        depsFunc
-      );
-      this.deps = deps;
+      let {
+        deps,
+        isMapData,
+        evaluated
+      } = global.subs.analyseFunctionForReactiveProperties(depsFunc);
       this.isMapData = isMapData;
-      this.deps.forEach(dep => dep.subscribe(componentContainer));
+
+      deps.forEach(dep => dep.subscribe(componentContainer));
+
       if (isMapData) this.mappedData = evaluated;
     }
     render() {
@@ -53,10 +56,14 @@ export function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
 
       let component: any;
       if (this.isMapData) {
-        component = React.createElement(ReactComponent, {
-          ...this.props,
-          ...this.mappedData
-        });
+        let props = this.props,
+          old = global.config.mapDataUnderPropName;
+
+        // support for 2.1 React props as pulse.mappedName but with ability to choose a custom name
+        if (old) props[old] = this.mappedData;
+        else props = { ...props, ...this.mappedData };
+
+        component = React.createElement(ReactComponent, props);
       } else {
         component = React.createElement(ReactComponent, this.props);
       }
@@ -65,6 +72,16 @@ export function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
   };
 }
 
-export function useFramework(ReactConstructor) {
-  // set framework here
-}
+export default {
+  name: 'react',
+  bind(pulseConstructor) {
+    pulseConstructor.React = ReactWrapper;
+  },
+  updateMethod(componentInstance: any, updatedData: Object) {
+    if (updatedData) {
+      componentInstance.$setState(updatedData);
+    } else {
+      componentInstance.forceUpdate();
+    }
+  }
+};

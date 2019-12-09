@@ -1,10 +1,10 @@
 import Runtime from './runtime';
+import Module from './module';
 import Collection from './module/modules/collection';
 import SubController from './subController';
 import RelationController from './relationController';
 import Storage from './storage';
 import Request from './collections/request';
-import { ReactWrapper, useFramework } from './wrappers/ReactWithPulse';
 import { genId, log, defineConfig } from './helpers';
 import {
   Private,
@@ -13,16 +13,18 @@ import {
   ModuleInstance
 } from './interfaces';
 import { JobType } from './runtime';
-import Module from './module';
+import use, { Intergration } from './intergrations/use';
 
 export default class Pulse {
-  _private: Private;
+  public _private: Private;
   static instance = null;
-  static useFramework = useFramework;
-  static React = ReactWrapper.bind(Pulse);
-  [key: string]: any;
+
+  static intergration: Intergration;
+  static use: Function = plugin => use(plugin, Pulse);
+
+  static React?: Function;
+  static install?: Function;
   constructor(root: RootCollectionObject = {}) {
-    // Private object contains all internal Pulse data
     this._private = {
       modules: {},
       collections: {},
@@ -34,10 +36,13 @@ export default class Pulse {
         services: []
       },
       events: {},
-      // global is passed in to all classes, must not contain cyclic references
       global: {
         config: this.initConfig(root.config),
-
+        contextRef: {},
+        // Instances
+        subs: null,
+        relations: null,
+        storage: null,
         // State
         initComplete: false,
         runningWatcher: false,
@@ -48,12 +53,6 @@ export default class Pulse {
         touching: false,
         touched: false,
         gettingContext: false,
-
-        contextRef: {},
-        // Instances
-        subs: null,
-        relations: null,
-        storage: null,
         // Function aliases
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
@@ -73,18 +72,18 @@ export default class Pulse {
 
     // Create controller instances
     self.global.relations = new RelationController(self.global);
-    self.global.subs = new SubController();
+    self.global.subs = new SubController(self.global);
 
     // init Runtime class into the global object
     this.initRuntime();
-
     this.registerModules(root);
 
     this.runAllComputed();
-
     this.runAllOnReady();
 
     this.initComplete();
+
+    Pulse.intergration.bind(Pulse);
   }
 
   registerModules(root: RootCollectionObject) {
@@ -233,26 +232,15 @@ export default class Pulse {
     if (!this._private.global.config.ssr) {
       try {
         globalThis.__pulse = this;
-
         window.pulse = this;
         window._pulse = this._private;
       } catch (e) {}
     }
   }
 
-  // public wrapped(ReactComponent, mapData) {
-  //   const config = this._private.global.config;
-  //   if (config.framework === 'react' && config.frameworkConstructor) {
-  //     return withPulse(
-  //       this,
-  //       config.frameworkConstructor,
-  //       ReactComponent,
-  //       mapData
-  //     );
-  //   } else {
-  //     throw '[PULSE ERROR]: Error using pulse.wrapped(), framework not defined in Pulse global config (set to React constructor)';
-  //   }
-  // }
+  public wrapped(ReactComponent, mapData) {
+    return Pulse.React(ReactComponent, mapData);
+  }
 
   public initConfig(config: RootConfig): RootConfig {
     // if constructor already init
@@ -273,15 +261,15 @@ export default class Pulse {
     }
 
     // detect if framework passed in is a React constructor
-    if (
-      config.framework &&
-      config.framework.hasOwnProperty(
-        '__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'
-      )
-    ) {
-      config.frameworkConstructor = config.framework;
-      config.framework = 'react';
+    if (!Pulse.intergration && config.framework) {
+      Pulse.use(config.framework, Pulse);
     }
+    if (!Pulse.intergration.name) {
+      console.warn('Pulse Warning - No intergrated framework');
+    }
+
+    config.framework = Pulse.intergration.name;
+    config.frameworkConstructor = Pulse.intergration.frameworkConstructor;
 
     if (config.framework === 'react') {
       if (config.waitForMount != false) config.waitForMount = true;
@@ -321,60 +309,13 @@ export default class Pulse {
     return this._private.global.contextRef;
   }
 
-  install(Vue) {
-    this._private.global.config.framework = 'vue';
-    const pulse = this;
-    const config = pulse._private.global.config;
-    Vue.mixin({
-      beforeCreate() {
-        Object.keys(pulse._private.global.contextRef).forEach(collection => {
-          this['$' + collection] = pulse._private.global.contextRef[collection];
-        });
-
-        if (pulse.utils) this.$utils = pulse.utils;
-        if (pulse.services) this.$services = pulse.services;
-        if (pulse.staticData) this.$staticData = pulse.staticData;
-
-        this.mapData = properties =>
-          pulse.mapData(
-            properties,
-            this,
-            {
-              waitForMount: config.waitForMount
-            },
-            pulse
-          );
-      },
-      mounted() {
-        if (this.__pulseUniqueIdentifier && config.waitForMount)
-          pulse.mount(this);
-      },
-      beforeDestroy() {
-        if (this.__pulseUniqueIdentifier && config.autoUnmount)
-          pulse.unmount(this);
-      }
-    });
-  }
-
-  mount(instance) {
-    this._private.global.subs.mount(instance);
-  }
-
-  unmount(instance) {
-    this._private.global.subs.unmount(instance);
-  }
-
-  subscribe(instance: any, properties: Function): Function {
-    console.log(arguments);
-    const uuid = instance.uuid;
-
-    return (() => this.unmount(instance)).bind(this);
-  }
+  subscribe(instance: any, properties: Function): Function {}
 
   emit(name: string, payload: any): void {
     if (this._private.events[name])
       for (let i = 0; i < this._private.events[name].length; i++) {
         const callback = this._private.events[name][i];
+
         callback(payload);
       }
   }
@@ -387,9 +328,12 @@ export default class Pulse {
   // re-init storage object with new config
   public updateStorage(storageConfig: {}): void {
     this._private.global.storage = new Storage(storageConfig);
+
     // re-init all collections persist to ensure correct values
+
     this._private.keys.collections.forEach(collectionName => {
       let collection = this._private.collections[collectionName];
+
       collection.initPersist(collection.root.persist);
     });
   }
@@ -398,18 +342,7 @@ export default class Pulse {
     if (!this._private.global.config.logJobs) return;
 
     console.log('RUNTIME JOB', thing);
-    // let debugMode: Set<DebugType> = this._private.global.config.debugMode;
-    // if (debugMode.size === 0) return;
-    // if (debugMode.has(DebugType.ERRORS)) {
-    // }
-    // log(DebugType.ASSERT, `There was an error with "${thing}", bad :(`);
-    // const AssertMessages = {
-    //   INDEX_UPDATE_FAILED: (collection, property) =>
-    //     `The type ${collection} is ${property}.`
-    //   // and more
-    // };
-    // function _log(callback) {
-    // }
-    // _log(({ AssertMessages }) => AssertMessages.INDEX_UPDATE_FAILED(thing, thing2));
   }
 }
+
+globalThis.Pulse = Pulse; // ReMOVE THIS

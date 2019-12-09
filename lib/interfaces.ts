@@ -36,6 +36,7 @@ export interface RootConfig {
   logJobs: boolean;
   computedDefault: boolean;
   baseModuleAlias?: boolean;
+  mapDataUnderPropName?: string;
   debugMode?: Set<DebugType>;
 }
 export interface CollectionConfig {}

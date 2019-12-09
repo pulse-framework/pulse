@@ -1,12 +1,18 @@
-// This file handles external components subscribing to pulse.
-// It also handles subscribing mapData properties to collections
+// Global Subscription Controller
+// This class handles external components subscribing to Pulse.
 
-import { genId, cleanse, isWatchableObject, defineConfig } from './helpers';
+import {
+  genId,
+  cleanse,
+  isWatchableObject,
+  defineConfig,
+  normalizeMap
+} from './helpers';
 import Dep from './dep';
 import { worker } from 'cluster';
 import { Global } from './interfaces';
 
-interface SubscribingComponentObject {
+export interface SubscribingComponentObject {
   componentUUID: string;
   keys: Array<string>;
 }
@@ -24,7 +30,6 @@ export class ComponentContainer {
   ) {
     instance.__pulseUniqueIdentifier = this.uuid;
     if (config.waitForMount) this.ready = false;
-    console.log('new component tracker', this.uuid);
   }
 }
 
@@ -33,16 +38,16 @@ export default class SubController {
   public trackingComponent: boolean | string = false;
   public lastAccessedDep: null | Dep = null;
 
-  // used by getAllDepsForProperties to get several dep classes
+  // used by discoverDeps to get several dep classes
   public trackAllDeps: boolean = false;
   public trackedDeps: Set<Dep> = new Set();
   public componentStore: { [key: string]: ComponentContainer } = {};
 
-  constructor() {}
+  constructor(private global: Global) {}
 
-  registerComponent(instance, config) {
+  public registerComponent(instance, config) {
     config = defineConfig(config, {
-      waitForMount: false,
+      waitForMount: this.global.config.waitForMount,
       blindSubscribe: false
     });
     let componentContainer = new ComponentContainer(instance, config);
@@ -52,11 +57,27 @@ export default class SubController {
     return componentContainer.uuid;
   }
 
-  get(id: string): ComponentContainer | boolean {
+  // returns all deps accessed within a function,
+  // does not register any dependencies
+  public analyseFunctionForReactiveProperties(func: Function): any {
+    let deps: Set<Dep> = new Set();
+    this.trackAllDeps = true;
+    const evaluated = func(this.global.contextRef);
+    this.trackedDeps.forEach(dep => {
+      if (!dep.rootProperty) deps.add(dep);
+    });
+    this.trackedDeps = new Set();
+    this.trackAllDeps = false;
+
+    let isMapData = !Array.isArray(evaluated) && typeof evaluated === 'object';
+    return { isMapData, deps, evaluated };
+  }
+
+  public get(id: string): ComponentContainer | boolean {
     return this.componentStore[id] || false;
   }
 
-  mount(instance) {
+  public mount(instance) {
     console.log(instance.__pulseUniqueIdentifier);
     let component: ComponentContainer = this.componentStore[
       instance.__pulseUniqueIdentifier
@@ -70,7 +91,7 @@ export default class SubController {
     }
   }
 
-  untrack(instance) {
+  public untrack(instance) {
     const uuid = instance.__pulseUniqueIdentifier;
     if (!uuid) return;
 
@@ -84,19 +105,38 @@ export default class SubController {
     delete this.componentStore[instance.__pulseUniqueIdentifier];
   }
 
-  // returns all deps accessed within a function,
-  // does not register any dependencies
-  getAllDepsForProperties(properties: Function): any {
-    let deps: Set<Dep> = new Set();
-    this.trackAllDeps = true;
-    const evaluated = properties();
-    this.trackedDeps.forEach(dep => {
-      if (!dep.rootProperty) deps.add(dep);
-    });
-    this.trackedDeps = new Set();
-    this.trackAllDeps = false;
+  public mapData(func: Function | Object, componentInstance: any): Object {
+    // get container instance for component
+    let componentContainer: ComponentContainer = this.get(
+      componentInstance.__pulseUniqueIdentifier
+    ) as ComponentContainer;
 
-    let isMapData = !Array.isArray(evaluated) && typeof evaluated === 'object';
-    return { isMapData, deps, evaluated };
+    let deps: Set<Dep> = new Set(),
+      evaluated: Object = {};
+
+    if (typeof func === 'object') {
+      // Pulse 1.0 compatiblity, should depricate soon!
+      normalizeMap(func).forEach(({ key, val }) => {
+        let moduleInstanceName = val.split('/')[0];
+        let property = val.split('/')[1];
+        let moduleInstance = this.global.contextRef[moduleInstanceName];
+        let res = this.global.subs.analyseFunctionForReactiveProperties(() => {
+          return { [key]: moduleInstance[property] };
+        });
+        deps.add(res.dep);
+        evaluated[key] = res.evaluated[key];
+      });
+    } else {
+      let res = this.global.subs.analyseFunctionForReactiveProperties(
+        func as Function
+      );
+      deps = res.deps;
+      evaluated = res.evaluated;
+    }
+
+    // create subscription
+    deps.forEach(dep => dep.subscribe(componentContainer));
+
+    return evaluated;
   }
 }

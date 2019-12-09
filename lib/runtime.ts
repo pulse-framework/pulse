@@ -5,6 +5,7 @@ import { DynamicRelation } from './relationController';
 import Action from './action';
 import Collection from './module/modules/collection';
 import Module from './module';
+import Pulse from './main';
 
 export interface Job {
   type: JobType;
@@ -389,7 +390,6 @@ export default class Runtime {
   }
 
   private updateSubscribers(componentsToUpdate) {
-    // console.log('updating subscribers', componentsToUpdate);
     const componentKeys = Object.keys(componentsToUpdate);
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];
@@ -398,35 +398,10 @@ export default class Runtime {
 
       const propertiesToUpdate = componentsToUpdate[componentID];
 
-      let dataKeys = [];
-      if (propertiesToUpdate) dataKeys = Object.keys(propertiesToUpdate);
-      // Switch depending on framework
-
-      switch (this.global.config.framework) {
-        case 'vue':
-          dataKeys.forEach(property => {
-            const value = propertiesToUpdate[property];
-            componentInstance.instance.$set(
-              componentInstance.instance,
-              property,
-              // this prevents vue from adding getters/setters to any objects, but might be wasteful computation
-              // considering this is not important and does not change perfomance, its probably best to not bother cleansing every
-              // value update. actually thinking about it this is terrbile. remove this soon.
-              // honestly it's only here because I have OCD.
-              // cleanse(value)
-              value
-            );
-          });
-          break;
-        case 'react':
-          componentInstance.config.blindSubscribe
-            ? componentInstance.instance.forceUpdate()
-            : componentInstance.instance.setState(propertiesToUpdate);
-          break;
-
-        default:
-          break;
-      }
+      Pulse.intergration.updateMethod(
+        componentInstance.instance,
+        propertiesToUpdate
+      );
     }
   }
 

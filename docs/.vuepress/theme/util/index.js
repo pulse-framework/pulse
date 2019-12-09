@@ -53,16 +53,6 @@ export function isActive (route, path) {
   return routePath === pagePath
 }
 
-export function getVer (path) {
-  if(path != null){
-    const verRE = /\/(.*?)\//i
-    return verRE.exec(path)
-  }
-  else {
-    return false
-  }
-}
-
 export function resolvePage (pages, rawPath, base) {
   if (isExternal(rawPath)) {
     return {

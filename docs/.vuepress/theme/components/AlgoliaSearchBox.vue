@@ -14,11 +14,23 @@
 
 <script>
 export default {
+  name: 'AlgoliaSearchBox',
+
   props: ['options'],
 
   data () {
     return {
       placeholder: undefined
+    }
+  },
+
+  watch: {
+    $lang (newValue) {
+      this.update(this.options, newValue)
+    },
+
+    options (newValue) {
+      this.update(newValue, this.$lang)
     }
   },
 
@@ -40,14 +52,14 @@ export default {
           userOptions,
           {
             inputSelector: '#algolia-search-input',
-            debug: true,
             // #697 Make docsearch work well at i18n mode.
             algoliaOptions: Object.assign({
               'facetFilters': [`lang:${lang}`].concat(algoliaOptions.facetFilters || [])
             }, algoliaOptions),
             handleSelected: (input, event, suggestion) => {
               const { pathname, hash } = new URL(suggestion.url)
-              this.$router.push(`${pathname}${hash}`)
+              const routepath = pathname.replace(this.$site.base, '/')
+              this.$router.push(`${routepath}${hash}`)
             }
           }
         ))
@@ -57,16 +69,6 @@ export default {
     update (options, lang) {
       this.$el.innerHTML = '<input id="algolia-search-input" class="search-query">'
       this.initialize(options, lang)
-    }
-  },
-
-  watch: {
-    $lang (newValue) {
-      this.update(this.options, newValue)
-    },
-
-    options (newValue) {
-      this.update(newValue, this.$lang)
     }
   }
 }
@@ -164,6 +166,5 @@ export default {
       width 5px
       margin -3px 3px 0
       vertical-align middle
-
 
 </style>
