@@ -4,15 +4,10 @@ module.exports = {
   dest: 'dist',
   serviceWorker: true,
   base: '/',
-  head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }]
-  ],
+  head: [['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }]],
   themeConfig: {
     logo: '/logo.svg',
-    nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/v2/' }
-    ],
+    nav: [{ text: 'Home', link: '/' }, { text: 'Guide', link: '/v2/' }],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
     repo: 'jamiepine/pulse',
@@ -72,33 +67,18 @@ module.exports = {
             'guide/models',
             'guide/debugging'
           ]
-        },
-        {
-          title: 'Examples',
-          collapsable: false,
-          children: [
-            // These are pages we'll add later
-            //   '/examples/UsageWithVueJS',
-            //   '/examples/authentication'
-          ]
         }
       ],
-      // These links will appear in the sidebar
-      // Create heading groups
       '/v2/': [
         {
           title: 'Introduction',
           collapsable: false,
-          children: [
-            // These are pages we'll add later
-            'introduction/what-is-pulse'
-          ]
+          children: ['introduction/what-is-pulse', 'introduction/changelog']
         },
         {
           title: 'Getting Started',
           collapsable: false,
           children: [
-            // These are pages we'll add later
             'getting-started/setup-with-react',
             'getting-started/setup-with-vue'
           ]
@@ -107,7 +87,6 @@ module.exports = {
           title: 'Guide',
           collapsable: false,
           children: [
-            // These are pages we'll add later
             'guide/library',
             'guide/collections',
             'guide/namespacing',
@@ -126,10 +105,9 @@ module.exports = {
           title: 'Examples',
           collapsable: false,
           children: [
-            // These are pages we'll add later
-              'examples/UsageWithVueJS',
-              'examples/UsageWithReact',
-              'examples/authentication'
+            'examples/UsageWithVueJS',
+            'examples/UsageWithReact',
+            'examples/authentication'
           ]
         }
       ]

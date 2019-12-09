@@ -27,8 +27,7 @@ export const collectionFunctions = [
   'forceUpdate',
   'debounce',
   'watchData',
-  'stash',
-  'flush',
+  'cleanse',
   // 'unsubscribe',
   // deprecated
   'remove'
@@ -50,7 +49,7 @@ export function parse(key: string) {
   };
 }
 
-export function uuid() {
+export function genId(): string {
   return (
     Math.random()
       .toString()
@@ -156,6 +155,18 @@ export function validateNumber(mutable, amount) {
     return false;
   }
   return true;
+}
+
+export function createObj(
+  array: Array<any> = [],
+  sourceObject: Object = {}
+): Object {
+  let newObj = {};
+  for (let i = 0; i < array.length; i++) {
+    let property = array[i];
+    if (sourceObject[property]) newObj[property] = sourceObject[property];
+  }
+  return newObj;
 }
 // groups are defined by the user as an array of strings, this converts them into object/keys
 export function normalizeGroups(groupsAsArray: any = []) {

@@ -14,7 +14,7 @@ import Action from '../../action';
 
 export default class Collection extends Module {
   public primaryKey: string | number | boolean = false;
-  private internalData: object = {};
+  public internalData: object = {};
   private internaldataPropertiesUsingPopulate: Array<string> = [];
   private internalDataDeps: object = {}; // contains the deps for internal data
 
@@ -37,7 +37,11 @@ export default class Collection extends Module {
   initIndexes(groups: Array<any>) {
     // FIXME: if you want indexes to be reactive Jamie, that empty array right there is your answer
     this.indexes = new Reactive(this, normalizeGroups(groups), [], 'indexes');
-    this.namespace.indexes = this.indexes.object;
+    this.public.privateWrite('indexes', this.indexes.object);
+    for (let indexName of this.indexes.properties) {
+      // init empty group
+      this.public.addProperty(indexName, []);
+    }
   }
 
   initModel(model = {}) {
@@ -66,18 +70,32 @@ export default class Collection extends Module {
     let index = this.indexes.privateGet(groupName);
     if (!index) return [];
 
-    // for every primaryKey in the index
-    for (let i = 0; i < index.length; i++) {
-      // primaryKey of data
-      let id = index[i];
+    const getData = id => {
       // copy data from internal database
       let data = this.getData(id);
       // if none found skip
-      if (!data) continue;
+      if (!data) return false;
       // inject dynamic data
-      data = this.injectDynamicRelatedData(id, data);
+      return this.injectDynamicRelatedData(id, data);
+    };
 
+    // for every primaryKey in the index
+    for (let i = 0; i < index.length; i++) {
+      let data = getData(index[i]);
+      if (!data) continue;
       constructedArray.push(data);
+    }
+
+    // inject ghosts
+    if (this.indexes.ghosts[groupName]) {
+      let ghosts = this.indexes.ghosts[groupName];
+      for (let i = 0; i < ghosts.length; i++) {
+        const { index, primaryKey } = ghosts[i];
+        let data = getData(primaryKey);
+        if (!data) continue;
+        data.isGhost = true;
+        constructedArray.splice(index, 0, data);
+      }
     }
     return constructedArray;
   }
@@ -120,7 +138,7 @@ export default class Collection extends Module {
     // for each populate function extracted from the model for this data
     this.internaldataPropertiesUsingPopulate.forEach(property => {
       // conditions to skip populate
-      const dep = this.global.getDep(primaryKey, this.name, true);
+      const dep = this.getDataDep(primaryKey);
       const job = this.global.runtime.runningJob as Job;
       if (!dep || (job && job.config && job.config.important)) return;
 
@@ -191,14 +209,20 @@ export default class Collection extends Module {
 
   // search the collection for the appropriate dep for a given group
   // consider relacting this with a more absolute
+  // ^^ hi, its jamie from months later, don't think theres any other way to do this boss
+  // maybe be more explicit with what are groups and what aren't
+  // but i also don't think its an issue, we'll see.
+  // a potential issue that could arise is a dynamic index with the same name as some data
+  // will return the wrong dep class
   private depForGroup(groupName: string): Dep {
     let dep: Dep;
     // no group is found publically, use index instead
     if (this.public.exists(groupName)) {
-      dep = this.global.getDep(groupName, this.name);
+      dep = this.getDep(groupName) as Dep;
     } else if (this.indexes.exists(groupName)) {
-      dep = this.global.getDep(groupName, this.indexes.object);
+      dep = this.getDep(groupName, this.indexes.object) as Dep;
     } else {
+      // create a temp dep for dynamic indexes
       dep = this.indexes.tempDep(groupName);
     }
     return dep;
@@ -209,14 +233,13 @@ export default class Collection extends Module {
       return assert(warn => warn.INVALID_PARAMETER, 'replaceIndex');
     this.global.ingest({
       type: JobType.INDEX_UPDATE,
-      collection: this.name,
+      collection: this,
       property: indexName,
       value: newIndex
     });
   }
 
   // METHODS
-
   public collect(
     data,
     group?: string | Array<string>,
@@ -255,14 +278,14 @@ export default class Collection extends Module {
       );
     }
 
-    indexesToRegenOnceComplete.forEach(index => {
+    indexesToRegenOnceComplete.forEach(indexName => {
       this.global.ingest({
         type: JobType.INDEX_UPDATE,
-        collection: this.name,
-        property: index,
-        value: this.indexes.privateGet(index),
-        previousValue: previousIndexValues[index],
-        dep: this.global.getDep(index, this.indexes.object)
+        collection: this,
+        property: indexName,
+        value: this.indexes.privateGet(indexName),
+        previousValue: previousIndexValues[indexName as string],
+        dep: this.getDep(indexName as string)
       });
     });
 
@@ -298,7 +321,7 @@ export default class Collection extends Module {
     // ingest the data
     this.global.ingest({
       type: JobType.INTERNAL_DATA_MUTATION,
-      collection: this.name,
+      collection: this,
       property: key,
       value: dataItem,
       dep: this.internalDataDeps[key]
@@ -321,7 +344,7 @@ export default class Collection extends Module {
     return { success: true, affectedIndexes };
   }
 
-  private searchIndexesForPrimaryKey(
+  public searchIndexesForPrimaryKey(
     primaryKey: string | number
   ): Array<string> {
     // get a fresh copy of the keys to include dynamic indexes
@@ -399,8 +422,15 @@ export default class Collection extends Module {
     ids: number | string | Array<string | number>,
     sourceIndexName: string,
     destIndexName?: string,
-    method: 'push' | 'unshift' = 'push'
+    config?: {
+      method: 'push' | 'unshift';
+      ghost: boolean;
+    }
   ) {
+    config = defineConfig(config, {
+      method: 'push',
+      ghost: false
+    });
     // validation
     if (!this.indexes.exists(sourceIndexName))
       return assert(warn => warn.INDEX_NOT_FOUND, 'move');
@@ -411,12 +441,15 @@ export default class Collection extends Module {
     if (!Array.isArray(ids)) ids = [ids];
 
     let sourceIndex = this.indexes.privateGet(sourceIndexName);
-    for (let i = 0; i < ids.length; i++)
+    for (let i = 0; i < ids.length; i++) {
+      // preserve ghost index
+      if (config.ghost) this.haunt(sourceIndexName, sourceIndex, ids[i]);
+      // remove the id from index
       sourceIndex = sourceIndex.filter(id => id !== ids[i]);
-
+    }
     this.global.ingest({
       type: JobType.INDEX_UPDATE,
-      collection: this.name,
+      collection: this,
       property: sourceIndexName,
       value: sourceIndex
     });
@@ -430,12 +463,12 @@ export default class Collection extends Module {
         if (destIndex.includes(ids[i])) continue;
 
         // push or unshift id into current index
-        destIndex[method](ids[i]);
+        destIndex[config.method](ids[i]);
       }
 
       this.global.ingest({
         type: JobType.INDEX_UPDATE,
-        collection: this.name,
+        collection: this,
         property: destIndexName,
         value: destIndex
       });
@@ -445,8 +478,13 @@ export default class Collection extends Module {
   put(
     ids: number | Array<string | number>,
     destIndexName: string,
-    method: 'push' | 'unshift' = 'push'
+    config?: {
+      method: 'push' | 'unshift';
+    }
   ) {
+    config = defineConfig(config, {
+      method: 'push'
+    });
     // validation
     if (!this.indexes.exists(destIndexName))
       return assert(warn => warn.INDEX_NOT_FOUND, 'put');
@@ -463,12 +501,12 @@ export default class Collection extends Module {
       if (destIndex.includes(ids[i])) continue;
 
       // push or unshift id into current index
-      destIndex[method](ids[i]);
+      destIndex[config.method](ids[i]);
     }
 
     this.global.ingest({
       type: JobType.INDEX_UPDATE,
-      collection: this.name,
+      collection: this,
       property: destIndexName,
       value: destIndex
     });
@@ -480,7 +518,7 @@ export default class Collection extends Module {
 
     this.global.ingest({
       type: JobType.INDEX_UPDATE,
-      collection: this.name,
+      collection: this,
       property: groupName,
       value: indexValue
     });
@@ -488,29 +526,41 @@ export default class Collection extends Module {
   deleteGroup(groupName: string) {
     this.global.ingest({
       type: JobType.INDEX_UPDATE,
-      collection: this.name,
+      collection: this,
       property: groupName,
       value: []
     });
   }
   removeFromGroup(
     groupName: string,
-    itemsToRemove: number | string | Array<number | string>
+    keysToRemove: number | string | Array<number | string>,
+    config?: {
+      method: 'push' | 'unshift';
+      ghost: boolean;
+    }
   ) {
+    config = defineConfig(config, {
+      method: 'push',
+      ghost: false
+    });
+
     if (!this.indexes.exists(groupName))
       return assert(warn => warn.INDEX_NOT_FOUND, 'removeFromGroup');
 
-    if (!Array.isArray(itemsToRemove)) itemsToRemove = [itemsToRemove];
+    if (!Array.isArray(keysToRemove)) keysToRemove = [keysToRemove];
 
     const index = this.indexes.privateGet(groupName);
 
+    if (config.ghost)
+      keysToRemove.forEach(key => this.haunt(groupName, index, key));
+
     const newIndex = index.filter(
-      id => !(itemsToRemove as Array<number | string>).includes(id)
+      id => !(keysToRemove as Array<number | string>).includes(id)
     );
 
     this.global.ingest({
       type: JobType.INDEX_UPDATE,
-      collection: this.name,
+      collection: this,
       property: groupName,
       value: newIndex
     });
@@ -540,7 +590,7 @@ export default class Collection extends Module {
     }
     this.global.ingest({
       type: JobType.INTERNAL_DATA_MUTATION,
-      collection: this.name,
+      collection: this,
       property: primaryKey,
       value: currentData,
       config: options
@@ -577,7 +627,7 @@ export default class Collection extends Module {
 
     this.global.ingest({
       type: JobType.INTERNAL_DATA_MUTATION,
-      collection: this.name,
+      collection: this,
       property: primaryKey,
       value: currentData
     });
@@ -592,7 +642,7 @@ export default class Collection extends Module {
       const primaryKey = primaryKeys[i];
       this.global.ingest({
         type: JobType.DELETE_INTERNAL_DATA,
-        collection: this.name,
+        collection: this,
         property: primaryKey
       });
     }
@@ -616,8 +666,46 @@ export default class Collection extends Module {
   private watchData(primaryKey, callback) {
     const dep = this.internalDataDeps[primaryKey] as Dep;
     if (!dep) return;
-    dep.subscribersAsCallbacks.push(callback);
+    dep.subscribersToInternalDataAsCallbacks.push(callback);
   }
+
+  // rebuild issues a group regeneration for an index, and destorys all ghosts. It is effectivly the 5th ghost buster.
+  private rebuild(indexName: string): void {
+    if (!this.indexes.exists(indexName)) return;
+
+    delete this.indexes.ghosts[indexName];
+    this.global.ingest({
+      type: JobType.GROUP_UPDATE,
+      collection: this,
+      property: indexName
+    });
+  }
+
+  private haunt(sourceIndexName, sourceIndex, id) {
+    if (!this.indexes.ghosts[sourceIndexName])
+      this.indexes.ghosts[sourceIndexName] = [];
+    const removedIndex = sourceIndex.indexOf(id);
+    this.indexes.ghosts[sourceIndexName].push({
+      index: removedIndex,
+      primaryKey: id
+    });
+  }
+
+  private cleanse() {
+    // loop over ghosts to get index names
+    const groupsToRegen = Object.keys(this.indexes.ghosts);
+
+    this.indexes.ghosts = {};
+
+    groupsToRegen.forEach(groupName => {
+      this.global.runtime.ingest({
+        type: JobType.GROUP_UPDATE,
+        collection: this,
+        property: groupName
+      });
+    });
+  }
+
   // remove all dynamic indexes, empty all indexes, delete all internal data
   purge() {}
   // deprecate

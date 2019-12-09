@@ -1,113 +1,142 @@
-// This file handles external components subscribing to pulse.
-// It also handles subscribing mapData properties to collections
+// Global Subscription Controller
+// This class handles external components subscribing to Pulse.
 
-import { uuid, cleanse, isWatchableObject } from './helpers';
-import { ComponentContainer } from './interfaces';
+import {
+  genId,
+  cleanse,
+  isWatchableObject,
+  defineConfig,
+  normalizeMap
+} from './helpers';
 import Dep from './dep';
 import { worker } from 'cluster';
+import { Global } from './interfaces';
 
-interface SubscribingComponentObject {
+export interface SubscribingComponentObject {
   componentUUID: string;
   keys: Array<string>;
 }
 
+export class ComponentContainer {
+  public uuid: string = genId();
+  public ready: boolean = true;
+  public deps: Set<Dep> = new Set();
+  constructor(
+    public instance: any,
+    public config: {
+      waitForMount: boolean;
+      blindSubscribe: boolean;
+    }
+  ) {
+    instance.__pulseUniqueIdentifier = this.uuid;
+    if (config.waitForMount) this.ready = false;
+  }
+}
+
 export default class SubController {
   public subscribingComponentKey: number = 0;
-  public subscribingComponent: boolean | SubscribingComponentObject = false;
-  public unsubscribingComponent: boolean = false;
-  public skimmingDeepReactive: boolean = false;
-  public uuid: any = uuid;
+  public trackingComponent: boolean | string = false;
   public lastAccessedDep: null | Dep = null;
 
+  // used by discoverDeps to get several dep classes
+  public trackAllDeps: boolean = false;
+  public trackedDeps: Set<Dep> = new Set();
   public componentStore: { [key: string]: ComponentContainer } = {};
 
-  constructor(private getContext) {}
+  constructor(private global: Global) {}
 
-  registerComponent(instance, config) {
-    let uuid = instance.__pulseUniqueIdentifier;
-    if (!uuid) {
-      // generate UUID
-      uuid = this.uuid();
-      // inject uuid into component instance
-      const componentContainer = {
-        instance: instance,
-        uuid,
-        ready: config.waitForMount ? false : true
-      };
-      instance.__pulseUniqueIdentifier = uuid;
+  public registerComponent(instance, config) {
+    config = defineConfig(config, {
+      waitForMount: this.global.config.waitForMount,
+      blindSubscribe: false
+    });
+    let componentContainer = new ComponentContainer(instance, config);
 
-      this.componentStore[uuid] = componentContainer;
-    } else {
-      this.mount(instance);
-    }
-    return uuid;
+    this.componentStore[componentContainer.uuid] = componentContainer;
+
+    return componentContainer.uuid;
   }
 
-  mount(instance) {
-    let component = this.componentStore[instance.__pulseUniqueIdentifier];
+  // returns all deps accessed within a function,
+  // does not register any dependencies
+  public analyseFunctionForReactiveProperties(func: Function): any {
+    let deps: Set<Dep> = new Set();
+    this.trackAllDeps = true;
+    const evaluated = func(this.global.contextRef);
+    this.trackedDeps.forEach(dep => {
+      if (!dep.rootProperty) deps.add(dep);
+    });
+    this.trackedDeps = new Set();
+    this.trackAllDeps = false;
+
+    let isMapData = !Array.isArray(evaluated) && typeof evaluated === 'object';
+    return { isMapData, deps, evaluated };
+  }
+
+  public get(id: string): ComponentContainer | boolean {
+    return this.componentStore[id] || false;
+  }
+
+  public mount(instance) {
+    console.log(instance.__pulseUniqueIdentifier);
+    let component: ComponentContainer = this.componentStore[
+      instance.__pulseUniqueIdentifier
+    ];
 
     if (component) {
       component.instance = instance;
       component.ready = true;
+    } else {
+      console.error('you did something wrong');
     }
   }
 
-  unmount(instance) {
+  public untrack(instance) {
     const uuid = instance.__pulseUniqueIdentifier;
     if (!uuid) return;
 
-    // delete reference to this component from store
+    let component: ComponentContainer = this.componentStore[
+      instance.__pulseUniqueIdentifier
+    ];
+
+    // clean up deps to avoid memory leaks
+    component.deps.forEach(dep => dep.subscribers.delete(component));
+    // delete reference to this component instance from store
     delete this.componentStore[instance.__pulseUniqueIdentifier];
   }
 
-  subscribePropertiesToComponents(properties, componentUUID) {
-    // provisionally get keys of mapped data
-    const provision = properties(this.getContext());
+  public mapData(func: Function | Object, componentInstance: any): Object {
+    // get container instance for component
+    let componentContainer: ComponentContainer = this.get(
+      componentInstance.__pulseUniqueIdentifier
+    ) as ComponentContainer;
 
-    const keys = Object.keys(provision);
+    let deps: Set<Dep> = new Set(),
+      evaluated: Object = {};
 
-    // mapData has a user defined local key, we need to include that in the
-    // subscription so we know what to update on the component later.
-    this.subscribingComponentKey = 0;
+    if (typeof func === 'object') {
+      // Pulse 1.0 compatiblity, should depricate soon!
+      normalizeMap(func).forEach(({ key, val }) => {
+        let moduleInstanceName = val.split('/')[0];
+        let property = val.split('/')[1];
+        let moduleInstance = this.global.contextRef[moduleInstanceName];
+        let res = this.global.subs.analyseFunctionForReactiveProperties(() => {
+          return { [key]: moduleInstance[property] };
+        });
+        deps.add(res.dep);
+        evaluated[key] = res.evaluated[key];
+      });
+    } else {
+      let res = this.global.subs.analyseFunctionForReactiveProperties(
+        func as Function
+      );
+      deps = res.deps;
+      evaluated = res.evaluated;
+    }
 
-    this.subscribingComponent = {
-      componentUUID,
-      keys
-    };
+    // create subscription
+    deps.forEach(dep => dep.subscribe(componentContainer));
 
-    let returnToComponent = properties(this.getContext());
-
-    this.subscribingComponent = false;
-
-    this.subscribingComponentKey = 0;
-
-    // cleanse any deep objects of their getters/setters from Pulse and ensure object is a copy
-    // Object.keys(returnToComponent).forEach(property => {
-    //   returnToComponent[property] = cleanse(returnToComponent[property]);
-    // });
-    // returnToComponent = Object.assign({}, returnToComponent);
-
-    // console.log(returnToComponent);
-
-    return returnToComponent;
-  }
-
-  prepareNext(dep) {
-    this.lastAccessedDep = dep;
-    if (!this.skimmingDeepReactive) this.subscribingComponentKey++;
-  }
-
-  foundDeepReactive() {
-    this.skimmingDeepReactive = true;
-    // undo changes
-    this.lastAccessedDep.subscribers.pop();
-    this.subscribingComponentKey--;
-  }
-
-  exitDeepReactive() {
-    this.skimmingDeepReactive = false;
-    //redo changes
-    this.lastAccessedDep.subscribe();
-    this.subscribingComponentKey++;
+    return evaluated;
   }
 }

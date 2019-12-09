@@ -1,7 +1,7 @@
 // in this example, we'll get posts from an API and save them in a group to be accessed by a component
 import Pulse from 'pulse-framework';
 
-const pulse = new Pulse.Library({
+const pulse = new Pulse({
   request: {
     baseURL: 'https://api.mysite.com'
   },

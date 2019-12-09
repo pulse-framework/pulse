@@ -1,4 +1,4 @@
-import { collectionFunctions, objectLoop } from '../helpers';
+import { collectionFunctions, objectLoop, createObj } from '../helpers';
 import Reactive from '../reactive';
 import Action from '../action';
 import Computed from '../computed';
@@ -9,9 +9,11 @@ import {
   CollectionObject,
   ExpandableObject,
   CollectionConfig,
-  Global
+  Global,
+  ModuleInstance
 } from '../interfaces';
 import { normalizeGroups } from '../helpers';
+import Dep from '../dep';
 
 // modules have a contained reactivity system which is the base
 // of collections, services and
@@ -19,19 +21,19 @@ export default class Module {
   public public: Reactive;
   public keys: Keys = {};
   public onReady?: Function;
+  public methods: Methods = {};
+  public local: { [key: string]: any } = {};
 
   protected namespace: CollectionObject;
   protected config: CollectionConfig = {}; //rename
-  protected methods: Methods = {};
   protected actions: { [key: string]: Action } = {};
   protected computed: { [key: string]: Computed } = {};
   protected watchers: { [key: string]: any } = {};
   protected externalWatchers: { [key: string]: any } = {};
   protected persist: Array<string> = [];
-  protected local: { [key: string]: any } = {};
   protected model: { [key: string]: any } = {};
   protected throttles: Array<Action> = [];
-  protected stashed: Array<Object> = [];
+  protected localContext: any;
 
   constructor(
     public name: string,
@@ -41,130 +43,146 @@ export default class Module {
     // define aliases
     this.config = root.config;
 
-    // legacy support ("filters" changed to "computed")
-    root.computed = { ...root.computed, ...root.filters };
+    // create this.root
+    root = this.prepareRoot(root);
 
-    // create this.namespace
-    root = this.prepareNamespace(root);
-
-    // create public object
-    this.public = new Reactive(this, this.namespace, Object.keys(root.data));
-
-    // init module features
-    this.initRoutes(root.routes);
-    this.initActions(root.actions);
-    this.initWatchers(root.watch);
-    this.initComputed(root.computed);
-
-    // load persisted data from storage
-    this.initPersist(root.persist);
-
-    // init finished
-    if (root.onReady) this.onReady = root.onReady;
-  }
-  private prepareNamespace(root: CollectionObject) {
-    // map collection methods
-
+    // Prepare methods
     collectionFunctions.map(
       func => this[func] && (this.methods[func] = this[func].bind(this))
     );
 
-    if (root.local) this.local = root.local;
+    let publicObject = this.preparePublicNamespace(root);
 
-    // for each type set default values on root and register keys
-    [
-      'data',
-      'actions',
-      'computed',
-      'indexes',
-      'routes',
-      'watch',
-      'staticData'
-    ].forEach(type => {
-      if (type !== 'indexes' && !root[type]) root[type] = {};
-      this.keys[type] =
-        type === 'indexes' ? root['groups'] || [] : Object.keys(root[type]);
-    });
+    // create public object
+    this.keys.data = Object.keys(root.data || {});
 
-    // assign namespace
-    this.namespace = Object.assign(
-      Object.create({ ...this.methods }), // bind methods to prototype
-      {
-        routes: {},
-        indexes: {},
-        actions: root.actions,
-        ...root.staticData,
-        ...root.computed,
-        ...root.data,
-        ...normalizeGroups(root.groups)
-      }
-    );
+    this.public = new Reactive(this, publicObject, this.keys.data);
+
+    if (root.staticData) {
+      this.keys.staticData = Object.keys(root.staticData);
+      for (let property in root.staticData)
+        if (root.staticData.hasOwnProperty(property))
+          this.public.privateWrite(property, root.staticData[property]);
+    }
+
+    // init module features
+    this.initActions(root.actions);
+    this.initWatchers(root.watch);
+    this.initComputed(root.computed);
+
+    if (this.global.request || root.request) this.initRoutes(root.routes);
+
+    // load persisted data from storage
+    this.initPersist(root.persist);
+
+    this.prepareLocalContext();
+
+    // init finished
+    if (root.onReady) this.onReady = root.onReady;
+  }
+
+  // this function is where any transforms to the root object
+  // should be done, before namspace is initilized
+  private prepareRoot(root: CollectionObject) {
+    root.computed = { ...root.computed, ...root.filters }; // legacy support
+
+    this.root = root;
     return root;
   }
-  private initRoutes(routes: ExpandableObject) {
-    const self = this;
+
+  private preparePublicNamespace(root) {
+    interface PublicNamespace {
+      routes?: Object;
+      indexes?: Object;
+      local?: Object;
+    }
+
+    const publicNamespace: PublicNamespace = {};
+
+    // insert static properties
+    const types = ['routes', 'indexes', 'local'];
+    types.forEach(
+      type => root[type] && (publicNamespace[type] = { ...root[type] })
+    );
+
+    let namespaceWithMethods = Object.assign(
+      Object.create(this.methods),
+      publicNamespace,
+      ...root.data,
+      ...root.computed
+      // ...root.actions
+    );
+
+    return namespaceWithMethods;
+  }
+
+  private initRoutes(routes: ExpandableObject = {}) {
+    this.keys.routes = Object.keys(routes);
+
     const routeWrapped = routeName => {
+      let self = this;
       return function() {
         let requestObject = Object.assign({}, self.global.request);
         requestObject.context = self.global.contextRef;
+
         return routes[routeName].apply(
           null,
           [requestObject].concat(Array.prototype.slice.call(arguments))
         );
       };
     };
-    objectLoop(
-      routes,
-      routeName =>
-        (this.public.object.routes[routeName] = routeWrapped(routeName))
-    );
-  }
-  private initActions(actions: object = {}) {
-    let actionKeys = Object.keys(actions);
-    for (let i = 0; i < actionKeys.length; i++) {
-      const action = actions[actionKeys[i]];
-      this.actions[actionKeys[i]] = new Action(
-        this.name,
-        this.global,
-        action,
-        actionKeys[i]
-      );
 
-      this.public.privateWrite(actionKeys[i], this.actions[actionKeys[i]].exec);
+    for (let routeName in routes) {
+      this.public.object.routes[routeName] = routeWrapped(routeName);
     }
   }
-  private initWatchers(watchers: object = {}) {
-    let watcherKeys = Object.keys(watchers);
-    for (let i = 0; i < watcherKeys.length; i++) {
-      const watcher = watchers[watcherKeys[i]];
-      this.watchers[watcherKeys[i]] = () => {
-        this.global.runningWatcher = {
-          collection: this.name,
-          property: watcherKeys[i]
-        };
-        const watcherOutput = watcher(this.global.getContext(this.name));
+
+  private initActions(actions: object = {}) {
+    this.keys.actions = Object.keys(actions);
+
+    for (let actionName in actions) {
+      this.actions[actionName] = new Action(
+        this,
+        this.global,
+        actions[actionName],
+        actionName
+      );
+      this.public.privateWrite(actionName, this.actions[actionName].exec);
+    }
+  }
+
+  private initWatchers(watchers: object = {}): void {
+    this.keys.watchers = Object.keys(watchers);
+
+    for (let watcherName in watchers) {
+      let watcher = watchers[watcherName];
+
+      this.watchers[watcherName] = () => {
+        this.global.runningWatcher = true;
+        let watcherOutput = watcher(this.global.getContext(this));
         this.global.runningWatcher = false;
         return watcherOutput;
       };
     }
-    this.watchers._keys = watcherKeys;
   }
-  private initComputed(computed: object): void {
-    objectLoop(
-      computed,
-      (computedName: string, computedFunction: () => void) => {
-        this.computed[computedName] = new Computed(
-          this.global,
-          this.name,
-          computedName,
-          computedFunction
-        );
-        this.public.privateWrite(computedName, []);
-      },
-      this.keys.computed
-    );
+  private initComputed(computed: object = {}): void {
+    this.keys.computed = Object.keys(computed);
+
+    for (let computedName in computed) {
+      this.computed[computedName] = new Computed(
+        this.global,
+        this,
+        computedName,
+        computed[computedName]
+      );
+      this.public.privateWrite(
+        computedName,
+        this.global.config.computedDefault
+      );
+    }
   }
-  public initPersist(persist: Array<string>): void {
+
+  public initPersist(persist: Array<string> = []): void {
     if (!Array.isArray(persist)) return;
 
     for (let i = 0; i < persist.length; i++) {
@@ -180,8 +198,8 @@ export default class Module {
             type: JobType.PUBLIC_DATA_MUTATION,
             value: data,
             property: dataName,
-            collection: this.name,
-            dep: this.global.getDep(dataName, this.name)
+            collection: this,
+            dep: this.getDep(dataName)
           });
         });
       } else {
@@ -206,6 +224,41 @@ export default class Module {
       this.externalWatchers[property] = [callback];
     else this.externalWatchers[property].push(callback);
   }
+
+  public prepareLocalContext() {
+    this.localContext = {
+      data: {},
+      computed: {}
+    };
+
+    let l = this.localContext;
+
+    for (let type in l)
+      for (let propertyName of this.keys[type])
+        this.public.createReactiveAlias(l[type], propertyName);
+
+    if (this.keys.staticData)
+      for (let property of this.keys.staticData)
+        l.data[property] = this.public.privateGet(property);
+
+    // insert static properties
+    l.local = this.root.local;
+    l.actions = createObj(this.keys.actions, this.public.object);
+    l.routes = this.public.object.routes;
+
+    if (this.keys.indexes) {
+      l.indexes = this.indexes.public.object;
+    }
+
+    for (let method in this.methods) l[method] = this.methods[method];
+  }
+
+  public getSelfContext() {
+    const globalContext = this.global.contextRef;
+    let context = { ...globalContext, ...this.localContext };
+    return context;
+  }
+
   private forceUpdate(property: string): void {
     // ensure property exists on collection
     if (this.public.exists(property)) {
@@ -215,9 +268,9 @@ export default class Module {
         this.global.ingest({
           type: JobType.PUBLIC_DATA_MUTATION,
           property,
-          collection: this.name,
+          collection: this,
           value: this.public.privateGet(property),
-          dep: this.global.getDep(property, this.name)
+          dep: this.getDep(property)
         });
 
         // if property is a computed method
@@ -225,15 +278,15 @@ export default class Module {
         this.global.ingest({
           type: JobType.COMPUTED_REGEN,
           property,
-          collection: this.name,
-          dep: this.global.getDep(property, this.name)
+          collection: this,
+          dep: this.getDep(property)
         });
       } else if (this.indexes && this.indexes.exists(property)) {
         this.global.ingest({
           type: JobType.GROUP_UPDATE,
           property,
-          collection: this.name,
-          dep: this.global.getDep(property, this.name)
+          collection: this,
+          dep: this.getDep(property, this.indexes.object)
         });
       }
     }
@@ -265,14 +318,31 @@ export default class Module {
 
     return await action.softDebounce(func, amount);
   }
-  public stash(callback) {
-    this.stashed.push({
-      fromAction: this.global.runtime.runningAction,
-      callback
-    });
+
+  public getDep(
+    propertyName: string | number,
+    reactiveObject?: Object
+  ): Dep | boolean {
+    let dep: Dep;
+
+    this.global.touching = true;
+    // if the property is on a deep reactive object or an index
+    if (reactiveObject) reactiveObject[propertyName];
+    // by default we assume the module's public object
+    else this.public.object[propertyName];
+
+    // extract the dep from global
+    dep = this.global.touched as Dep;
+
+    // reset state
+    this.global.touching = false;
+    this.global.touched = null;
+
+    return dep;
   }
-  public flush() {
-    this.stashed.forEach(stash => stash.callback());
-    this.stashed = [];
+
+  public isComputedReady(computedName: string) {
+    // if (this.computed.hasOwnProperty(computedName)) return true;
+    return this.computed[computedName].hasRun;
   }
 }

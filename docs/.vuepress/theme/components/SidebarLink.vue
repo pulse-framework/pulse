@@ -54,8 +54,8 @@ export default {
   }
 }
 
-function renderLink (h, to, text, active) {
-  return h('router-link', {
+function renderLink (h, to, text, active, level) {
+  const component = {
     props: {
       to,
       activeClass: '',
@@ -65,7 +65,15 @@ function renderLink (h, to, text, active) {
       active,
       'sidebar-link': true
     }
-  }, text)
+  }
+
+  if (level > 2) {
+    component.style = {
+      'padding-left': level + 'rem'
+    }
+  }
+
+  return h('RouterLink', component, text)
 }
 
 function renderChildren (h, children, path, route, maxDepth, depth = 1) {
@@ -73,7 +81,7 @@ function renderChildren (h, children, path, route, maxDepth, depth = 1) {
   return h('ul', { class: 'sidebar-sub-headers' }, children.map(c => {
     const active = isActive(route, path + '#' + c.slug)
     return h('li', { class: 'sidebar-sub-header' }, [
-      renderLink(h, path + '#' + c.slug, c.title, active),
+      renderLink(h, path + '#' + c.slug, c.title, active, c.level - 1),
       renderChildren(h, c.children, path, route, maxDepth, depth + 1)
     ])
   }))
@@ -95,7 +103,7 @@ function renderExternal (h, to, text) {
 
 <style lang="stylus">
 .sidebar .sidebar-sub-headers
-  padding-left 2rem
+  padding-left 1rem
   font-size 0.95em
 
 a.sidebar-link
@@ -112,18 +120,14 @@ a.sidebar-link
     color $accentColor
   &.active
     font-weight 600
-    color white
-    border-radius 0 9px 9px 0
-    background $accentColor
-    width 90%
+    color $accentColor
+    border-left-color $accentColor
   .sidebar-group &
-    padding-left 5rem
+    padding-left 2rem
   .sidebar-sub-headers &
     padding-top 0.25rem
     padding-bottom 0.25rem
     border-left none
     &.active
-      font-weight 700
-      color: #ef425a;
-      background: 0; 
+      font-weight 500
 </style>

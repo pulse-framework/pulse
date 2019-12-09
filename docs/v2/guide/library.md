@@ -6,13 +6,13 @@ title: Pulse Library
 
 The "Library" refers to the Pulse configuration files, this is where you define and configure collections and basic config for everything within Pulse.
 
-The library itself is an object, the `Pulse.Library` constructor takes it as the only parameter.
+The library itself is an object, the `Pulse` constructor takes it as the only parameter.
 
 ```js
 
 import Pulse from 'pulse-framework'
 
-export default new Pulse.Library({
+export default new Pulse({
     config: {
         framework: 'vue'
     }
@@ -63,7 +63,7 @@ You're free to do whatever suits your project.
 This is everything currently supported by the Pulse Library and how it fits in the object tree, use this as a reference when building your library to ensure you put everything in the right place.
 
 ```js
-const pulse = new Pulse.Library({
+const pulse = new Pulse({
   collections: {
     collectionOne: {},
     collectionTwo: {
@@ -84,8 +84,8 @@ const pulse = new Pulse.Library({
     baseURL: 'https://api.notify.me',
     headers: []
   },
-  services: {}, // coming soon
-  utils: {}, // coming soon
+  services: {},
+  utils: {},
   jobs: {}
 
   // base

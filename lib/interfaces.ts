@@ -6,6 +6,7 @@ import Action from './action';
 import Computed from './computed';
 import { JobType } from './runtime';
 import RelationController from './relationController';
+import Module from './module';
 export interface ExpandableObject {
   [key: string]: any;
 }
@@ -32,8 +33,10 @@ export interface RootConfig {
   frameworkConstructor?: any;
   waitForMount?: boolean;
   autoUnmount?: boolean;
-  enableBase?: boolean;
-  enableRequest?: boolean;
+  logJobs: boolean;
+  computedDefault: boolean;
+  baseModuleAlias?: boolean;
+  mapDataUnderPropName?: string;
   debugMode?: Set<DebugType>;
 }
 export interface CollectionConfig {}
@@ -57,6 +60,8 @@ export interface CollectionObject {
 }
 
 export interface RootCollectionObject extends CollectionObject {
+  services?: any;
+  modules?: any;
   config?: RootConfig;
   request?: object;
   collections?: object;
@@ -79,11 +84,11 @@ export interface Methods {
   findById?: Function;
   forceUpdate?: Function;
   debounce?: Function;
-  stash?: Function;
-  flush?: Function;
+  cleanse?: Function;
 }
 
 export interface Keys {
+  staticData: string[];
   data?: Array<string>;
   computed?: Array<string>;
   actions?: Array<string>;
@@ -101,27 +106,31 @@ export interface Global {
   runningComputed: boolean | Computed;
   runningWatcher: boolean | Watcher;
   runningPopulate: boolean | Object;
+  gettingContext: boolean;
   touched: boolean | Dep;
   contextRef: ExpandableObject;
   relations?: RelationController;
-  storage: Function;
-  getDep: Function;
+  storage: Storage;
   // aliases
-  dispatch: Function;
   getContext: Function;
   getInternalData: Function;
   uuid: Function;
   ingest?: Function;
   ingestDependents?: Function;
-  request?: Function;
+  request?: Object;
   log: Function;
 }
 
+modules: any;
+export type ModuleInstance = Module | Collection;
+
 export interface Private {
   global: Global;
-  runtime: Runtime;
-  collectionKeys: Array<string>;
+  keys: any;
+  modules?: { [key: string]: Module };
   collections?: { [key: string]: Collection };
+  services?: { [key: string]: Module };
+  helpers?: { [key: string]: Module };
   events?: { [key: string]: Array<(payload?: any) => any> };
 }
 
@@ -143,6 +152,7 @@ export interface Job {
 }
 
 export interface ComponentContainer {
+  config: any;
   instance: any;
   uuid: string;
   ready: boolean;

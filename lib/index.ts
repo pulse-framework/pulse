@@ -1,3 +1,3 @@
-import Library from './library';
+import Pulse from './main';
 
-export default Library;
+export default Pulse;

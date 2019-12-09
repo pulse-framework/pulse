@@ -9,7 +9,7 @@
       `depth-${depth}`
     ]"
   >
-    <router-link
+    <RouterLink
       v-if="item.path"
       class="sidebar-heading clickable"
       :class="{
@@ -21,11 +21,11 @@
     >
       <span>{{ item.title }}</span>
       <span
-        class="arrow"
         v-if="collapsable"
-        :class="open ? 'down' : 'right'">
-      </span>
-    </router-link>
+        class="arrow"
+        :class="open ? 'down' : 'right'"
+      />
+    </RouterLink>
 
     <p
       v-else
@@ -35,18 +35,18 @@
     >
       <span>{{ item.title }}</span>
       <span
-        class="arrow"
         v-if="collapsable"
-        :class="open ? 'down' : 'right'">
-      </span>
+        class="arrow"
+        :class="open ? 'down' : 'right'"
+      />
     </p>
 
     <DropdownTransition>
       <SidebarLinks
+        v-if="open || !collapsable"
         class="sidebar-group-items"
         :items="item.children"
-        v-if="open || !collapsable"
-        :sidebarDepth="item.sidebarDepth"
+        :sidebar-depth="item.sidebarDepth"
         :depth="depth + 1"
       />
     </DropdownTransition>
@@ -59,12 +59,23 @@ import DropdownTransition from '@theme/components/DropdownTransition.vue'
 
 export default {
   name: 'SidebarGroup',
-  props: ['item', 'open', 'collapsable', 'depth'],
-  components: { DropdownTransition },
+
+  components: {
+    DropdownTransition
+  },
+
+  props: [
+    'item',
+    'open',
+    'collapsable',
+    'depth'
+  ],
+
   // ref: https://vuejs.org/v2/guide/components-edge-cases.html#Circular-References-Between-Components
   beforeCreate () {
-    this.$options.components.SidebarLinks = require('./SidebarLinks.vue').default
+    this.$options.components.SidebarLinks = require('@theme/components/SidebarLinks.vue').default
   },
+
   methods: { isActive }
 }
 </script>
@@ -103,7 +114,7 @@ export default {
   font-size 1.1em
   font-weight bold
   // text-transform uppercase
-  padding 0.35rem 1.5rem 0.35rem 3rem
+  padding 0.35rem 1.5rem 0.35rem 1.25rem
   width 100%
   box-sizing border-box
   margin 0

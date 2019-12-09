@@ -1,54 +1,70 @@
 <template>
   <header class="navbar">
-    <SidebarButton @toggle-sidebar="$emit('toggle-sidebar')"/>
-    <router-link
+    <SidebarButton @toggle-sidebar="$emit('toggle-sidebar')" />
+
+    <RouterLink
       :to="$localePath"
       class="home-link"
     >
       <img
-        class="logo"
         v-if="$site.themeConfig.logo"
+        class="logo"
         :src="$withBase($site.themeConfig.logo)"
         :alt="$siteTitle"
       >
       <span
+        v-if="$siteTitle"
         ref="siteName"
         class="site-name"
-        v-if="$siteTitle"
         :class="{ 'can-hide': $site.themeConfig.logo }"
       >{{ $siteTitle }}</span>
-    </router-link>
-    <VersionDropdown v-if="this.isDocs"/>
+    </RouterLink>
+
     <div
       class="links"
       :style="linksWrapMaxWidth ? {
         'max-width': linksWrapMaxWidth + 'px'
       } : {}"
     >
-      <!-- <AlgoliaSearchBox
+      <AlgoliaSearchBox
         v-if="isAlgoliaSearch"
         :options="algolia"
-      /> -->
-      <SearchBox />
-      <NavLinks class="can-hide"/>
+      />
+      <SearchBox v-else-if="$site.themeConfig.search !== false && $page.frontmatter.search !== false" />
+      <NavLinks class="can-hide" />
     </div>
   </header>
 </template>
 
 <script>
-// import AlgoliaSearchBox from '@AlgoliaSearchBox'
-import SearchBox from '@theme/components/SearchBox.vue'
+import AlgoliaSearchBox from '@AlgoliaSearchBox'
+import SearchBox from '@SearchBox'
 import SidebarButton from '@theme/components/SidebarButton.vue'
 import NavLinks from '@theme/components/NavLinks.vue'
-import VersionDropdown from '@theme/components/VersionDropdown.vue'
-
 
 export default {
-  components: { NavLinks, SearchBox, VersionDropdown, SidebarButton },
+  name: 'Navbar',
+
+  components: {
+    SidebarButton,
+    NavLinks,
+    SearchBox,
+    AlgoliaSearchBox
+  },
 
   data () {
     return {
       linksWrapMaxWidth: null
+    }
+  },
+
+  computed: {
+    algolia () {
+      return this.$themeLocaleConfig.algolia || this.$site.themeConfig.algolia || {}
+    },
+
+    isAlgoliaSearch () {
+      return this.algolia && this.algolia.apiKey && this.algolia.indexName
     }
   },
 
@@ -65,17 +81,7 @@ export default {
     }
     handleLinksWrapWidth()
     window.addEventListener('resize', handleLinksWrapWidth, false)
-  },
-
-  // computed: {
-  //   algolia () {
-  //     return this.$themeLocaleConfig.algolia || this.$site.themeConfig.algolia || {}
-  //   },
-
-  //   isAlgoliaSearch () {
-  //     return this.algolia && this.algolia.apiKey && this.algolia.indexName
-  //   }
-  // }
+  }
 }
 
 function css (el, property) {
@@ -108,7 +114,7 @@ $navbar-horizontal-padding = 1.5rem
   .links
     padding-left 1.5rem
     box-sizing border-box
-    background-color #181818
+    background-color white
     white-space nowrap
     font-size 0.9rem
     position absolute
@@ -131,27 +137,4 @@ $navbar-horizontal-padding = 1.5rem
       overflow hidden
       white-space nowrap
       text-overflow ellipsis
-  .search-box
-    input
-      left 0
-  .versiondropdown
-    padding-left: 0
-    
-
-.search-box 
-  input 
-    background: #3C3C3C url(search.svg) 0.3rem 0.3rem no-repeat
-    border-color: #0000
-
-.search-box 
-  .suggestions
-    background: #3C3C3C
-
-  .suggestion 
-    &.focused
-        background-color $accentColor
-        a
-          color #f3f4f5
-
-
 </style>

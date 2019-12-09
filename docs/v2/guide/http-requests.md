@@ -4,9 +4,9 @@ title: HTTP Requests
 
 ### HTTP Requests
 
-Pulse completely replaces the need to use a third party HTTP request library such as Axios. Define endpoints within your collection and easily handle the response and collect the data.
+Pulse replaces the need to use a third party HTTP request library such as Axios. Define endpoints within your modules & collections, then easily handle the response and process response data.
 
-First you must define your `baseURL` in the request config (in the root of your Pulse library):
+The request object goes in the root of the Pulse config.
 
 ```js
   request: {
@@ -17,20 +17,24 @@ First you must define your `baseURL` in the request config (in the root of your 
     }
   }
   // for context ...
+  modules: {}
   collections: {}
   storage: {}
   //etc..
 ```
 
-Now you can define routes in your collections:
+Now you can define a routes object in your modules & collections:
 
 ```js
 routes: {
-  getStuff: request => request.get('stuff/something');
+  getStuff: request => request.get('stuff/something'),
+  postStuff: (request, body) => request.post('stuff/something', body)
 }
 ```
 
 Each route takes in the request object as the first parameter, which contains HTTP methods like, GET, POST, PATCH, DELETE etc.
+
+Any parameters passed to the route function will be available after the "request" param.
 
 Route functions are promises, meaning you can either use then() or async/await.
 
@@ -50,7 +54,7 @@ actions: {
 }
 ```
 
-The request library is an extension of a collection, meaning it's built on top of the collection class. It's exposed on the instance the same way as a collection, data such as `baseURL` and the `headers` can be changed on the fly.
+The request library is an extension of a module, meaning it's built on top of the Module class. So data such as `baseURL` and the `headers` can be changed reactively.
 
 ```js
 request.baseURL = 'https://api.notify.gg';
@@ -58,12 +62,26 @@ request.baseURL = 'https://api.notify.gg';
 request.headers['Origin'] = 'https://notify.me';
 ```
 
-Request history is saved (collected) into the request collection by default, though this can be disabled:
+## Request Interceptors
+
+Two useful hooks to modify requests before they're sent, and the responses as they're recieved. Here's an example as used for authentication.
 
 ```js
 request: {
-  saveHistory: false;
-}
+    baseURL: 'http://localhost:3000',
+    // static headers
+    headers: {
+      'Access-Control-Allow-Origin': 'https://notify.me',
+    }
+    requestIntercept({ data, accounts }) {
+      // inject the auth token from a collection/module called "accounts"
+      data.headers.token = accounts.jwtToken;
+    },
+    responseIntercept({ error }, response) {
+      // if the request was not successful send to a custom error handler module
+      if (!response.ok) error.handle(response.data)
+    }
+  },
 ```
 
-HTTP requests will eventually have many more useful features, but for now basic function is implemented.
+Since the headers object is static, the interceptors can be used to dynamically inject data from anywhere in Pulse into your request.

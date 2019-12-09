@@ -1,9 +1,10 @@
 import Collection from '../module/modules/collection';
 import { Global, ExpandableObject, RequestConfig } from '../interfaces';
+import Module from '../module';
 
 type Method = 'get' | 'put' | 'post' | 'patch' | 'delete';
 
-export default class Request extends Collection {
+export default class Request extends Module {
   private timeout: number;
   private options: ExpandableObject;
   private saveHistory: boolean;
@@ -117,7 +118,7 @@ export default class Request extends Collection {
     );
 
     if (this.requestIntercept)
-      this.requestIntercept(this.global.getContext('request'), options);
+      this.requestIntercept(this.global.getContext(this), options);
 
     let response: any;
 
@@ -172,7 +173,7 @@ export default class Request extends Collection {
     // intercept response
     if (this.responseIntercept) {
       response.data = body;
-      this.responseIntercept(this.global.getContext('request'), response);
+      this.responseIntercept(this.global.getContext(this), response);
     }
 
     // reject if bad response status

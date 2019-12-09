@@ -7,18 +7,15 @@
     border-left-width .5rem
     border-left-style solid
     margin 1rem 0
-    margin-left 3rem
-    p
-      margin-left 0
   &.tip
-    background-color #3b7159
+    background-color #f3f5f7
     border-color #42b983
   &.warning
     background-color rgba(255,229,100,.3)
-    border-color #ffdb2b
-    color #d2b00c
+    border-color darken(#ffe564, 35%)
+    color darken(#ffe564, 70%)
     .custom-block-title
-      color #ffdb2b
+      color darken(#ffe564, 50%)
     a
       color $textColor
   &.danger
@@ -29,5 +26,19 @@
       color darken(red, 40%)
     a
       color $textColor
-
-
+  &.details
+    display block
+    position relative
+    border-radius 2px
+    margin 1.6em 0
+    padding 1.6em
+    background-color #eee
+    h4
+      margin-top 0
+    figure, p
+      &:last-child
+        margin-bottom 0
+        padding-bottom 0
+    summary
+      outline none
+      cursor pointer

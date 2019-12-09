@@ -1,21 +1,34 @@
 <template>
   <footer class="page-edit">
-    <div class="edit-link" v-if="editLink">
-      <a :href="editLink" target="_blank" rel="noopener noreferrer">{{ editLinkText }}</a>
+    <div
+      v-if="editLink"
+      class="edit-link"
+    >
+      <a
+        :href="editLink"
+        target="_blank"
+        rel="noopener noreferrer"
+      >{{ editLinkText }}</a>
       <OutboundLink />
     </div>
 
-    <div class="last-updated" v-if="lastUpdated">
+    <div
+      v-if="lastUpdated"
+      class="last-updated"
+    >
       <span class="prefix">{{ lastUpdatedText }}:</span>
       <span class="time">{{ lastUpdated }}</span>
     </div>
   </footer>
 </template>
+
 <script>
+import isNil from 'lodash/isNil'
 import { endingSlashRE, outboundRE } from '../util'
 
 export default {
   name: 'PageEdit',
+
   computed: {
     lastUpdated () {
       return this.$page.lastUpdated
@@ -32,18 +45,18 @@ export default {
     },
 
     editLink () {
-      if (this.$page.frontmatter.editLink === false) {
-        return
-      }
+      const showEditLink = isNil(this.$page.frontmatter.editLink)
+        ? this.$site.themeConfig.editLinks
+        : this.$page.frontmatter.editLink
+
       const {
         repo,
-        editLinks,
         docsDir = '',
         docsBranch = 'master',
         docsRepo = repo
       } = this.$site.themeConfig
 
-      if (docsRepo && editLinks && this.$page.relativePath) {
+      if (showEditLink && docsRepo && this.$page.relativePath) {
         return this.createEditLink(
           repo,
           docsRepo,
@@ -52,6 +65,7 @@ export default {
           this.$page.relativePath
         )
       }
+      return null
     },
 
     editLinkText () {
@@ -92,51 +106,38 @@ export default {
   }
 }
 </script>
+
 <style lang="stylus">
-@require '../styles/wrapper.styl';
+@require '../styles/wrapper.styl'
 
-.page-edit {
-  @extend $wrapper;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  overflow: auto;
+.page-edit
+  @extend $wrapper
+  padding-top 1rem
+  padding-bottom 1rem
+  overflow auto
 
-  .edit-link {
-    display: inline-block;
+  .edit-link
+    display inline-block
+    a
+      color lighten($textColor, 25%)
+      margin-right 0.25rem
+  .last-updated
+    float right
+    font-size 0.9em
+    .prefix
+      font-weight 500
+      color lighten($textColor, 25%)
+    .time
+      font-weight 400
+      color #aaa
 
-    a {
-      color: lighten($textColor, 25%);
-      margin-right: 0.25rem;
-    }
-  }
+@media (max-width: $MQMobile)
+  .page-edit
+    .edit-link
+      margin-bottom 0.5rem
+    .last-updated
+      font-size 0.8em
+      float none
+      text-align left
 
-  .last-updated {
-    float: right;
-    font-size: 0.9em;
-
-    .prefix {
-      font-weight: 500;
-      color: lighten($textColor, 25%);
-    }
-
-    .time {
-      font-weight: 400;
-      color: #aaa;
-    }
-  }
-}
-
-@media (max-width: $MQMobile) {
-  .page-edit {
-    .edit-link {
-      margin-bottom: 0.5rem;
-    }
-
-    .last-updated {
-      font-size: 0.8em;
-      float: none;
-      text-align: left;
-    }
-  }
-}
 </style>

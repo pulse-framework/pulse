@@ -1,4 +1,4 @@
-import { Global } from './interfaces';
+import { Global, ModuleInstance } from './interfaces';
 import { Job } from './runtime';
 
 export default class Action {
@@ -9,7 +9,7 @@ export default class Action {
   public ms: number;
   private debounceCallback: Function;
   constructor(
-    private collection: string,
+    private parentModuleInstance: ModuleInstance,
     private global: Global,
     public action: any,
     public actionName: string
@@ -21,7 +21,7 @@ export default class Action {
     const _this = this;
 
     this.exec = function() {
-      const context = global.getContext(_this.collection);
+      const context = global.getContext(_this.parentModuleInstance);
 
       // wrap undo function with action context
       context.undo = error => undo(this, error);

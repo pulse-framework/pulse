@@ -8,7 +8,7 @@
 html, body
   padding 0
   margin 0
-  background-color #202020
+  background-color #fff
 
 body
   font-family -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif
@@ -27,22 +27,9 @@ body
   left 0
   right 0
   height $navbarHeight
-  background-color #181818
+  background-color #fff
   box-sizing border-box
   border-bottom 1px solid $borderColor
-
-.versiondropdown
-  display inline
-  padding-left 20px
-  position absolute
-  select
-    font-weight 700
-    font-size 1rem
-    background #3C3C3C
-    border 0
-    padding 8px
-    border-radius 10px
-    color white 
 
 .sidebar-mask
   position fixed
@@ -55,7 +42,7 @@ body
 
 .sidebar
   font-size 16px
-  background-color #181818
+  background-color #fff
   width $sidebarWidth
   position fixed
   z-index 10
@@ -147,11 +134,10 @@ h1
 h2
   font-size 1.65rem
   padding-bottom .3rem
-  border-bottom 3px solid white
+  border-bottom 1px solid $borderColor
 
 h3
-  margin-left 1rem
-  font-size 1.4rem
+  font-size 1.35rem
 
 a.header-anchor
   font-size 0.85em
@@ -169,11 +155,10 @@ code, kbd, .line-number
 
 p, ul, ol
   line-height 1.7
-  margin-left 3rem
 
 hr
   border 0
-  border-top 3px solid white
+  border-top 1px solid $borderColor
 
 table
   border-collapse collapse
@@ -183,13 +168,12 @@ table
 
 tr
   border-top 1px solid #dfe2e5
-  background-color #464646
 
-thead tr
-  background-color #2d2d2d
+  &:nth-child(2n)
+    background-color #f6f8fa
 
 th, td
-  border 1px solid #232323
+  border 1px solid #dfe2e5
   padding .6em 1em
 
 .theme-container
