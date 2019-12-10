@@ -1,7 +1,8 @@
-import { Global, ModuleInstance, ComponentContainer } from './interfaces';
+import { Global, ModuleInstance } from './interfaces';
 import Dep from './Dep';
 import Computed from './computed';
 import { DynamicRelation } from './relationController';
+import { ComponentContainer } from './subController';
 import Action from './action';
 import Collection from './module/modules/collection';
 import Module from './module';
@@ -183,29 +184,6 @@ export default class Runtime {
     });
   }
 
-  // handle job loop flow
-  private finished(): void {
-    this.runningJob = false;
-    if (this.completedJobs.length > 5000) return;
-
-    // If there's already more stuff in the queue, loop.
-    if (this.ingestQueue.length > 0) {
-      this.findNextJob();
-      return;
-    }
-
-    // Wait until callstack is empty to check if we should finalise this body of work
-    setTimeout(() => {
-      if (this.ingestQueue.length === 0) {
-        if (!this.updatingSubscribers) this.compileComponentUpdates();
-        this.cleanup();
-      } else {
-        // loop more!
-        this.findNextJob();
-      }
-    });
-  }
-
   // ****************** Perform Functions ****************** //
   private performPublicDataUpdate(job: Job): void {
     job.collection.public.privateWrite(job.property, job.value);
@@ -326,7 +304,6 @@ export default class Runtime {
   }
 
   // ****************** Handlers ****************** //
-
   private completedJob(job: Job): void {
     // if action is running, save that action instance inside job payload
     job.fromAction = this.runningAction;
@@ -342,12 +319,31 @@ export default class Runtime {
     if (this.runningAction) (this.runningAction as Action).changes.add(job);
   }
 
+  private finished(): void {
+    this.runningJob = false;
+
+    // If there's already more stuff in the queue, loop.
+    if (this.ingestQueue.length > 0) {
+      this.findNextJob();
+      return;
+    }
+
+    // Wait until callstack is empty to check if we should finalise this body of work
+    setTimeout(() => {
+      if (this.ingestQueue.length === 0) {
+        this.compileComponentUpdates();
+      } else {
+        this.findNextJob();
+      }
+    });
+  }
+
   // ****************** End Runtime Events ****************** //
 
   private compileComponentUpdates(): void {
     if (!this.global.initComplete) return;
     this.updatingSubscribers = true;
-    this.global.log('ALL JOBS COMPLETE', this.completedJobs);
+    this.global.log('JOBS COMPLETE', this.completedJobs);
 
     const componentsToUpdate = {};
 
@@ -358,28 +354,32 @@ export default class Runtime {
       // if job has a Dep class present
       // Dep class contains subscribers to that property (as a completed job)
       if (job.dep) {
-        let subscribers: Set<any> = job.dep.subscribers;
+        let subscribers: Set<ComponentContainer> = job.dep.subscribers;
 
         // for all the subscribers
-        subscribers.forEach(componentContainer => {
+        subscribers.forEach(cC => {
           // add to componentsToUpdate (ensuring update & component is unique)
+          let uuid: string = cC.uuid;
 
-          let uuid: string = componentContainer.uuid;
-          let key: string | undefined = componentContainer.key;
-          // below is a band-aid, caused by (what I believe to be) deep reactive properties submitting several updates for the same mutation, one for each level deep, since the parent is triggered as well
-          // if (!key) continue;
-
-          if (!key) {
-            if (!componentsToUpdate[uuid]) componentsToUpdate[uuid] = false; // will cause blind re-render
+          // if component container has mappable data
+          if (
+            typeof cC.evaluated === 'object' &&
+            !Array.isArray(cC.evaluated)
+          ) {
+            // will cause blind re-render
+            let keys = Object.keys(cC.evaluated);
+            keys.forEach(key => {
+              if (!componentsToUpdate[uuid]) {
+                // if this component isn't already registered for this particular update, add it.
+                componentsToUpdate[uuid] = {};
+                componentsToUpdate[uuid][key] = job.value;
+                // otherwise add the update to the component
+              } else {
+                componentsToUpdate[uuid][key] = job.value;
+              }
+            });
           } else {
-            // if this component isn't already registered for this particular update, add it.
-            if (!componentsToUpdate[uuid]) {
-              componentsToUpdate[uuid] = {};
-              componentsToUpdate[uuid][key] = job.value;
-              // otherwise add the update to the component
-            } else {
-              componentsToUpdate[uuid][key] = job.value;
-            }
+            if (!componentsToUpdate[uuid]) componentsToUpdate[uuid] = false;
           }
         });
       }
@@ -391,17 +391,18 @@ export default class Runtime {
 
   private updateSubscribers(componentsToUpdate) {
     const componentKeys = Object.keys(componentsToUpdate);
+    // for each component
     for (let i = 0; i < componentKeys.length; i++) {
       const componentID = componentKeys[i];
-      const componentInstance = this.global.subs.componentStore[componentID];
-      if (!componentInstance || !componentInstance.instance) return;
+      // get component container
+      const cC: ComponentContainer = this.global.subs.componentStore[
+        componentID
+      ];
+      if (!cC || !cC.instance) return;
 
       const propertiesToUpdate = componentsToUpdate[componentID];
 
-      Pulse.intergration.updateMethod(
-        componentInstance.instance,
-        propertiesToUpdate
-      );
+      Pulse.intergration.updateMethod(cC.instance, propertiesToUpdate);
     }
   }
 
@@ -411,12 +412,6 @@ export default class Runtime {
     if (job.collection.persist.includes(job.property)) {
       this.global.storage.set(job.collection.name, job.property, job.value);
     }
-  }
-
-  private cleanup(): void {
-    setTimeout(() => {
-      this.updatingSubscribers = false;
-    });
   }
 
   // ****************** Misc Handlers ****************** //

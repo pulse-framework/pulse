@@ -37,7 +37,7 @@ _App.js_
 
 ```js
 import Pulse from 'pulse-framework';
-import React from 'react';
+import React, { useState } from 'react';
 import core from './core';
 
 export default Pulse.React(() => {
@@ -63,3 +63,21 @@ export default Pulse.React(
 ```
 
 In the above example mutations to `core.something` will cause a re-render, but `core.somethingElse` will not since it was not included in the [dependency function]().
+
+There are other ways to intergrate Pulse data into your component, for example as props you would make your dependencies function return an object that Pulse can map to React props.
+
+```js
+import Pulse from 'pulse-framework';
+import React from 'react';
+import core from './core';
+
+Pulse.React(props => {
+  return <h1>{ props.thisIsAProp }</h1>
+}, () => {
+  return {
+    thisIsAProp: core.something;
+  }
+})
+```
+
+Each property of the returned object will be accessable as a prop of that component.

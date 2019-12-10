@@ -242,6 +242,14 @@ export default class Pulse {
     return Pulse.React(ReactComponent, mapData);
   }
 
+  public mapData(func, instance) {
+    // if component is not already registered
+    if (!instance.__pulseUniqueIdentifier)
+      this._private.global.subs.registerComponent(instance, {}, func);
+    // return mapData func
+    return this._private.global.subs.mapData(func, instance);
+  }
+
   public initConfig(config: RootConfig): RootConfig {
     // if constructor already init
     if (!this._private) {
@@ -253,7 +261,8 @@ export default class Pulse {
         autoUnmount: true,
         computedDefault: null,
         logJobs: false,
-        baseModuleAlias: false
+        baseModuleAlias: false,
+        mapDataUnderPropName: false
       });
     } else {
       // merge config
@@ -342,6 +351,9 @@ export default class Pulse {
     if (!this._private.global.config.logJobs) return;
 
     console.log('RUNTIME JOB', thing);
+  }
+  logJobs() {
+    this._private.global.config.logJobs = true;
   }
 }
 

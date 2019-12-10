@@ -4,70 +4,72 @@ import { ComponentContainer } from '../subController';
 
 function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
   const pulse = globalThis.__pulse;
+
   if (!pulse)
     console.error(
       `Pulse X React: Pulse instance inaccessible, it is likely you're using "Pulse.React()" before "new Pulse()"`
     );
-  const global = pulse._private.global;
-  const React = global.config.frameworkConstructor;
+
+  const global = pulse._private.global,
+    React = global.config.frameworkConstructor;
+
   return class extends React.Component {
-    private config = {
-      waitForMount: global.config.waitForMount,
-      blindSubscribe: true
-    };
-    private deps: Set<any> = new Set();
-    constructor(private props: any) {
+    // does pulse need to map data to props
+    public mappable: boolean = false;
+
+    constructor(public props: any) {
       super(props);
 
-      // subscribe component to Pulse
-      global.subs.registerComponent(this, this.config);
-    }
-    componentDidMount(): void {
-      global.subs.trackingComponent = false;
-      if (global.config.waitForMount) global.subs.mount(this);
-    }
-    componentWillUnmount(): void {
-      if (global.config.autoUnmount) global.subs.untrack(this);
-    }
-    registerDeps(componentContainer: ComponentContainer) {
-      let {
-        deps,
-        isMapData,
-        evaluated
-      } = global.subs.analyseFunctionForReactiveProperties(depsFunc);
-      this.isMapData = isMapData;
+      // register component
+      const cC = global.subs.registerComponent(this, {}, depsFunc);
 
-      deps.forEach(dep => dep.subscribe(componentContainer));
+      // use mapData to subscribe since we need to support older versions
+      cC.automaticDepTracking = depsFunc === undefined;
 
-      if (isMapData) this.mappedData = evaluated;
-    }
-    render() {
-      let componentContainer: ComponentContainer = global.subs.get(
-        this.__pulseUniqueIdentifier
-      );
+      if (!cC.automaticDepTracking) {
+        const { mapToProps, legacy } = global.subs.mapData(
+          depsFunc,
+          this,
+          true
+        );
 
-      let manualDepTracking: boolean = typeof depsFunc === 'function';
-
-      if (manualDepTracking) this.registerDeps(componentContainer);
-      else global.subs.trackingComponent = componentContainer;
-
-      if (!global.subs.trackingComponent && !manualDepTracking)
-        console.error('Pulse x React: React component not found!');
-
-      let component: any;
-      if (this.isMapData) {
-        let props = this.props,
-          old = global.config.mapDataUnderPropName;
-
-        // support for 2.1 React props as pulse.mappedName but with ability to choose a custom name
-        if (old) props[old] = this.mappedData;
-        else props = { ...props, ...this.mappedData };
-
-        component = React.createElement(ReactComponent, props);
-      } else {
-        component = React.createElement(ReactComponent, this.props);
+        cC.mappable = mapToProps;
+        cC.legacy = legacy;
       }
-      return component;
+    }
+
+    render() {
+      let props = { ...this.props },
+        cC = global.subs.get(this.__pulseUniqueIdentifier),
+        customProp = global.config.mapDataUnderPropName;
+
+      // METHOD (1) if no depFunc was supplied Pulse will track accessed dependencies
+      if (this.automaticDepTracking) {
+        // start tracking component
+        global.subs.trackingComponent = cC;
+      }
+      // METHOD (2) if custom prop is set and we were supplied a new mapData function
+      else if (cC.mappable && customProp) {
+        props = {
+          ...props,
+          [customProp]: cC.depsFunc(global.contextRef)
+        };
+      }
+      // METHOD (3) Pulse 2.2 map directly to props
+      else if (cC.mappable) {
+        // concat current props with lastest pulse values
+        props = { ...props, ...cC.depsFunc(global.contextRef) };
+      }
+      // METHOD (4) we were supplied legacy mapData object, string notation 'collection/property'
+      else if (this.legacy) {
+        props = {
+          ...props,
+          // use custom prop name or if unset use 'pulse' since we know it's legacy
+          [customProp || 'pulse']: this.legacyMapData(cC.depsFunc).evaluated
+        };
+      }
+
+      return React.createElement(ReactComponent, props);
     }
   };
 }
@@ -79,7 +81,7 @@ export default {
   },
   updateMethod(componentInstance: any, updatedData: Object) {
     if (updatedData) {
-      componentInstance.$setState(updatedData);
+      componentInstance.setState(updatedData);
     } else {
       componentInstance.forceUpdate();
     }

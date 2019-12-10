@@ -103,9 +103,7 @@ export default class Dep {
   }
 
   subscribe(componentContainer: ComponentContainer) {
-    if (!this.global.runtime.runningAction) {
-      componentContainer.deps.add(this);
-      this.subscribers.add(componentContainer);
-    }
+    componentContainer.deps.add(this);
+    this.subscribers.add(componentContainer);
   }
 }

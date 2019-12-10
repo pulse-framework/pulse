@@ -21,13 +21,17 @@ export class ComponentContainer {
   public uuid: string = genId();
   public ready: boolean = true;
   public deps: Set<Dep> = new Set();
+  public manualDepTracking: boolean = false;
+  public evaluated: Object;
   constructor(
     public instance: any,
     public config: {
       waitForMount: boolean;
       blindSubscribe: boolean;
-    }
+    },
+    public depsFunc?: Function
   ) {
+    this.manualDepTracking = typeof this.depsFunc !== 'undefined';
     instance.__pulseUniqueIdentifier = this.uuid;
     if (config.waitForMount) this.ready = false;
   }
@@ -45,21 +49,21 @@ export default class SubController {
 
   constructor(private global: Global) {}
 
-  public registerComponent(instance, config) {
+  public registerComponent(instance, config, depsFunc) {
     config = defineConfig(config, {
       waitForMount: this.global.config.waitForMount,
       blindSubscribe: false
     });
-    let componentContainer = new ComponentContainer(instance, config);
+    let componentContainer = new ComponentContainer(instance, config, depsFunc);
 
     this.componentStore[componentContainer.uuid] = componentContainer;
 
-    return componentContainer.uuid;
+    return componentContainer;
   }
 
   // returns all deps accessed within a function,
   // does not register any dependencies
-  public analyseFunctionForReactiveProperties(func: Function): any {
+  public analyseDepsFunc(func: Function): any {
     let deps: Set<Dep> = new Set();
     this.trackAllDeps = true;
     const evaluated = func(this.global.contextRef);
@@ -69,8 +73,10 @@ export default class SubController {
     this.trackedDeps = new Set();
     this.trackAllDeps = false;
 
-    let isMapData = !Array.isArray(evaluated) && typeof evaluated === 'object';
-    return { isMapData, deps, evaluated };
+    let mapToProps: boolean =
+      !Array.isArray(evaluated) && typeof evaluated === 'object';
+
+    return { mapToProps, deps, evaluated };
   }
 
   public get(id: string): ComponentContainer | boolean {
@@ -91,7 +97,7 @@ export default class SubController {
     }
   }
 
-  public untrack(instance) {
+  public unmount(instance) {
     const uuid = instance.__pulseUniqueIdentifier;
     if (!uuid) return;
 
@@ -105,38 +111,59 @@ export default class SubController {
     delete this.componentStore[instance.__pulseUniqueIdentifier];
   }
 
-  public mapData(func: Function | Object, componentInstance: any): Object {
-    // get container instance for component
-    let componentContainer: ComponentContainer = this.get(
-      componentInstance.__pulseUniqueIdentifier
-    ) as ComponentContainer;
+  legacyMapData(func) {
+    const ret = {
+      deps: new Set(),
+      evaluated: null
+    };
+    normalizeMap(func).forEach(({ key, val }) => {
+      let moduleInstanceName = val.split('/')[0];
+      let property = val.split('/')[1];
+      let moduleInstance = this.global.contextRef[moduleInstanceName];
+      let res = this.global.subs.analyseDepsFunc(() => {
+        return { [key]: moduleInstance[property] };
+      });
+      ret.deps.add(res.dep);
+      ret.evaluated[key] = res.evaluated[key];
+    });
+    return ret;
+  }
 
-    let deps: Set<Dep> = new Set(),
-      evaluated: Object = {};
+  public mapData(
+    func: Function | Object,
+    componentInstance: any,
+    returnInfo?: boolean
+  ): Object {
+    // get container instance for component
+    let cC: ComponentContainer = this.get(
+        componentInstance.__pulseUniqueIdentifier
+      ) as ComponentContainer,
+      deps: Set<any> = new Set(),
+      evaluated: Object = {},
+      mapToProps: boolean = false,
+      legacy: boolean = false;
 
     if (typeof func === 'object') {
+      legacy = true;
+      // force mapToProps as we know this old method requires that
+      mapToProps = true;
       // Pulse 1.0 compatiblity, should depricate soon!
-      normalizeMap(func).forEach(({ key, val }) => {
-        let moduleInstanceName = val.split('/')[0];
-        let property = val.split('/')[1];
-        let moduleInstance = this.global.contextRef[moduleInstanceName];
-        let res = this.global.subs.analyseFunctionForReactiveProperties(() => {
-          return { [key]: moduleInstance[property] };
-        });
-        deps.add(res.dep);
-        evaluated[key] = res.evaluated[key];
-      });
+      const legacyRes = this.legacyMapData(func);
+      deps = legacyRes.deps;
+      evaluated = legacyRes.evaluated;
     } else {
-      let res = this.global.subs.analyseFunctionForReactiveProperties(
-        func as Function
-      );
+      let res = this.global.subs.analyseDepsFunc(func as Function);
       deps = res.deps;
       evaluated = res.evaluated;
+      mapToProps = res.mapToProps;
     }
 
-    // create subscription
-    deps.forEach(dep => dep.subscribe(componentContainer));
+    if (mapToProps) cC.evaluated = evaluated;
 
+    // create subscription
+    deps.forEach(dep => dep.subscribe(cC));
+
+    if (returnInfo) return { evaluated, deps, mapToProps, legacy };
     return evaluated;
   }
 }
