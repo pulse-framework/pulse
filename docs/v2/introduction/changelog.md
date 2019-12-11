@@ -26,6 +26,7 @@ Pulse.React() is now the simplest way to get started with Pulse, check out the n
 - Added mapDataUnderPropName
 - Cleaned up lots of under-the-hood code
 - staticData is now mapped to data
+- Services are now found under `pulse.services.service` instead of `pulse.service` [potentially breaking]
 
 ### Feature: mapDataUnderPropName
 

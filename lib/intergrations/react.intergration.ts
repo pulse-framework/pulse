@@ -41,7 +41,8 @@ function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
     render() {
       let props = { ...this.props },
         cC = global.subs.get(this.__pulseUniqueIdentifier),
-        customProp = global.config.mapDataUnderPropName;
+        customProp = global.config.mapDataUnderPropName,
+        isFunc = typeof depsFunc === 'function';
 
       // METHOD (1) if no depFunc was supplied Pulse will track accessed dependencies
       if (this.automaticDepTracking) {
@@ -49,14 +50,14 @@ function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
         global.subs.trackingComponent = cC;
       }
       // METHOD (2) if custom prop is set and we were supplied a new mapData function
-      else if (cC.mappable && customProp) {
+      else if (cC.mappable && customProp && isFunc) {
         props = {
           ...props,
           [customProp]: cC.depsFunc(global.contextRef)
         };
       }
       // METHOD (3) Pulse 2.2 map directly to props
-      else if (cC.mappable) {
+      else if (cC.mappable && isFunc) {
         // concat current props with lastest pulse values
         props = { ...props, ...cC.depsFunc(global.contextRef) };
       }

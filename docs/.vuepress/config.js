@@ -87,6 +87,7 @@ module.exports = {
           title: 'Guide',
           collapsable: false,
           children: [
+            'guide/concepts',
             'guide/library',
             'guide/collections',
             'guide/namespacing',

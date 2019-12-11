@@ -1,6 +1,10 @@
 ---
-title: Pulse Basics
+title: Pulse Concepts
 ---
+
+## Structure
+
+Pulse was designed to take all business logic out of components, meaning your React/Vue/Angular components are essencially puppets for Pulse to orchestrate. The benifit of keeping logic seperate to visual components is versitility, upgradablity and cleanliness. An example would be with Notify's codebase, we built most of our app using Pulse in a repository called "core" and then our components are mostly markup, css and a router file. Both our mobile app in React Native and our webapp in Vue behave exactly the same aside from a few visual differences, as both use the core.
 
 ## Reactivity
 
