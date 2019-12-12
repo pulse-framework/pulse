@@ -93,7 +93,6 @@ module.exports = {
             'guide/namespacing',
             'guide/using-data',
             'guide/persisting-data',
-            'guide/mutating-data',
             'guide/context-object',
             'guide/filters',
             'guide/data-relations',
