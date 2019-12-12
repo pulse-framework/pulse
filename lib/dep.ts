@@ -60,19 +60,21 @@ export default class Dep {
         }
       }
     } else if (this.type === 'internal') {
-      let dataDep = this.global.runningPopulate as Dep;
-      // if the data's dep class
-      // action index matches the current action, create dynamic relation
-      if (
-        dataDep &&
-        dataDep.currentActionIndex === this.global.runtime.runningActions.length
-      )
-        this.global.relations.relate(dataDep, this);
     }
+
+    let dataDep = this.global.runningPopulate as Dep;
+    // if the data's dep class
+    // action index matches the current action, create dynamic relation
+    if (
+      dataDep &&
+      dataDep.currentActionIndex === this.global.runtime.runningActions.length
+    )
+      this.global.relations.relate(dataDep, this);
 
     if (this.global.subs.trackingComponent)
       this.subscribe(this.global.subs.trackingComponent);
 
+    // idk how i plan to use this...
     if (subs.unsubscribingComponent) {
       // this.subscribers.delete(this.global.subscribingComponent);
     }

@@ -273,7 +273,7 @@ export default class Pulse {
     if (!Pulse.intergration && config.framework) {
       Pulse.use(config.framework, Pulse);
     }
-    if (!Pulse.intergration.name) {
+    if (!Pulse.intergration) {
       console.warn('Pulse Warning - No intergrated framework');
     }
 

@@ -112,21 +112,28 @@ export default class SubController {
   }
 
   legacyMapData(func) {
-    const ret = {
-      deps: new Set(),
-      evaluated: null
-    };
-    normalizeMap(func).forEach(({ key, val }) => {
+    const deps: Set<Dep> = new Set();
+    const evaluated = null;
+    let norm = normalizeMap(func);
+    for (let i = 0; i < norm.length; i++) {
+      const { key, val } = norm[i];
       let moduleInstanceName = val.split('/')[0];
       let property = val.split('/')[1];
       let moduleInstance = this.global.contextRef[moduleInstanceName];
-      let res = this.global.subs.analyseDepsFunc(() => {
+      let analysed = this.global.subs.analyseDepsFunc(() => {
         return { [key]: moduleInstance[property] };
       });
-      ret.deps.add(res.dep);
-      ret.evaluated[key] = res.evaluated[key];
-    });
-    return ret;
+      deps.add(analysed.dep);
+
+      // this if statement is here because of a weird bug that with all my JS knowlege I can't explain, only doesn't work on JavascriptCore engine, iOS
+      if (
+        typeof analysed.evaluated === 'object' &&
+        analysed.evaluated.hasOwnProperty[key]
+      )
+        evaluated[key] = analysed.evaluated[key];
+    }
+
+    return { deps, evaluated };
   }
 
   public mapData(
@@ -161,7 +168,7 @@ export default class SubController {
     if (mapToProps) cC.evaluated = evaluated;
 
     // create subscription
-    deps.forEach(dep => dep.subscribe(cC));
+    deps.forEach(dep => dep && dep.subscribe(cC));
 
     if (returnInfo) return { evaluated, deps, mapToProps, legacy };
     return evaluated;

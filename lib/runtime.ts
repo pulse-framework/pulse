@@ -83,8 +83,6 @@ export default class Runtime {
 
     if (!next) return;
 
-    this.global.log(next);
-
     if (!next.dep && next.type !== JobType.INDEX_UPDATE)
       // groups, computed and indexes will not have their Dep class, so get it.
       next.dep = next.collection.getDep(next.property as string) as Dep;
@@ -107,6 +105,8 @@ export default class Runtime {
 
   private performJob(job: Job): void {
     const pre = job.hasOwnProperty(job.previousValue);
+
+    this.global.log(job);
 
     switch (job.type) {
       case JobType.PUBLIC_DATA_MUTATION:
@@ -402,7 +402,8 @@ export default class Runtime {
 
       const propertiesToUpdate = componentsToUpdate[componentID];
 
-      Pulse.intergration.updateMethod(cC.instance, propertiesToUpdate);
+      if (Pulse.intergration)
+        Pulse.intergration.updateMethod(cC.instance, propertiesToUpdate);
     }
   }
 
