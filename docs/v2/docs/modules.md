@@ -7,7 +7,7 @@ title: Modules
 Pulse Modules allow you to organize your codebase into sections. There are several types of module, but all extend the functionality of the Module class. The other types are [Collections]() & [Services](), though more might be added in future.
 
 ::: tip Base Module
-The root of Pulse is itself a module called "base", regular module config can be used on the root of the library object. An example of this can be found in the [Pulse Library]() documentation. Read more on the [Base Module]().
+The root of Pulse is itself a module called "base", the regular module config can be used on the root of the library object. An example of this can be found in the [Pulse Library]() documentation. Read more on the [Base Module]().
 :::
 
 Modules are comprised of the following features:
