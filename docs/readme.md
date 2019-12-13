@@ -1,10 +1,17 @@
 ---
 home: true
-actionText: Getting Started →
-actionLink: /v2/
+# actionText: Documentation →
+# actionLink: /v2/
 footer: MIT Licensed | Copyright © 2019 - Jamie Pine
 ---
 
+Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginngers.
+
+<center>
+<a href="#">Documentation</a> | <a href="#">Changelog</a> | <a href="#">Contribution Guide</a> | <a href="#">Examples</a>
+</center>
+<br />
+<br />
 <p align="center">
   <a href="https://patreon.com/jamiepine"><img src="https://img.shields.io/badge/donate-patreon-F96854.svg" alt="Donate on patreon"></a>
   <a href="https://twitter.com/jamiepine"><img src="https://img.shields.io/twitter/follow/jamiepine.svg?label=Follow" alt="Follow on twitter"></a>
@@ -18,7 +25,3 @@ footer: MIT Licensed | Copyright © 2019 - Jamie Pine
   <a href="https://github.com/jamiepine/pulse"><img src="https://img.shields.io/github/languages/code-size/jamiepine/pulse.svg" alt="GitHub Code Size"></a>
   <a href="https://github.com/jamiepine/pulse"><img src="https://img.shields.io/github/repo-size/jamiepine/pulse.svg" alt="GitHub Repo Size"></a>
 </p>
-
-Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. It is lightweight, modular and powerful, but most importantly easy to understand.
-
-If you wish contribute, that is very much welcome! But please reach out first so we don't work on the same thing at the same time, twitter dm @jamiepine or Discord jam#0001

@@ -1,13 +1,18 @@
 module.exports = {
   title: 'PulseJS',
-  description: 'Application logic library for reactive Javascript frameworks',
+  description:
+    'A global state and logic framework for reactive Javascript applications.',
   dest: 'dist',
   serviceWorker: true,
   base: '/',
   head: [['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }]],
   themeConfig: {
     logo: '/logo.svg',
-    nav: [{ text: 'Home', link: '/' }, { text: 'Guide', link: '/v2/' }],
+    nav: [
+      { text: 'Home', link: '/' },
+      { text: 'Documentation', link: '/v2/' },
+      { text: 'Changelog', link: '/v2/introduction/changelog' }
+    ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
     repo: 'jamiepine/pulse',
@@ -84,21 +89,19 @@ module.exports = {
           ]
         },
         {
-          title: 'Guide',
+          title: 'Documentation',
           collapsable: false,
           children: [
-            'guide/concepts',
-            'guide/library',
-            'guide/collections',
-            'guide/namespacing',
-            'guide/using-data',
-            'guide/persisting-data',
-            'guide/context-object',
-            'guide/filters',
-            'guide/data-relations',
-            'guide/http-requests',
-            'guide/models',
-            'guide/debugging'
+            'docs/concepts',
+            'docs/library',
+            'docs/modules',
+            'docs/collections',
+            'docs/using-data',
+            'docs/persisting-data',
+            'docs/context-object',
+            'docs/computed',
+            'docs/http-requests',
+            'docs/debugging'
           ]
         },
         {

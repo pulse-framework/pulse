@@ -17,7 +17,7 @@
 
 Please read the [changelog](https://pulsejs.org/introduction/changelog.html) to ensure your old code is compatible.
 
-Pulse is an application logic library for reactive Javascript frameworks with support for VueJS, React and React Native. Lightweight, modular and powerful, but most importantly easy to understand.
+Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginngers.
 
 ## Why Pulse?
 

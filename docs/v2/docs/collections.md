@@ -2,17 +2,19 @@
 title: Collections
 ---
 
-## What are collections?
+### Collections
 
 Pulse provides "collections" as a way to easily save data. Collections are designed for data following the same structure or 'model'. So channels, posts, comments, reviews, store items etc.
 
-Collections are an extention of the Modules, everything a Module can do, so can a Collection.
+::: tip NOTE: Collections extend Modules
+Everything a Module can do, so can a Collection. [Read more]() about Modules in Pulse
+:::
 
 **Think of a collection like a database table.** Each collection comes with database-like methods to manipulate data. Data is "collected" which is a fancy way to say cached. The beauty of collections is that data can only be collected once, meaning if you need to modify it, there's one place to do so.
 
 In order to achieve this, data we collect must be [**normalized**](#what-is-data-normalization).
 
-## How to use
+## Collection Basics
 
 Collections are defined in the [Pulse library](./library.html), for the purpose of the following examples we'll refer to a collection as just `collection`, but this can be whatever you decide to name your collection(s).
 
@@ -34,17 +36,17 @@ Collected data can be an array of objects containing primary keys (id), or a sin
 Here's an example using a basic `posts` dataset and the Pulse `collect()` method.
 
 ```js
-// single object
-post = {
+// Single object
+const post = {
   id: 234,
   title: 'A post!',
-  //etc..
+  // etc...
 }
 
-collect(post)
+collect(post);
 
-// array of objects
-posts = [
+// Array of objects
+const posts = [
   { id: 323, ... },
   { id: 243, ... },
   { id: 722, ... }
@@ -59,10 +61,15 @@ Because we need to normalize data for Pulse collections to work, each piece of d
 If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a [model](./models).
 
 ```js
-`primaryKey: 'key'`;
+model: {
+  uuid: {
+    type: String
+    primaryKey: true;
+  }
+}
 ```
 
-or whatever your dataset's unique identifier is.
+In the above case, we set the primary key for this collection to `uuid`.
 
 ## Base collection
 
@@ -107,6 +114,20 @@ If necessary, groups can be created dynamically, however they will not be expose
 ## Built-in Functions
 
 These are default functions attached to every collection. They can be called within your actions in the Pulse Library, or directly on your component.
+
+| Name        | Type     | Description                                                                                                | Filters | Actions |
+|-------------|----------|------------------------------------------------------------------------------------------------------------|---------|---------|
+| findById    | Function | A helper function to return data directly by primary key.                                                  | True    | True    |
+| collect     | Function | The collect function, to save data to this collection.                                                     | False   | True    |
+| put         | Function | Insert data into a group by primary key.                                                                   | False   | True    |
+| move        | Function | Move data from one group to another.                                                                       | False   | True    |
+| update      | Function | Mutate properties of a data entry by primary key.                                                          | False   | True    |
+| delete      | Function | Delete data.                                                                                               | False   | True    |
+| deleteGroup | Function | Delete data in a group                                                                                     | False   | True    |
+| clear       | Function | Remove unused data.                                                                                        | False   | True    |
+| undo        | Function | Revert all changes made by this action.                                                                    | False   | True    |
+| throttle    | Function | Used to prevent an action from running more than once in a specified time frame. EG: throttle(2000) for 2s | False   | True    |
+| purge       | Function | Clears all collection data and empties groups.                                                             | False   | True    |
 
 ```js
 // put data by id (or array of IDs) into another group
@@ -155,3 +176,63 @@ actions: {
 ```
 
 If the catch block is triggered, the undo method will revert all changes made in this action, setting `customValue` back to its previous value, removing collected data and any changes to `groupOne` and reverting `someOtherValue` also. If the group was created during this action, it will be deleted.
+
+
+
+## Models
+
+Collections allow you to define models for the data that you collect. This is great for ensuring valid data is always passed to your components. It also allows you to define data relations between collections, as shown in the next section.
+
+Here's an example of a model:
+
+```js
+collection: {
+  model: {
+    id: {
+      // id is the default primary key, but you can set another
+      // property to a primary key if your data is different.
+      primaryKey: true;
+      type: Number; // coming soon
+      required: true; // coming soon
+    }
+  }
+}
+```
+
+Data that does not fit the model requirements you define will not be collected, it will instead be saved in the Errors object as a "Data Rejection", so you can easily debug.
+
+
+## `populate()`
+
+Creating data relations between collections is easy and extremely useful using the `populate()` function in the collection model.
+
+But why would you need to create data relations? The simple answer is keeping to our rule that data should not be repeated, but when it is needed in multiple places we should make it dependent on a single copy of that data, which when changed, causes any dependencies using that data to regenerate.
+
+Let's say you have a `channel` and a several `posts` which have been made by that channel. In the post object you have an `owner` property, which is a channel id (the primary key). We can establish a relation between that `owner` id and the primary key in the channel collection. Now when groups or computed data is generated for the posts collection, each piece of data will include the full `channel` object.
+
+When that channel is modified, any groups containing a post dependent on that channel will regenerate, and computed data dependent on those groups will regenerate also.
+
+Here's a full example using the names I referenced above.
+
+```js
+collections: {
+  posts: {
+    model: {
+      channel: {
+        populate({ channels }, data) {
+          return channels.findById(data.owner);
+        }
+      }
+    }
+  },
+  channels: {} // etc..
+}
+```
+
+That's it! It just works. Now each piece of data in the `channels` collection, when access within a group, will have a new property named `channel` with the value being the latest copy of the channel object.  
+
+The first parameter of the populate function is the [Context Object]() and the second is the current piece of data being evaluated against the model.
+
+A situation where this proved extremely satisfying, was updating a channel avatar on the Notify app, every instance of that data changed reactively. Here's a gif of that in action.
+
+![Gif showing reactivity using Pulse relations](https://i.imgur.com/kDjkHNx.gif 'All instances of the avatar update when the source is changed, including the related posts from a different collection.')
