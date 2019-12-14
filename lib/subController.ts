@@ -112,25 +112,28 @@ export default class SubController {
   }
 
   legacyMapData(func) {
+    // PUT DEPRICATION WARNING HERE PLS
     const deps: Set<Dep> = new Set();
-    const evaluated = null;
+    let evaluated = null;
     let norm = normalizeMap(func);
     for (let i = 0; i < norm.length; i++) {
       const { key, val } = norm[i];
       let moduleInstanceName = val.split('/')[0];
       let property = val.split('/')[1];
-      let moduleInstance = this.global.contextRef[moduleInstanceName];
+      let moduleInstance = this.global.getModuleInstance(moduleInstanceName);
       let analysed = this.global.subs.analyseDepsFunc(() => {
-        return { [key]: moduleInstance[property] };
+        return { [key]: moduleInstance.public.object[property] };
       });
-      deps.add(analysed.dep);
+      // debugger;
+      analysed.deps.forEach(dep => deps.add(dep));
 
       // this if statement is here because of a weird bug that with all my JS knowlege I can't explain, only doesn't work on JavascriptCore engine, iOS
-      if (
-        typeof analysed.evaluated === 'object' &&
-        analysed.evaluated.hasOwnProperty[key]
-      )
+      let bool = typeof analysed.evaluated === 'object';
+
+      if (bool) {
+        if (!evaluated) evaluated = {};
         evaluated[key] = analysed.evaluated[key];
+      }
     }
 
     return { deps, evaluated };

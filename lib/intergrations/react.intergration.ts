@@ -62,11 +62,12 @@ function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
         props = { ...props, ...cC.depsFunc(global.contextRef) };
       }
       // METHOD (4) we were supplied legacy mapData object, string notation 'collection/property'
-      else if (this.legacy) {
+      else if (cC.legacy) {
         props = {
           ...props,
           // use custom prop name or if unset use 'pulse' since we know it's legacy
-          [customProp || 'pulse']: this.legacyMapData(cC.depsFunc).evaluated
+          [customProp || 'pulse']: global.subs.legacyMapData(cC.depsFunc)
+            .evaluated
         };
       }
 

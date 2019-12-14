@@ -57,6 +57,7 @@ export default class Pulse {
         getInternalData: this.getInternalData.bind(this),
         getContext: this.getContext.bind(this),
         log: this.log.bind(this),
+        getModuleInstance: this.getModuleInstance.bind(this),
         uuid: genId
       }
     };
@@ -345,6 +346,15 @@ export default class Pulse {
 
       collection.initPersist(collection.root.persist);
     });
+  }
+
+  public getModuleInstance(name: string): ModuleInstance {
+    const self = this._private;
+    let moduleInstance: ModuleInstance;
+    if (self.modules.hasOwnProperty(name)) moduleInstance = self.modules[name];
+    if (self.collections.hasOwnProperty(name))
+      moduleInstance = self.collections[name];
+    return moduleInstance;
   }
 
   log(thing): void {

@@ -117,6 +117,7 @@ export interface Global {
   uuid: Function;
   ingest?: Function;
   ingestDependents?: Function;
+  getModuleInstance?: Function;
   request?: Object;
   log: Function;
 }
