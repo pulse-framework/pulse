@@ -33,6 +33,8 @@ We've created a reactive data property on the root of Pulse called "something" w
 
 _Note: You can still use `framework: React` as a config option for backwards compatiblity._
 
+### Using `Pulse.React()`
+
 _App.js_
 
 ```js

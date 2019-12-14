@@ -21,7 +21,7 @@ Pulse.React() is now the simplest way to get started with Pulse, check out the n
 
 ### Changes
 
-- Added [Pulse.React()]() as a replacement to Pulse.wrapped()
+- Added [Pulse.React()](/v2/getting-started/setup-with-react.html#using-pulse-react) as a replacement to Pulse.wrapped()
 - Added [Pulse.use()]() for initilizing React/Vue or now even custom framework intergration.
 - staticData is now mapped to data
 - Services are now found under `pulse.services.service` instead of `pulse.service` potentially breaking
