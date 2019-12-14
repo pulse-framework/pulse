@@ -83,8 +83,6 @@ export default class Pulse {
     this.runAllOnReady();
 
     this.initComplete();
-
-    Pulse.intergration.bind(Pulse);
   }
 
   registerModules(root: RootCollectionObject) {
@@ -301,15 +299,17 @@ export default class Pulse {
     this._private.global.gettingContext = true; // prevent reactive getters from tracking dependencies while building context
 
     if (!moduleInstance) {
-      context = this._private.global.contextRef;
+			context = this._private.global.contextRef;
     } else context = (moduleInstance as ModuleInstance).getSelfContext();
+
+		if (this['utils']) context['utils'] = this['utils'];
 
     // spread base context
     context = {
       base: this._private.modules.base.public.object,
       ...this._private.modules.base.public.object, // invokes getters, dat bad
       ...context
-    };
+		};
 
     this._private.global.gettingContext = false;
     return context;

@@ -244,7 +244,7 @@ export default class Module {
     // insert static properties
     l.local = this.root.local;
     l.actions = createObj(this.keys.actions, this.public.object);
-    l.routes = this.public.object.routes;
+		l.routes = this.public.object.routes;
 
     if (this.keys.indexes) {
       l.indexes = this.indexes.public.object;

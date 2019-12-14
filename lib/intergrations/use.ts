@@ -32,7 +32,11 @@ export default (frameworkConstructor, PulseConstructor) => {
 
   PulseConstructor.intergration.frameworkConstructor = frameworkConstructor;
 
-  // if (!PulseConstructor.intergration) return;
+	if (!PulseConstructor.intergration) {
+		console.error('Pulse Error - Intergration not found, make sure to call "Pulse.use()" before "new Pulse()"')
+	};
+
+	PulseConstructor.intergration.bind(PulseConstructor);
 
   // PulseConstructor.intergration.bind(PulseConstructor);
 };

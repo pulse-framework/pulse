@@ -18,7 +18,7 @@ export default {
           global.subs.registerComponent(this);
 
           // alias map
-          const mapData = global.subs.mapData.bind(pulse);
+          const mapData = global.subs.mapData.bind(pulse._private.global.subs);
 
           this.mapData = properties => mapData(properties, this);
         },
