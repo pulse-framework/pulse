@@ -17,7 +17,7 @@ config: {
 }
 ```
 
-Pulse.React() is now the simplest way to get started with Pulse, check out the new [Setup With React](/v2/getting-started/setup-with-react).
+Pulse.React() is now the simplest way to get started with Pulse, check out the new [Setup With React](/v2/getting-started/setup-with-react.html).
 
 ### Changes
 
