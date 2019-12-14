@@ -18,7 +18,7 @@ export default {
           global.subs.registerComponent(this);
 
           // alias map
-          const mapData = global.subs.mapData.bind(pulse._private.global.subs);
+          const mapData = global.subs.mapData.bind(global.subs);
 
           this.mapData = properties => mapData(properties, this);
         },
@@ -28,7 +28,7 @@ export default {
         },
         beforeDestroy() {
           if (this.__pulseUniqueIdentifier && config.autoUnmount)
-            global.subs.untrack(this);
+            global.subs.unmount(this);
         }
       });
     };
