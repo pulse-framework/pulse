@@ -34,14 +34,8 @@ export default {
     };
   },
   updateMethod(componentInstance: any, updatedData: Object) {
-    return () => {
-      for (let dataKey in updatedData) {
-        componentInstance.$set(
-          componentInstance,
-          dataKey,
-          updatedData[dataKey]
-        );
-      }
-    };
+    for (let dataKey in updatedData) {
+      componentInstance.$set(componentInstance, dataKey, updatedData[dataKey]);
+    }
   }
 };
