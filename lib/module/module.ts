@@ -244,7 +244,7 @@ export default class Module {
     // insert static properties
     l.local = this.root.local;
     l.actions = createObj(this.keys.actions, this.public.object);
-		l.routes = this.public.object.routes;
+    l.routes = this.public.object.routes;
 
     if (this.keys.indexes) {
       l.indexes = this.indexes.public.object;
@@ -344,5 +344,17 @@ export default class Module {
   public isComputedReady(computedName: string) {
     // if (this.computed.hasOwnProperty(computedName)) return true;
     return this.computed[computedName].hasRun;
+  }
+
+  public addStaticData(key: string, data: any) {
+    if (
+      this.keys.staticData.includes(key) ||
+      this.public.getKeys().includes(key)
+    )
+      throw 'Pulse: failed to add static data, key already exists';
+
+    this.keys.staticData.push(key);
+    this.public.privateWrite(key, data);
+    this.prepareLocalContext(); // recompute local context;
   }
 }

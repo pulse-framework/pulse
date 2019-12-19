@@ -28,6 +28,7 @@ export const collectionFunctions = [
   'debounce',
   'watchData',
   'cleanse',
+  'addStaticData',
   // 'unsubscribe',
   // deprecated
   'remove'
