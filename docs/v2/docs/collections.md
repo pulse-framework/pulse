@@ -120,8 +120,8 @@ These are default functions attached to every collection. They can be called wit
 | put         | Function | Insert data into a group by primary key.                                                                   | False   | True    |
 | move        | Function | Move data from one group to another.                                                                       | False   | True    |
 | update      | Function | Mutate properties of a data entry by primary key.                                                          | False   | True    |
-| delete      | Function | Delete data.                                                                                               | False   | True    |
-| deleteGroup | Function | Delete data in a group                                                                                     | False   | True    |
+| remove      | Function | Delete data.                                                                                               | False   | True    |
+| removeFromGroup | Function | Delete data in a group                                                                                     | False   | True    |
 | clear       | Function | Remove unused data.                                                                                        | False   | True    |
 | undo        | Function | Revert all changes made by this action.                                                                    | False   | True    |
 | throttle    | Function | Used to prevent an action from running more than once in a specified time frame. EG: throttle(2000) for 2s | False   | True    |
@@ -143,7 +143,10 @@ collection.update(2123, {
 collection.collect(res.data.channel, 'selected');
 
 // removes data via primary key from a collection
-collection.delete(1234);
+collection.remove(1234);
+
+// removes data via primary key from a collection group
+collection.removeFromGroup(1234, 'selected');
 
 // will delete all data and empty all groups for a given collection
 collection.purge();
