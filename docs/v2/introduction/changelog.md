@@ -28,6 +28,7 @@ Pulse.React() is now the simplest way to get started with Pulse, check out the n
 - Added [mapDataUnderPropName]() config option
 - Added [computedDefault]() config option
 - Added [addStaticData]() as a module function
+- Added [collectByKeys]() as a collection function
 - Cleaned up lots of under-the-hood code
 
 ## 2.1.0 - Introducing Modules

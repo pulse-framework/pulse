@@ -22,7 +22,7 @@ Once you've defined a collection, you can begin saving data to it.
 collection.collect(someData);
 ```
 
-When collecting data its typical you'll need to assign it a [group](#groups).
+To learn how to use `collect()` in detail see [collection-methods/collect()](/v2/docs/collection-methods.html#collect).
 
 ## What is data normalization?
 
@@ -98,7 +98,7 @@ Each time an object's index changes, the related group rebuilds its data from th
 You can modify the index directly and it will trigger the group to regenerate with the correct data.
 
 ::: warning NOTE
-**You must define groups in the collection library if you want them to be exposed publicly to your components, filters and actions. Example below:**
+**You must define groups in the collection library if you want them to be exposed publicly to your components, computed and actions. Example below:**
 :::
 
 ```js
@@ -107,7 +107,7 @@ collection: {
 }
 ```
 
-If necessary, groups can be created dynamically, however they will not be exposed publicly like regular groups. You can still make use of them by calling `collection.getGroup('name')`. This method can be used throughout the Pulse library, and is reactive within filters.
+If necessary, groups can be created dynamically, however they will not be exposed publicly like regular groups. You can still make use of them by calling `collection.getGroup('name')`. This method can be used throughout the Pulse library, and is reactive within computed functions.
 
 ## Models
 

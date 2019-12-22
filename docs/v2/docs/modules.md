@@ -61,7 +61,7 @@ const myModule = {
 };
 ```
 
-Once you register this module in Pulse it that data will now be accesible at `pulse.myModule.data`
+Once you register this module in Pulse it that data will now be accesible at `pulse.myModule.something`
 
 ## Actions
 
