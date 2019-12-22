@@ -249,6 +249,7 @@ export default class Collection extends Module {
     group?: string | Array<string>,
     config?: object
   ) {
+    if (!config) config = {};
     config.byKeys = true;
     this.collect(data, group, config);
   }
