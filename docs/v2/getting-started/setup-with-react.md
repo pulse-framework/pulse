@@ -20,13 +20,13 @@ _core.js_
 import Pulse from 'pulse-framework';
 import React from 'react';
 
+Pulse.use(React);
+
 export default new Pulse({
   data: {
     something: true
   }
 });
-
-Pulse.use(React);
 ```
 
 We've created a reactive data property on the root of Pulse called "something" with the value true. It can be found at `pulse.something`. We also called `Pulse.use(React)` to tell Pulse we're working with React.
