@@ -148,6 +148,11 @@ export default class Collection extends Module {
 
       this.global.runningPopulate = dep;
 
+      // since we're re-populating this dynamic data, the current dynamicRelation is invalid, so we must ensure it, and all refrences to it are destoryed.
+      // fyi: this is also done on Computed run
+      if (dep.dynamicRelation)
+        this.global.relations.cleanup(dep.dynamicRelation);
+
       // run populate function passing in the context and the data
       const populated = this.model[property].populate(
         this.global.contextRef,

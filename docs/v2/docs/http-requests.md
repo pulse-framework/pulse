@@ -1,8 +1,8 @@
 ---
-title: HTTP Requests
+title: Request API
 ---
 
-### HTTP Requests
+### HTTP Request API
 
 Pulse replaces the need to use a third party HTTP request library such as Axios. Define endpoints within your modules & collections, then easily handle the response and process response data.
 

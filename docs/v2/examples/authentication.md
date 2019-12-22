@@ -12,7 +12,7 @@ title: Authentication
 ```js
 import Pulse from 'pulse-framework';
 
-const core = new Pulse.Library({
+const core = new Pulse({
   // settings for the request
   request: {
     baseURL: 'https://api.mysite.me',

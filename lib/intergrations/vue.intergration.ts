@@ -1,3 +1,5 @@
+import Pulse from '../main';
+
 export default {
   name: 'vue',
   bind(pulseConstructor) {
@@ -37,5 +39,9 @@ export default {
     for (let dataKey in updatedData) {
       componentInstance.$set(componentInstance, dataKey, updatedData[dataKey]);
     }
+  },
+  onReady(pulseConstructor: Pulse) {
+    const Vue = pulseConstructor.intergration.frameworkConstructor;
+    Vue.use(pulseConstructor);
   }
 };

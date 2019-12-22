@@ -96,22 +96,17 @@ module.exports = {
             'docs/library',
             'docs/modules',
             'docs/collections',
-            'docs/using-data',
-            'docs/persisting-data',
             'docs/context-object',
-            'docs/computed',
+            'docs/persisting-data',
             'docs/http-requests',
+            'docs/using-pulse-data',
             'docs/debugging'
           ]
         },
         {
           title: 'Examples',
           collapsable: false,
-          children: [
-            'examples/UsageWithVueJS',
-            'examples/UsageWithReact',
-            'examples/authentication'
-          ]
+          children: ['examples/authentication']
         }
       ]
     }

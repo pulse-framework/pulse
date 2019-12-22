@@ -87,5 +87,8 @@ export default {
     } else {
       componentInstance.forceUpdate();
     }
+  },
+  onReady() {
+    //
   }
 };

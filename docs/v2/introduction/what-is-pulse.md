@@ -4,7 +4,7 @@ title: What is Pulse?
 
 Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginngers.
 
-Pulse replaces global state management solutions such as Redux, VueX and MobX, including HTTP libraries such as Axios, Fetch or Request.js. It makes your application more modular, ensuring you follow the best practices while writing significantly less code.
+Pulse replaces global state management solutions such as Redux, VueX and MobX, including HTTP libraries such as Axios, Fetch or Request.js. It makes your application more modular, ensuring you follow the best practices while writing significantly less code. Your Pulse code can be used in many different applications, such as a webapp in Vue and a mobile app in React native; if it uses Javascript, it can use Pulse.
 
 ## Why Pulse?
 
@@ -14,26 +14,27 @@ I built Pulse reflective of the architecture in which we use at Notify.me, and a
 
 ## Features
 
-- :gear: Modular structure using "collections"
-- :zap: Cached data & filters with dependency based regeneration
-- :sparkles: Automatic data normalization
-- :lock: Model based data validation
-- :timer_clock: History tracking with smart undo functions
-- :crystal_ball: Create data relations between collections
-- :nerd_face: Database style functions
+- :gear: Modular structure ([Modules](v2/docs/modules.html))
+- :zap: Reactive data ([Reactivity](/v2/docs/concepts.html#reactivity)) `pulse.something = somethingElse`
+- :robot: Computed data with automatic dependency tracking ([Computed](/v2/docs/computed.html))
+- :first_quarter_moon: Lifesycle hooks [`watch()`]() / `onReady()` / `nextPulse()`
 - :gem: SSOT architecture (single source of truth)
-- :closed_book: Error logging & snapshot bug reporting
-- :wrench: Wrappers for helpers, utilities and service workers
+- :nerd_face: DB/ORM-like structure with [Collections](/v2/docs/collections.html#collection-basics)
+- :sparkles: Automatic data normalization using [Collect](/v2/docs/collections.html#what-is-data-normalization) `collection.collect()`
+- :lock: Model based [data validation](/v2/docs/collections.html#models) with Collections
+- :timer_clock: Mutation history tracking with [smart undo]() `collection.undo()`
+- :crystal_ball: Dynamic relations between collections using [Populate]() `populate()`
+- :wrench: Wrappers for utils and services
 - :construction: Task queuing for race condition prevention
 - :telephone_receiver: Promise based HTTP requests and websocket connections (web sockets coming soon)
-- :hourglass_flowing_sand: Timed interval task handler (coming soon)
-- :bus: Event bus (coming soon)
-- :floppy_disk: Persisted data API for localStorage, sessionStorage & more
-- :key: Optional pre-built authentication layer
-- :leaves: Lightweight (only 22KB) with 0 dependencies
+- :hourglass_flowing_sand: Timed interval task handler using [Jobs]()
+- :bus: Event bus `pulse.on() / pulse.emit()`
+- :floppy_disk: Persisted data API for localStorage and async storage
+- :closed_book: Error logging & snapshot bug reporting (WIP)
+- :leaves: Lightweight (only 100KB) with 0 dependencies
 - :fire: Supports Vue, React and React Native
 - :yellow_heart: Well documented (I'm getting there...)
 
-## Is Pulse for you?
+<!-- ## Is Pulse for you?
 
-The most attractive part of Pulse for me personally is how easy it is to work with, which makes it good for a variety of different projects. Though it does scale well for applications that have many different types of data.
+The most attractive part of Pulse for me personally is how easy it is to work with, which makes it good for a variety of different projects. Though it does scale well for applications that have many different types of data. -->

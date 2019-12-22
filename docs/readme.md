@@ -5,10 +5,11 @@ home: true
 footer: MIT Licensed | Copyright © 2019 - Jamie Pine
 ---
 
-Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginngers.
-
 <center>
-<a href="#">Documentation</a> | <a href="#">Changelog</a> | <a href="#">Contribution Guide</a> | <a href="#">Examples</a>
+Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginngers.
+<div style="word-spacing: 1em; margin-top:20px">
+<a href="/v2">Documentation</a> <a href="/v2/introduction/changelog.html">Changelog</a> <a href="#">Contribution Guide</a><a href="#">Examples</a>
+</div>
 </center>
 <br />
 <br />

@@ -11,9 +11,11 @@ npm i pulse-framework --save
 Firstly create your [Pulse library](/guide/library.html), here we're going to make a file named `pulse.js`, but you can call it whatever you want. In this file we'll configure & initialize the Pulse library and export it so your components can use it.
 
 ```js
+import Vue from 'vue';
 import Pulse from 'pulse-framework';
 
 const pulse = new Pulse({
+  framework: Vue,
   collections: {
     myCollection: {
       data: {
@@ -26,14 +28,11 @@ const pulse = new Pulse({
 export default pulse;
 ```
 
-Somewhere in your Vue project you're going to need to import this file and call `Vue.use(pulse)`, this will install Pulse into Vue.
+In earlier versions of Pulse you had to call `Vue.use(Pulse)` but now that is not needed, as long as you call `Pulse.use(Vue)` or pass a `framework` config option Pulse will install itself into Vue automatically.
 
-```js
-import Vue from 'vue';
-import pulse from '../pulse';
+If you want to use `Pulse.use(Vue)` instead of `framework: Vue` in the config make sure to call it before `new Pulse()`
 
-Vue.use(pulse);
-```
+### Usage in a Vue component
 
 Now you can use [mapData](./guide/using-data.html) to bring data into your Vue component. mapData is accessible under `this`, since we've installed it into Vue.
 
@@ -43,7 +42,7 @@ export default {
   data() {
     return {
       ...this.mapData({
-        something: 'myCollection/thing'
+        thing: 'collection/something'
       })
     };
   }

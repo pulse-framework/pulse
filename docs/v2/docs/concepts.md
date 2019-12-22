@@ -37,21 +37,3 @@ pulse.watch('something', ({ data }) => {
     if (data.something) // do something only if true
 })
 ```
-
-## Config Options
-
-Pulse accepts config options as follows:
-
-```js
-import Pulse from 'pulse-framework';
-import React from 'react';
-
-const pulse = new Pulse({
-    config: {
-        framework: React
-    }
-    data: {
-        something: true
-    }
-})
-```
