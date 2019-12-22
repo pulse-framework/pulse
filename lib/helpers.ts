@@ -17,7 +17,7 @@ export const collectionFunctions = [
 
   // collection only
   'collect',
-  'collectByKey',
+  'collectByKeys',
   'replaceIndex',
   'getGroup',
   'newGroup',
