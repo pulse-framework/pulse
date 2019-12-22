@@ -8,7 +8,16 @@ export const protectedNames = [
 ];
 
 export const collectionFunctions = [
+  // module & collection
+  'watch',
+  'throttle',
+  'addStaticData',
+  'debounce',
+  'forceUpdate',
+
+  // collection only
   'collect',
+  'collectByKey',
   'replaceIndex',
   'getGroup',
   'newGroup',
@@ -19,16 +28,11 @@ export const collectionFunctions = [
   'decrement',
   'delete',
   'purge',
-  'watch',
   'findById',
   'put',
   'move',
-  'throttle',
-  'forceUpdate',
-  'debounce',
   'watchData',
   'cleanse',
-  'addStaticData',
   // 'unsubscribe',
   // deprecated
   'remove'

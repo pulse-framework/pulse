@@ -1,22 +1,16 @@
 import Collection from '../module/modules/collection';
-import { Global, ExpandableObject, RequestConfig } from '../interfaces';
+import { Global, RequestConfig } from '../interfaces';
 import Module from '../module';
 
 type Method = 'get' | 'put' | 'post' | 'patch' | 'delete';
 
 export default class Request extends Module {
   private timeout: number;
-  private options: ExpandableObject;
+  private options: object;
   private saveHistory: boolean;
 
-  private requestIntercept: (
-    context: ExpandableObject,
-    options: ExpandableObject
-  ) => void;
-  private responseIntercept: (
-    context: ExpandableObject,
-    response: ExpandableObject
-  ) => void;
+  private requestIntercept: (context: object, options: object) => void;
+  private responseIntercept: (context: object, response: object) => void;
 
   constructor(global: Global, requestConfig: RequestConfig) {
     // Before we invoke the parent class, we define some defaults
@@ -57,31 +51,31 @@ export default class Request extends Module {
     };
   }
 
-  get(url: string, headers?: ExpandableObject) {
+  get(url: string, headers?: object) {
     return this.send(url, 'get', {}, headers);
   }
 
-  post(url: string, body?: ExpandableObject, headers?: ExpandableObject) {
+  post(url: string, body?: object, headers?: object) {
     return this.send(url, 'post', body, headers);
   }
 
-  _put(url: string, body?: ExpandableObject, headers?: ExpandableObject) {
+  _put(url: string, body?: object, headers?: object) {
     return this.send(url, 'put', body, headers);
   }
 
-  patch(url: string, body?: ExpandableObject, headers?: ExpandableObject) {
+  patch(url: string, body?: object, headers?: object) {
     return this.send(url, 'patch', body, headers);
   }
 
-  delete(url: string, body?: ExpandableObject, headers?: ExpandableObject) {
+  delete(url: string, body?: object, headers?: object) {
     return this.send(url, 'delete', body, headers);
   }
 
   async send(
     url: string,
     method: Method,
-    body: ExpandableObject | string = {},
-    headers: ExpandableObject
+    body: object | string = {},
+    headers: object
   ) {
     const requestHeaders = Object.assign({}, this.public.object.headers);
 

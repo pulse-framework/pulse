@@ -7,9 +7,6 @@ import Computed from './computed';
 import { JobType } from './runtime';
 import RelationController from './relationController';
 import Module from './module';
-export interface ExpandableObject {
-  [key: string]: any;
-}
 
 export interface RequestConfig {
   baseURL?: string;
@@ -18,7 +15,7 @@ export interface RequestConfig {
   mode?: 'cors' | 'same-origin' | 'no-cors' | 'navigate';
   credentials?: 'omit' | 'same-origin';
   include?: any;
-  headers?: ExpandableObject;
+  headers?: object;
   saveHistory?: boolean;
   timeout?: number;
 }
@@ -108,7 +105,7 @@ export interface Global {
   runningPopulate: boolean | Object;
   gettingContext: boolean;
   touched: boolean | Dep;
-  contextRef: ExpandableObject;
+  contextRef: object;
   relations?: RelationController;
   storage: Storage;
   // aliases

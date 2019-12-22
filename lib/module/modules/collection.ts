@@ -6,7 +6,7 @@ import {
   validateNumber
 } from '../../helpers';
 import Reactive from '../../Reactive';
-import { CollectionObject, Global, ExpandableObject } from '../../interfaces';
+import { CollectionObject, Global } from '../../interfaces';
 import Dep from '../../dep';
 import { JobType, Job } from '../../runtime';
 import Computed from '../../computed';
@@ -244,18 +244,33 @@ export default class Collection extends Module {
     });
   }
 
-  // METHODS
-  public collect(
-    data,
+  public collectByKeys(
+    data: { [key: string]: any },
     group?: string | Array<string>,
-    config?: ExpandableObject
+    config?: object
   ) {
+    config.byKeys = true;
+    this.collect(data, group, config);
+  }
+
+  // METHODS
+  public collect(data, group?: string | Array<string>, config?: object) {
     config = defineConfig(config, {
-      append: true
+      append: true,
+      byKeys: false
     });
+    let keys: Array<string | number>, length: number;
+
     this.global.collecting = true;
-    // normalise data
-    if (!Array.isArray(data)) data = [data];
+
+    // prepare data
+    if (config.byKeys) {
+      keys = Object.keys(data);
+      length = keys.length;
+    } else if (!Array.isArray(data)) {
+      data = [data];
+      length = data.length;
+    }
 
     // if groups don't already exist, create them dynamically
     const groups: Array<string> = this.createGroups(group);
@@ -267,12 +282,21 @@ export default class Collection extends Module {
     const indexesToRegenOnceComplete = new Set();
 
     // process data items
-    for (let i = 0; i < data.length; i++) {
-      const dataItem = data[i];
+    for (let i = 0; i < length; i++) {
+      let primaryKey: undefined | number | string;
+
+      if (config.byKeys) primaryKey = keys[i];
+
+      const dataItem = config.byKeys ? data[primaryKey] : data[i];
 
       if (dataItem === null) continue;
       // process data item returns "success" as a boolean and affectedIndexes as an array
-      const processDataItem = this.processDataItem(dataItem, groups, config);
+      const processDataItem = this.processDataItem(
+        dataItem,
+        groups,
+        config,
+        primaryKey
+      );
 
       if (!processDataItem) continue;
 
@@ -300,13 +324,16 @@ export default class Collection extends Module {
   private processDataItem(
     dataItem: object,
     groups: Array<string> = [],
-    config
+    config,
+    primaryKey: undefined | number | string
   ) {
-    if (!this.primaryKey) this.findPrimaryKey(dataItem);
-
-    if (!this.primaryKey) return false;
-
-    const key = dataItem[this.primaryKey as number | string];
+    let key: number | string;
+    if (config.byKeys) key = primaryKey;
+    else {
+      if (!this.primaryKey) this.findPrimaryKey(dataItem);
+      if (!this.primaryKey) return false;
+      key = dataItem[this.primaryKey as number | string];
+    }
 
     // find affected indexes
     let affectedIndexes = [...groups];

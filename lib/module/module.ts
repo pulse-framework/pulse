@@ -7,7 +7,6 @@ import {
   Methods,
   Keys,
   CollectionObject,
-  ExpandableObject,
   CollectionConfig,
   Global,
   ModuleInstance
@@ -116,7 +115,7 @@ export default class Module {
     return namespaceWithMethods;
   }
 
-  private initRoutes(routes: ExpandableObject = {}) {
+  private initRoutes(routes: object = {}) {
     this.keys.routes = Object.keys(routes);
 
     const routeWrapped = routeName => {

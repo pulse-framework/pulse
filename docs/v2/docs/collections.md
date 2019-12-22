@@ -12,7 +12,7 @@ Everything a Module can do, so can a Collection. [Read more]() about Modules in 
 
 **Think of a collection like a database table.** Each collection comes with database-like methods to manipulate data. Data is "collected" which is a fancy way to say cached. The beauty of collections is that data can only be collected once, meaning if you need to modify it, there's one place to do so.
 
-***In order to achieve this, data we collect must be [**normalized**](#what-is-data-normalization).***
+**\*In order to achieve this, data we collect must be [**normalized**](#what-is-data-normalization).\***
 
 Collections are defined in the [Pulse library](./library.html), for the purpose of the following examples we'll refer to a collection as just `collection`, but this can be whatever you decide to name your collection(s).
 
@@ -61,7 +61,7 @@ If your data has `id` or `_id` as a property, we'll use that automatically, but 
 ```js
 model: {
   uuid: {
-    type: String
+    type: String;
     primaryKey: true;
   }
 }
@@ -109,74 +109,6 @@ collection: {
 
 If necessary, groups can be created dynamically, however they will not be exposed publicly like regular groups. You can still make use of them by calling `collection.getGroup('name')`. This method can be used throughout the Pulse library, and is reactive within filters.
 
-## Built-in Functions
-
-These are default functions attached to every collection. They can be called within your actions in the Pulse Library, or directly on your component.
-
-| Name        | Type     | Description                                                                                                | Filters | Actions |
-|-------------|----------|------------------------------------------------------------------------------------------------------------|---------|---------|
-| findById    | Function | A helper function to return data directly by primary key.                                                  | True    | True    |
-| collect     | Function | The collect function, to save data to this collection.                                                     | False   | True    |
-| put         | Function | Insert data into a group by primary key.                                                                   | False   | True    |
-| move        | Function | Move data from one group to another.                                                                       | False   | True    |
-| update      | Function | Mutate properties of a data entry by primary key.                                                          | False   | True    |
-| delete      | Function | Delete data.                                                                                               | False   | True    |
-| deleteGroup | Function | Delete data in a group                                                                                     | False   | True    |
-| clear       | Function | Remove unused data.                                                                                        | False   | True    |
-| undo        | Function | Revert all changes made by this action.                                                                    | False   | True    |
-| throttle    | Function | Used to prevent an action from running more than once in a specified time frame. EG: throttle(2000) for 2s | False   | True    |
-| purge       | Function | Clears all collection data and empties groups.                                                             | False   | True    |
-
-```js
-// put data by id (or array of IDs) into another group
-collection.put(2123, 'selected');
-
-// move data by id (or array of IDs) into another group
-collection.move([34, 3], 'favorites', 'muted');
-
-// change single or multiple properties in your data
-collection.update(2123, {
-  avatar: 'url'
-});
-
-// replace data (same as adding new data)
-collection.collect(res.data.channel, 'selected');
-
-// removes data via primary key from a collection
-collection.delete(1234);
-
-// will delete all data and empty all groups for a given collection
-collection.purge();
-
-// (coming soon) removes any data from a collection that is not currently referenced in a group
-collection.clean();
-
-// (still in development, use with caution) will undo the action its called within, or the last action executed if called from outside
-collection.undo();
-```
-
-It's recommended to use these functions within Pulse actions. For example, `collection.undo()` called within an action, will undo everything changed within that action, here's an example: (although undo is still not finished but this is how it will work)
-
-```js
-actions: {
-  doSeveralThings({ routes, collectionOne, undo }, customParam) {
-
-    collectionOne.someValue = 'hi'
-
-    routes.someRoute(customParam).then(res => {
-
-      collectionOne.collect(res.data, 'groupOne')
-      collectionOne.someOtherValue = true
-
-    }).catch((error) => undo())
-  }
-}
-```
-
-If the catch block is triggered, the undo method will revert all changes made in this action, setting `customValue` back to its previous value, removing collected data and any changes to `groupOne` and reverting `someOtherValue` also. If the group was created during this action, it will be deleted.
-
-
-
 ## Models
 
 Collections allow you to define models for the data that you collect. This is great for ensuring valid data is always passed to your components. It also allows you to define data relations between collections, as shown in the next section.
@@ -198,7 +130,6 @@ collection: {
 ```
 
 Data that does not fit the model requirements you define will not be collected, it will instead be saved in the Errors object as a "Data Rejection", so you can easily debug.
-
 
 ## `populate()`
 
@@ -227,7 +158,7 @@ collections: {
 }
 ```
 
-That's it! It just works. Now each piece of data in the `channels` collection, when access within a group, will have a new property named `channel` with the value being the latest copy of the channel object.  
+That's it! It just works. Now each piece of data in the `channels` collection, when access within a group, will have a new property named `channel` with the value being the latest copy of the channel object.
 
 The first parameter of the populate function is the [Context Object]() and the second is the current piece of data being evaluated against the model.
 
