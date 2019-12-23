@@ -18,17 +18,21 @@ This also means these functions are part of the [Module Namespace](/v2/docs/modu
 collection.collect();
 ```
 
-Collect is the centerpiece of [Collections](), it allows you to collect either a single object, or an array of objects and assign it to a [Group](/v2/docs/collections.html#groups).
+Retrieving and sorting data from an external source, like an API, is the primary function of [Collections](). They are structured around a particular dataset, wherein you expect to be gathering several data objects following the same model.
+
+It is possible to collect either a single object, or an array of objects— however if your API returns an _object of objects_ see [`collectByKeys()`](#collectbykeys)
+
+[Groups](/v2/docs/collections.html#groups) preserve the ordering and grouping of data using indexes, which are simply arrays of ids. The Collect method will take care of adding collected items to a group, and creating a group if one does not already exist.
 
 ### _Parameters_ `()`
 
-| Key      | Type                                | Description                                                                   | Required                  |
-| -------- | ----------------------------------- | ----------------------------------------------------------------------------- | ------------------------- |
-| `data`   | [Object]() or [Array]()<[Object]()> | The data object or array of data objects                                      | [true]()                  |
-| `group`  | [Object]() or [Array]()<[String]()> | Group name or array of group names [Groups](/v2/docs/collections.html#groups) | [false]() but recommended |
-| `config` | <[Object]()>                        | CONFIG OPTIONS BELOW                                                          | [true]()                  |
+| Key      | Type                                | Description                                                                   | Required                    |
+| -------- | ----------------------------------- | ----------------------------------------------------------------------------- | --------------------------- |
+| `data`   | [Object]() or [Array]()<[Object]()> | The data object or array of data objects                                      | [true]()                    |
+| `group`  | [Object]() or [Array]()<[String]()> | Group name or array of group names [Groups](/v2/docs/collections.html#groups) | [false]() but recommended\* |
+| `config` | <[Object]()>                        | CONFIG OPTIONS BELOW                                                          | [true]()                    |
 
-- If you collect without a group the only way to use that data will be [`findById()`](#findbyid) and [`watchData()`](#watchdata).
+- \*If you collect without a group the only way to use that data will be [`findById()`](#findbyid) and [`watchData()`](#watchdata).
 - If you collect data into a group you haven't already defined in your collection config, it will be a dynamic group that can only be accessed by `getGroup()`, see [Dynamic Groups]()
 - Data objects must contain a [Primary Key](/v2/docs/collections.html#primary-keys)
 
@@ -74,7 +78,7 @@ console.log(collection.myGroup);
 
 ### Extra information:
 
-Your group can also be accessed in computed functions & actions, here's an example with Computed.
+Your group also can be used in computed functions & actions, here's an example with a computed function.
 
 ```js
 computeSomething({ groups, data }) {
@@ -84,7 +88,7 @@ computeSomething({ groups, data }) {
 
 This is a computed function that returns the piece of data from a group with an id that matches `someId`.
 
-FYI: when either `myGroup` or `chosenItemId` change, `computeSomething` will re-run, see [Computed]().
+FYI: when either `myGroup` or `chosenItemId` change, `computeSomething` will re-run, see [Computed](/v2/docs/modules.html#computed-data).
 
 You would usually be doing more complex logic on the group's data in a computed function, as getting a piece of data can be done easily _without_ the group using `findById()`
 

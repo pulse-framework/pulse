@@ -109,6 +109,11 @@ module.exports = {
           title: 'Examples',
           collapsable: false,
           children: ['examples/authentication']
+        },
+        {
+          title: 'Under The Hood',
+          collapsable: false,
+          children: ['under-the-hood/runtime']
         }
       ]
     }
