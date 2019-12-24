@@ -4,7 +4,7 @@ import replace from 'rollup-plugin-replace';
 import babel from 'rollup-plugin-babel';
 import typescript from 'rollup-plugin-typescript';
 
-const prod = process.env.PRODUCTION;
+const prod = process.env.NODE_ENV === 'production';
 
 export default {
   input: './lib/index.ts',
