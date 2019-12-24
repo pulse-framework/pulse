@@ -11,21 +11,21 @@ export default {
   input: './lib/index.ts',
   output: [
     {
-      file: 'dist/pulse.min.js',
+      file: 'dist/pulse.js',
       name: 'Pulse',
       format: 'umd',
       freeze: false,
       sourcemap: true
     },
     {
-      file: 'dist/pulse.cjs.min.js',
+      file: 'dist/pulse.cjs.js',
       name: 'Pulse',
       format: 'cjs',
       freeze: false,
       sourcemap: true
     },
     {
-      file: 'dist/pulse.esm.min.js',
+      file: 'dist/pulse.esm.js',
       name: 'Pulse',
       format: 'esm',
       sourcemap: true
