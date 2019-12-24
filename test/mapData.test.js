@@ -1,4 +1,4 @@
-const Pulse = require('../dist/pulse.min.js');
+const Pulse = require('../dist/pulse.js');
 const assert = require('assert');
 const { expect } = require('chai');
 console.clear();
