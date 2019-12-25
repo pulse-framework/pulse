@@ -4,7 +4,7 @@ title: Collection Methods
 
 ## About Collection Methods
 
-Collections have some out-of-the-box functionality, you can use these functions in the [Context Object](/v2/docs/context-object.html) or as `collection.functionName()`.
+Collections have some out-of-the-box functionality,and can be used in the [Context Object](/v2/docs/context-object.html) or as `collection.functionName()`.
 
 ::: tip Note
 Collections extend Modules, so all [Module Methods](/v2/docs/module-methods.html) exist as collections methods too.
@@ -22,7 +22,7 @@ Retrieving and sorting data from an external source, like an API, is the primary
 
 It is possible to collect either a single object, or an array of objects— however if your API returns an _object of objects_ see [`collectByKeys()`](#collectbykeys)
 
-[Groups](/v2/docs/collections.html#groups) preserve the ordering and grouping of data using indexes, which are simply arrays of ids. The Collect method will take care of adding collected items to a group, and creating a group if one does not already exist.
+[Groups](/v2/docs/collections.html#groups) preserve the ordering and grouping of data using indexes, which are simply arrays of ids. This method will take care of adding collected items to a group, and creating a group if one does not already exist.
 
 ### _Parameters_ `()`
 
@@ -59,16 +59,6 @@ const sampleData = [
 collection.collect(sampleData, 'myGroup');
 ```
 
-```js
-const myCollection = {
-  model: {
-    snowflake: {
-      primaryKey: true
-    }
-  }
-};
-```
-
 You can now access the data you collected by the group you assigned in `collect()`
 
 ```js
@@ -76,17 +66,24 @@ console.log(collection.myGroup);
 // outputs: [{ id: 1, something: true }, ...]
 ```
 
-### Extra information:
+<!-- ### Extra information:
 
 Your group also can be used in computed functions & actions, here's an example with a computed function.
 
 ```js
-computeSomething({ groups, data }) {
-     return groups.myGroup.find(item => item.id === data.chosenItemId);
-}
+const myCollection = {
+  data: {
+    chosenItemId: 2
+  },
+  computed: {
+    chosenItem({ groups, data }) {
+      return groups.myGroup.find(item => item.id === data.chosenItemId);
+    }
+  }
+};
 ```
 
-This is a computed function that returns the piece of data from a group with an id that matches `someId`.
+This is a computed function that returns the piece of data from a group with an id that matches `chosenItemId`.
 
 FYI: when either `myGroup` or `chosenItemId` change, `computeSomething` will re-run, see [Computed](/v2/docs/modules.html#computed-data).
 
@@ -97,6 +94,7 @@ computeSomething({ findById }) {
      return findById(someId);
 }
 ```
+ -->
 
 ## `collectByKeys()`
 
@@ -104,17 +102,21 @@ computeSomething({ findById }) {
 collection.collectByKeys();
 ```
 
-This method has the exact same parameters as `collect()` apart from the `data` param, which is expected to different. **Refer to the `collect()` method for the other params.**
+This method has the exact same parameters as `collect()` apart from the `data` param, which expects the data in an object/keys format, where the key is the unique id. **Refer to the `collect()` method for the other params.**
 
-This method actually calls `collect()` under the hood, but forces a config property called `byKeys`, eg:
+::: tip Note:
+`collectByKeys()` actually calls `collect()` under the hood, but forces a config property called `byKeys` to `true`, eg:
+:::
 
 ```js
 collection.collect(someData, 'myGroup', { byKeys: true });
 ```
 
-You can use collect with the config instead if that tickles your fancy. But this function was created as a handy alias.
+You can use `collect()` with the above config if you prefer, but this can be a handy alias.
 
-Sometimes, depending on the API you're retrieveing data from, you might recieve "post-normalised" data, aka an object of objects, in this case Pulse should not attempt to perform normalise logic, which is why this function is nessisary.
+### When would this be useful?
+
+Depending on the API you're retrieveing data from, you might recieve "post-normalised" data, aka an object of objects, in this case Pulse should not attempt to perform normalise logic, because it's techincally already normalized— although Pulse still needs to create the indexes if you're collecting into group(s).
 
 Here's an example of "post-normalised" data:
 
@@ -126,7 +128,7 @@ const myData = {
 };
 ```
 
-The `id` or "primary key" is also the key of the object in a normalised Javascript object set
+The unique id (or "primary key") is also the key of the object in a normalised Javascript object, if your data looks like this, use `collectByKeys()`
 
 ## `update()`
 

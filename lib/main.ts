@@ -228,11 +228,10 @@ export default class Pulse {
   initComplete() {
     this._private.global.initComplete = true;
     log('INIT COMPLETE', Object.assign({}, this));
-    if (!this._private.global.config.ssr) {
+    if (!this._private.global.config.bindInstanceTo) {
       try {
+        window[this._private.global.config.bindInstanceTo as string] = this;
         globalThis.__pulse = this;
-        window.pulse = this;
-        window._pulse = this._private;
       } catch (e) {}
     }
     if (Pulse.intergration) Pulse.intergration.onReady(Pulse);
@@ -262,7 +261,8 @@ export default class Pulse {
         computedDefault: null,
         logJobs: false,
         baseModuleAlias: false,
-        mapDataUnderPropName: false
+        mapDataUnderPropName: false,
+        bindInstanceTo: false
       });
     } else {
       // merge config

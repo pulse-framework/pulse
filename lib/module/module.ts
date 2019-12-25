@@ -217,12 +217,6 @@ export default class Module {
         typeof func === 'function' ? func() : false
       );
   }
-  // external functions
-  private watch(property, callback) {
-    if (!this.externalWatchers[property])
-      this.externalWatchers[property] = [callback];
-    else this.externalWatchers[property].push(callback);
-  }
 
   public prepareLocalContext() {
     this.localContext = {
@@ -257,7 +251,39 @@ export default class Module {
     let context = { ...globalContext, ...this.localContext };
     return context;
   }
+  public getDep(
+    propertyName: string | number,
+    reactiveObject?: Object
+  ): Dep | boolean {
+    let dep: Dep;
 
+    this.global.touching = true;
+    // if the property is on a deep reactive object or an index
+    if (reactiveObject) reactiveObject[propertyName];
+    // by default we assume the module's public object
+    else this.public.object[propertyName];
+
+    // extract the dep from global
+    dep = this.global.touched as Dep;
+
+    // reset state
+    this.global.touching = false;
+    this.global.touched = null;
+
+    return dep;
+  }
+
+  public isComputedReady(computedName: string) {
+    return this.computed[computedName].hasRun;
+  }
+
+  // ****************** EXTERNAL METHODS ****************** //
+
+  private watch(property, callback) {
+    if (!this.externalWatchers[property])
+      this.externalWatchers[property] = [callback];
+    else this.externalWatchers[property].push(callback);
+  }
   private forceUpdate(property: string): void {
     // ensure property exists on collection
     if (this.public.exists(property)) {
@@ -303,6 +329,20 @@ export default class Module {
       );
     }, amount);
   }
+
+  private addStaticData(key: string, data: any) {
+    if (
+      this.keys.staticData.includes(key) ||
+      this.public.getKeys().includes(key)
+    )
+      throw 'Pulse: failed to add static data, key already exists';
+
+    this.keys.staticData.push(key);
+    this.public.privateWrite(key, data);
+    this.prepareLocalContext(); // recompute local context;
+  }
+
+  // WIP DO NOT USE
   private async debounce(
     func: Function,
     amount: number,
@@ -316,44 +356,5 @@ export default class Module {
     return;
 
     return await action.softDebounce(func, amount);
-  }
-
-  public getDep(
-    propertyName: string | number,
-    reactiveObject?: Object
-  ): Dep | boolean {
-    let dep: Dep;
-
-    this.global.touching = true;
-    // if the property is on a deep reactive object or an index
-    if (reactiveObject) reactiveObject[propertyName];
-    // by default we assume the module's public object
-    else this.public.object[propertyName];
-
-    // extract the dep from global
-    dep = this.global.touched as Dep;
-
-    // reset state
-    this.global.touching = false;
-    this.global.touched = null;
-
-    return dep;
-  }
-
-  public isComputedReady(computedName: string) {
-    // if (this.computed.hasOwnProperty(computedName)) return true;
-    return this.computed[computedName].hasRun;
-  }
-
-  public addStaticData(key: string, data: any) {
-    if (
-      this.keys.staticData.includes(key) ||
-      this.public.getKeys().includes(key)
-    )
-      throw 'Pulse: failed to add static data, key already exists';
-
-    this.keys.staticData.push(key);
-    this.public.privateWrite(key, data);
-    this.prepareLocalContext(); // recompute local context;
   }
 }

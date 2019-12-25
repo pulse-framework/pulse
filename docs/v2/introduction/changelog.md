@@ -27,6 +27,7 @@ Pulse.React() is now the simplest way to get started with Pulse, check out the n
 - Services are now found under `pulse.services.service` instead of `pulse.service` potentially breaking
 - Added [mapDataUnderPropName]() config option
 - Added [computedDefault]() config option
+- Added [bindInstanceTo]() config option
 - Added [addStaticData]() as a module function
 - Added [collectByKeys]() as a collection function
 - Cleaned up lots of under-the-hood code

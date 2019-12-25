@@ -55,8 +55,9 @@ collect(posts);
 
 ## Primary Keys
 
-Because we need to normalize data for Pulse collections to work, each piece of data collected must have a primary key, this has to be unique to avoid data being overwritten.
-If your data has `id` or `_id` as a property, we'll use that automatically, but if not then you must define it in a [model](./models).
+Each data item collected by Pulse must have a unique id to that collection, we call this a "primary key", Pulse will use that primary key in indexes (see [Groups](/v2/docs/collections.html#groups)) and when using `collection.findById()` see [Collection Methods](/v2/docs/collection-methods.html#findbyid).
+
+If your data has `id` or `_id` as a property, Pulse will use that automatically, but if not then you must define it in the collection [model](/v2/docs/collections.html#models). EG:
 
 ```js
 model: {
@@ -71,11 +72,47 @@ In the above case, we set the primary key for this collection to `uuid`.
 
 ## Base collection
 
-By default the root of the Pulse library is a collection called "base". It's the same as any other collection, but with some extra data properties and logic built in out of the box. [(More on the base collection)](./base-collection)
+A module called "base" is automatically created using `data`, `actions`, `computed`, `routes` .etc from the root of the library. It behaves exactly the same as any other module, but found and defined on the root of the library instead.
+
+```js
+const core = new Pulse({
+  data: {
+    something: true
+  },
+  modules: {
+    haha: {
+      data: {
+        something: false
+      }
+    }
+  }
+});
+
+core.something; // true
+core.haha.something; // false
+```
+
+From an architectural perspective, it's best to keep most logic and state out of the root in a larger application, but for a very small one it might be prefered.
+
+Modules and collections can be found on the [context object](/v2/docs/context-object.html) by name, but base is spread to the root.
+
+```js
+someAction(context, yourParam) {
+  context.myModule; // another module
+  context.myCollection; // another collection
+
+  // any properties from base;
+  context.someBaseData;
+  context.someBaseAction;
+  // ...etc
+}
+```
+
+There is a config toggle that makes `base` show up by name, set `baseModuleAlias: true` in the global [config](/v2/docs/library.html#config-options). _This was added as a backwards compatiblity feature._
 
 ## Groups
 
-You should assign data a "group" as you collect it, this is required if you want to use collected data in React/Vue components reactively.
+You should assign data a "group" as you collect it, this is required if you want to use collected data in React/Vue and have mutations in Pulse reactively cause component updates.
 
 Groups are exposed on the collection namespace. (`collection.groupName`)
 
@@ -84,7 +121,15 @@ collection.collect(somedata, 'groupName');
 collection.collect(somedata, ['groupName', 'anotherGroupName']);
 ```
 
-Groups create arrays of IDs called `indexes`, which are arrays of primary keys used to build arrays of actual data. This makes handing data much faster.
+::: tip A use-case example
+Lets say you have a collection named `posts` for your application, you might define a group called `feed` as that you collect into while scrolling through a feed. Now lets say a user "favorites" a post, you can now put that post into a group called `favorites` using the [`collection.put()`](/v2/docs/collection-methods.html#put) method.
+
+Now both `feed` and `favorites` can be used by your components.
+:::
+
+### Groups are based on `indexes`
+
+Arrays of IDs called `indexes` are created; which are simply arrays of primary keys, used to build arrays of complete data.
 
 The raw indexes are also accessible if you need them.
 
@@ -119,8 +164,6 @@ Here's an example of a model:
 collection: {
   model: {
     id: {
-      // id is the default primary key, but you can set another
-      // property to a primary key if your data is different.
       primaryKey: true,
       type: Number, // coming soon
       required: true, // coming soon

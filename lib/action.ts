@@ -14,17 +14,17 @@ export default class Action {
     public action: any,
     public actionName: string
   ) {
-    this.prepare(action, global, this.global.contextRef.undo);
+    this.prepare(action, global);
   }
 
-  private prepare(action, global, undo) {
+  private prepare(action, global) {
     const _this = this;
 
     this.exec = function() {
       const context = global.getContext(_this.parentModuleInstance);
 
       // wrap undo function with action context
-      context.undo = error => undo(this, error);
+      context.undo = error => this.global.contextRef.undo(this, error);
 
       _this.declareActionRunning();
 

@@ -35,6 +35,7 @@ export interface RootConfig {
   baseModuleAlias?: boolean;
   mapDataUnderPropName?: string;
   debugMode?: Set<DebugType>;
+  bindInstanceTo: string | boolean;
 }
 export interface CollectionConfig {}
 

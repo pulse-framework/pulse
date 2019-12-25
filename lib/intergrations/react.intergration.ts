@@ -2,8 +2,12 @@ import Pulse from '..';
 import Dep from '../dep';
 import { ComponentContainer } from '../subController';
 
-function ReactWrapper(ReactComponent: any, depsFunc?: Function) {
-  const pulse = globalThis.__pulse;
+function ReactWrapper(
+  ReactComponent: any,
+  depsFunc?: Function,
+  pulseInstance?: Pulse
+) {
+  const pulse = pulseInstance || globalThis.__pulse;
 
   if (!pulse)
     console.error(
