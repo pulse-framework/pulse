@@ -81,7 +81,7 @@ module.exports = {
           children: ['introduction/what-is-pulse', 'introduction/changelog']
         },
         {
-          title: 'Getting Started',
+          title: 'Quick Start',
           collapsable: false,
           children: [
             'getting-started/setup-with-react',

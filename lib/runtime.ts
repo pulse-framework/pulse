@@ -146,8 +146,6 @@ export default class Runtime {
     if (job.dep && job.dep.dependents.size > 0) {
       this.ingestDependents(job.dep.dependents);
     }
-
-    this.finished();
   }
 
   public ingestDependents(dependents: Set<any>): void {
@@ -317,11 +315,13 @@ export default class Runtime {
 
     // if running action save this job inside the action class
     if (this.runningAction) (this.runningAction as Action).changes.add(job);
+
+    this.runningJob = false;
+
+    this.finished();
   }
 
   private finished(): void {
-    this.runningJob = false;
-
     // If there's already more stuff in the queue, loop.
     if (this.ingestQueue.length > 0) {
       this.findNextJob();

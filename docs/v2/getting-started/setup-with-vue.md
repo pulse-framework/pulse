@@ -32,6 +32,10 @@ In earlier versions of Pulse you had to call `Vue.use(Pulse)` but now that is no
 
 If you want to use `Pulse.use(Vue)` instead of `framework: Vue` in the config make sure to call it before `new Pulse()`
 
+::: warning NOTE: Import components after!
+  Ensure to import any Vue components **after** calling `Pulse.use(Vue)` and `new Pulse()` otherwise Pulse will error.
+:::
+
 ### Usage in a Vue component
 
 Now you can use [mapData](./guide/using-data.html) to bring data into your Vue component. mapData is accessible under `this`, since we've installed it into Vue.

@@ -226,12 +226,15 @@ export default class Pulse {
   }
 
   initComplete() {
+    this._private.global.log('**Init Complete**');
     this._private.global.initComplete = true;
     log('INIT COMPLETE', Object.assign({}, this));
+    try {
+      globalThis.__pulse = this;
+    } catch {}
     if (!this._private.global.config.bindInstanceTo) {
       try {
         window[this._private.global.config.bindInstanceTo as string] = this;
-        globalThis.__pulse = this;
       } catch (e) {}
     }
     if (Pulse.intergration) Pulse.intergration.onReady(Pulse);

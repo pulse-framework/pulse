@@ -260,17 +260,19 @@ export default class Collection extends Module {
       append: true,
       byKeys: false
     });
+
     let keys: Array<string | number>, length: number;
 
     this.global.collecting = true;
 
     // prepare data
+    length = data.length;
+
     if (config.byKeys) {
       keys = Object.keys(data);
       length = keys.length;
     } else if (!Array.isArray(data)) {
       data = [data];
-      length = data.length;
     }
 
     // if groups don't already exist, create them dynamically

@@ -2,7 +2,7 @@
 title: What is Pulse?
 ---
 
-Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginngers.
+Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginners.
 
 Pulse replaces global state management solutions such as Redux, VueX and MobX, including HTTP libraries such as Axios, Fetch or Request.js. It makes your application more modular, ensuring you follow the best practices while writing significantly less code. Your Pulse code can be used in many different applications, such as a webapp in Vue and a mobile app in React native; if it uses Javascript, it can use Pulse.
 

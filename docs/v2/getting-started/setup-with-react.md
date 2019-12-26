@@ -49,6 +49,10 @@ export default Pulse.React(() => {
 
 This is the simplest form of intergration with React, calling `Pulse.React()` will create a React component that is tracked by Pulse's reactivity system. It will recieve props the same a regular React component.
 
+::: warning NOTE: Import components after!
+  Ensure to import any React components **after** calling `Pulse.use(React)` and `new Pulse()` otherwise Pulse will error because the `Pulse.React` function only exists after intergration with React.
+:::
+
 Any Pulse data that is accessed within the component function will be tracked for changes, upon change Pulse will re-render the component.
 
 If you prefer to be verbose about the data your component is subscribing to from Pulse, you can declare dependencies manually using the second parameter of `Pulse.React(component, dependencies)`.
