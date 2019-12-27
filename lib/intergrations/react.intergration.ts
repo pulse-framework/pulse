@@ -49,7 +49,7 @@ function ReactWrapper(
         isFunc = typeof depsFunc === 'function';
 
       // METHOD (1) if no depFunc was supplied Pulse will track accessed dependencies
-      if (this.automaticDepTracking) {
+      if (cC.automaticDepTracking) {
         // start tracking component
         global.subs.trackingComponent = cC;
       }
