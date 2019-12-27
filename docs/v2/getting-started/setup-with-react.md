@@ -47,7 +47,7 @@ export default Pulse.React(() => {
 });
 ```
 
-This is the simplest form of intergration with React, calling `Pulse.React()` will create a React component that is tracked by Pulse's reactivity system. It will recieve props the same a regular React component.
+Calling `Pulse.React()` will create a React component that is tracked by Pulse's reactivity system.
 
 ::: warning NOTE: Import components after!
 Ensure to import any React components **after** calling `Pulse.use(React)` and `new Pulse()` otherwise Pulse will error because the `Pulse.React` function only exists after intergration with React.
@@ -60,11 +60,11 @@ Ensure to import any React components **after** calling `Pulse.use(React)` and `
 | React Component                             | Function or Class | Your React component as a function or class                                 | [true]()  |
 | [Dependency Function](#dependency-function) | Function          | A function that subscribes to Pulse data and optionally maps to React props | [false]() |
 
-If the `mapData` data param is not supplied, any Pulse properties accessed within the component function will be tracked for changes, upon change Pulse will re-render the component.
+If the [Dependency Function](#dependency-function) is not supplied any Pulse properties accessed within the component function will be **automatically tracked** for changes, upon change Pulse will re-render the component.
 
 ### Dependency Function
 
-It's always best to be verbose about what your component subscribes to; in some cases you might want to use data non-reactively so it's recomended to use the dependency function.
+It is always best to be verbose about what your component subscribes to; in some cases you might want to use data non-reactively so it's recomended to use the dependency function to explicity state what will cause re-renders.
 
 This function behaves differently depending on what you return from it:
 
