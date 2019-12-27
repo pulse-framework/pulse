@@ -32,6 +32,10 @@ Pulse.React() is now the simplest way to get started with Pulse, check out the n
 - Added [collectByKeys]() as a collection function
 - Cleaned up lots of under-the-hood code
 
+::: tip JOIN THE DISCORD
+We've created a Discord server for the Pulse community for support and contributions, would love to see you there! [Join Now](https://discord.gg/RjG8ShB)
+:::
+
 ## 2.1.0 - Introducing Modules
 
 Pulse 2.1 is everything that should have been part of 2.0. There have been a large amount of internal changes but a few forward facing changes that could very well break your code.
