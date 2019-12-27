@@ -83,7 +83,12 @@ export default class Runtime {
 
     if (!next) return;
 
-    if (!next.dep && next.type !== JobType.INDEX_UPDATE)
+    // get dep if dep not included on ingest
+    if (!next.dep && next.type === JobType.INTERNAL_DATA_MUTATION) {
+      next.dep = (next.collection as Collection).getDataDep(
+        next.property as string
+      ) as Dep;
+    } else if (!next.dep && next.type !== JobType.INDEX_UPDATE)
       // groups, computed and indexes will not have their Dep class, so get it.
       next.dep = next.collection.getDep(next.property as string) as Dep;
 

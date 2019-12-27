@@ -92,7 +92,6 @@ export default class Dep {
         newValue[collection.primaryKey as string],
         newValue
       );
-
       // run all callbacks and pass in dynamic data, unless important
       this.subscribersToInternalDataAsCallbacks.forEach(callback =>
         callback(
