@@ -8,7 +8,9 @@ title: Setup With Vue
 npm i pulse-framework --save
 ```
 
-Firstly create your [Pulse library](/guide/library.html), here we're going to make a file named `pulse.js`, but you can call it whatever you want. In this file we'll configure & initialize the Pulse library and export it so your components can use it.
+First we'll create a Pulse instance and export it from a file named `core.js`, but you can call it whatever you want.
+
+_core.js_
 
 ```js
 import Vue from 'vue';
@@ -28,17 +30,11 @@ const pulse = new Pulse({
 export default pulse;
 ```
 
-In earlier versions of Pulse you had to call `Vue.use(Pulse)` but now that is not needed, as long as you call `Pulse.use(Vue)` or pass a `framework` config option Pulse will install itself into Vue automatically.
+_Note: If you want to use `Pulse.use(Vue)` instead of `framework: Vue` in the config make sure to call it before `new Pulse()`_
 
-If you want to use `Pulse.use(Vue)` instead of `framework: Vue` in the config make sure to call it before `new Pulse()`
+### Usage in a Vue component using `mapData()`
 
-::: warning NOTE: Import components after!
-  Ensure to import any Vue components **after** calling `Pulse.use(Vue)` and `new Pulse()` otherwise Pulse will error.
-:::
-
-### Usage in a Vue component
-
-Now you can use [mapData](./guide/using-data.html) to bring data into your Vue component. mapData is accessible under `this`, since we've installed it into Vue.
+After install `mapData()` can now be found on the Vue instance.
 
 ```js
 export default {
@@ -46,20 +42,40 @@ export default {
   data() {
     return {
       ...this.mapData({
-        thing: 'collection/something'
+        thing: 'module/something'
       })
     };
   }
 };
 ```
 
-Since mapped data is immutable within the component, to mutate data you'll need to call the collection directly. In Vue, this is as easy as calling the collection using `$`.
+Within your template you can use Pulse data the same way you'd use normal Vue data.
 
 ```js
-this.$myCollection.thing = true;
+this.thing;
 ```
 
-Remember, we've mapped `thing` to `something` locally in our Vue component, so for it to be reactive we must use `this.something` inside the template or computed methods.
+But remember, this is **immutable**, so in order to mutate data you must access the pulse modules using the `this.$` prefix.
+
+### Mutating data:
+
+From anywhere within your Vue component you can do as follows:
+
+```js
+this.$myModule.something = true;
+```
+
+You can even do this in the template without `this.`
+
+Here's all the properties availible using the `$` prefix:
+
+```js
+this.$base; // the root Pulse module
+this.$myModule; // a Pulse module
+this.$myCollection; // a Pulse collection
+this.$services.myService; // a Pulse service
+this.$utils.myUtil; // a Pulse util
+```
 
 ::: tip Summary
 The main thing to learn is that mapData() is reactive, `$` is not- though we need to use the `$` to make mutations and call actions.
