@@ -9,7 +9,7 @@ Pulse replaces global state management solutions such as Redux, VueX and MobX, i
 - :gear: Modular structure ([Modules](https://pulsejs.org/v2/docs/modules.html))
 - :zap: Reactive data ([Reactivity](https://pulsejs.org/v2/docs/concepts.html#reactivity)) `pulse.something = somethingElse`
 - :robot: Computed data with automatic dependency tracking ([Computed](https://pulsejs.org/v2/docs/computed.html))
-- :first_quarter_moon: Lifesycle hooks [`watch()`]() / `onReady()` / `nextPulse()`
+- :first_quarter_moon: Lifecycle hooks [`watch()`]() / `onReady()` / `nextPulse()`
 - :gem: SSOT architecture (single source of truth)
 - :nerd_face: DB/ORM-like structure with [Collections](https://pulsejs.org/v2/docs/collections.html#collection-basics)
 - :sparkles: Automatic data normalization using [Collect](https://pulsejs.org/v2/docs/collections.html#what-is-data-normalization) `collection.collect()`
