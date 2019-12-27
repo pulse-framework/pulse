@@ -292,7 +292,7 @@ export default class Runtime {
   }
 
   public performComputedOutput(job: Job): void {
-    const computed =
+    const computed: Computed =
       typeof job.property === 'string'
         ? job.collection.computed[job.property]
         : job.property;
@@ -319,7 +319,7 @@ export default class Runtime {
     if (this.runningAction) (this.runningAction as Action).changes.add(job);
   }
 
-  private finished(): void {
+  public finished(): void {
     this.runningJob = false;
 
     // If there's already more stuff in the queue, loop.

@@ -7,7 +7,7 @@ import Computed from './computed';
 import { JobType } from './runtime';
 import RelationController from './relationController';
 import Module from './module';
-
+import Storage from './storage';
 export interface RequestConfig {
   baseURL?: string;
   requestIntercept?: () => void;

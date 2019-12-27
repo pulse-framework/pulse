@@ -27,8 +27,10 @@ export default class Computed {
     try {
       output = this.computedFunction(context);
     } catch (error) {
-      // during init computed functions that depend on the output of other computed functions will
-      // throw an error, we want to ingore this error and
+      // during init computed functions that depend on the output of other computed function will throw an error since that computed function has not generated yet
+      // fail silently and flush runtime
+      this.global.runtime.finished();
+      // if init complete, fail loudly
       if (this.global.initComplete) console.error(error);
     }
     // override output with default if undefined or null

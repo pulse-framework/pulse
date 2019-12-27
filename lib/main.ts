@@ -323,7 +323,7 @@ export default class Pulse {
     return this._private.global.contextRef;
   }
 
-  subscribe(instance: any, properties: Function): Function {}
+  subscribe(instance: any, properties: Function) {}
 
   emit(name: string, payload: any): void {
     if (this._private.events[name])
