@@ -1,6 +1,6 @@
 {
   "name": "pulse-framework",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Global state and logic framework for reactive Javascript applications.",
   "main": "dist/pulse.min.js",
   "module": "dist/pulse.esm.min.js",
