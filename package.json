@@ -2,8 +2,8 @@
   "name": "pulse-framework",
   "version": "2.2.3",
   "description": "Global state and logic framework for reactive Javascript applications.",
-  "main": "dist/pulse.min.js",
-  "module": "dist/pulse.esm.min.js",
+  "main": "dist/pulse.js",
+  "module": "dist/pulse.esm.js",
   "scripts": {
     "test": "mocha --exit",
     "test-debug": "mocha --inspect-brk",
@@ -29,6 +29,7 @@
     "eslint-config-prettier": "^4.0.0",
     "jest": "^24.7.1",
     "prettier": "1.16.3",
+    "rollup": "^1.27.14",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-livereload": "^1.0.1",
