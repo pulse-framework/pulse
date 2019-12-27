@@ -37,7 +37,7 @@ export default class Pulse {
       },
       events: {},
       global: {
-        config: this.initConfig(root.config),
+        config: this.initConfig(root.config, root.framework),
         contextRef: {},
         // Instances
         subs: null,
@@ -67,6 +67,9 @@ export default class Pulse {
     ['utils', 'staticData'].forEach(type => {
       if (root[type]) this[type] = root[type];
     });
+
+    if (!root.config) root.config = {};
+    if (root['framework']) root.config.framework = root['framework'];
 
     // Create storage instance
     self.global.storage = new Storage(root.storage);
@@ -252,7 +255,7 @@ export default class Pulse {
     return this._private.global.subs.mapData(func, instance);
   }
 
-  public initConfig(config: RootConfig): RootConfig {
+  public initConfig(config: RootConfig, framework): RootConfig {
     // if constructor already init
     if (!this._private) {
       // define config
@@ -272,18 +275,20 @@ export default class Pulse {
       config = { ...this._private.global.config, ...config };
     }
 
+    if (!framework) framework = config.framework;
+
     // detect if framework passed in is a React constructor
-    if (!Pulse.intergration && config.framework) {
-      Pulse.use(config.framework, Pulse);
+    if (!Pulse.intergration && framework) {
+      Pulse.use(framework, Pulse);
     }
     if (!Pulse.intergration) {
       console.warn('Pulse Warning - No intergrated framework');
+    } else {
+      config.framework = Pulse.intergration.name;
+      config.frameworkConstructor = Pulse.intergration.frameworkConstructor;
     }
 
-    config.framework = Pulse.intergration.name;
-    config.frameworkConstructor = Pulse.intergration.frameworkConstructor;
-
-    if (config.framework === 'react') {
+    if (framework === 'react') {
       if (config.waitForMount != false) config.waitForMount = true;
       if (config.autoUnmount != false) config.autoUnmount = true;
     }

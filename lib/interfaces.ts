@@ -58,6 +58,7 @@ export interface CollectionObject {
 }
 
 export interface RootCollectionObject extends CollectionObject {
+  framework?: any;
   services?: any;
   modules?: any;
   config?: RootConfig;
