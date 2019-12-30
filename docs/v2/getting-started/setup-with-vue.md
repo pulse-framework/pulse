@@ -5,7 +5,7 @@ title: Setup With Vue
 ### Install
 
 ```
-npm i pulse-framework --save
+npm i pulse-framework
 ```
 
 First we'll create a Pulse instance and export it from a file named `core.js`, but you can call it whatever you want.
@@ -13,24 +13,21 @@ First we'll create a Pulse instance and export it from a file named `core.js`, b
 _core.js_
 
 ```js
-import Vue from 'vue';
 import Pulse from 'pulse-framework';
+import Vue from 'vue';
 
-const pulse = new Pulse({
-  framework: Vue,
-  collections: {
-    myCollection: {
-      data: {
-        thing: false
-      }
-    }
+Pulse.use(Vue);
+
+export default new Pulse({
+  data: {
+    something: true
   }
 });
-
-export default pulse;
 ```
 
-_Note: If you want to use `Pulse.use(Vue)` instead of `framework: Vue` in the config make sure to call it before `new Pulse()`_
+::: tip
+You can use `framework: Vue` on the root or in the `config` instead of `Pulse.use(Vue)`, its up to you.
+:::
 
 ### Usage in a Vue component using `mapData()`
 
@@ -41,9 +38,10 @@ export default {
   name: 'My Vue Component',
   data() {
     return {
-      ...this.mapData({
-        thing: 'module/something'
-      })
+      ...this.mapData(core => ({
+        something: core.something,
+        somethingElse: core.somethingElse
+      }))
     };
   }
 };

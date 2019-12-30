@@ -10,10 +10,6 @@ npm i pulse-framework
 
 First we'll create a Pulse instance and export it from a file named `core.js`, but you can call it whatever you want.
 
-::: tip
-I typically use "core" to refer to my Pulse instance since it represents the "core" of my application.
-:::
-
 _core.js_
 
 ```js
@@ -73,7 +69,7 @@ This function behaves differently depending on what you return from it:
 
 _In the following examples, the actual component function and `Pulse.React()` have been seperated for the sake of readability, but it's a personal prefernce._
 
-### Method #1 `Array`
+#### Method #1 `Array`
 
 ```js
 import Pulse from 'pulse-framework';
@@ -91,7 +87,7 @@ In the above example mutations to `core.something` will cause a re-render, but `
 
 Notice how we use `core.something` not just `something`; it's important to use the actual collection object when subscribing, this is because Pulse has custom getters and setters on the object itself, in order for reactivity to work.
 
-### Method #2 `Object`
+#### Method #2 `Object`
 
 ```js
 import Pulse from 'pulse-framework';

@@ -29,14 +29,12 @@ export default class Action {
       _this.declareActionRunning();
 
       let result: any;
-      try {
-        result = action.apply(
-          null,
-          [context].concat(Array.prototype.slice.call(arguments))
-        );
-      } catch (e) {
-        console.error(e); //
-      }
+
+      result = action.apply(
+        null,
+        [context].concat(Array.prototype.slice.call(arguments))
+      );
+
       // run action with context
 
       _this.declareActionFinishedRunning();

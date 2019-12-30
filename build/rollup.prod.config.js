@@ -45,6 +45,9 @@ export default {
       'process.env.NODE_ENV': JSON.stringify(
         prod ? 'production' : 'development'
       )
+    }),
+    cleanup({
+      comments: 'none'
     })
     // uglify()
   ]
