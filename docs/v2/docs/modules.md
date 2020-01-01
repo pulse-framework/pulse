@@ -24,7 +24,7 @@ _NOTE: the `code` at the end is the property name you'll need to use these featu
 
 ## Namespacing
 
-Naming things is sometimes a head-scratching task for most developers, in Pulse, data, actions, computed data and static data all share the same namespace, so TLDR: don't give two things the same name in the same module!
+Namespace refers to the available names for public properties of your modules. In Pulse, data, actions, computed data and static data all share the same namespace, TLDR: don't give two things the same name in the same module!
 
 By default, you can access everything under the module namespace, like this:
 
