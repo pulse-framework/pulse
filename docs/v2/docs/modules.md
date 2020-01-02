@@ -111,8 +111,8 @@ Components can use computed functions without needing to re-compute that compute
 channels: {
   groups: ['subscribed'],
   computed: {
-    liveChannels({ groups }) => {
-      return groups.subscribed.filter(channel => channel.live === true)
+    liveChannels({ channels }) => {
+      return channels.subscribed.filter(channel => channel.live === true)
     }
   }
 }
