@@ -7,15 +7,16 @@ export const protectedNames = [
   'routes'
 ];
 
-export const collectionFunctions = [
-  // module & collection
+export const moduleFunctions = [
   'watch',
   'throttle',
   'addStaticData',
   'debounce',
-  'forceUpdate',
+  'forceUpdate'
+];
 
-  // collection only
+export const collectionFunctions = [
+  ...moduleFunctions,
   'collect',
   'collectByKeys',
   'replaceIndex',

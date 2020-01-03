@@ -5,7 +5,13 @@ import SubController from './subController';
 import RelationController from './relationController';
 import Storage from './storage';
 import Request from './collections/request';
-import { genId, log, defineConfig } from './helpers';
+import {
+  genId,
+  log,
+  defineConfig,
+  collectionFunctions,
+  moduleFunctions
+} from './helpers';
 import {
   Private,
   RootCollectionObject,
@@ -109,6 +115,10 @@ export default class Pulse {
     // assign actions to root
     for (let property of self.modules.base.keys.actions)
       this[property] = self.modules.base.public.object[property];
+
+    // assign base module methods
+    for (let property of moduleFunctions)
+      Pulse.prototype[property] = self.modules.base.public.object[property];
 
     // optionally register request module
     if (root.request) {
