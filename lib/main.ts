@@ -101,20 +101,7 @@ export default class Pulse {
     // register base module
     self.modules.base = new Module('base', self.global, root);
 
-    // alias base module public properties
-    for (let property of self.modules.base.public.properties)
-      if (
-        [
-          ...self.modules.base.public.mutableProperties,
-          ...self.modules.base.keys.computed
-        ].includes(property)
-      )
-        self.modules.base.public.createReactiveAlias(this, property);
-      else this[property] = self.modules.base.public.object[property];
-
-    // assign actions to root
-    for (let property of self.modules.base.keys.actions)
-      this[property] = self.modules.base.public.object[property];
+    this.bindBasePropertiesToContext(this);
 
     // assign base module methods
     for (let property of moduleFunctions)
@@ -191,11 +178,31 @@ export default class Pulse {
       base: self.modules.base.public.object
     };
 
+    this.bindBasePropertiesToContext(self.global.contextRef);
+
     // bind namespace to root of pulse
     for (let key in namespace) this[key] = namespace[key];
 
     if (self.global.config.baseModuleAlias)
       this['base'] = self.modules.base.public.object;
+  }
+
+  bindBasePropertiesToContext(obj) {
+    let self = this._private;
+    // alias base module public properties
+    for (let property of self.modules.base.public.properties)
+      if (
+        [
+          ...self.modules.base.public.mutableProperties,
+          ...self.modules.base.keys.computed
+        ].includes(property)
+      )
+        self.modules.base.public.createReactiveAlias(obj, property);
+      else obj[property] = self.modules.base.public.object[property];
+
+    // assign actions to root
+    for (let property of self.modules.base.keys.actions)
+      obj[property] = self.modules.base.public.object[property];
   }
 
   public loopModules(callback: Function) {

@@ -21,6 +21,7 @@ export class ComponentContainer {
   public uuid: string = genId();
   public ready: boolean = true;
   public deps: Set<Dep> = new Set();
+  public mappedDeps: { [key: string]: Dep } = {};
   public manualDepTracking: boolean = false;
   public evaluated: Object;
   constructor(
@@ -65,10 +66,19 @@ export default class SubController {
   // does not register any dependencies
   public analyseDepsFunc(func: Function): any {
     let deps: Set<Dep> = new Set();
+    let mappedDeps: { [key: string]: Dep } = {};
     this.trackAllDeps = true;
     const evaluated = func(this.global.contextRef);
+    const localKeys: Array<string> = Object.keys(evaluated);
+    let i = 0;
     this.trackedDeps.forEach(dep => {
-      if (!dep.rootProperty) deps.add(dep);
+      // prevent deep reactive deps from being tracked
+      if (!dep.rootProperty) {
+        // add dep to set
+        deps.add(dep);
+        mappedDeps[localKeys[i]] = dep;
+        i++;
+      }
     });
     this.trackedDeps = new Set();
     this.trackAllDeps = false;
@@ -76,7 +86,7 @@ export default class SubController {
     let mapToProps: boolean =
       !Array.isArray(evaluated) && typeof evaluated === 'object';
 
-    return { mapToProps, deps, evaluated };
+    return { mapToProps, deps, evaluated, mappedDeps };
   }
 
   public get(id: string): ComponentContainer | boolean {
@@ -115,6 +125,7 @@ export default class SubController {
     // PUT DEPRICATION WARNING HERE PLS
     const deps: Set<Dep> = new Set();
     let evaluated = null;
+    let mappedDeps = null;
     let norm = normalizeMap(func);
     for (let i = 0; i < norm.length; i++) {
       const { key, val } = norm[i];
@@ -124,7 +135,6 @@ export default class SubController {
       let analysed = this.global.subs.analyseDepsFunc(() => {
         return { [key]: moduleInstance.public.object[property] };
       });
-      // debugger;
       analysed.deps.forEach(dep => deps.add(dep));
 
       // this if statement is here because of a weird bug that with all my JS knowlege I can't explain, only doesn't work on JavascriptCore engine, iOS
@@ -132,11 +142,13 @@ export default class SubController {
 
       if (bool) {
         if (!evaluated) evaluated = {};
+        if (!mappedDeps) mappedDeps = {};
         evaluated[key] = analysed.evaluated[key];
+        mappedDeps[key] = analysed.mappedDeps[key];
       }
     }
 
-    return { deps, evaluated };
+    return { deps, evaluated, mappedDeps };
   }
 
   public mapData(
@@ -149,6 +161,7 @@ export default class SubController {
         componentInstance.__pulseUniqueIdentifier
       ) as ComponentContainer,
       deps: Set<any> = new Set(),
+      mappedDeps: { [key: string]: Dep },
       evaluated: Object = {},
       mapToProps: boolean = false,
       legacy: boolean = false;
@@ -160,20 +173,25 @@ export default class SubController {
       // Pulse 1.0 compatiblity, should depricate soon!
       const legacyRes = this.legacyMapData(func);
       deps = legacyRes.deps;
+      mappedDeps = legacyRes.mappedDeps;
       evaluated = legacyRes.evaluated;
     } else {
       let res = this.global.subs.analyseDepsFunc(func as Function);
       deps = res.deps;
+      mappedDeps = res.mappedDeps;
       evaluated = res.evaluated;
       mapToProps = res.mapToProps;
     }
 
-    if (mapToProps) cC.evaluated = evaluated;
+    if (mapToProps) {
+      cC.evaluated = evaluated;
+      cC.mappedDeps = mappedDeps;
+    }
 
     // create subscription
     deps.forEach(dep => dep && dep.subscribe(cC));
 
-    if (returnInfo) return { evaluated, deps, mapToProps, legacy };
+    if (returnInfo) return { evaluated, deps, mapToProps, legacy, mappedDeps };
     return evaluated;
   }
 }
