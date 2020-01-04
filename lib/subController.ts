@@ -77,7 +77,7 @@ export default class SubController {
         // add dep to set
         deps.add(dep);
         mappedDeps[localKeys[i]] = dep;
-        i++;
+        i++; // only increment if not deep reactive ;)
       }
     });
     this.trackedDeps = new Set();
