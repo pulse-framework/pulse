@@ -266,13 +266,15 @@ export default class Collection extends Module {
     this.global.collecting = true;
 
     // prepare data
-    length = data.length;
 
     if (config.byKeys) {
       keys = Object.keys(data);
       length = keys.length;
     } else if (!Array.isArray(data)) {
       data = [data];
+      length = 1;
+    } else {
+      length = data.length;
     }
 
     // if groups don't already exist, create them dynamically
