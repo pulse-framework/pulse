@@ -372,15 +372,17 @@ export default class Runtime {
             !Array.isArray(cC.evaluated)
           ) {
             // will cause blind re-render
-            let keys = Object.keys(cC.evaluated);
-            keys.forEach(key => {
-              if (!componentsToUpdate[uuid]) {
-                // if this component isn't already registered for this particular update, add it.
-                componentsToUpdate[uuid] = {};
-                componentsToUpdate[uuid][key] = job.value;
-                // otherwise add the update to the component
-              } else {
-                componentsToUpdate[uuid][key] = job.value;
+            let localKeys = Object.keys(cC.evaluated);
+            localKeys.forEach(localKey => {
+              if ((cC.mappedDeps[localKey] as Dep) === job.dep) {
+                if (!componentsToUpdate[uuid]) {
+                  // if this component isn't already registered for this particular update, add it.
+                  componentsToUpdate[uuid] = {};
+                  componentsToUpdate[uuid][localKey] = job.value;
+                  // otherwise add the update to the component
+                } else {
+                  componentsToUpdate[uuid][localKey] = job.value;
+                }
               }
             });
           } else {
