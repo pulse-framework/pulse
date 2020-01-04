@@ -265,8 +265,6 @@ export default class Collection extends Module {
 
     this.global.collecting = true;
 
-    // prepare data
-
     if (config.byKeys) {
       keys = Object.keys(data);
       length = keys.length;
@@ -402,7 +400,7 @@ export default class Collection extends Module {
 
   // return a piece of intenral data from the collection
   // can create dynamic relationships when used in certain circumstances
-  public findById(id: string | number): { [key: string]: any } {
+  public findById(id: string | number): { [key: string]: any } | boolean {
     let internalDep: Dep = this.depForInternalData(id);
 
     // if used in computed function, create a dynamic relation
@@ -417,7 +415,10 @@ export default class Collection extends Module {
       this.global.relations.relate(populate, internalDep);
     }
 
-    return this.internalData[id];
+    let data = this.getData(id);
+    if (!data) return false;
+    data = this.injectDynamicRelatedData(id, data);
+    return data;
   }
 
   // return a group of data from a collection
