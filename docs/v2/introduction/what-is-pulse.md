@@ -14,7 +14,7 @@ I built Pulse reflective of the architecture in which we use at Notify.me, and a
 
 ## Features
 
-- :gear: Modular structure ([Modules](v2/docs/modules.html))
+- :gear: Modular structure ([Modules](/v2/docs/modules.html))
 - :zap: Reactive data ([Reactivity](/v2/docs/concepts.html#reactivity)) `pulse.something = somethingElse`
 - :robot: Computed data with automatic dependency tracking ([Computed](/v2/docs/computed.html))
 - :first_quarter_moon: Lifesycle hooks [`watch()`]() / `onReady()` / `nextPulse()`
