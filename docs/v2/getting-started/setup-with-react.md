@@ -2,13 +2,27 @@
 title: Setup With React
 ---
 
-### Install
+## Install
 
 ```
 npm i pulse-framework
 ```
 
+## CodeSandbox Demo
+
+This is a very basic example with create-react-app and the latest version of Pulse.
+
+<iframe
+     src="https://codesandbox.io/embed/pulse-react-basic-d24jy?codemirror=1&fontsize=14&hidenavigation=1&theme=dark&view=editor"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="pulse-react-basic"
+     allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
+     sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+   ></iframe>
+
 First we'll create a Pulse instance and export it from a file named `core.js`, but you can call it whatever you want.
+
+## Setup
 
 _core.js_
 
@@ -49,7 +63,7 @@ Calling `Pulse.React()` will create a React component that is tracked by Pulse's
 Ensure to import any React components **after** calling `Pulse.use(React)` and `new Pulse()` otherwise Pulse will error because the `Pulse.React` function only exists after intergration with React.
 :::
 
-### Parameters
+## Parameters
 
 | Name                                        | Type              | Description                                                                 | Required  |
 | ------------------------------------------- | ----------------- | --------------------------------------------------------------------------- | --------- |
@@ -58,7 +72,7 @@ Ensure to import any React components **after** calling `Pulse.use(React)` and `
 
 If the [Dependency Function](#dependency-function) is not supplied any Pulse properties accessed within the component function will be **automatically tracked** for changes, upon change Pulse will re-render the component.
 
-### Dependency Function
+## Dependency Function
 
 It is always best to be verbose about what your component subscribes to; in some cases you might want to use data non-reactively so it's recomended to use the dependency function to explicity state what will cause re-renders.
 

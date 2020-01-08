@@ -331,6 +331,7 @@ export default class Collection extends Module {
     primaryKey: undefined | number | string
   ) {
     let key: number | string;
+    dataItem = { ...dataItem };
     if (config.byKeys) key = primaryKey;
     else {
       if (!this.primaryKey) this.findPrimaryKey(dataItem);
