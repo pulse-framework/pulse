@@ -42,6 +42,14 @@ function ReactWrapper(
       }
     }
 
+    componentDidMount() {
+      if (global.config.waitForMount) global.subs.mount(this);
+    }
+
+    componentWillUnmount() {
+      global.subs.unmount(this);
+    }
+
     render() {
       let props = { ...this.props },
         cC = global.subs.get(this.__pulseUniqueIdentifier),
