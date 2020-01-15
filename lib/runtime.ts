@@ -288,6 +288,7 @@ export default class Runtime {
   private performIndexUpdate(job: Job): void {
     // Update Index
     const c = job.collection as Collection;
+
     c.indexes.privateWrite(job.property, job.value);
     this.completedJob(job);
 

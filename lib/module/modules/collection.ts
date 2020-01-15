@@ -615,6 +615,7 @@ export default class Collection extends Module {
     const newObjectKeys = Object.keys(newObject);
     const currentData = Object.assign({}, this.internalData[primaryKey]);
 
+    // if newObject contains the primaryKey property, set updateDataKey to true
     for (let i = 0; i < newObjectKeys.length; i++) {
       const key = newObjectKeys[i];
       if (key === this.primaryKey) updateDataKey = true;
@@ -630,10 +631,34 @@ export default class Collection extends Module {
 
     if (updateDataKey)
       this.updateDataKey(
-        newObject[primaryKey], // old primary key
+        primaryKey, // old primary key
         currentData[this.primaryKey as string | number] // new primary key
       );
   }
+  updateDataKey(oldKey: string | number, newKey: string | number): void {
+    // create copy of data & data dep
+    const dataCopy = { ...this.internalData[oldKey] },
+      depCopy = { ...this.internalDataDeps[oldKey] };
+
+    // delete old refrences
+    delete this.internalData[oldKey];
+    delete this.internalDataDeps[oldKey];
+
+    // apply the data and dependency in storage
+    this.internalData[newKey] = dataCopy;
+    this.internalDataDeps[newKey] = depCopy;
+
+    // remove old key from all indexes
+    let keys = this.indexes.getKeys();
+    keys.forEach(indexName => {
+      let index = this.indexes.privateGet(indexName);
+      if (!index) return;
+      if (index.includes(oldKey as string)) {
+        this.removeFromGroup(indexName, [oldKey]);
+      }
+    });
+  }
+
   increment(
     primaryKey: string | number,
     property: string,
@@ -678,20 +703,6 @@ export default class Collection extends Module {
         property: primaryKey
       });
     }
-  }
-
-  updateDataKey(oldKey: string | number, newKey: string | number): void {
-    // create copy of data & data dep
-    const dataCopy = { ...this.internalData[oldKey] },
-      depCopy = { ...this.internalDataDeps[oldKey] };
-
-    // delete old refrences
-    delete this.internalData[oldKey];
-    delete this.internalDataDeps[oldKey];
-
-    // apply the data and dependency in storage
-    this.internalData[newKey] = dataCopy;
-    this.internalDataDeps[newKey] = depCopy;
   }
 
   // TODO: make cleanup unsubscribe func, possible memory leak, you'll need to track the component
