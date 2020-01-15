@@ -18,7 +18,7 @@ export default class Computed {
   public run() {
     this.hasRun = true;
 
-    this.global.relations.cleanup(this.dynamicRelation);
+    // this.global.relations.cleanup(this.dynamicRelation);
 
     this.global.runningComputed = this;
 

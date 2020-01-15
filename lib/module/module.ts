@@ -197,8 +197,7 @@ export default class Module {
             type: JobType.PUBLIC_DATA_MUTATION,
             value: data,
             property: dataName,
-            collection: this,
-            dep: this.getDep(dataName)
+            collection: this
           });
         });
       } else {
@@ -251,6 +250,7 @@ export default class Module {
     let context = { ...globalContext, ...this.localContext };
     return context;
   }
+
   public getDep(
     propertyName: string | number,
     reactiveObject?: Object
@@ -294,8 +294,7 @@ export default class Module {
           type: JobType.PUBLIC_DATA_MUTATION,
           property,
           collection: this,
-          value: this.public.privateGet(property),
-          dep: this.getDep(property)
+          value: this.public.privateGet(property)
         });
 
         // if property is a computed method
@@ -303,15 +302,13 @@ export default class Module {
         this.global.ingest({
           type: JobType.COMPUTED_REGEN,
           property,
-          collection: this,
-          dep: this.getDep(property)
+          collection: this
         });
       } else if (this.indexes && this.indexes.exists(property)) {
         this.global.ingest({
           type: JobType.GROUP_UPDATE,
           property,
-          collection: this,
-          dep: this.getDep(property, this.indexes.object)
+          collection: this
         });
       }
     }

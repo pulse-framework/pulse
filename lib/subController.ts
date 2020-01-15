@@ -41,7 +41,6 @@ export class ComponentContainer {
 export default class SubController {
   public subscribingComponentKey: number = 0;
   public trackingComponent: boolean | string = false;
-  public lastAccessedDep: null | Dep = null;
 
   // used by discoverDeps to get several dep classes
   public trackAllDeps: boolean = false;

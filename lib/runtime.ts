@@ -80,25 +80,38 @@ export default class Runtime {
   private findNextJob() {
     // shift the next job from the queue
     let next = this.ingestQueue.shift();
-
     if (!next) return;
 
-    if (!next.dep) {
-      switch (next.type) {
-        case JobType.INTERNAL_DATA_MUTATION:
-          next.dep = (next.collection as Collection).getDataDep(
-            next.property as string
-          ) as Dep;
-          break;
-        case JobType.INDEX_UPDATE:
-          next.dep = (next.collection as Collection).indexes.getDep(
-            next.property as string
-          );
-          break;
-        default:
-          next.dep = next.collection.getDep(next.property as string) as Dep;
-          break;
-      }
+    let collection = next.collection as Collection,
+      prop = next.property as string;
+
+    // locate dep for job
+    switch (next.type) {
+      case JobType.INTERNAL_DATA_MUTATION:
+        // get from internal dep store
+        next.dep = collection.internalDataDeps[prop] as Dep;
+        break;
+      case JobType.INDEX_UPDATE:
+        // get from by touching reactive property in indexes
+        next.dep = collection.getDep(prop, collection.indexes.object) as Dep;
+        break;
+      case JobType.GROUP_UPDATE:
+        if (collection.public.exists(prop)) {
+          // pre-defined group
+          next.dep = collection.getDep(prop) as Dep;
+        } else {
+          // dynamic groups use index's dep
+          next.dep = collection.getDep(prop, collection.indexes.object) as Dep;
+        }
+        break;
+      case JobType.COMPUTED_REGEN:
+        next.dep = next.collection.getDep(
+          (next.property as Computed).name
+        ) as Dep;
+        break;
+      default:
+        next.dep = next.collection.getDep(prop) as Dep;
+        break;
     }
     this.runningJob = next;
     // execute the next task in the queue
@@ -169,8 +182,7 @@ export default class Runtime {
       this.ingest({
         type: JobType.COMPUTED_REGEN,
         collection: computed.parentModuleInstance,
-        property: computed,
-        dep: computed.parentModuleInstance.getDep(computed.name) as Dep
+        property: computed
       });
 
     // for each dependent stored in dep class
@@ -238,8 +250,7 @@ export default class Runtime {
           type: JobType.SOFT_GROUP_UPDATE,
           collection: collection,
           value: modifiedGroup,
-          property: index,
-          dep: collection.getDep(index) as Dep
+          property: index
           // we do not need a previousValue because groups are cached outputs and reversing the internal data update will do the trick
         });
       });
@@ -268,8 +279,7 @@ export default class Runtime {
         type: JobType.INDEX_UPDATE,
         collection: c,
         property: indexName,
-        value: newIndex,
-        dep: c.getDep(job.property as string) as Dep
+        value: newIndex
       });
     }
     this.completedJob(job);
@@ -281,13 +291,13 @@ export default class Runtime {
     c.indexes.privateWrite(job.property, job.value);
     this.completedJob(job);
 
-    // Group must also be updated
-    this.ingest({
-      type: JobType.GROUP_UPDATE,
-      collection: job.collection,
-      property: job.property,
-      dep: job.collection.getDep(job.property as string) as Dep
-    });
+    // Group must also be updated, but not dynamic groups
+    if (job.collection.public.exists(job.property as string))
+      this.ingest({
+        type: JobType.GROUP_UPDATE,
+        collection: job.collection,
+        property: job.property
+      });
   }
 
   private performGroupRebuild(job: Job): void {

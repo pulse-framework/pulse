@@ -138,18 +138,6 @@ export default class Reactive {
     return object;
   }
 
-  public getDep(propertyName: string) {
-    let dep: Dep = null;
-    if (this.exists(propertyName)) {
-      this.touching = true;
-      this.object[propertyName];
-      dep = this.touched;
-      this.touching = false;
-      this.touched = null;
-    }
-    return dep;
-  }
-
   public addProperty(key, value) {
     this.object[key] = value;
     this.defineProperty(this.object, key);

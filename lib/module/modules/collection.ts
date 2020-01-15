@@ -15,8 +15,8 @@ import Action from '../../action';
 export default class Collection extends Module {
   public primaryKey: string | number | boolean = false;
   public internalData: object = {};
-  private internaldataPropertiesUsingPopulate: Array<string> = [];
-  private internalDataDeps: object = {}; // contains the deps for internal data
+  public internaldataPropertiesUsingPopulate: Array<string> = [];
+  public internalDataDeps: object = {}; // contains the deps for internal data
 
   public indexes: Reactive;
   public collectionSize: number = 0;
@@ -174,6 +174,19 @@ export default class Collection extends Module {
 
     for (let i = 0; i < group.length; i++) {
       const groupName = group[i];
+      // if a group already exists
+      // if (
+      //   this.public.exists(groupName) &&
+      //   this.indexes &&
+      //   this.indexes.exists(groupName)
+      // ) {
+      //   console.error(
+      //     `Failed to create group. Group name "${groupName}" already exists on collection ${
+      //       this.name
+      //     }.`
+      //   );
+      // }
+
       if (!this.indexes.exists(groupName)) {
         this.indexes.addProperty(groupName, []);
         // this.indexes.privateWrite(groupName, []);
@@ -208,27 +221,6 @@ export default class Collection extends Module {
       this.internalDataDeps[primaryKey] = dep;
     } else {
       dep = this.internalDataDeps[primaryKey];
-    }
-    return dep;
-  }
-
-  // search the collection for the appropriate dep for a given group
-  // consider relacting this with a more absolute
-  // ^^ hi, its jamie from months later, don't think theres any other way to do this boss
-  // maybe be more explicit with what are groups and what aren't
-  // but i also don't think its an issue, we'll see.
-  // a potential issue that could arise is a dynamic index with the same name as some data
-  // will return the wrong dep class
-  private depForGroup(groupName: string): Dep {
-    let dep: Dep;
-    // no group is found publically, use index instead
-    if (this.public.exists(groupName)) {
-      dep = this.getDep(groupName) as Dep;
-    } else if (this.indexes.exists(groupName)) {
-      dep = this.getDep(groupName, this.indexes.object) as Dep;
-    } else {
-      // create a temp dep for dynamic indexes
-      dep = this.indexes.tempDep(groupName);
     }
     return dep;
   }
@@ -316,8 +308,7 @@ export default class Collection extends Module {
         collection: this,
         property: indexName,
         value: this.indexes.privateGet(indexName),
-        previousValue: previousIndexValues[indexName as string],
-        dep: this.getDep(indexName as string)
+        previousValue: previousIndexValues[indexName as string]
       });
     });
 
@@ -359,8 +350,7 @@ export default class Collection extends Module {
       type: JobType.INTERNAL_DATA_MUTATION,
       collection: this,
       property: key,
-      value: dataItem,
-      dep: this.internalDataDeps[key]
+      value: dataItem
     });
 
     // add the data to group indexes
@@ -425,7 +415,10 @@ export default class Collection extends Module {
   // return a group of data from a collection
   // can create dynamic relationships when used in certain circumstances
   public getGroup(property): Array<any> {
-    let groupDep: Dep = this.depForGroup(property);
+    // get index dep for dynamic groups
+    let groupDep: Dep = this.getDep(property, this.indexes.object) as Dep;
+    // if group doesn't exist yet, create a temp dep for when it eventually is created
+    if (!groupDep) groupDep = this.indexes.tempDep(property);
 
     // if used in computed function, create a dynamic relation
     if (this.global.runningComputed) {
