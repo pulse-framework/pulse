@@ -621,6 +621,9 @@ export default class Collection extends Module {
       if (key === this.primaryKey) updateDataKey = true;
       currentData[key] = newObject[key];
     }
+    let newKey = currentData[this.primaryKey as string | number];
+
+    // ingest data mutation and update at new key location
     this.global.ingest({
       type: JobType.INTERNAL_DATA_MUTATION,
       collection: this,
@@ -628,12 +631,8 @@ export default class Collection extends Module {
       value: currentData,
       config: options
     });
-
-    if (updateDataKey)
-      this.updateDataKey(
-        primaryKey, // old primary key
-        currentData[this.primaryKey as string | number] // new primary key
-      );
+    //update key and remove from indexes first
+    // if (updateDataKey) this.updateDataKey(primaryKey, newKey);
   }
   updateDataKey(oldKey: string | number, newKey: string | number): void {
     // create copy of data & data dep
@@ -649,14 +648,14 @@ export default class Collection extends Module {
     this.internalDataDeps[newKey] = depCopy;
 
     // remove old key from all indexes
-    let keys = this.indexes.getKeys();
-    keys.forEach(indexName => {
-      let index = this.indexes.privateGet(indexName);
-      if (!index) return;
-      if (index.includes(oldKey as string)) {
-        this.removeFromGroup(indexName, [oldKey]);
-      }
-    });
+    // let keys = this.indexes.getKeys();
+    // keys.forEach(indexName => {
+    //   let index = this.indexes.privateGet(indexName);
+    //   if (!index) return;
+    //   if (index.includes(oldKey as string)) {
+    //     this.removeFromGroup(indexName, [oldKey]);
+    //   }
+    // });
   }
 
   increment(
