@@ -244,15 +244,17 @@ export default class Runtime {
       affectedIndexes.forEach(index => {
         // since this is a singular piece of data that has changed, we do not need to
         // rebuild the entire group, so we can soft rebuild
-        let modifiedGroup = collection.softUpdateGroupData(property, index);
 
-        this.ingest({
-          type: JobType.SOFT_GROUP_UPDATE,
-          collection: collection,
-          value: modifiedGroup,
-          property: index
-          // we do not need a previousValue because groups are cached outputs and reversing the internal data update will do the trick
-        });
+        if (job.collection.public.exists(property as string)) {
+          let modifiedGroup = collection.softUpdateGroupData(property, index);
+          this.ingest({
+            type: JobType.SOFT_GROUP_UPDATE,
+            collection: collection,
+            value: modifiedGroup,
+            property: index
+            // we do not need a previousValue because groups are cached outputs and reversing the internal data update will do the trick
+          });
+        }
       });
     }
 

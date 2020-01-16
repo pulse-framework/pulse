@@ -632,7 +632,7 @@ export default class Collection extends Module {
       config: options
     });
     //update key and remove from indexes first
-    // if (updateDataKey) this.updateDataKey(primaryKey, newKey);
+    if (updateDataKey) this.updateDataKey(primaryKey, newKey);
   }
   updateDataKey(oldKey: string | number, newKey: string | number): void {
     // create copy of data & data dep
@@ -647,15 +647,25 @@ export default class Collection extends Module {
     this.internalData[newKey] = dataCopy;
     this.internalDataDeps[newKey] = depCopy;
 
-    // remove old key from all indexes
-    // let keys = this.indexes.getKeys();
-    // keys.forEach(indexName => {
-    //   let index = this.indexes.privateGet(indexName);
-    //   if (!index) return;
-    //   if (index.includes(oldKey as string)) {
-    //     this.removeFromGroup(indexName, [oldKey]);
-    //   }
-    // });
+    // replace old key with new key as same position for all indexes it exists in
+    let keys = this.indexes.getKeys();
+    keys.forEach(indexName => {
+      // get the index
+      let index = this.indexes.privateGet(indexName);
+      if (!index) return;
+      // only if the index includes the oldKey
+      if (index.includes(oldKey as string)) {
+        index = [...index]; // create a copy
+        index.splice(index.indexOf(oldKey), 1, newKey); // replace at index
+
+        this.global.ingest({
+          type: JobType.INDEX_UPDATE,
+          collection: this,
+          property: indexName,
+          value: index
+        });
+      }
+    });
   }
 
   increment(
