@@ -1,8 +1,8 @@
 ---
-title: Degugging
+title: Debugging
 ---
 
-### Degugging
+### Debugging
 
 ::: tip Coming soon...
 We're planning to work on a dev tools for Pulse soon, if you want to contribute please join the [Discord](https://discord.gg/Huhe48c)
