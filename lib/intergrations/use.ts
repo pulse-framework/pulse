@@ -57,7 +57,7 @@ function intergrate(int: Intergration, frameworkName: string) {
     intergration[property] = int[property];
   });
   // assign name and set ready
-  intergration.name = frameworkName;
+  intergration.name = int.name || frameworkName;
   intergration.ready = true;
 }
 

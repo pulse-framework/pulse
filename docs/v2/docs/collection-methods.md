@@ -27,7 +27,7 @@ It is possible to collect either a single object, or an array of objects— howe
 ### _Parameters_ `()`
 
 | Key      | Type                                | Description                                                                   | Required                    |
-| -------- | ----------------------------------- | ----------------------------------------------------------------------------- | --------------------------- |
+|----------|-------------------------------------|-------------------------------------------------------------------------------|-----------------------------|
 | `data`   | [Object]() or [Array]()<[Object]()> | The data object or array of data objects                                      | [true]()                    |
 | `group`  | [Object]() or [Array]()<[String]()> | Group name or array of group names [Groups](/v2/docs/collections.html#groups) | [false]() but recommended\* |
 | `config` | <[Object]()>                        | CONFIG OPTIONS BELOW                                                          | [true]()                    |
@@ -38,8 +38,8 @@ It is possible to collect either a single object, or an array of objects— howe
 
 ### _Config Options_ `{}`
 
-| Key      | Type          | Description                               | Required  |
-| -------- | ------------- | ----------------------------------------- | --------- |
+| Key      | Type          | Description                               | Default   |
+|----------|---------------|-------------------------------------------|-----------|
 | `append` | <[Boolean]()> | Append the data to groups instead of push | [true]()  |
 | `byKeys` | <[Boolean]()> | The functionality of `collectByKeys()`    | [false]() |
 
@@ -181,7 +181,7 @@ Please use [removeFromGroup()](#removefromgroup)
 ## `cleanse()`
 
 | Name        | Type     | Description                                                                                                | Filters | Actions |
-| ----------- | -------- | ---------------------------------------------------------------------------------------------------------- | ------- | ------- |
+|-------------|----------|------------------------------------------------------------------------------------------------------------|---------|---------|
 | findById    | Function | A helper function to return data directly by primary key.                                                  | True    | True    |
 | collect     | Function | The collect function, to save data to this collection.                                                     | False   | True    |
 | put         | Function | Insert data into a group by primary key.                                                                   | False   | True    |

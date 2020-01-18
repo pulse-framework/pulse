@@ -64,7 +64,9 @@ export default class Collection extends Module {
     if (!this.internalData.hasOwnProperty(id)) return false;
     return { ...this.internalData[id] };
   }
-  public buildGroupFromIndex(groupName: string): Array<number> {
+  public buildGroupFromIndex(groupName: string | number): Array<number> {
+    if (typeof groupName === 'number')
+      groupName = (groupName as number).toString();
     const constructedArray = [];
     // get index directly
     let index = this.indexes.privateGet(groupName);
