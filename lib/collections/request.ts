@@ -15,7 +15,6 @@ export default class Request extends Module {
   constructor(global: Global, requestConfig: RequestConfig) {
     // Before we invoke the parent class, we define some defaults
     let groups = [];
-    let persist = ['baseURL'];
     let data = {
       baseURL: requestConfig.baseURL || '',
       mode: 'cors',
@@ -33,7 +32,7 @@ export default class Request extends Module {
     if (requestConfig.credentials) data.credentials = requestConfig.credentials;
     if (requestConfig.mode) data.mode = requestConfig.mode;
 
-    super('request', global, { groups, data, persist });
+    super('request', global, { groups, data });
 
     this.requestIntercept = requestConfig.requestIntercept;
     this.responseIntercept = requestConfig.responseIntercept;

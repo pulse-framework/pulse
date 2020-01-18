@@ -359,7 +359,7 @@ export default class Collection extends Module {
       let index = this.indexes.privateGet(groupName);
 
       // remove key if already present in index
-      index = index.filter(k => k != key);
+      index = index.filter(k => k !== key);
 
       if (config.append) index.push(key);
       else index.unshift(key);
