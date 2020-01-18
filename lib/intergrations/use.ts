@@ -12,7 +12,11 @@ export interface Intergration {
 
 export default (frameworkConstructor, PulseConstructor) => {
   // React support
+
+  if (!PulseConstructor.intergration) PulseConstructor.intergration = {};
+
   if (
+    frameworkConstructor &&
     frameworkConstructor.hasOwnProperty(
       '__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'
     )
