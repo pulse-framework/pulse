@@ -7,13 +7,12 @@
   "scripts": {
     "test": "mocha --exit",
     "test-debug": "mocha --inspect-brk",
-    "build": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js",
-    "build:publish": "echo \"Building Pulse Framework...\" && rollup -c build/rollup.prod.config.js && npm publish",
     "dev": "rollup -c build/rollup.dev.config.js --watch",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
     "now-build": "npm run docs:build"
   },
+  "types": "./dist/index.d.ts",
   "author": "Jamie Pine",
   "license": "MIT",
   "repository": {
@@ -29,19 +28,11 @@
     "eslint-config-prettier": "^4.0.0",
     "jest": "^24.7.1",
     "prettier": "1.16.3",
-    "rollup": "^1.27.14",
-    "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-commonjs": "^10.0.0",
-    "rollup-plugin-livereload": "^1.0.1",
-    "rollup-plugin-node-resolve": "^5.1.0",
-    "rollup-plugin-replace": "^2.2.0",
-    "rollup-plugin-serve": "^1.0.1",
-    "rollup-plugin-typescript": "^1.0.1",
     "tslib": "^1.10.0",
     "typescript": "^3.5.3",
     "vuepress": "^1.0.2",
     "chai": "^4.2.0",
     "mocha": "^6.2.0",
-    "rollup-plugin-uglify-es": "0.0.1"
+    "tsc-watch": "^4.1.0"
   }
 }

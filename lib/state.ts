@@ -68,6 +68,7 @@ export default class State {
     this.value = value;
     if (this.storageKey) this.instance.storage.set(this.storageKey, value);
   }
+  public relate() {}
 }
 
 export const StateGroup = (

@@ -4,9 +4,10 @@
     "jsx": "preserve",
     "esModuleInterop": true,
     "sourceMap": true,
-    "allowJs": true,
     "lib": ["es7", "dom", "es2017"],
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "declaration": true,
+    "outDir": "./dist"
   },
   "include": ["./lib/**/*"]
 }
