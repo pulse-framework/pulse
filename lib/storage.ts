@@ -1,4 +1,4 @@
-import Pulse from './root';
+import Pulse from './';
 
 interface StorageMethods {
   async?: boolean;

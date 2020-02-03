@@ -3,7 +3,7 @@
 
 import { genId } from './utils';
 import Dep from './dep';
-import Pulse from './root';
+import Pulse from './';
 
 export interface SubscribingComponentObject {
   componentUUID: string;

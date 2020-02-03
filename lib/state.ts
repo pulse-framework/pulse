@@ -1,5 +1,5 @@
 import Dep from './dep';
-import Pulse from './root';
+import Pulse from './';
 import { copy } from './utils';
 
 export default class State {
@@ -71,10 +71,10 @@ export default class State {
   public relate() {}
 }
 
-export const StateGroup = (
-  instance: Pulse,
-  stateGroup: Object
-): { [key: string]: State } => {
+export type StateGroupDefault = {
+  [key: string]: State | any;
+};
+export const StateGroup = (instance: Pulse, stateGroup: Object): any => {
   let group: any = {};
   for (let name in stateGroup) {
     group[name] = new State(instance, stateGroup[name]);

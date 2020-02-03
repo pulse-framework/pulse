@@ -1,5 +1,4 @@
-import Dep from './dep';
-import Pulse, { State } from './root';
+import Pulse, { State } from './';
 
 export default class Computed extends State {
   private func: Function;

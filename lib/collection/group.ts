@@ -1,5 +1,5 @@
 import Dep from '../dep';
-import Pulse, { State, Collection } from '../root';
+import Pulse, { State, Collection } from '../';
 
 export type PrimaryKey = string | number;
 export type Index = Array<PrimaryKey>;

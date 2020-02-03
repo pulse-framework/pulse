@@ -1,4 +1,4 @@
-import Pulse from '../root';
+import Pulse, { State } from '../';
 import Group, { PrimaryKey } from './group';
 import { defineConfig, normalizeGroups } from '../utils';
 
@@ -7,14 +7,18 @@ export interface CollectionConfig {
   primaryKey: string | number;
   model?: Object;
 }
+// Extend State class for custom logic
+export class Data extends State {
+  constructor(private collection: Collection, data: { [key: string]: any }) {
+    super(collection.instance, data);
+  }
+}
 export default class Collection {
   public config: CollectionConfig;
   public groups: { [key: string]: Group } = {};
   public data: { [key: string]: any } = {};
   public size: number = 0;
-  constructor(private instance: Pulse, config?: CollectionConfig) {
-    // this.dep = new Dep();
-
+  constructor(public instance: Pulse, config?: CollectionConfig) {
     this.config = defineConfig(config, {
       primaryKey: 'id',
       groups: []
@@ -64,7 +68,7 @@ export default class Collection {
   }
 
   public saveData(data: { [key: string]: any }): PrimaryKey {
-    this.data[data[this.config.primaryKey]] = data;
+    this.data[data[this.config.primaryKey]] = new Data(this, data);
     this.size++;
     return data[this.config.primaryKey];
   }

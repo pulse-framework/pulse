@@ -1,8 +1,6 @@
 import State, { StateGroup } from './state';
 import Computed from './computed';
-import Action from './state';
 import Collection from './collection/collection';
-import Request from './request/request';
 import SubController from './sub';
 import Runtime from './runtime';
 import Storage from './storage';
@@ -36,7 +34,6 @@ class Pulse {
   public Collection = (config: any) => new Collection(this, config);
 }
 export default Pulse;
-export { StateGroup, State, Computed, Action, Collection, Request };
 
 export const persist = (items: Array<State>): void =>
   items.forEach(item => item.persist(item.storageKey));

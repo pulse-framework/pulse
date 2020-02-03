@@ -4,7 +4,8 @@
     "jsx": "preserve",
     "esModuleInterop": true,
     "sourceMap": true,
-    "lib": ["es7", "dom", "es2017"],
+    // "lib": ["es7", "dom", "es2017"],
+    "target": "es5",
     "moduleResolution": "node",
     "declaration": true,
     "outDir": "./dist"
