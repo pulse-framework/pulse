@@ -1,3 +1,3 @@
-import Pulse from './main';
+import Pulse from './root';
 
 export default Pulse;

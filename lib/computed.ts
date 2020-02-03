@@ -1,47 +1,19 @@
-import { Global, ModuleInstance } from './interfaces';
-import Collection from './module/modules/collection';
-import Module from './module';
-import { DynamicRelation } from './relationController';
-import { JobType } from './runtime';
+import Dep from './dep';
+import Pulse, { State } from './root';
 
-export default class Computed {
-  public relatedToGroup: Array<any> = [];
-  public dynamicRelation: DynamicRelation = null;
-  public hasRun: boolean = false;
-  constructor(
-    private global: Global,
-    public parentModuleInstance: ModuleInstance,
-    public name: string,
-    private computedFunction: (context: object) => any
-  ) {}
+export default class Computed extends State {
+  private func: Function;
+  constructor(instance: Pulse, deps: Array<State>, func: Function) {
+    super(instance, instance.config.computedDefault || null);
 
-  public run() {
-    this.hasRun = true;
+    this.func = func;
 
-    // this.global.relations.cleanup(this.dynamicRelation);
+    deps.forEach(state => state.dep.deps.add(this));
 
-    this.global.runningComputed = this;
+    this.mutation = () => this.func();
 
-    let context = this.global.getContext(this.parentModuleInstance);
-    let output: any;
-    try {
-      output = this.computedFunction(context);
-    } catch (error) {
-      // during init computed functions that depend on the output of other computed function will throw an error since that computed function has not generated yet
-      // fail silently and flush runtime
-      this.global.runtime.finished();
-      // if init complete, fail loudly
-      if (this.global.initComplete) console.error(error);
-    }
-    // override output with default if undefined or null
-    if (
-      (output === undefined || output === null) &&
-      this.global.config.computedDefault
-    )
-      output = this.global.config.computedDefault;
-
-    this.global.runningComputed = false;
-
-    return output;
+    // initial
+    const output = this.func();
+    this.set(output);
   }
 }
