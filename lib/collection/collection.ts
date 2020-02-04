@@ -1,7 +1,7 @@
-import Pulse, { State } from '../';
+import Pulse from '../';
 import Group, { PrimaryKey } from './group';
 import { defineConfig, normalizeGroups } from '../utils';
-
+import State from '../state';
 export interface CollectionConfig {
   groups: Array<string>;
   primaryKey: string | number;
@@ -16,7 +16,7 @@ export class Data extends State {
 export default class Collection {
   public config: CollectionConfig;
   public groups: { [key: string]: Group } = {};
-  public data: { [key: string]: any } = {};
+  public data: { [key: string]: State } = {};
   public size: number = 0;
   constructor(public instance: Pulse, config?: CollectionConfig) {
     this.config = defineConfig(config, {
@@ -34,12 +34,15 @@ export default class Collection {
       this[groupName] = group;
     });
   }
-  public findById(id) {
-    return;
+
+  public findById(id: number | string): State {
+    return this.data[id];
   }
+
   public getGroup(id): Array<any> {
     return [];
   }
+
   public collect(items: Array<any>, groups: Array<string>): void {
     if (!Array.isArray(items)) items = [items];
     if (!Array.isArray(groups)) groups = [groups];
@@ -71,5 +74,27 @@ export default class Collection {
     this.data[data[this.config.primaryKey]] = new Data(this, data);
     this.size++;
     return data[this.config.primaryKey];
+  }
+
+  public;
+
+  public update(
+    id: number | string | State,
+    newObject: {} = {},
+    options?: {}
+  ): State {
+    if (id instanceof State) id = id.value;
+    options = defineConfig(options, {
+      important: false
+    });
+    let updateDataKey: boolean = false;
+    id = id as number | string;
+
+    if (!this.data.hasOwnProperty(id)) return;
+
+    const newObjectKeys = Object.keys(newObject);
+    const currentData = { ...this.data[id].value };
+
+    return;
   }
 }

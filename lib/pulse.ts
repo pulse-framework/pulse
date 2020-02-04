@@ -4,7 +4,7 @@ import Collection from './collection/collection';
 import SubController from './sub';
 import Runtime from './runtime';
 import Storage from './storage';
-
+import Request from './request';
 export interface PulseConfig {
   storagePrefix?: string;
   computedDefault?: any;
@@ -12,7 +12,7 @@ export interface PulseConfig {
   storage?: {};
 }
 
-class Pulse {
+export default class Pulse {
   public subController: SubController;
   public runtime: Runtime;
   public storage: Storage;
@@ -32,8 +32,9 @@ class Pulse {
     new Computed(this, deps, func);
   public Controller = (config: any) => new Collection(this);
   public Collection = (config: any) => new Collection(this, config);
+  public Request = Request;
 }
-export default Pulse;
 
-export const persist = (items: Array<State>): void =>
+export function persist(items: Array<State>): void {
   items.forEach(item => item.persist(item.storageKey));
+}

@@ -3,7 +3,7 @@
 
 import { genId } from './utils';
 import Dep from './dep';
-import Pulse from './';
+import Pulse, { State } from './';
 
 export interface SubscribingComponentObject {
   componentUUID: string;
@@ -13,22 +13,7 @@ export interface SubscribingComponentObject {
 export class ComponentContainer {
   public uuid: string = genId();
   public ready: boolean = true;
-  public deps: Set<Dep> = new Set();
-  public mappedDeps: { [key: string]: Dep } = {};
-  public manualDepTracking: boolean = false;
-  public evaluated: Object;
-  constructor(
-    public instance: any,
-    public config: {
-      waitForMount: boolean;
-      blindSubscribe: boolean;
-    },
-    public depsFunc?: Function
-  ) {
-    this.manualDepTracking = typeof this.depsFunc !== 'undefined';
-    instance.__pulseUniqueIdentifier = this.uuid;
-    if (config.waitForMount) this.ready = false;
-  }
+  constructor(public instance: any, public deps?: Set<State>) {}
 }
 
 export default class SubController {
@@ -36,11 +21,16 @@ export default class SubController {
 
   constructor(public instance: Pulse) {}
 
-  public registerComponent(instance, config, depsFunc) {
-    let componentContainer = new ComponentContainer(instance, config, depsFunc);
+  subscribe(instance: any, deps: Array<State> = []) {
+    let cC = this.registerComponent(instance);
+    deps.forEach(state => state instanceof State && cC.deps.add(state));
+    cC.deps;
+  }
 
+  // create and return component container
+  public registerComponent(instance) {
+    let componentContainer = new ComponentContainer(instance);
     this.componentStore[componentContainer.uuid] = componentContainer;
-
     return componentContainer;
   }
 }

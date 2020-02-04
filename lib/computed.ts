@@ -1,4 +1,5 @@
-import Pulse, { State } from './';
+import Pulse from './';
+import State from './state';
 
 export default class Computed extends State {
   private func: Function;

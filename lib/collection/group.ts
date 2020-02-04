@@ -1,5 +1,7 @@
 import Dep from '../dep';
-import Pulse, { State, Collection } from '../';
+import Pulse from '../';
+import State from '../state';
+import Collection from './collection';
 
 export type PrimaryKey = string | number;
 export type Index = Array<PrimaryKey>;

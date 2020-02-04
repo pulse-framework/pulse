@@ -1,6 +1,11 @@
-// module.exports = require('./dist/pulse.min.js');
+import Pulse, {
+  persist,
+  State,
+  StateGroup,
+  Computed,
+  Collection
+} from './dist/pulse';
 
-module.exports =
-  process.env.NODE_ENV === 'production'
-    ? require('./dist/pulse.js')
-    : require('./dist/pulse.js');
+export { StateGroup, State, Computed, Collection, persist };
+
+export default Pulse;

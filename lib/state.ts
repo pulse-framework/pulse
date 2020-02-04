@@ -68,7 +68,15 @@ export default class State {
     this.value = value;
     if (this.storageKey) this.instance.storage.set(this.storageKey, value);
   }
-  public relate() {}
+  public relate(state: State | Array<State>) {
+    if (!Array.isArray(state)) state = [state];
+
+    // add this to foriegn dep
+    state.forEach(state => state && state.dep.deps.add(this));
+
+    // refrence foriegn dep locally for cleanup
+    this.dep.dynamic.add(this);
+  }
 }
 
 export type StateGroupDefault = {

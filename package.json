@@ -2,8 +2,8 @@
   "name": "pulse-framework",
   "version": "2.2.6",
   "description": "Global state and logic framework for reactive Javascript applications.",
-  "main": "dist/pulse.js",
-  "module": "dist/pulse.esm.js",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "scripts": {
     "test": "mocha --exit",
     "test-debug": "mocha --inspect-brk",

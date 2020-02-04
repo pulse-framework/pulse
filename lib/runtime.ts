@@ -37,13 +37,22 @@ export default class Runtime {
 
     // declare completed
     this.complete.push(job);
-    console.log('job', job);
+    // console.log('job', job);
     this.current = null;
     this.nextJob();
   }
 
   private sideEffects(state: State) {
-    state.dep.deps.forEach(state => {
+    let dep = state.dep;
+
+    // cleanup dynamic deps
+    dep.dynamic.forEach(state => {
+      state.dep.deps.delete(dep);
+    });
+    dep.dynamic = new Set();
+
+    // ingest dependents
+    dep.deps.forEach(state => {
       if (state instanceof Computed) {
         this.ingest(state, state.mutation());
       }
