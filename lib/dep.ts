@@ -1,5 +1,5 @@
 import { ComponentContainer } from './sub';
-import { State } from '.';
+import State from './state';
 export default class Dep {
   // static
   public deps: Set<any> = new Set();

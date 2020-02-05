@@ -1,7 +1,9 @@
 import Pulse from './';
 import State from './state';
 
-export default class Computed extends State {
+export default Computed;
+
+export class Computed extends State {
   private func: Function;
   constructor(instance: Pulse, deps: Array<State>, func: Function) {
     super(instance, instance.config.computedDefault || null);

@@ -1,9 +1,9 @@
 // Global Subscription Controller
 // This class handles external components subscribing to Pulse.
 
+import Pulse from '.';
+import State from './state';
 import { genId } from './utils';
-import Dep from './dep';
-import Pulse, { State } from './';
 
 export interface SubscribingComponentObject {
   componentUUID: string;

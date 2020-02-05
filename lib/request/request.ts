@@ -16,9 +16,9 @@ export default class Request {
 
     return {
       get: (endpoint: string) => this.send(endpoint),
-      post: (endpoint: string, body: Body) => this.send(endpoint),
-      patch: (endpoint: string, body: Body) => this.send(endpoint),
-      delete: (endpoint: string, body: Body) => this.send(endpoint)
+      post: (endpoint: string, body?: Body) => this.send(endpoint),
+      patch: (endpoint: string, body?: Body) => this.send(endpoint),
+      delete: (endpoint: string, body?: Body) => this.send(endpoint)
     };
   }
   static async send(endpoint): Promise<PulseResponse> {

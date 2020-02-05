@@ -2,6 +2,9 @@ import Pulse from '../';
 import Group, { PrimaryKey } from './group';
 import { defineConfig, normalizeGroups } from '../utils';
 import State from '../state';
+
+export default Collection;
+
 export interface CollectionConfig {
   groups: Array<string>;
   primaryKey: string | number;
@@ -13,7 +16,7 @@ export class Data extends State {
     super(collection.instance, data);
   }
 }
-export default class Collection {
+export class Collection {
   public config: CollectionConfig;
   public groups: { [key: string]: Group } = {};
   public data: { [key: string]: State } = {};
