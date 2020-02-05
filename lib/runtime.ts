@@ -1,6 +1,4 @@
-import Pulse from './';
-import State from './state';
-import Computed from './computed';
+import Pulse, { State, Computed } from './';
 import { copy } from './utils';
 
 export interface Job {

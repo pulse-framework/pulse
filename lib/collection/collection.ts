@@ -1,9 +1,6 @@
-import Pulse from '../';
+import Pulse, { State } from '../';
 import Group, { PrimaryKey } from './group';
 import { defineConfig, normalizeGroups } from '../utils';
-import State from '../state';
-
-export default Collection;
 
 export interface CollectionConfig {
   groups: Array<string>;
@@ -79,8 +76,6 @@ export class Collection {
     return data[this.config.primaryKey];
   }
 
-  public;
-
   public update(
     id: number | string | State,
     newObject: {} = {},
@@ -101,3 +96,5 @@ export class Collection {
     return;
   }
 }
+
+export default Collection;

@@ -2,7 +2,7 @@
 // This class handles external components subscribing to Pulse.
 
 import Pulse from '.';
-import State from './state';
+import { State } from './';
 import { genId } from './utils';
 
 export interface SubscribingComponentObject {

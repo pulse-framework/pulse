@@ -2,7 +2,6 @@ import Dep from './dep';
 import Pulse from './';
 import { copy } from './utils';
 
-export default State;
 export class State {
   public value: any = null;
   public previousState: any = null;
@@ -95,3 +94,4 @@ export const StateGroup = (instance: Pulse, stateGroup: Object): any => {
   }
   return group;
 };
+export default State;

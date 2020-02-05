@@ -1,7 +1,8 @@
-import Pulse from './pulse';
 export * from './state';
 export * from './computed';
 export * from './collection/collection';
+
+import Pulse from './pulse';
 
 // Root Pulse constructors
 export default Pulse;

@@ -22,6 +22,7 @@ export default class Pulse {
     this.runtime = new Runtime(this);
     this.storage = new Storage(this, config.storage || {});
   }
+  public Request = Request;
   /**
    * Create Pulse state
    * @param any initialState - the value to initialze a State instance with
@@ -33,13 +34,18 @@ export default class Pulse {
   public Computed = (deps: Array<any>, func: Function) =>
     new Computed(this, deps, func);
   public Controller = (config: any) => new Collection(this);
+  /**
+   * Create a Pulse collection
+   * @param config object
+   * @param config.primaryKey The primary key for the collection.
+   * @param config.groups Define groups for this collection.
+   */
   public Collection = (config: any) => new Collection(this, config);
-  public Request = Request;
   /**
    * Reset to initial state.
    * - Supports: State, Collections and Groups
    * - Removes persisted state from storage.
-   * @param Array items - Array of items to reset
+   * @param Items Array of items to reset
    */
   public reset(items: Array<State | Group | Collection>): void {}
 }

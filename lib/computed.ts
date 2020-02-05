@@ -1,7 +1,5 @@
 import Pulse from './';
-import State from './state';
-
-export default Computed;
+import { State } from './';
 
 export class Computed extends State {
   private func: Function;
@@ -19,3 +17,5 @@ export class Computed extends State {
     this.set(output);
   }
 }
+
+export default Computed;
