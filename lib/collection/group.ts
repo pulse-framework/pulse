@@ -17,7 +17,6 @@ export default class Group extends State {
     this.build(this.value);
   }
   public build(newIndex: Index) {
-    console.log('buildtime');
     let group = newIndex.map(primaryKey => {
       return this.collection.data[primaryKey];
     });

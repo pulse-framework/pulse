@@ -6,10 +6,13 @@ import Runtime from './runtime';
 import Storage from './storage';
 import API, { apiConfig } from './api/api';
 import Group from './collection/group';
+import { Intergration } from './intergrations/use';
 export interface PulseConfig {
   storagePrefix?: string;
   computedDefault?: any;
+  waitForMount?: boolean;
   framework?: any;
+  frameworkConstructor?: any;
   storage?: {};
 }
 
@@ -17,11 +20,12 @@ export default class Pulse {
   public runtime: Runtime;
   public storage: Storage;
   public subController: SubController;
-  public intergration: any = null;
+  public intergration: Intergration = null;
   constructor(public config: PulseConfig) {
     this.subController = new SubController(this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(this, config.storage || {});
+    this.globalBind();
   }
   /**
    * Create Pulse API
@@ -62,6 +66,17 @@ export default class Pulse {
    * @param Items Array of items to reset
    */
   public reset(items: Array<State | Group | Collection>): void {}
+
+  /**
+   * Global refrence to the first pulse instance created this runtime
+   */
+  private globalBind() {
+    try {
+      if (!globalThis.__pulse) globalThis.__pulse = this;
+    } catch (error) {
+      // fail silently
+    }
+  }
 }
 
 // Handy utils

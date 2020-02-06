@@ -19,7 +19,7 @@ export class State {
     return this.value;
   }
   constructor(
-    private instance: Pulse,
+    public instance: Pulse,
     public initalState: any,
     deps: Array<Dep> = []
   ) {

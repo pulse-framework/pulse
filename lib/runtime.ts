@@ -1,5 +1,10 @@
 import Pulse, { State, Computed } from './';
 import { copy } from './utils';
+import {
+  CallbackContainer,
+  ComponentContainer,
+  SubscriptionContainer
+} from './sub';
 
 export interface Job {
   state: State;
@@ -57,5 +62,51 @@ export default class Runtime {
         this.ingest(state, state.mutation());
       }
     });
+  }
+
+  updateSubscribers() {
+    let componentsToUpdate: Set<SubscriptionContainer>;
+    // loop through completed jobs
+    this.complete.forEach(job => {
+      // loop through subs of this job
+      job.state.dep.subs.forEach(cC => {
+        // for containers that require props to be passed
+        if (cC.passProps) {
+          let localKey: string;
+          // find the local key for this update by comparing the State instance from this job to the state instances in the mappedStates object
+          for (let key in cC.mappedStates)
+            if (cC.mappedStates[key] === job.state) localKey = key;
+          // once a matching key is found push it into the SubscriptionContainer
+          if (localKey) cC.keysChanged.push(localKey);
+        }
+        // save this component
+        componentsToUpdate.add(cC);
+      });
+    });
+    // perform component or callback updates
+    componentsToUpdate.forEach(cC => {
+      // are we dealing with a CallbackContainer?
+      if (cC instanceof CallbackContainer) {
+        // just invoke the callback
+        (cC as CallbackContainer).callback();
+
+        // is this a ComponentContainer
+      } else if (cC instanceof ComponentContainer) {
+        // call the current intergration's update method
+        this.instance.intergration.updateMethod(
+          cC.instance,
+          Runtime.assembleUpdatedValues(cC)
+        );
+      }
+    });
+  }
+
+  static assembleUpdatedValues(cC: SubscriptionContainer) {
+    let returnObj: any = {};
+    cC.keysChanged.forEach(changedKey => {
+      // extract the value from State for changed keys
+      returnObj[changedKey] = cC.mappedStates[changedKey].value;
+    });
+    return returnObj;
   }
 }
