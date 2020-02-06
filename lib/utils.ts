@@ -1,5 +1,17 @@
 import Pulse, { State } from '.';
 
+export function cleanState(state: State): any {
+  return {
+    value: state.value,
+    previousState: state.previousState,
+    stateDifferent: state.value === state.previousState,
+    isSet: state.isSet,
+    dependents: state.dep.deps.size,
+    subscribers: state.dep.subs.size,
+    storageKey: state.storageKey
+  };
+}
+
 export function getInstance(state: State): Pulse {
   if (state.instance) return state.instance;
   else return globalThis.__pulse;
