@@ -1,3 +1,13 @@
+import Pulse, { State } from '.';
+
+export function getInstance(state: State): Pulse {
+  if (state.instance) return state.instance;
+  else return globalThis.__pulse;
+}
+export function normalizeDeps(deps: Array<State> | State) {
+  return Array.isArray(deps) ? (deps as Array<State>) : [deps as State];
+}
+
 export const collectionFunctions = [
   'collect',
   'collectByKeys',

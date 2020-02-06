@@ -1,6 +1,7 @@
 import Pulse from '..';
 import State from '../state';
 import { ComponentContainer } from '../sub';
+import { normalizeDeps, getInstance } from '../utils';
 
 type NamedStateObject = { [key: string]: State };
 
@@ -46,21 +47,11 @@ function ReactWrapper(
   };
 }
 
-function getInstance(state: State): Pulse {
-  if (state.instance) return state.instance;
-  else return globalThis.__pulse;
-}
-
 export function usePulse(
   deps: Array<State> | State,
   pulseInstance?: Pulse
 ): Array<State> {
-  let isArr: boolean = Array.isArray(deps);
-  let depsArray: Array<State> = isArr
-    ? (deps as Array<State>)
-    : [deps as State];
-
-  // get instance of Pulse from either the first state or global
+  let depsArray = normalizeDeps(deps);
   if (!pulseInstance) pulseInstance = getInstance(depsArray[0]);
 
   // get React constructor
@@ -68,11 +59,13 @@ export function usePulse(
   if (!React) return;
 
   // this is a trigger state used to force the component to re-render
-  const [_, set_] = React.useState(false);
+  const [_, set_] = React.useState({});
 
   React.useEffect(function() {
     // create a callback based subscription, callback invokes re-render trigger
-    const cC = pulseInstance.subController.subscribe(() => set_(!_), depsArray);
+    const cC = pulseInstance.subController.subscribe(() => {
+      set_({});
+    }, depsArray);
     // unsubscribe on unmount
     return () => pulseInstance.subController.unsubscribe(cC);
   }, []);
@@ -82,9 +75,12 @@ export function usePulse(
 
 export default {
   name: 'react',
-  bind(pulseConstructor: any | Pulse) {
-    pulseConstructor.React = ReactWrapper;
-    pulseConstructor.usePulse = usePulse;
+  bind(pulseInstance: any | Pulse) {
+    //
+    pulseInstance.React = ReactWrapper;
+    // usePulse is able to get its context from the state passed in, below is redundant
+    pulseInstance.usePulse = (deps: Array<State>) =>
+      usePulse(deps, pulseInstance);
   },
   updateMethod(componentInstance: any, updatedData: Object) {
     if (updatedData) {

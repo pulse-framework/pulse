@@ -6,7 +6,7 @@ import Runtime from './runtime';
 import Storage from './storage';
 import API, { apiConfig } from './api/api';
 import Group from './collection/group';
-import { Intergration } from './intergrations/use';
+import use, { Intergration } from './intergrations/use';
 export interface PulseConfig {
   storagePrefix?: string;
   computedDefault?: any;
@@ -25,7 +25,11 @@ export default class Pulse {
     this.subController = new SubController(this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(this, config.storage || {});
+    this.initFrameworkIntergration(config.framework);
     this.globalBind();
+  }
+  public initFrameworkIntergration(frameworkConstructor) {
+    use(frameworkConstructor, this);
   }
   /**
    * Create Pulse API

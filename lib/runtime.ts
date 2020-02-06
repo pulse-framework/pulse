@@ -28,6 +28,7 @@ export default class Runtime {
   }
 
   private perform(job: Job): void {
+    // debugger;
     this.current = job;
     job.state.previousState = copy(job.state.value);
 
@@ -45,6 +46,10 @@ export default class Runtime {
     // console.log('job', job);
     this.current = null;
     this.nextJob();
+
+    setTimeout(() => {
+      this.updateSubscribers();
+    });
   }
 
   private sideEffects(state: State) {
@@ -65,7 +70,7 @@ export default class Runtime {
   }
 
   updateSubscribers() {
-    let componentsToUpdate: Set<SubscriptionContainer>;
+    let componentsToUpdate: Set<SubscriptionContainer> = new Set();
     // loop through completed jobs
     this.complete.forEach(job => {
       // loop through subs of this job
@@ -88,6 +93,7 @@ export default class Runtime {
       // are we dealing with a CallbackContainer?
       if (cC instanceof CallbackContainer) {
         // just invoke the callback
+
         (cC as CallbackContainer).callback();
 
         // is this a ComponentContainer
@@ -99,6 +105,7 @@ export default class Runtime {
         );
       }
     });
+    this.complete = [];
   }
 
   static assembleUpdatedValues(cC: SubscriptionContainer) {

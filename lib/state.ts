@@ -42,6 +42,12 @@ export class State {
   public patch(targetWithChange): this {
     return this;
   }
+  public interval(setFunc: (currentValue: any) => any, ms?: number): this {
+    setInterval(() => {
+      this.set(setFunc(this.value));
+    }, ms || 1000);
+    return this;
+  }
   public persist(key): this {
     if (!key) console.error('Pulse persist error: Missing storage key');
     this.storageKey = key;
