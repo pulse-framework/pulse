@@ -39,8 +39,8 @@ export class Collection {
     return this.data[id];
   }
 
-  public getGroup(id): Array<any> {
-    return [];
+  public getGroup(id: string): Group {
+    return this.groups[id];
   }
 
   public collect(items: Array<any>, groups: Array<string>): void {

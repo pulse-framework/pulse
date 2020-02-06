@@ -13,6 +13,6 @@ export const THE_TIME = App.State(new Date())
   .interval(() => new Date())
   .type(String);
 
-export const SESSION_DURATION = App.Computed([THE_TIME], function() {
+export const SESSION_DURATION = App.Computed(function() {
   return ((THE_TIME.value.getTime() - THE_TIME.initalState.getTime()) / 1000).toFixed();
 });

@@ -14,15 +14,19 @@ export default class Runtime {
   private current: Job = null;
   private queue: Array<Job> = [];
   private complete: Array<Job> = [];
+
+  public trackState: boolean = false;
+  public foundState: Set<State> = new Set();
+
   constructor(private instance: Pulse) {}
 
-  public ingest(state: State, newState: any) {
+  public ingest(state: State, newState: any): void {
     let job: Job = { state, newState };
     this.queue.push(job);
     if (!this.current) this.nextJob();
   }
 
-  private nextJob() {
+  private nextJob(): void {
     let job: Job = this.queue.shift();
     if (job) this.perform(job);
   }
@@ -63,17 +67,15 @@ export default class Runtime {
 
     // ingest dependents
     dep.deps.forEach(state => {
-      if (state instanceof Computed) {
-        this.ingest(state, state.mutation());
-      }
+      // if (state instanceof Computed) {
+      this.ingest(state, state.mutation());
+      // }
     });
   }
 
-  updateSubscribers() {
+  private updateSubscribers(): void {
     let componentsToUpdate: Set<SubscriptionContainer> = new Set();
-    // loop through completed jobs
-    this.complete.forEach(job => {
-      // loop through subs of this job
+    this.complete.forEach(job =>
       job.state.dep.subs.forEach(cC => {
         // for containers that require props to be passed
         if (cC.passProps) {
@@ -84,18 +86,16 @@ export default class Runtime {
           // once a matching key is found push it into the SubscriptionContainer
           if (localKey) cC.keysChanged.push(localKey);
         }
-        // save this component
         componentsToUpdate.add(cC);
-      });
-    });
+      })
+    );
+
     // perform component or callback updates
     componentsToUpdate.forEach(cC => {
       // are we dealing with a CallbackContainer?
       if (cC instanceof CallbackContainer) {
         // just invoke the callback
-
         (cC as CallbackContainer).callback();
-
         // is this a ComponentContainer
       } else if (cC instanceof ComponentContainer) {
         // call the current intergration's update method
@@ -106,6 +106,13 @@ export default class Runtime {
       }
     });
     this.complete = [];
+  }
+
+  public getFoundState() {
+    this.trackState = false;
+    const ret = this.foundState;
+    this.foundState = new Set();
+    return ret;
   }
 
   static assembleUpdatedValues(cC: SubscriptionContainer) {

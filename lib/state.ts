@@ -3,7 +3,16 @@ import Pulse from './';
 import { copy } from './utils';
 
 export class State {
-  public value: any = null;
+  public masterValue: any = null;
+  public set value(val: any) {
+    this.masterValue = val;
+  }
+  public get value(): any {
+    if (this.instance.runtime.trackState)
+      this.instance.runtime.foundState.add(this);
+    return this.masterValue;
+  }
+  // public value: any = null;
   public previousState: any = null;
   public dep: Dep = null;
   public nextState: any = null;
@@ -16,7 +25,7 @@ export class State {
     this.set(value);
   }
   public get bind(): any {
-    return this.value;
+    return this.masterValue;
   }
   constructor(
     public instance: Pulse,
@@ -24,7 +33,7 @@ export class State {
     deps: Array<Dep> = []
   ) {
     this.dep = new Dep(deps);
-    this.value = initalState;
+    this.privateWrite(initalState);
     this.nextState = copy(initalState);
   }
   /**
@@ -75,7 +84,7 @@ export class State {
   }
 
   public privateWrite(value: any): void {
-    this.value = value;
+    this.masterValue = value;
     if (this.storageKey) this.instance.storage.set(this.storageKey, value);
   }
   public relate(state: State | Array<State>) {
