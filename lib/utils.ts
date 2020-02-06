@@ -4,7 +4,6 @@ export function cleanState(state: State): any {
   return {
     value: state.value,
     previousState: state.previousState,
-    stateDifferent: state.value === state.previousState,
     isSet: state.isSet,
     dependents: state.dep.deps.size,
     subscribers: state.dep.subs.size,

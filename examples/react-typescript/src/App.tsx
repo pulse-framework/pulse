@@ -10,6 +10,7 @@ interface Global {
 (globalThis as Global).core = Core;
 
 const App = () => {
+  // usePulse to subscribe to Pulse state
   const [dark, time, duration] = usePulse([
     Core.state.DARK_THEME,
     Core.state.THE_TIME,
@@ -20,17 +21,16 @@ const App = () => {
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>{JSON.stringify(dark.value)}</p>
-        <p>{JSON.stringify(time.value)}</p>
-        <p className="small-text">{JSON.stringify(cleanState(duration))}</p>
         <a
           className="App-link"
           href="https://reactjs.org"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Pulse X React
         </a>
+        <p>{JSON.stringify(cleanState(time))}</p>
+        <p className="small-text">{JSON.stringify(cleanState(duration))}</p>
       </header>
     </div>
   );

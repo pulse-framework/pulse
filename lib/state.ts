@@ -17,6 +17,7 @@ export class State {
   public dep: Dep = null;
   public nextState: any = null;
   public isSet: boolean = false;
+  public exists: boolean = false;
   public storageKey: string;
   // Mutation method returns new value, can be overwritten by extended classes.
   public mutation: () => any;
@@ -84,6 +85,7 @@ export class State {
   }
 
   public privateWrite(value: any): void {
+    this.exists = !!value;
     this.masterValue = value;
     if (this.storageKey) this.instance.storage.set(this.storageKey, value);
   }

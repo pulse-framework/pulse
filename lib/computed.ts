@@ -9,7 +9,7 @@ export class Computed extends State {
 
     this.func = func;
 
-    // if (deps) deps.forEach(state => state.dep.deps.add(this));
+    if (deps) deps.forEach(state => state.dep.deps.add(this));
 
     this.mutation = () => {
       if (deps) return this.func();
