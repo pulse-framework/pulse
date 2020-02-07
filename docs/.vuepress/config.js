@@ -10,8 +10,8 @@ module.exports = {
     logo: '/logo.svg',
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Documentation', link: '/v2/' },
-      { text: 'Changelog', link: '/v2/introduction/changelog' }
+      { text: 'Documentation', link: '/v3/introduction/what-is-pulse' },
+      { text: 'Changelog', link: '/v3/introduction/changelog' }
     ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
@@ -120,7 +120,7 @@ module.exports = {
         {
           title: 'Introduction',
           collapsable: false,
-          children: ['introduction/what-is-pulse']
+          children: ['introduction/what-is-pulse', 'introduction/changelog']
         }
       ]
     }
