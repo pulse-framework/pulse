@@ -126,6 +126,11 @@ module.exports = {
           title: 'Getting Started',
           collapsable: false,
           children: ['getting-started/style-guide']
+        },
+        {
+          title: 'Resources',
+          collapsable: false,
+          children: ['resources/snippets']
         }
       ]
     }

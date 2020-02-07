@@ -21,12 +21,9 @@ I built Pulse reflective of the architecture in which we use at Notify.me, and a
 
 - :zap: State, a modular class for handling state ([State]()) `Pulse.State()`
 - :robot: Computed state with automatic dependency tracking ([Computed]())
-- :gem: SSOT architecture (single source of truth)
 - :telephone_receiver: Promise based HTTP request API
-- :nerd_face: DB/ORM-like structure with [Collections]()
 - :timer_clock: Turn back the clock with [smart undo]() `State.undo()`
-- :sparkles: Automatic data normalization using [Collect]() `collection.collect()`
-- :lock: Model based [data validation]() with Collections
+- :sparkles: [Collections]() a DB/ORM-like class for groups of data `Collection.collect()`
 - :floppy_disk: Persisted data API for localStorage and async storage
 - :first_quarter_moon: Lifesycle hooks [`watch()`]() / `onReady()` / `nextPulse()`
 - :crystal_ball: Dynamic relations between collections using [Populate]() `populate()`
@@ -35,9 +32,5 @@ I built Pulse reflective of the architecture in which we use at Notify.me, and a
 - :hourglass_flowing_sand: Timed interval task handler using [Jobs]()
 - :closed_book: Error logging & snapshot bug reporting (WIP)
 - :leaves: Lightweight (only 100KB) with 0 dependencies
-- :fire: Supports Vue, React and React Native
+- :fire: Supports Vue, React and React Native `usePulse()`
 - :yellow_heart: Well documented (I'm getting there...)
-
-<!-- ## Is Pulse for you?
-
-The most attractive part of Pulse for me personally is how easy it is to work with, which makes it good for a variety of different projects. Though it does scale well for applications that have many different types of data. -->
