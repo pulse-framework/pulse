@@ -7,7 +7,7 @@
   "scripts": {
     "test": "mocha --exit",
     "test-debug": "mocha --inspect-brk",
-    "dev": "rollup -c build/rollup.dev.config.js --watch",
+    "dev": "tsc-watch",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
     "now-build": "npm run docs:build"
