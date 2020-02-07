@@ -8,8 +8,8 @@ export class State {
     this.masterValue = val;
   }
   public get value(): any {
-    if (this.instance.runtime.trackState)
-      this.instance.runtime.foundState.add(this);
+    if (this.instance().runtime.trackState)
+      this.instance().runtime.foundState.add(this);
     return this.masterValue;
   }
   // public value: any = null;
@@ -29,7 +29,7 @@ export class State {
     return this.masterValue;
   }
   constructor(
-    public instance: Pulse,
+    public instance: () => Pulse,
     public initalState: any,
     deps: Array<Dep> = []
   ) {
@@ -43,7 +43,7 @@ export class State {
    */
   public set(newState: any): this {
     // ingest update using most basic mutation method
-    this.instance.runtime.ingest(this, newState);
+    this.instance().runtime.ingest(this, newState);
 
     this.isSet = true;
 
@@ -61,9 +61,9 @@ export class State {
   public persist(key): this {
     if (!key) console.error('Pulse persist error: Missing storage key');
     this.storageKey = key;
-    let value = this.instance.storage.get(this.storageKey);
-    if (value) this.instance.runtime.ingest(this, value);
-    else this.instance.storage.set(this.storageKey, this.value);
+    let value = this.instance().storage.get(this.storageKey);
+    if (value) this.instance().runtime.ingest(this, value);
+    else this.instance().storage.set(this.storageKey, this.value);
     return this;
   }
   public type(type: any): this {
@@ -80,14 +80,14 @@ export class State {
     this.isSet = false;
     this.previousState = null;
     this.privateWrite(this.initalState);
-    this.instance.storage.remove(this.storageKey);
+    this.instance().storage.remove(this.storageKey);
     return this;
   }
 
   public privateWrite(value: any): void {
     this.exists = !!value;
     this.masterValue = value;
-    if (this.storageKey) this.instance.storage.set(this.storageKey, value);
+    if (this.storageKey) this.instance().storage.set(this.storageKey, value);
   }
   public relate(state: State | Array<State>) {
     if (!Array.isArray(state)) state = [state];
@@ -103,7 +103,7 @@ export class State {
 export type StateGroupDefault = {
   [key: string]: State | any;
 };
-export const StateGroup = (instance: Pulse, stateGroup: Object): any => {
+export const StateGroup = (instance: () => Pulse, stateGroup: Object): any => {
   let group: any = {};
   for (let name in stateGroup) {
     group[name] = new State(instance, stateGroup[name]);

@@ -43,26 +43,26 @@ export default class Pulse {
    * Create Pulse state
    * @param initialState Any - the value to initialze a State instance with
    */
-  public State = (initialState: any) => new State(this, initialState);
+  public State = (initialState: any) => new State(() => this, initialState);
   /**
    * Create many Pulse states at the same time
    * @param stateGroup Object with keys as state name and values as initial state
    */
-  public StateGroup = (stateGroup: any) => StateGroup(this, stateGroup);
+  public StateGroup = (stateGroup: any) => StateGroup(() => this, stateGroup);
   /**
    * Create a Pulse computed function
    * @param deps Array - An array of state items to depend on
    * @param func Function - A function where the return value is the state, ran every time a dep changes
    */
   public Computed = (func: Function, deps?: Array<any>) =>
-    new Computed(this, func, deps);
+    new Computed(() => this, func, deps);
   /**
    * Create a Pulse collection
    * @param config object
    * @param config.primaryKey The primary key for the collection.
    * @param config.groups Define groups for this collection.
    */
-  public Collection = (config: any) => new Collection(this, config);
+  public Collection = (config: any) => new Collection(() => this, config);
   /**
    * Reset to initial state.
    * - Supports: State, Collections and Groups

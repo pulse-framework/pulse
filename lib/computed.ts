@@ -4,8 +4,8 @@ import { State } from './';
 export class Computed extends State {
   private func: Function;
   private cleanup: Set<State> = new Set();
-  constructor(instance: Pulse, func: Function, deps?: Array<State>) {
-    super(instance, instance.config.computedDefault || null);
+  constructor(instance: () => Pulse, func: Function, deps?: Array<State>) {
+    super(instance, instance().config.computedDefault || null);
 
     this.func = func;
 
@@ -14,9 +14,9 @@ export class Computed extends State {
     this.mutation = () => {
       if (deps) return this.func();
       else {
-        this.instance.runtime.trackState = true;
+        this.instance().runtime.trackState = true;
         let result = this.func();
-        let found = this.instance.runtime.getFoundState();
+        let found = this.instance().runtime.getFoundState();
         found.forEach(state => state.dep.deps.add(this));
         return result;
       }

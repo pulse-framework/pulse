@@ -27,7 +27,7 @@ const hello = App.State('beans');
 
 ### :sparkles: Syntax Changes
 
-- **Namespace** longer controlled by Pulse, everything is completely modular:
+- **Namespace** no longer controlled by Pulse, everything is completely modular:
 
 ```js
 const App = new Pulse();

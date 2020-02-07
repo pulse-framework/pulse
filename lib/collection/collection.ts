@@ -18,7 +18,7 @@ export class Collection {
   public groups: { [key: string]: Group } = {};
   public data: { [key: string]: State } = {};
   public size: number = 0;
-  constructor(public instance: Pulse, config?: CollectionConfig) {
+  constructor(public instance: () => Pulse, config?: CollectionConfig) {
     this.config = defineConfig(config, {
       primaryKey: 'id',
       groups: []
@@ -63,7 +63,7 @@ export class Collection {
     });
 
     groups.forEach(groupName =>
-      this.instance.runtime.ingest(
+      this.instance().runtime.ingest(
         this.groups[groupName],
         this.groups[groupName].nextState
       )

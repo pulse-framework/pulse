@@ -8,7 +8,7 @@ export type Index = Array<PrimaryKey>;
 export default class Group extends State {
   private func: Function;
   output: Array<any> = null;
-  constructor(instance: Pulse, private collection: Collection) {
+  constructor(instance: () => Pulse, private collection: Collection) {
     super(instance, []);
 
     this.mutation = () => this.build(this.value);

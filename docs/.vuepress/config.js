@@ -121,6 +121,11 @@ module.exports = {
           title: 'Introduction',
           collapsable: false,
           children: ['introduction/what-is-pulse', 'introduction/changelog']
+        },
+        {
+          title: 'Getting Started',
+          collapsable: false,
+          children: ['getting-started/style-guide']
         }
       ]
     }

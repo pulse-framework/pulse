@@ -12,7 +12,7 @@ export function cleanState(state: State): any {
 }
 
 export function getInstance(state: State): Pulse {
-  if (state.instance) return state.instance;
+  if (state.instance) return state.instance();
   else return globalThis.__pulse;
 }
 export function normalizeDeps(deps: Array<State> | State) {
