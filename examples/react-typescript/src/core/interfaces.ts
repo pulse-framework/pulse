@@ -8,4 +8,3 @@ export interface DeviceBody {
   useragent: string;
   sendNotifications: boolean;
 }
-\
