@@ -5,7 +5,7 @@ export * from './pulse';
 
 export { usePulse } from './intergrations/react.intergration';
 
-export { cleanState } from './utils';
+export { cleanState, resetState } from './utils';
 
 import Pulse from './pulse';
 

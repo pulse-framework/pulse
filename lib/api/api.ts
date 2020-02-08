@@ -17,7 +17,6 @@ export interface apiConfig {
 export default class API {
   constructor(private config: apiConfig) {
     if (!config.options) config.options = {};
-    config.options.credentials = 'include';
   }
   /**
    * Override API config and request options. Returns a modified instance this API with overrides applied.

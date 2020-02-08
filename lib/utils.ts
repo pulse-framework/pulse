@@ -1,4 +1,4 @@
-import Pulse, { State } from '.';
+import Pulse, { State, Collection } from '.';
 
 export function cleanState(state: State): any {
   return {
@@ -9,6 +9,16 @@ export function cleanState(state: State): any {
     subscribers: state.dep.subs.size,
     storageKey: state.storageKey
   };
+}
+
+export function resetState(items: Array<State | Collection>) {
+  items.forEach(item => {
+    if (item instanceof State) {
+      (item as State).reset();
+    } else if (item instanceof Collection) {
+      // meme
+    }
+  });
 }
 
 export function getInstance(state: State): Pulse {

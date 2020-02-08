@@ -87,3 +87,18 @@ export default class Pulse {
 export function persist(items: Array<State>): void {
   items.forEach(item => item.persist(item.storageKey));
 }
+
+type Ojb = { [key: string]: any };
+
+export function SSR(instance: () => Pulse, tree: Ojb): Ojb {
+  let pulse = instance();
+
+  return;
+}
+
+// SSR
+//  1. Detect if Node & Next
+//  2. Save each State to globalThis.__NEXT_DATA__.__PULSE_DATA__
+//  3. Increment globalThis.__NEXT_DATA__.__PULSE_DATA__.stateKey
+
+// 3. If not NODE load state

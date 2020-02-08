@@ -66,6 +66,9 @@ export class State {
     else this.instance().storage.set(this.storageKey, this.value);
     return this;
   }
+  public key(key: string): void {
+    this.storageKey = key;
+  }
   public type(type: any): this {
     return this;
   }
