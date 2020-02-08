@@ -1,47 +1,31 @@
-import { Global, ModuleInstance } from './interfaces';
-import Collection from './module/modules/collection';
-import Module from './module';
-import { DynamicRelation } from './relationController';
-import { JobType } from './runtime';
+import Pulse from './';
+import { State } from './';
 
-export default class Computed {
-  public relatedToGroup: Array<any> = [];
-  public dynamicRelation: DynamicRelation = null;
-  public hasRun: boolean = false;
-  constructor(
-    private global: Global,
-    public parentModuleInstance: ModuleInstance,
-    public name: string,
-    private computedFunction: (context: object) => any
-  ) {}
+export class Computed extends State {
+  private func: Function;
+  private cleanup: Set<State> = new Set();
+  constructor(instance: () => Pulse, func: Function, deps?: Array<State>) {
+    super(instance, instance().config.computedDefault || null);
 
-  public run() {
-    this.hasRun = true;
+    this.func = func;
 
-    // this.global.relations.cleanup(this.dynamicRelation);
+    if (deps) deps.forEach(state => state.dep.deps.add(this));
 
-    this.global.runningComputed = this;
+    this.mutation = () => {
+      if (deps) return this.func();
+      else {
+        this.instance().runtime.trackState = true;
+        let result = this.func();
+        let found = this.instance().runtime.getFoundState();
+        found.forEach(state => state.dep.deps.add(this));
+        return result;
+      }
+    };
 
-    let context = this.global.getContext(this.parentModuleInstance);
-    let output: any;
-    try {
-      output = this.computedFunction(context);
-    } catch (error) {
-      // during init computed functions that depend on the output of other computed function will throw an error since that computed function has not generated yet
-      // fail silently and flush runtime
-      this.global.runtime.finished();
-      // if init complete, fail loudly
-      if (this.global.initComplete) console.error(error);
-    }
-    // override output with default if undefined or null
-    if (
-      (output === undefined || output === null) &&
-      this.global.config.computedDefault
-    )
-      output = this.global.config.computedDefault;
-
-    this.global.runningComputed = false;
-
-    return output;
+    // initial
+    const output = this.mutation();
+    this.set(output);
   }
 }
+
+export default Computed;

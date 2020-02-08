@@ -1,4 +1,4 @@
-import Pulse from '../main';
+import Pulse from '../';
 
 export default {
   name: 'vue',

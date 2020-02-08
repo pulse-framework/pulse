@@ -1,6 +1,6 @@
 import reactIntergration from './react.intergration';
 import vueIntergration from './vue.intergration';
-import Pulse from '..';
+import Pulse from '../pulse';
 
 export interface Intergration {
   ready?: boolean;
@@ -17,7 +17,7 @@ const intergration: Intergration = {
   ready: false
 };
 
-export default function use(plugin: any, PulseConstructor: Pulse) {
+export default function use(plugin: any, pulseInstance: Pulse) {
   const frameworkName = getFrameworkName(plugin);
 
   switch (frameworkName) {
@@ -37,10 +37,10 @@ export default function use(plugin: any, PulseConstructor: Pulse) {
   if (frameworkName !== 'custom') intergration.frameworkConstructor = plugin;
 
   // Inject into static property of constructor
-  PulseConstructor.intergration = intergration;
+  pulseInstance.intergration = intergration;
 
   // if the intergration is ready, call bind otherwise warn user
-  if (intergration.ready) intergration.bind(PulseConstructor);
+  if (intergration.ready) intergration.bind(pulseInstance);
   else {
     console.error(
       `Pulse: Failed to intergrate with framework! It's possible you didn't call Pulse.use() before new Pulse.`

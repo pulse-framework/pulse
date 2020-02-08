@@ -10,8 +10,8 @@ module.exports = {
     logo: '/logo.svg',
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Documentation', link: '/v2/' },
-      { text: 'Changelog', link: '/v2/introduction/changelog' }
+      { text: 'Documentation', link: '/v3/introduction/what-is-pulse' },
+      { text: 'Changelog', link: '/v3/introduction/changelog' }
     ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
@@ -115,7 +115,58 @@ module.exports = {
           collapsable: false,
           children: ['under-the-hood/runtime']
         }
+      ],
+      '/v3/': [
+        {
+          title: 'Introduction',
+          collapsable: false,
+          children: ['introduction/what-is-pulse', 'introduction/changelog']
+        },
+        {
+          title: 'Getting Started',
+          collapsable: false,
+          children: ['getting-started/style-guide']
+        },
+        {
+          title: 'Resources',
+          collapsable: false,
+          children: ['resources/snippets']
+        }
       ]
     }
-  }
+  },
+  plugins: [
+    ['@vuepress/back-to-top', true],
+    [
+      '@vuepress/pwa',
+      {
+        serviceWorker: true,
+        updatePopup: true
+      }
+    ],
+    ['@vuepress/medium-zoom', true],
+    [
+      '@vuepress/google-analytics',
+      {
+        ga: 'UA-128189152-1'
+      }
+    ],
+    [
+      'container',
+      {
+        type: 'vue',
+        before: '<pre class="vue-container"><code>',
+        after: '</code></pre>'
+      }
+    ],
+    [
+      'container',
+      {
+        type: 'upgrade',
+        before: info => `<UpgradePath title="${info}">`,
+        after: '</UpgradePath>'
+      }
+    ],
+    ['flowchart']
+  ]
 };

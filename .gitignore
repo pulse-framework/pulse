@@ -1,7 +1,8 @@
 .DS_Store
-node_modules
+node_modules/
 out
 dist
+examples/react-typescript/node_modules
 
 # local env files
 .env.local

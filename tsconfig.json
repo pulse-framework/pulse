@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "ES6",
     "jsx": "preserve",
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "sourceMap": true,
-    "allowJs": true,
-    "lib": ["es7", "dom", "es2017"],
-    "moduleResolution": "node"
+    "target": "es5",
+    "declaration": true,
+    "outDir": "./dist"
   },
   "include": ["./lib/**/*"]
 }
