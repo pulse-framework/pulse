@@ -1,10 +1,6 @@
 import Pulse, { State, Computed } from './';
 import { copy } from './utils';
-import {
-  CallbackContainer,
-  ComponentContainer,
-  SubscriptionContainer
-} from './sub';
+import { CallbackContainer, ComponentContainer, SubscriptionContainer } from './sub';
 
 export interface Job {
   state: State;
@@ -83,8 +79,7 @@ export default class Runtime {
         if (cC.passProps) {
           let localKey: string;
           // find the local key for this update by comparing the State instance from this job to the state instances in the mappedStates object
-          for (let key in cC.mappedStates)
-            if (cC.mappedStates[key] === job.state) localKey = key;
+          for (let key in cC.mappedStates) if (cC.mappedStates[key] === job.state) localKey = key;
           // once a matching key is found push it into the SubscriptionContainer
           if (localKey) cC.keysChanged.push(localKey);
         }
@@ -101,10 +96,7 @@ export default class Runtime {
         // is this a ComponentContainer
       } else if (cC instanceof ComponentContainer) {
         // call the current intergration's update method
-        this.instance.intergration.updateMethod(
-          cC.instance,
-          Runtime.assembleUpdatedValues(cC)
-        );
+        this.instance.intergration.updateMethod(cC.instance, Runtime.assembleUpdatedValues(cC));
       }
     });
     this.complete = [];

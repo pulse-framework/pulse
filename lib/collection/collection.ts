@@ -14,6 +14,10 @@ export class Data extends State {
     super(collection.instance, data);
   }
 }
+
+type PrimaryKey = number | string;
+type Expandable = { [key: string]: any };
+
 export class Collection {
   public config: CollectionConfig;
   public groups: { [key: string]: Group } = {};
@@ -29,8 +33,7 @@ export class Collection {
     this.config.groups.forEach(groupName => {
       let group = new Group(this.instance, this);
       this.groups[groupName] = group;
-      if (this[groupName])
-        console.error('Pulse Collection: Forbidden group name!');
+      if (this[groupName]) console.error('Pulse Collection: Forbidden group name!');
 
       this[groupName] = group;
     });
@@ -64,10 +67,7 @@ export class Collection {
     });
 
     groups.forEach(groupName =>
-      this.instance().runtime.ingest(
-        this.groups[groupName],
-        this.groups[groupName].nextState
-      )
+      this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState)
     );
   }
 
@@ -78,16 +78,20 @@ export class Collection {
   }
 
   /**
-   * Pulse Collection: update()
-   * @desc pas
+   * Pulse: Collection.update();
+   * @desc Update data item in a Pulse Collection.
+   * @param {(string|number|State)} updateKey - The primary key of the item to update.
+   * @param {Object} changes - This object will be deep merged with the original.
    */
-  public update(updateKey: number | string | State, newObject: {} = {}): State {
+
+  public update(updateKey: PrimaryKey | State, changes: Expandable = {}): State {
     // if State instance passed as updateKey grab the value
     if (updateKey instanceof State) updateKey = updateKey.value;
-    updateKey = updateKey as number | string;
+    updateKey = updateKey as PrimaryKey;
 
     // if the primary key is changed, this will be true
     let updateDataKey: boolean = false,
+      // define alisas
       data = this.data[updateKey],
       primary = this.config.primaryKey;
 
@@ -95,28 +99,26 @@ export class Collection {
     if (!this.data.hasOwnProperty(updateKey)) return;
 
     // create a copy of the value for mutation
-    const currentDataCopy = data.copy();
+    const currentData = data.copy();
 
     // if the new object contains a primary key, it means we need to change the primary key on the collection too, however we should defer this until after the new data is ingested into the runtime queue
-    if (newObject[primary]) updateDataKey = true;
+    if (changes[primary]) updateDataKey = true;
 
     // deep merge the new data with the existing data
-    const final = deepmerge(currentDataCopy, newObject);
+    const final = deepmerge(currentData, changes);
 
-    // assign the merged data to the next state of the State
+    // assign the merged data to the next state of the State and ingest
     data.nextState = final;
-
     this.instance().runtime.ingest(data);
 
     // if the data key has changed move it internally and append groups
-    if (updateDataKey)
-      this.updateDataKey(currentDataCopy[primary], final[primary]);
+    if (updateDataKey) this.updateDataKey(currentData[primary], final[primary]);
 
     // return the Data instance at the final primary key
     return this.data[final[primary]];
   }
 
-  updateDataKey(oldKey: string | number, newKey: string | number): void {
+  updateDataKey(oldKey: PrimaryKey, newKey: PrimaryKey): void {
     // create copy of data
     const dataCopy = this.data[oldKey];
     // delete old refrence
