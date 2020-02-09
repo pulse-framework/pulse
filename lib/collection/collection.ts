@@ -1,6 +1,7 @@
 import Pulse, { State } from '../';
 import Group, { PrimaryKey } from './group';
 import { defineConfig, normalizeGroups } from '../utils';
+import { deepmerge } from '../helpers/deepmerge';
 
 export interface CollectionConfig {
   groups: Array<string>;
@@ -76,24 +77,63 @@ export class Collection {
     return data[this.config.primaryKey];
   }
 
-  public update(
-    id: number | string | State,
-    newObject: {} = {},
-    options?: {}
-  ): State {
-    if (id instanceof State) id = id.value;
-    options = defineConfig(options, {
-      important: false
-    });
-    let updateDataKey: boolean = false;
-    id = id as number | string;
+  /**
+   * Pulse Collection: update()
+   * @desc pas
+   */
+  public update(updateKey: number | string | State, newObject: {} = {}): State {
+    // if State instance passed as updateKey grab the value
+    if (updateKey instanceof State) updateKey = updateKey.value;
+    updateKey = updateKey as number | string;
 
-    if (!this.data.hasOwnProperty(id)) return;
+    // if the primary key is changed, this will be true
+    let updateDataKey: boolean = false,
+      data = this.data[updateKey],
+      primary = this.config.primaryKey;
 
-    const newObjectKeys = Object.keys(newObject);
-    const currentData = { ...this.data[id].value };
+    // if we don't have the key in which we're attempting to update
+    if (!this.data.hasOwnProperty(updateKey)) return;
 
-    return;
+    // create a copy of the value for mutation
+    const currentDataCopy = data.copy();
+
+    // if the new object contains a primary key, it means we need to change the primary key on the collection too, however we should defer this until after the new data is ingested into the runtime queue
+    if (newObject[primary]) updateDataKey = true;
+
+    // deep merge the new data with the existing data
+    const final = deepmerge(currentDataCopy, newObject);
+
+    // assign the merged data to the next state of the State
+    data.nextState = final;
+
+    this.instance().runtime.ingest(data);
+
+    // if the data key has changed move it internally and append groups
+    if (updateDataKey)
+      this.updateDataKey(currentDataCopy[primary], final[primary]);
+
+    // return the Data instance at the final primary key
+    return this.data[final[primary]];
+  }
+
+  updateDataKey(oldKey: string | number, newKey: string | number): void {
+    // create copy of data
+    const dataCopy = this.data[oldKey];
+    // delete old refrence
+    delete this.data[oldKey];
+    // apply the data in storage
+    this.data[newKey] = dataCopy;
+
+    // update groups
+    for (let groupName in this.groups) {
+      let group = this.groups[groupName];
+      // if group does not contain oldKey, continue.
+      if (!group.masterValue.includes(oldKey)) continue;
+      // replace the primaryKey at current index
+      group.nextState.splice(group.nextState.indexOf(oldKey), 1, newKey);
+      // ingest the group
+      this.instance().runtime.ingest(group);
+    }
   }
 }
 

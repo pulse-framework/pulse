@@ -1,4 +1,5 @@
 import State, { StateGroup } from './state';
+import deepmerge from 'deepmerge';
 import Computed from './computed';
 import Collection from './collection/collection';
 import SubController from './sub';
@@ -27,6 +28,7 @@ export default class Pulse {
     this.storage = new Storage(this, config.storage || {});
     this.initFrameworkIntergration(config.framework);
     this.globalBind();
+    deepmerge({}, {});
   }
   public initFrameworkIntergration(frameworkConstructor) {
     use(frameworkConstructor, this);

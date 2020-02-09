@@ -87,6 +87,11 @@ export class State {
     return this;
   }
 
+  // returns a fresh copy of the current value
+  public copy(): any {
+    return copy(this.masterValue);
+  }
+
   public privateWrite(value: any): void {
     this.exists = !!value;
     this.masterValue = value;

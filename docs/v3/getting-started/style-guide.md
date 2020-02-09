@@ -34,3 +34,7 @@ You're free to design your application in whichever way suits your needs, but th
   │ │ │ ├── **lists.json**
   └── **package.json**
   :::
+
+* Controller actions should never directly return route response
+* Controller actions should recieve prameters instead of just one object to assemple request payloads
+* Controller functions should use async / await when calling routes

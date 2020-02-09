@@ -8,7 +8,7 @@ import {
 
 export interface Job {
   state: State;
-  newState: any;
+  newState?: any;
 }
 export default class Runtime {
   private current: Job = null;
@@ -20,15 +20,15 @@ export default class Runtime {
 
   constructor(private instance: Pulse) {}
 
-  public ingest(state: State, newState: any): void {
+  public ingest(state: State, newState?: any): void {
     let job: Job = { state, newState };
-    this.queue.push(job);
-    if (!this.current) this.nextJob();
-  }
+    // grab nextState if newState not passed
+    if (!arguments[1]) job.newState = job.state.nextState;
 
-  private nextJob(): void {
-    let job: Job = this.queue.shift();
-    if (job) this.perform(job);
+    this.queue.push(job);
+
+    // if no current job, begin the next!
+    if (!this.current) this.perform(this.queue.shift());
   }
 
   private perform(job: Job): void {
@@ -49,7 +49,9 @@ export default class Runtime {
     this.complete.push(job);
     // console.log('job', job);
     this.current = null;
-    this.nextJob();
+
+    // continue the loop and perform the next job
+    this.perform(this.queue.shift());
 
     setTimeout(() => {
       this.updateSubscribers();
