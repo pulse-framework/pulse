@@ -78,10 +78,9 @@ export class Collection {
   }
 
   /**
-   * Pulse: Collection.update();
-   * @desc Update data item in a Pulse Collection.
-   * @param {(string|number|State)} updateKey - The primary key of the item to update.
-   * @param {Object} changes - This object will be deep merged with the original.
+   * Update data item in a Pulse Collection
+   * @param {(string|number|State)} updateKey - The primary key of the item to update
+   * @param {Object} changes - This object will be deep merged with the original
    */
 
   public update(updateKey: PrimaryKey | State, changes: Expandable = {}): State {
