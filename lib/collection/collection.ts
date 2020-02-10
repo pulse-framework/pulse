@@ -15,7 +15,6 @@ export class Data extends State {
   }
 }
 
-type PrimaryKey = number | string;
 type Expandable = { [key: string]: any };
 
 export class Collection {
