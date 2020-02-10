@@ -8,8 +8,7 @@ export class State {
     this.masterValue = val;
   }
   public get value(): any {
-    if (this.instance().runtime.trackState)
-      this.instance().runtime.foundState.add(this);
+    if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this.masterValue;
   }
   // public value: any = null;
@@ -28,20 +27,16 @@ export class State {
   public get bind(): any {
     return this.masterValue;
   }
-  constructor(
-    public instance: () => Pulse,
-    public initalState: any,
-    deps: Array<Dep> = []
-  ) {
+  constructor(public instance: () => Pulse, public initalState: any, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
     this.privateWrite(initalState);
     this.nextState = copy(initalState);
   }
   /**
-   * Pulse.State.set() - Directly set state to a new value
+   * Directly set state to a new value, if nothing is passed in State.nextState will be used as the next value
    * @param {Object} newState - The new value for this state
    */
-  public set(newState: any): this {
+  public set(newState?: any): this {
     // ingest update using most basic mutation method
     this.instance().runtime.ingest(this, newState);
 

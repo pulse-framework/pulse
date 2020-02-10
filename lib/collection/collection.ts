@@ -46,7 +46,7 @@ export class Collection {
     return this.groups[id];
   }
 
-  public collect(items: Array<any>, groups: Array<string>): void {
+  public collect(items: string | Array<any>, groups: string | Array<string>): void {
     if (!Array.isArray(items)) items = [items];
     if (!Array.isArray(groups)) groups = [groups];
 
@@ -59,7 +59,7 @@ export class Collection {
 
     items.forEach(item => {
       let key = this.saveData(item);
-      groups.forEach(groupName => {
+      (groups as Array<string>).forEach(groupName => {
         let group = this.groups[groupName];
         if (!group.value.includes(key)) group.nextState.push(key);
       });
@@ -115,6 +115,27 @@ export class Collection {
 
     // return the Data instance
     return this.data[final[primary]];
+  }
+
+  public put(
+    primaryKeys: Array<PrimaryKey>,
+    groupNames: string | Array<string>,
+    config?: {
+      method: 'push' | 'unshift';
+    }
+  ) {
+    config = defineConfig(config, {
+      method: 'push'
+    });
+    if (!Array.isArray(groupNames)) groupNames = [groupNames];
+
+    groupNames.forEach(groupName => {
+      if (!this.groups.hasOwnProperty(groupName)) return;
+
+      primaryKeys.forEach(key => {
+        this.groups[groupName].nextState[config.method](key);
+      });
+    });
   }
 
   private updateDataKey(oldKey: PrimaryKey, newKey: PrimaryKey): void {
