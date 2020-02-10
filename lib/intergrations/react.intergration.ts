@@ -10,7 +10,10 @@ function ReactWrapper(
   deps?: Array<State> | { [key: string]: State },
   pulseInstance?: Pulse
 ) {
-  const pulse: Pulse = pulseInstance || globalThis.__pulse;
+  let pulse: Pulse;
+  try {
+    pulse = (pulseInstance || globalThis.__pulse) as Pulse;
+  } catch (e) {}
 
   if (!pulse)
     console.error(

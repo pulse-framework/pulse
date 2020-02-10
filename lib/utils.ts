@@ -22,8 +22,10 @@ export function resetState(items: Array<State | Collection>) {
 }
 
 export function getInstance(state: State): Pulse {
-  if (state.instance) return state.instance();
-  else return globalThis.__pulse;
+  try {
+    if (state.instance) return state.instance();
+    else return globalThis.__pulse;
+  } catch (e) {}
 }
 export function normalizeDeps(deps: Array<State> | State) {
   return Array.isArray(deps) ? (deps as Array<State>) : [deps as State];
@@ -95,12 +97,7 @@ export function isWatchableObject(value) {
     }
   }
   let type = typeof value;
-  return (
-    value != null &&
-    type == 'object' &&
-    !isHTMLElement(value) &&
-    !Array.isArray(value)
-  );
+  return value != null && type == 'object' && !isHTMLElement(value) && !Array.isArray(value);
 }
 
 export function normalizeMap(map) {
@@ -109,15 +106,7 @@ export function normalizeMap(map) {
     : Object.keys(map).map(key => ({ key, val: map[key] }));
 }
 
-export const arrayFunctions = [
-  'push',
-  'pop',
-  'shift',
-  'unshift',
-  'splice',
-  'sort',
-  'reverse'
-];
+export const arrayFunctions = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
 
 export function cleanse(object: any) {
   if (!isWatchableObject(object)) return object;

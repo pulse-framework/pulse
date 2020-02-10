@@ -113,7 +113,7 @@ export class Collection {
     // if the data key has changed move it internally and ammend groups
     if (updateDataKey) this.updateDataKey(currentData[primary], final[primary]);
 
-    // return the Data instance at the final primary key
+    // return the Data instance
     return this.data[final[primary]];
   }
 
