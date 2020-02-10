@@ -78,7 +78,7 @@ export class Collection {
   }
 
   /**
-   * Update data item in a Pulse Collection
+   * Update data by id in a Pulse Collection
    * @param {(string|number|State)} updateKey - The primary key of the item to update
    * @param {Object} changes - This object will be deep merged with the original
    */
@@ -94,13 +94,14 @@ export class Collection {
       data = this.data[updateKey],
       primary = this.config.primaryKey;
 
-    // if we don't have the key in which we're attempting to update
+    // if the data does not exist
     if (!this.data.hasOwnProperty(updateKey)) return;
 
     // create a copy of the value for mutation
     const currentData = data.copy();
 
-    // if the new object contains a primary key, it means we need to change the primary key on the collection too, however we should defer this until after the new data is ingested into the runtime queue
+    // if the new object contains a primary key, it means we need to change the primary key
+    // on the collection too, however we should defer this until after the new data is ingested into the runtime queue
     if (changes[primary]) updateDataKey = true;
 
     // deep merge the new data with the existing data
@@ -110,14 +111,14 @@ export class Collection {
     data.nextState = final;
     this.instance().runtime.ingest(data);
 
-    // if the data key has changed move it internally and append groups
+    // if the data key has changed move it internally and ammend groups
     if (updateDataKey) this.updateDataKey(currentData[primary], final[primary]);
 
     // return the Data instance at the final primary key
     return this.data[final[primary]];
   }
 
-  updateDataKey(oldKey: PrimaryKey, newKey: PrimaryKey): void {
+  private updateDataKey(oldKey: PrimaryKey, newKey: PrimaryKey): void {
     // create copy of data
     const dataCopy = this.data[oldKey];
     // delete old refrence

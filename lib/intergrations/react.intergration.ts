@@ -47,10 +47,7 @@ function ReactWrapper(
   };
 }
 
-export function usePulse(
-  deps: Array<State> | State,
-  pulseInstance?: Pulse
-): Array<State> {
+export function usePulse(deps: Array<State> | State, pulseInstance?: Pulse): Array<State> {
   let depsArray = normalizeDeps(deps);
   if (!pulseInstance) pulseInstance = getInstance(depsArray[0]);
 
@@ -79,8 +76,7 @@ export default {
     //
     pulseInstance.React = ReactWrapper;
     // usePulse is able to get its context from the state passed in, below is redundant
-    pulseInstance.usePulse = (deps: Array<State>) =>
-      usePulse(deps, pulseInstance);
+    pulseInstance.usePulse = (deps: Array<State>) => usePulse(deps, pulseInstance);
   },
   updateMethod(componentInstance: any, updatedData: Object) {
     if (updatedData) {
@@ -91,7 +87,6 @@ export default {
   },
   onReady(pulseInstance: any | Pulse) {
     //
-    pulseInstance.usePulse = (deps: Array<State> | State) =>
-      usePulse(deps, pulseInstance);
+    pulseInstance.usePulse = (deps: Array<State> | State) => usePulse(deps, pulseInstance);
   }
 };
