@@ -29,33 +29,37 @@ export class Collection {
     });
 
     // create groups
-    this.config.groups.forEach(groupName => {
-      let group = new Group(this.instance, this);
-      this.groups[groupName] = group;
-      if (this[groupName]) console.error('Pulse Collection: Forbidden group name!');
-
-      this[groupName] = group;
-    });
+    if (this.config.groups) this.config.groups.forEach(groupName => this.createGroup(groupName));
   }
 
-  public findById(id: number | string): State {
-    return this.data[id];
+  // create a group instance on this collection
+  public createGroup(groupName: string) {
+    if (this.groups.hasOwnProperty(groupName))
+      console.error(`Pulse Collection: Group ${groupName} already exists`);
+    let group = new Group(this.instance, this);
+    this.groups[groupName] = group;
   }
 
-  public getGroup(id: string): Group {
-    return this.groups[id];
+  // save data directly into collection storage
+  public saveData(data: { [key: string]: any }): PrimaryKey {
+    this.data[data[this.config.primaryKey]] = new Data(this, data);
+    this.size++;
+    return data[this.config.primaryKey];
   }
+
+  /**
+   * Collect iterable data into groups. Note:
+   * - Data items must include a primary key (id)
+   * @param {(Array<object>|object)} data - Array of data, or single data object
+   * @param {(Array<string>|string)} groups - Array of group names or single group name
+   */
 
   public collect(items: string | Array<any>, groups: string | Array<string>): void {
     if (!Array.isArray(items)) items = [items];
     if (!Array.isArray(groups)) groups = [groups];
 
-    // let pendingGroups = normalizeGroups(groups);
-    groups.forEach(groupName => {
-      if (!this.groups[groupName]) {
-        //create group
-      }
-    });
+    // if any of the groups don't already exist, create them
+    groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
 
     items.forEach(item => {
       let key = this.saveData(item);
@@ -69,11 +73,20 @@ export class Collection {
       this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState)
     );
   }
+  /**
+   * Return an item from this collection by primaryKey as Data instance (extends State)
+   * @param {(number|string)} primaryKey - The primary key of the data
+   */
+  public findById(id: number | string): State {
+    return this.data[id];
+  }
 
-  public saveData(data: { [key: string]: any }): PrimaryKey {
-    this.data[data[this.config.primaryKey]] = new Data(this, data);
-    this.size++;
-    return data[this.config.primaryKey];
+  /**
+   * Return an group from this collection as Group instance (extends State)
+   * @param {(number|string)} groupName - The name of your group
+   */
+  public getGroup(groupName: string): Group {
+    return this.groups[groupName];
   }
 
   /**

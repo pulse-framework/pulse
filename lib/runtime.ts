@@ -46,12 +46,13 @@ export default class Runtime {
     // console.log('job', job);
     this.current = null;
 
-    // continue the loop and perform the next job
-    this.perform(this.queue.shift());
-
-    setTimeout(() => {
-      this.updateSubscribers();
-    });
+    // continue the loop and perform the next job or update subscribers
+    if (this.queue.length > 0) this.perform(this.queue.shift());
+    else {
+      setTimeout(() => {
+        this.updateSubscribers();
+      });
+    }
   }
 
   private sideEffects(state: State) {
