@@ -1,14 +1,10 @@
 import Pulse, { State, Computed } from './';
 import { copy } from './utils';
-import {
-  CallbackContainer,
-  ComponentContainer,
-  SubscriptionContainer
-} from './sub';
+import { CallbackContainer, ComponentContainer, SubscriptionContainer } from './sub';
 
 export interface Job {
   state: State;
-  newState: any;
+  newState?: any;
 }
 export default class Runtime {
   private current: Job = null;
@@ -20,15 +16,15 @@ export default class Runtime {
 
   constructor(private instance: Pulse) {}
 
-  public ingest(state: State, newState: any): void {
+  public ingest(state: State, newState?: any): void {
     let job: Job = { state, newState };
-    this.queue.push(job);
-    if (!this.current) this.nextJob();
-  }
+    // grab nextState if newState not passed
+    if (!arguments[1]) job.newState = job.state.nextState;
 
-  private nextJob(): void {
-    let job: Job = this.queue.shift();
-    if (job) this.perform(job);
+    this.queue.push(job);
+
+    // if no current job, begin the next!
+    if (!this.current) this.perform(this.queue.shift());
   }
 
   private perform(job: Job): void {
@@ -49,11 +45,14 @@ export default class Runtime {
     this.complete.push(job);
     // console.log('job', job);
     this.current = null;
-    this.nextJob();
 
-    setTimeout(() => {
-      this.updateSubscribers();
-    });
+    // continue the loop and perform the next job or update subscribers
+    if (this.queue.length > 0) this.perform(this.queue.shift());
+    else {
+      setTimeout(() => {
+        this.updateSubscribers();
+      });
+    }
   }
 
   private sideEffects(state: State) {
@@ -81,8 +80,7 @@ export default class Runtime {
         if (cC.passProps) {
           let localKey: string;
           // find the local key for this update by comparing the State instance from this job to the state instances in the mappedStates object
-          for (let key in cC.mappedStates)
-            if (cC.mappedStates[key] === job.state) localKey = key;
+          for (let key in cC.mappedStates) if (cC.mappedStates[key] === job.state) localKey = key;
           // once a matching key is found push it into the SubscriptionContainer
           if (localKey) cC.keysChanged.push(localKey);
         }
@@ -99,10 +97,7 @@ export default class Runtime {
         // is this a ComponentContainer
       } else if (cC instanceof ComponentContainer) {
         // call the current intergration's update method
-        this.instance.intergration.updateMethod(
-          cC.instance,
-          Runtime.assembleUpdatedValues(cC)
-        );
+        this.instance.intergration.updateMethod(cC.instance, Runtime.assembleUpdatedValues(cC));
       }
     });
     this.complete = [];

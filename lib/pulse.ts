@@ -1,4 +1,5 @@
 import State, { StateGroup } from './state';
+import deepmerge from 'deepmerge';
 import Computed from './computed';
 import Collection from './collection/collection';
 import SubController from './sub';
@@ -27,6 +28,7 @@ export default class Pulse {
     this.storage = new Storage(this, config.storage || {});
     this.initFrameworkIntergration(config.framework);
     this.globalBind();
+    deepmerge({}, {});
   }
   public initFrameworkIntergration(frameworkConstructor) {
     use(frameworkConstructor, this);
@@ -87,3 +89,18 @@ export default class Pulse {
 export function persist(items: Array<State>): void {
   items.forEach(item => item.persist(item.storageKey));
 }
+
+type Ojb = { [key: string]: any };
+
+export function SSR(instance: () => Pulse, tree: Ojb): Ojb {
+  let pulse = instance();
+
+  return;
+}
+
+// SSR
+//  1. Detect if Node & Next
+//  2. Save each State to globalThis.__NEXT_DATA__.__PULSE_DATA__
+//  3. Increment globalThis.__NEXT_DATA__.__PULSE_DATA__.stateKey
+
+// 3. If not NODE load state

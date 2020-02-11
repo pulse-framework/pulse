@@ -1,5 +1,5 @@
 import reactIntergration from './react.intergration';
-import vueIntergration from './vue.intergration';
+// import vueIntergration from './vue.intergration';
 import Pulse from '../pulse';
 
 export interface Intergration {
@@ -25,11 +25,10 @@ export default function use(plugin: any, pulseInstance: Pulse) {
       intergrate(reactIntergration, 'react');
       break;
     case 'vue':
-      intergrate(vueIntergration, 'vue');
+      // intergrate(vueIntergration, 'vue');
       break;
     case 'custom':
-      if (validateCustomFramework(plugin as Intergration))
-        intergrate(plugin, 'custom');
+      if (validateCustomFramework(plugin as Intergration)) intergrate(plugin, 'custom');
       break;
   }
 
@@ -75,11 +74,7 @@ function getFrameworkName(frameworkConstructor): string {
   if (!frameworkConstructor) return name;
 
   // ATTEMPT CHECK FOR REACT
-  if (
-    frameworkConstructor.hasOwnProperty(
-      '__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'
-    )
-  )
+  if (frameworkConstructor.hasOwnProperty('__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'))
     return 'react';
 
   // ATTEMPT CHECK FOR VUE

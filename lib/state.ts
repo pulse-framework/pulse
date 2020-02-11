@@ -8,17 +8,17 @@ export class State {
     this.masterValue = val;
   }
   public get value(): any {
-    if (this.instance().runtime.trackState)
-      this.instance().runtime.foundState.add(this);
+    if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this.masterValue;
   }
   // public value: any = null;
   public previousState: any = null;
   public dep: Dep = null;
   public nextState: any = null;
-  public isSet: boolean = false;
-  public exists: boolean = false;
+  public isSet: boolean = false; // has been changed from inital value
+  public exists: boolean = false; // is value truthey or falsey
   public storageKey: string;
+  public valueType: string;
   // Mutation method returns new value, can be overwritten by extended classes.
   public mutation: () => any;
 
@@ -28,20 +28,17 @@ export class State {
   public get bind(): any {
     return this.masterValue;
   }
-  constructor(
-    public instance: () => Pulse,
-    public initalState: any,
-    deps: Array<Dep> = []
-  ) {
+  private watchers: { [key: string]: any };
+  constructor(public instance: () => Pulse, public initalState: any, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
     this.privateWrite(initalState);
     this.nextState = copy(initalState);
   }
   /**
-   * Pulse.State.set() - Directly set state to a new value
+   * Directly set state to a new value, if nothing is passed in State.nextState will be used as the next value
    * @param {Object} newState - The new value for this state
    */
-  public set(newState: any): this {
+  public set(newState?: any): this {
     // ingest update using most basic mutation method
     this.instance().runtime.ingest(this, newState);
 
@@ -66,10 +63,25 @@ export class State {
     else this.instance().storage.set(this.storageKey, this.value);
     return this;
   }
+  public key(key: string): void {
+    this.storageKey = key;
+  }
   public type(type: any): this {
+    const supportedConstructors = ['String', 'Boolean', 'Array', 'Object', 'Number'];
+    if (typeof type === 'function' && supportedConstructors.includes(type.name)) {
+      this.valueType = type.name.toLowerCase();
+    }
     return this;
   }
-  public watch(func: Function): this {
+  public watch(key: number | string, callback: Function): this {
+    if (typeof key !== 'string' || typeof key !== 'number' || typeof callback !== 'function') {
+      console.error('Pulse watch, missing key or function');
+    }
+
+    this.watchers[key] = callback;
+    return this;
+  }
+  public removeWatcher(key: number | string): this {
     return this;
   }
   public toggle(): this {
@@ -84,9 +96,19 @@ export class State {
     return this;
   }
 
+  // returns a fresh copy of the current value
+  public copy(): any {
+    return copy(this.masterValue);
+  }
+
+  public is(x: any) {
+    return this.masterValue === x;
+  }
+
   public privateWrite(value: any): void {
     this.exists = !!value;
     this.masterValue = value;
+
     if (this.storageKey) this.instance().storage.set(this.storageKey, value);
   }
   public relate(state: State | Array<State>) {
