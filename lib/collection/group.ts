@@ -3,13 +3,14 @@ import Pulse, { State } from '../';
 import Collection from './collection';
 
 export type PrimaryKey = string | number;
+export type GroupName = string | number;
 export type Index = Array<PrimaryKey>;
 
 export default class Group extends State {
   private func: Function;
   output: Array<any> = null;
-  constructor(instance: () => Pulse, private collection: Collection) {
-    super(instance, []);
+  constructor(private collection: () => Collection) {
+    super(() => collection().instance(), []);
 
     this.mutation = () => this.build(this.value);
 
@@ -18,9 +19,12 @@ export default class Group extends State {
   }
   public build(newIndex: Index) {
     let group = newIndex.map(primaryKey => {
-      return this.collection.data[primaryKey];
+      return this.collection().data[primaryKey];
     });
     this.output = group;
+  }
+  public has(primaryKey: PrimaryKey) {
+    return this.value.includes(primaryKey) || false;
   }
 
   public add(primaryKey: PrimaryKey) {}

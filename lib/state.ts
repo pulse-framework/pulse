@@ -82,6 +82,7 @@ export class State {
     return this;
   }
   public removeWatcher(key: number | string): this {
+    delete this.watchers[key];
     return this;
   }
   public toggle(): this {
@@ -102,7 +103,11 @@ export class State {
   }
 
   public is(x: any) {
-    return this.masterValue === x;
+    return this.value === x;
+  }
+
+  public isNot(x: any) {
+    return this.value !== x;
   }
 
   public privateWrite(value: any): void {

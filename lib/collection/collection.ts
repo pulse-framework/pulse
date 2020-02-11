@@ -1,7 +1,8 @@
 import Pulse, { State } from '../';
-import Group, { PrimaryKey } from './group';
+import Group, { PrimaryKey, GroupName } from './group';
 import { defineConfig, normalizeGroups } from '../utils';
 import { deepmerge } from '../helpers/deepmerge';
+import { normalizeArray } from '../helpers/handy';
 
 export interface CollectionConfig {
   groups: Array<string>;
@@ -14,8 +15,6 @@ export class Data extends State {
     super(collection.instance, data);
   }
 }
-
-type Expandable = { [key: string]: any };
 
 export class Collection {
   public config: CollectionConfig;
@@ -33,10 +32,10 @@ export class Collection {
   }
 
   // create a group instance on this collection
-  public createGroup(groupName: string) {
+  public createGroup(groupName: GroupName) {
     if (this.groups.hasOwnProperty(groupName))
       console.error(`Pulse Collection: Group ${groupName} already exists`);
-    let group = new Group(this.instance, this);
+    let group = new Group(() => this);
     this.groups[groupName] = group;
   }
 
@@ -48,15 +47,15 @@ export class Collection {
   }
 
   /**
-   * Collect iterable data into groups. Note:
+   * Collect iterable data into this collection. Note:
    * - Data items must include a primary key (id)
    * @param {(Array<object>|object)} data - Array of data, or single data object
    * @param {(Array<string>|string)} groups - Array of group names or single group name
    */
 
-  public collect(items: string | Array<any>, groups: string | Array<string>): void {
-    if (!Array.isArray(items)) items = [items];
-    if (!Array.isArray(groups)) groups = [groups];
+  public collect(items: any | Array<any>, groups: GroupName | Array<GroupName>): void {
+    items = normalizeArray(items);
+    groups = normalizeArray(groups);
 
     // if any of the groups don't already exist, create them
     groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
@@ -85,8 +84,12 @@ export class Collection {
    * Return an group from this collection as Group instance (extends State)
    * @param {(number|string)} groupName - The name of your group
    */
-  public getGroup(groupName: string): Group {
-    return this.groups[groupName];
+  public getGroup(groupName: string | number): Group {
+    if (this.groups[groupName]) {
+      return this.groups[groupName];
+    } else {
+      return new Group(() => this); // return empty group
+    }
   }
 
   /**
@@ -131,8 +134,8 @@ export class Collection {
   }
 
   public put(
-    primaryKeys: Array<PrimaryKey>,
-    groupNames: string | Array<string>,
+    primaryKeys: PrimaryKey | Array<PrimaryKey>,
+    groupNames: GroupName | Array<GroupName>,
     config?: {
       method: 'push' | 'unshift';
     }
@@ -140,15 +143,62 @@ export class Collection {
     config = defineConfig(config, {
       method: 'push'
     });
-    if (!Array.isArray(groupNames)) groupNames = [groupNames];
+    primaryKeys = normalizeArray(primaryKeys);
+    groupNames = normalizeArray(groupNames);
 
     groupNames.forEach(groupName => {
       if (!this.groups.hasOwnProperty(groupName)) return;
 
-      primaryKeys.forEach(key => {
+      (primaryKeys as Array<PrimaryKey>).forEach(key => {
         this.groups[groupName].nextState[config.method](key);
+        this.instance().runtime.ingest(this.groups[groupName]);
       });
     });
+  }
+
+  /**
+   * this is an alias function that returns other functions for removing data from a collection
+   */
+  public remove(primaryKeys: PrimaryKey | Array<PrimaryKey>): RemoveOptions {
+    primaryKeys = normalizeArray(primaryKeys);
+    return {
+      fromGroups: (groups: Array<string>) => this.removeFromGroups(primaryKeys, groups),
+      everywhere: (groups: Array<string>) => this.deleteData(primaryKeys, groups)
+    };
+  }
+
+  public removeFromGroups(
+    primaryKeys: PrimaryKey | Array<PrimaryKey>,
+    groups: GroupName | Array<GroupName>
+  ): boolean {
+    primaryKeys = normalizeArray(primaryKeys);
+    groups = normalizeArray(groups);
+    let groupsToRegen: Set<Group> = new Set();
+
+    groups.forEach(groupName => {
+      (primaryKeys as Array<PrimaryKey>).forEach(primaryKey => {
+        if (!this.groups[groupName]) return;
+
+        let group = this.getGroup(groupName);
+
+        if (group.has(primaryKey)) {
+          group.nextState.groupsToRegen.add(group);
+        }
+      });
+    });
+
+    groupsToRegen.forEach(group => this.instance().runtime.ingest(group));
+    return true;
+  }
+
+  public deleteData(
+    primaryKeys: PrimaryKey | Array<PrimaryKey>,
+    groups: GroupName | Array<GroupName>
+  ): boolean {
+    primaryKeys = normalizeArray(primaryKeys);
+    groups = normalizeArray(groups);
+
+    return true;
   }
 
   private updateDataKey(oldKey: PrimaryKey, newKey: PrimaryKey): void {
@@ -173,3 +223,10 @@ export class Collection {
 }
 
 export default Collection;
+
+type Expandable = { [key: string]: any };
+type GroupsParam = string | number | Array<string>;
+interface RemoveOptions {
+  fromGroups: (groups: string | number | Array<string>) => any;
+  everywhere: (groups: string | number | Array<string>) => any;
+}

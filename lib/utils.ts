@@ -11,7 +11,7 @@ export function cleanState(state: State): any {
   };
 }
 
-export function resetState(items: Array<State | Collection>) {
+export function resetState(items: Array<State | Collection | any>) {
   items.forEach(item => {
     if (item instanceof State) {
       (item as State).reset();

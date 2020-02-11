@@ -22,13 +22,12 @@ export default class Pulse {
   public storage: Storage;
   public subController: SubController;
   public intergration: Intergration = null;
-  constructor(public config: PulseConfig) {
+  constructor(public config: PulseConfig = {}) {
     this.subController = new SubController(this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(this, config.storage || {});
-    this.initFrameworkIntergration(config.framework);
+    if (config.framework) this.initFrameworkIntergration(config.framework);
     this.globalBind();
-    deepmerge({}, {});
   }
   public initFrameworkIntergration(frameworkConstructor) {
     use(frameworkConstructor, this);
@@ -56,8 +55,7 @@ export default class Pulse {
    * @param deps Array - An array of state items to depend on
    * @param func Function - A function where the return value is the state, ran every time a dep changes
    */
-  public Computed = (func: Function, deps?: Array<any>) =>
-    new Computed(() => this, func, deps);
+  public Computed = (func: Function, deps?: Array<any>) => new Computed(() => this, func, deps);
   /**
    * Create a Pulse collection
    * @param config object
