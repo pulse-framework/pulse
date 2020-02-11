@@ -15,9 +15,10 @@ export class State {
   public previousState: any = null;
   public dep: Dep = null;
   public nextState: any = null;
-  public isSet: boolean = false;
-  public exists: boolean = false;
+  public isSet: boolean = false; // has been changed from inital value
+  public exists: boolean = false; // is value truthey or falsey
   public storageKey: string;
+  public valueType: string;
   // Mutation method returns new value, can be overwritten by extended classes.
   public mutation: () => any;
 
@@ -27,6 +28,7 @@ export class State {
   public get bind(): any {
     return this.masterValue;
   }
+  private watchers: { [key: string]: any };
   constructor(public instance: () => Pulse, public initalState: any, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
     this.privateWrite(initalState);
@@ -65,9 +67,21 @@ export class State {
     this.storageKey = key;
   }
   public type(type: any): this {
+    const supportedConstructors = ['String', 'Boolean', 'Array', 'Object', 'Number'];
+    if (typeof type === 'function' && supportedConstructors.includes(type.name)) {
+      this.valueType = type.name.toLowerCase();
+    }
     return this;
   }
-  public watch(func: Function): this {
+  public watch(key: number | string, callback: Function): this {
+    if (typeof key !== 'string' || typeof key !== 'number' || typeof callback !== 'function') {
+      console.error('Pulse watch, missing key or function');
+    }
+
+    this.watchers[key] = callback;
+    return this;
+  }
+  public removeWatcher(key: number | string): this {
     return this;
   }
   public toggle(): this {
@@ -87,9 +101,14 @@ export class State {
     return copy(this.masterValue);
   }
 
+  public is(x: any) {
+    return this.masterValue === x;
+  }
+
   public privateWrite(value: any): void {
     this.exists = !!value;
     this.masterValue = value;
+
     if (this.storageKey) this.instance().storage.set(this.storageKey, value);
   }
   public relate(state: State | Array<State>) {
