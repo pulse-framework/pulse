@@ -86,7 +86,10 @@ export function usePulse(
     return () => pulseInstance.subController.unsubscribe(cC);
   }, []);
 
-  return depsArray.map(dep => dep.value);
+  return depsArray.map(dep => {
+    if (dep instanceof State) return dep.value;
+    return dep;
+  });
 }
 
 export default {
