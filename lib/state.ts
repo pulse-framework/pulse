@@ -114,6 +114,10 @@ export class State {
     this.exists = !!value;
     this.masterValue = value;
 
+    for (let watcher in this.watchers) {
+      if (typeof this.watchers[watcher] === 'function') this.watchers[watcher](value);
+    }
+
     if (this.storageKey) this.instance().storage.set(this.storageKey, value);
   }
   public relate(state: State | Array<State>) {

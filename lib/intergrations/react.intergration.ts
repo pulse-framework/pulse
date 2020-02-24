@@ -50,9 +50,25 @@ function ReactWrapper(
   };
 }
 
-export function usePulse(deps: Array<State> | State, pulseInstance?: Pulse): Array<State> {
-  let depsArray = normalizeDeps(deps);
+type keyedState = { [key: string]: State };
+
+export function usePulse(
+  deps: Array<State | keyedState> | State,
+  pulseInstance?: Pulse
+): Array<any> {
+  let depsArray = normalizeDeps(deps as Array<State>);
   if (!pulseInstance) pulseInstance = getInstance(depsArray[0]);
+
+  let depsArrayFinal: Array<State> = [];
+
+  // this allows you to pass in a keyed object of States and subscribe to all  State within the first level of the object. Useful if you wish to subscribe a component to several State instances at the same time.
+  depsArray.forEach(dep => {
+    if (dep instanceof State) depsArrayFinal.push(dep);
+    else if (typeof dep === 'object')
+      for (let d in dep as keyedState) {
+        if ((dep[d] as any) instanceof State) depsArrayFinal.push(dep[d]);
+      }
+  });
 
   // get React constructor
   const React = pulseInstance.intergration.frameworkConstructor;
@@ -70,7 +86,7 @@ export function usePulse(deps: Array<State> | State, pulseInstance?: Pulse): Arr
     return () => pulseInstance.subController.unsubscribe(cC);
   }, []);
 
-  return depsArray;
+  return depsArray.map(dep => dep.value);
 }
 
 export default {
