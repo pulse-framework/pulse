@@ -76,8 +76,9 @@ export class Collection {
    * Return an item from this collection by primaryKey as Data instance (extends State)
    * @param {(number|string)} primaryKey - The primary key of the data
    */
-  public findById(id: number | string): State {
-    return this.data[id];
+  public findById(id: PrimaryKey | State): State {
+    if (id instanceof State) id = id.value;
+    return this.data[id as PrimaryKey];
   }
 
   /**

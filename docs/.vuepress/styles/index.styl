@@ -1,3 +1,13 @@
+$pulseRed = #EF425A;
+$pulseRedLighter = #ff8c9e;
+$pulseCodeBackground = #282e3f;
+$pulseGrey = #7e9ab3;
+$pulseFaint = #526577;
+$pulseGreen = #28EBB0;
+$pulseYellow = #FFD696;
+$pulseWhite = #F7F8F8;
+$pulseLightBlue = #B6DCFF;
+
 pre.vue-container
   border-left-width: .5rem;
   border-left-style: solid;
@@ -20,7 +30,8 @@ pre.vue-container
       font-weight light;
     strong 
       color #fff;
-      
+
+ 
 
 // body, .sidebar, .navbar, .navbar .links {
 //   background-color: #1d1d1d !important;
@@ -29,3 +40,99 @@ pre.vue-container
 //   background: #1d1d1d !important;
 // }
 
+pre
+    background-color $pulseCodeBackground !important;
+    code 
+        color #CDD8E1 !important;
+
+.token.comment
+    color $pulseFaint;
+
+.token.prolog,
+.token.doctype,
+.token.cdata
+    color $pulseGrey;
+
+.token.boolean,
+.token.string
+    color $pulseYellow
+
+
+.token.constant,
+.token.class-name
+    color $pulseRedLighter
+
+.token.function
+    color $pulseGreen;
+
+.token.keyword,
+.token.entity,
+.token.url,
+.token.attr-value,
+.token.control,
+.token.directive,
+.token.unit,
+.token.statement,
+.token.regex,
+.token.operator,
+.token.atrule
+    color $pulseGrey;
+
+.token.property
+    color $pulseWhite;
+
+.token.tag-id,
+.token.selector,
+.token.atrule-id
+    color #fff3eb
+
+code.language-javascript,
+.token.attr-name,
+
+    color #a48774
+
+    // color $pulseYellow
+
+
+// .token.tag,
+// .token.number
+//     color #bfa05sa
+
+// .token.placeholder,
+// .token.variable
+//     color red
+
+// .token.important,
+// .token.bold
+//     font-weight bold
+
+// .line-numbers
+//     .line-numbers-rows
+//         border-right-color #35302b
+
+// .line-numbers-rows
+//     & > span
+//         &:before
+//             color #46403d
+
+// .line-highlight
+//     background rgba(191, 160, 90, 0.2)
+//     background -webkit-linear-gradient(left, rgba(191, 160, 90, 0.2) 70%, rgba(191, 160, 90, 0))
+//     background linear-gradient(to right, rgba(191, 160, 90, 0.2) 70%, rgba(191, 160, 90, 0))
+
+.token
+    &.punctuation
+        color #7e9ab3;
+    &.namespace
+        opacity .7;
+    &.deleted
+        text-decoration line-through;
+    &.inserted
+        border-bottom 1px dotted #fff3eb;
+        text-decoration none;
+    &.italic
+        font-style italic;
+    &.important
+        color #a48774;
+    &.entity
+        cursor help;

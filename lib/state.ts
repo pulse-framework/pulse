@@ -28,7 +28,7 @@ export class State {
   public get bind(): any {
     return this.masterValue;
   }
-  private watchers: { [key: string]: any };
+  private watchers: { [key: string]: any } = {};
   constructor(public instance: () => Pulse, public initalState: any, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
     this.privateWrite(initalState);

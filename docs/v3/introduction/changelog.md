@@ -13,7 +13,7 @@ This is a new syntax, so if you're migrating from older versions your code will 
 ```js
 const App = new Pulse();
 
-const hello = App.State('beans');
+const CEREAL = App.State('with milk');
 ```
 
 ### :gem: New Features
@@ -43,19 +43,19 @@ export const core = {
 - **State** is now a class with methods to **set**, **read**, **undo**, etc... Previously in Pulse this was referred to as _data_ and was part of a _collection_ or _module_, but now it is free.
 
 ```js
-const myState = App.state(true).type(boolean);
+const STATE = App.state(true).type(Boolean);
 
-myState.set();
-myState.value; // static value
-myState.undo();
-myState.persist();
-myState.bind; // reactive value
+STATE.set();
+STATE.value; // static value
+STATE.undo();
+STATE.persist();
+STATE.bind; // reactive value
 ```
 
 Methods are chainable too!
 
 ```js
-myState
+STATE
   .type() // define type of state
   .set() // mutate state
   .persist() // save to local storage
@@ -80,8 +80,8 @@ export function getCool(): void {
 }
 
 // route
-export async function moreJuice(): JuiceType {
-  return (await API.get('fountain/juice')).data;
+export async function moreJuice(): Juice {
+  return (await API.get('fountain/juice')).data.juice;
 }
 ```
 
