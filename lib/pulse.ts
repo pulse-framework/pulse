@@ -4,7 +4,7 @@ import Computed from './computed';
 import Collection from './collection/collection';
 import SubController from './sub';
 import Runtime from './runtime';
-import Storage from './storage';
+import Storage, { StorageMethods } from './storage';
 import API, { apiConfig } from './api/api';
 import Group from './collection/group';
 import use, { Intergration } from './intergrations/use';
@@ -44,7 +44,7 @@ export default class Pulse {
    * Create Pulse state
    * @param initialState Any - the value to initialze a State instance with
    */
-  public State = (initialState: any) => new State(() => this, initialState);
+  public State = <T>(initial: T) => new State<T>(() => this, initial);
   /**
    * Create many Pulse states at the same time
    * @param stateGroup Object with keys as state name and values as initial state
@@ -70,6 +70,9 @@ export default class Pulse {
    * @param Items Array of items to reset
    */
   public reset(items: Array<State | Group | Collection>): void {}
+  public setStorage(storageConfig: StorageMethods): void {
+    this.storage = new Storage(this, storageConfig);
+  }
 
   /**
    * Global refrence to the first pulse instance created this runtime

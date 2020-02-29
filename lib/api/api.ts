@@ -15,9 +15,10 @@ export interface apiConfig {
 }
 
 export default class API {
-  constructor(private config: apiConfig) {
+  constructor(public config: apiConfig) {
     if (!config.options) config.options = {};
   }
+
   /**
    * Override API config and request options. Returns a modified instance this API with overrides applied.
    * @param config - O
@@ -46,11 +47,7 @@ export default class API {
     return this.send('DELETE', endpoint, payload);
   }
 
-  private async send(
-    method: string,
-    endpoint,
-    payload?: any
-  ): Promise<PulseResponse> {
+  private async send(method: string, endpoint, payload?: any): Promise<PulseResponse> {
     // initial definitions
     let fullUrl: string,
       data: any,
@@ -59,8 +56,17 @@ export default class API {
 
     // inject method into request options
     config.options.method = method;
-    // inject body if not get method
-    config.options.body = method === 'get' ? null : JSON.stringify(payload);
+
+    if (!config.options.headers) config.options.headers = {};
+
+    if (typeof payload === 'object') {
+      // inject body if not get method
+      config.options.body = JSON.stringify(payload);
+      // auto set header to application/json
+      if (!config.options.headers.hasOwnProperty('content-type')) {
+        config.options.headers['content-type'] = 'application/json';
+      }
+    } else config.options.body = payload;
 
     // construct endpoint
     if (endpoint.startsWith('http')) fullUrl = endpoint;
@@ -68,17 +74,17 @@ export default class API {
 
     if (config.requestIntercept) config.requestIntercept(config.options);
 
-    // perform request
     if (this.config.timeout) {
       response = await Promise.race([
         fetch(fullUrl, this.config.options),
         new Promise((resolve, reject) =>
-          setTimeout(() => reject('timeout'), this.config.timeout)
+          setTimeout(() => reject(new Error('timeout')), this.config.timeout)
         )
       ]);
     } else {
       response = await fetch(fullUrl, this.config.options);
     }
+    // perform request
 
     // if we got here, PulseResponse is the actual response object
     let res = response as PulseResponse;

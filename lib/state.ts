@@ -1,20 +1,21 @@
 import Dep from './dep';
 import Pulse from './';
 import { copy } from './utils';
+import { deepmerge } from './helpers/deepmerge';
 
-export class State {
-  public masterValue: any = null;
-  public set value(val: any) {
+export class State<ValueType = any> {
+  public masterValue: ValueType = null;
+  public set value(val: ValueType) {
     this.masterValue = val;
   }
-  public get value(): any {
+  public get value(): ValueType {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this.masterValue;
   }
   // public value: any = null;
-  public previousState: any = null;
+  public previousState: ValueType = null;
   public dep: Dep = null;
-  public nextState: any = null;
+  public nextState: ValueType = null;
   public isSet: boolean = false; // has been changed from inital value
   public exists: boolean = false; // is value truthey or falsey
   public storageKey: string;
@@ -22,14 +23,14 @@ export class State {
   // Mutation method returns new value, can be overwritten by extended classes.
   public mutation: () => any;
 
-  public set bind(value: any) {
+  public set bind(value: ValueType) {
     this.set(value);
   }
-  public get bind(): any {
+  public get bind(): ValueType {
     return this.masterValue;
   }
   private watchers: { [key: string]: any } = {};
-  constructor(public instance: () => Pulse, public initalState: any, deps: Array<Dep> = []) {
+  constructor(public instance: () => Pulse, public initalState, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
     this.privateWrite(initalState);
     this.nextState = copy(initalState);
@@ -47,6 +48,8 @@ export class State {
     return this;
   }
   public patch(targetWithChange): this {
+    if (!(typeof this.masterValue === 'object')) return this;
+    const newVal = deepmerge(this.value, targetWithChange);
     return this;
   }
   public interval(setFunc: (currentValue: any) => any, ms?: number): this {
@@ -73,9 +76,9 @@ export class State {
     }
     return this;
   }
-  public watch(key: number | string, callback: Function): this {
+  public watch(key: number | string, callback: (value: any) => void): this {
     if (typeof key !== 'string' || typeof key !== 'number' || typeof callback !== 'function') {
-      console.error('Pulse watch, missing key or function');
+      // console.error('Pulse watch, missing key or function');
     }
 
     this.watchers[key] = callback;

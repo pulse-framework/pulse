@@ -1,6 +1,7 @@
 import Pulse from './';
 
-interface StorageMethods {
+export interface StorageMethods {
+  type?: 'custom' | 'localStorage';
   async?: boolean;
   get?: any;
   set?: any;
@@ -12,12 +13,8 @@ export default class Storage {
   private storageReady: boolean = false;
   private storageType: 'localStorage' | 'custom' = 'localStorage';
   private storagePrefix: string = 'pulse';
-  constructor(
-    private instance: Pulse,
-    private storageMethods: StorageMethods = {}
-  ) {
-    if (this.instance.config.storagePrefix)
-      this.storagePrefix = this.instance.config.storagePrefix;
+  constructor(private instance: Pulse, private storageMethods: StorageMethods = {}) {
+    if (this.instance.config.storagePrefix) this.storagePrefix = this.instance.config.storagePrefix;
 
     if (storageMethods.async) this.isPromise = true;
 
