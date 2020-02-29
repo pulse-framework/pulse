@@ -1,7 +1,7 @@
 import Pulse from './';
 import { State } from './';
 
-export class Computed extends State {
+export class Computed<ComputedValueType = any> extends State<ComputedValueType> {
   private func: Function;
   private cleanup: Set<State> = new Set();
   constructor(instance: () => Pulse, func: Function, deps?: Array<State>) {
