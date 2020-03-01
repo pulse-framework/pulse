@@ -1,5 +1,5 @@
-import Pulse, { State, Collection } from '.';
-
+import Pulse, { Collection } from '.';
+import State from './state';
 export function cleanState(state: State): any {
   return {
     value: state.value,

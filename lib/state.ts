@@ -1,5 +1,5 @@
 import Dep from './dep';
-import Pulse from './';
+import Pulse from './pulse';
 import { copy } from './utils';
 import { deepmerge } from './helpers/deepmerge';
 
@@ -18,7 +18,8 @@ export class State<ValueType = any> {
   public nextState: ValueType = null;
   public isSet: boolean = false; // has been changed from inital value
   public exists: boolean = false; // is value truthey or falsey
-  public storageKey: string;
+  public persistState: boolean = false;
+  public name: string;
   public valueType: string;
   // Mutation method returns new value, can be overwritten by extended classes.
   public mutation: () => any;
@@ -39,7 +40,7 @@ export class State<ValueType = any> {
    * Directly set state to a new value, if nothing is passed in State.nextState will be used as the next value
    * @param {Object} newState - The new value for this state
    */
-  public set(newState?: any): this {
+  public set(newState?: ValueType): this {
     // ingest update using most basic mutation method
     this.instance().runtime.ingest(this, newState);
 
@@ -60,14 +61,20 @@ export class State<ValueType = any> {
   }
   public persist(key): this {
     if (!key) console.error('Pulse persist error: Missing storage key');
-    this.storageKey = key;
-    let value = this.instance().storage.get(this.storageKey);
+    this.name = key;
+    this.persistState = true;
+    if (this.masterValue === undefined || this.masterValue === null) {
+      this.instance().storage.remove(key);
+      return;
+    }
+    let value = this.instance().storage.get(this.name);
     if (value) this.instance().runtime.ingest(this, value);
-    else this.instance().storage.set(this.storageKey, this.value);
+    else this.instance().storage.set(this.name, this.value);
     return this;
   }
-  public key(key: string): void {
-    this.storageKey = key;
+  public key(key: string): this {
+    // this.name = key;
+    return this;
   }
   public type(type: any): this {
     const supportedConstructors = ['String', 'Boolean', 'Array', 'Object', 'Number'];
@@ -96,7 +103,7 @@ export class State<ValueType = any> {
     this.isSet = false;
     this.previousState = null;
     this.privateWrite(this.initalState);
-    this.instance().storage.remove(this.storageKey);
+    if (this.persistState) this.instance().storage.remove(this.name);
     return this;
   }
 
@@ -121,7 +128,7 @@ export class State<ValueType = any> {
       if (typeof this.watchers[watcher] === 'function') this.watchers[watcher](value);
     }
 
-    if (this.storageKey) this.instance().storage.set(this.storageKey, value);
+    if (this.persistState) this.instance().storage.set(this.name, value);
   }
   public relate(state: State | Array<State>) {
     if (!Array.isArray(state)) state = [state];
@@ -141,7 +148,7 @@ export const StateGroup = (instance: () => Pulse, stateGroup: Object): any => {
   let group: any = {};
   for (let name in stateGroup) {
     group[name] = new State(instance, stateGroup[name]);
-    group[name].storageKey = name;
+    group[name].key = name;
   }
   return group;
 };

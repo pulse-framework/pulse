@@ -1,5 +1,5 @@
-import Pulse from './';
-import { State } from './';
+import State from './state';
+import Pulse from './pulse';
 
 export class Computed<ComputedValueType = any> extends State<ComputedValueType> {
   private func: Function;

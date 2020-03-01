@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "es2015",
     "jsx": "preserve",
     "esModuleInterop": true,
     "moduleResolution": "node",

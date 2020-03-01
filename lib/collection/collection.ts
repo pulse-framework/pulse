@@ -1,4 +1,5 @@
-import Pulse, { State } from '../';
+import Pulse from '../';
+import State from '../state';
 import Group, { PrimaryKey, GroupName } from './group';
 import { defineConfig, normalizeGroups } from '../utils';
 import { deepmerge } from '../helpers/deepmerge';
@@ -78,6 +79,9 @@ export class Collection {
    */
   public findById(id: PrimaryKey | State): State {
     if (id instanceof State) id = id.value;
+    if (!this.data.hasOwnProperty(id as PrimaryKey)) {
+      return new State(this.instance, undefined);
+    }
     return this.data[id as PrimaryKey];
   }
 

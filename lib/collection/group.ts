@@ -1,5 +1,6 @@
 import Dep from '../dep';
-import Pulse, { State } from '../';
+import Pulse from '../pulse';
+import State from '../state';
 import Collection from './collection';
 
 export type PrimaryKey = string | number;

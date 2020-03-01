@@ -1,5 +1,4 @@
 import State, { StateGroup } from './state';
-import deepmerge from 'deepmerge';
 import Computed from './computed';
 import Collection from './collection/collection';
 import SubController from './sub';
@@ -89,7 +88,7 @@ export default class Pulse {
 
 // Handy utils
 export function persist(items: Array<State>): void {
-  items.forEach(item => item.persist(item.storageKey));
+  items.forEach(item => item.persist(item.key));
 }
 
 type Ojb = { [key: string]: any };
