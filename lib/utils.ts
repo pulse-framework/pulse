@@ -7,7 +7,7 @@ export function cleanState(state: State): any {
     isSet: state.isSet,
     dependents: state.dep.deps.size,
     subscribers: state.dep.subs.size,
-    storageKey: state.storageKey
+    name: state.name
   };
 }
 
