@@ -19,7 +19,7 @@ export default class Runtime {
   public ingest(state: State, newState?: any): void {
     let job: Job = { state, newState };
     // grab nextState if newState not passed
-    if (!arguments[1]) job.newState = job.state.nextState;
+    if (arguments[1] === undefined) job.newState = job.state.nextState;
 
     this.queue.push(job);
 

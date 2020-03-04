@@ -134,6 +134,8 @@ export class State<ValueType = any> {
     }
 
     if (this.persistState) this.instance().storage.set(this.name, value);
+
+    // console.log(`STATE "${this.name}" changed`, this.masterValue);
   }
   public relate(state: State | Array<State>) {
     if (!Array.isArray(state)) state = [state];
