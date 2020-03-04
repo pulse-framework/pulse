@@ -71,7 +71,10 @@ export default class Pulse {
    */
   public reset(items: Array<State | Group | Collection>): void {}
   public setStorage(storageConfig: StorageMethods): void {
+    const persistedState = this.storage.persistedState;
     this.storage = new Storage(this, storageConfig);
+    this.storage.persistedState = persistedState;
+    this.storage.persistedState.forEach(state => state.persist(state.name));
   }
 
   /**
@@ -88,7 +91,7 @@ export default class Pulse {
 
 // Handy utils
 export function persist(items: Array<State>): void {
-  items.forEach(item => item.persist(item.key));
+  items.forEach(item => item.persist(item.name));
 }
 
 type Ojb = { [key: string]: any };

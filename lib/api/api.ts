@@ -4,6 +4,7 @@ type Body = { [key: string]: any };
 
 interface PulseResponse extends Response {
   data?: any;
+  timedout?: boolean;
 }
 
 export interface apiConfig {
@@ -74,17 +75,26 @@ export default class API {
 
     if (config.requestIntercept) config.requestIntercept(config.options);
 
-    if (this.config.timeout) {
-      response = await Promise.race([
-        fetch(fullUrl, this.config.options),
-        new Promise((resolve, reject) =>
-          setTimeout(() => reject(new Error('timeout')), this.config.timeout)
-        )
-      ]);
-    } else {
-      response = await fetch(fullUrl, this.config.options);
+    try {
+      if (this.config.timeout) {
+        response = await Promise.race([
+          fetch(fullUrl, this.config.options),
+          setTimeout(
+            () =>
+              Promise.reject(() => {
+                const timeoutError: PulseResponse = Response.error();
+                timeoutError.timedout = true;
+                return timeoutError;
+              }),
+            this.config.timeout
+          )
+        ]);
+      } else {
+        response = await fetch(fullUrl, this.config.options);
+      }
+    } catch (e) {
+      response = Response.error();
     }
-    // perform request
 
     // if we got here, PulseResponse is the actual response object
     let res = response as PulseResponse;

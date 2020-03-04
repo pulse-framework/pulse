@@ -1,4 +1,4 @@
-import Pulse from './';
+import Pulse, { State } from './';
 
 export interface StorageMethods {
   type?: 'custom' | 'localStorage';
@@ -9,10 +9,11 @@ export interface StorageMethods {
 }
 
 export default class Storage {
-  private isPromise: boolean = false;
+  public isPromise: boolean = false;
   private storageReady: boolean = false;
   private storageType: 'localStorage' | 'custom' = 'localStorage';
   private storagePrefix: string = 'pulse';
+  public persistedState: Set<State> = new Set();
   constructor(private instance: Pulse, private storageMethods: StorageMethods = {}) {
     if (this.instance.config.storagePrefix) this.storagePrefix = this.instance.config.storagePrefix;
 

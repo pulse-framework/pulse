@@ -59,17 +59,21 @@ export class State<ValueType = any> {
     }, ms || 1000);
     return this;
   }
-  public persist(key): this {
-    if (!key) console.error('Pulse persist error: Missing storage key');
-    this.name = key;
+  public persist(key: string): this {
     this.persistState = true;
-    if (this.masterValue === undefined || this.masterValue === null) {
-      this.instance().storage.remove(key);
-      return;
+    this.name = key;
+    const storage = this.instance().storage;
+    storage.persistedState.add(this);
+    if (storage.isPromise) {
+      storage.get(this.name).then((val: ValueType) => {
+        if (val === null) storage.set(this.name, this.value);
+        this.instance().runtime.ingest(this, val);
+      });
+    } else {
+      let value = storage.get(this.name);
+      if (value === null) storage.set(this.name, this.value);
+      else this.instance().runtime.ingest(this, value);
     }
-    let value = this.instance().storage.get(this.name);
-    if (value) this.instance().runtime.ingest(this, value);
-    else this.instance().storage.set(this.name, this.value);
     return this;
   }
   public key(key: string): this {
@@ -148,7 +152,7 @@ export const StateGroup = (instance: () => Pulse, stateGroup: Object): any => {
   let group: any = {};
   for (let name in stateGroup) {
     group[name] = new State(instance, stateGroup[name]);
-    group[name].key = name;
+    group[name].name = name;
   }
   return group;
 };
