@@ -7,7 +7,7 @@ export type PrimaryKey = string | number;
 export type GroupName = string | number;
 export type Index = Array<PrimaryKey>;
 
-export default class Group extends State {
+export default class Group extends State<Array<PrimaryKey>> {
   masterOutput: Array<any> = [];
   public get output(): Array<any> {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);

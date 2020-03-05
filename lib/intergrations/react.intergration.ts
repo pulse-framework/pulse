@@ -88,7 +88,7 @@ export function usePulse(
   }, []);
 
   return depsArray.map(dep => {
-    if (dep instanceof State && dep.hasOwnProperty('output')) return dep['output'];
+    if (dep instanceof State && (dep as Group).output) return dep['output'];
     else if (dep instanceof State) return dep.value;
     return dep;
   });
