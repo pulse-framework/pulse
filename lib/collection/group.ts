@@ -8,21 +8,24 @@ export type GroupName = string | number;
 export type Index = Array<PrimaryKey>;
 
 export default class Group extends State {
-  private func: Function;
-  output: Array<any> = null;
+  masterOutput: Array<any> = [];
+  public get output(): Array<any> {
+    if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
+    return this.masterOutput;
+  }
   constructor(private collection: () => Collection) {
     super(() => collection().instance(), []);
 
-    this.mutation = () => this.build(this.value);
+    this.sideEffects = () => this.build();
 
     // initial build
-    this.build(this.value);
+    this.build();
   }
-  public build(newIndex: Index) {
-    let group = newIndex.map(primaryKey => {
-      return this.collection().data[primaryKey];
+  public build() {
+    let group = this.masterValue.map(primaryKey => {
+      return this.collection().data[primaryKey].value;
     });
-    this.output = group;
+    this.masterOutput = group;
   }
   public has(primaryKey: PrimaryKey) {
     return this.value.includes(primaryKey) || false;

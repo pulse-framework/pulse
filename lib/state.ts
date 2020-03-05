@@ -12,17 +12,19 @@ export class State<ValueType = any> {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this.masterValue;
   }
-  // public value: any = null;
+  public watchers: { [key: string]: any } = {};
   public previousState: ValueType = null;
   public dep: Dep = null;
   public nextState: ValueType = null;
   public isSet: boolean = false; // has been changed from inital value
   public exists: boolean = false; // is value truthey or falsey
   public persistState: boolean = false;
-  public name: string;
-  public valueType: string;
-  // Mutation method returns new value, can be overwritten by extended classes.
-  public mutation: () => any;
+  public name?: string;
+  public valueType?: string;
+  // sideEffects can be set by extended classes, such as Groups to build their output.
+  public sideEffects?: Function;
+  // mutation is the method to return a new value. it is undefined in State but can be used by extended classes such as Computed, which creates it's own value
+  public mutation?: () => any;
 
   public set bind(value: ValueType) {
     this.set(value);
@@ -30,7 +32,6 @@ export class State<ValueType = any> {
   public get bind(): ValueType {
     return this.masterValue;
   }
-  private watchers: { [key: string]: any } = {};
   constructor(public instance: () => Pulse, public initalState, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
     this.privateWrite(initalState);

@@ -2,6 +2,7 @@ import Pulse from '..';
 import State from '../state';
 import { ComponentContainer } from '../sub';
 import { normalizeDeps, getInstance } from '../utils';
+import Group from '../collection/group';
 
 type NamedStateObject = { [key: string]: State };
 
@@ -87,7 +88,8 @@ export function usePulse(
   }, []);
 
   return depsArray.map(dep => {
-    if (dep instanceof State) return dep.value;
+    if (dep instanceof State && dep.hasOwnProperty('output')) return dep['output'];
+    else if (dep instanceof State) return dep.value;
     return dep;
   });
 }

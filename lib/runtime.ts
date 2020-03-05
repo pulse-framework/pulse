@@ -1,6 +1,7 @@
 import Pulse, { State, Computed } from './';
 import { copy } from './utils';
 import { CallbackContainer, ComponentContainer, SubscriptionContainer } from './sub';
+import Group from './collection/group';
 
 export interface Job {
   state: State;
@@ -64,11 +65,13 @@ export default class Runtime {
     });
     dep.dynamic = new Set();
 
+    // this should not be used on root state class as it would be overwritten by extentions
+    // this is used mainly to cause group to generate its output after changing
+    if (typeof state.sideEffects === 'function') state.sideEffects();
+
     // ingest dependents
     dep.deps.forEach(state => {
-      // if (state instanceof Computed) {
       this.ingest(state, state.mutation());
-      // }
     });
   }
 

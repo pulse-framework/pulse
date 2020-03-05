@@ -37,6 +37,7 @@ export class Collection {
     if (this.groups.hasOwnProperty(groupName))
       console.error(`Pulse Collection: Group ${groupName} already exists`);
     let group = new Group(() => this);
+    group.name = groupName as string;
     this.groups[groupName] = group;
   }
 
