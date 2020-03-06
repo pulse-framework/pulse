@@ -1,7 +1,7 @@
 ---
 home: true
 # actionText: Documentation →
-# actionLink: /v2/
+# actionLink: /v3/
 footer: MIT Licensed | Copyright © 2020 - Jamie Pine
 ---
 
@@ -10,8 +10,8 @@ footer: MIT Licensed | Copyright © 2020 - Jamie Pine
 ### :tada: Pulse 3 is coming! [See whats new...](/v3/introduction/changelog.html)
 
 Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginners.
-<div style="word-spacing: 1em; margin-top:20px">
-<a href="/v2/introduction/what-is-pulse.html">Documentation</a> <a href="/v2/introduction/changelog.html">Changelog</a>
+<div style="word-spacing: 1em; margin-top:20px">/
+<a href="/v3/introduction/what-is-pulse.html">Documentation</a> <a href="/v3/introduction/changelog.html">Changelog</a>
 </div>
 </center>
 <br />
