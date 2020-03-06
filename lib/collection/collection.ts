@@ -188,7 +188,7 @@ export class Collection {
         let group = this.getGroup(groupName);
 
         if (group.has(primaryKey)) {
-          group.nextState.groupsToRegen.add(group);
+          groupsToRegen.add(group);
         }
       });
     });
