@@ -9,6 +9,7 @@ export type Index = Array<PrimaryKey>;
 
 export default class Group extends State<Array<PrimaryKey>> {
   masterOutput: Array<any> = [];
+  missingPrimaryKeys: Array<PrimaryKey> = [];
   public get output(): Array<any> {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this.masterOutput;
@@ -18,13 +19,23 @@ export default class Group extends State<Array<PrimaryKey>> {
 
     this.sideEffects = () => this.build();
 
+    this.mutation = () => this.value;
+
     // initial build
     this.build();
   }
   public build() {
-    let group = this.masterValue.map(primaryKey => {
-      return this.collection().data[primaryKey].value;
-    });
+    this.missingPrimaryKeys = [];
+    let group = this.masterValue
+      .map(primaryKey => {
+        let data = this.collection().data[primaryKey];
+        if (!data) {
+          this.missingPrimaryKeys.push(primaryKey);
+          return undefined;
+        }
+        return this.collection().data[primaryKey].value;
+      })
+      .filter(item => item !== undefined);
     this.masterOutput = group;
   }
   public has(primaryKey: PrimaryKey) {
