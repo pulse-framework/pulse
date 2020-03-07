@@ -19,8 +19,8 @@ export interface CollectionConfig {
 
 export class Collection<DataType = DefaultDataItem> {
   public config: CollectionConfig;
-  public groups: { [key: string]: Group } = {};
-  public data: { [key: string]: Data } = {};
+  public groups: { [key: string]: Group<DataType> } = {};
+  public data: { [key: string]: Data<DataType> } = {};
   public size: number = 0;
   constructor(public instance: () => Pulse, config?: CollectionConfig) {
     this.config = defineConfig(config, {
