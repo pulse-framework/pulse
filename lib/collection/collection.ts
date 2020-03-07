@@ -4,23 +4,23 @@ import Group, { PrimaryKey, GroupName } from './group';
 import { defineConfig, normalizeGroups } from '../utils';
 import { deepmerge } from '../helpers/deepmerge';
 import { normalizeArray } from '../helpers/handy';
+import Computed from '../computed';
+import Data from './s';
 
+export interface DefaultDataItem {
+  [key: string]: any;
+}
 export interface CollectionConfig {
   groups: Array<string>;
   primaryKey: string | number;
   model?: Object;
 }
 // Extend State class for custom logic
-export class Data extends State {
-  constructor(private collection: Collection, data: { [key: string]: any }) {
-    super(collection.instance, data);
-  }
-}
 
-export class Collection {
+export class Collection<DataType = DefaultDataItem> {
   public config: CollectionConfig;
   public groups: { [key: string]: Group } = {};
-  public data: { [key: string]: State } = {};
+  public data: { [key: string]: Data } = {};
   public size: number = 0;
   constructor(public instance: () => Pulse, config?: CollectionConfig) {
     this.config = defineConfig(config, {
@@ -36,16 +36,17 @@ export class Collection {
   public createGroup(groupName: GroupName) {
     if (this.groups.hasOwnProperty(groupName))
       console.error(`Pulse Collection: Group ${groupName} already exists`);
-    let group = new Group(() => this);
+    let group = new Group<DataType>(() => this);
     group.name = groupName as string;
     this.groups[groupName] = group;
   }
 
   // save data directly into collection storage
-  public saveData(data: { [key: string]: any }): PrimaryKey {
-    this.data[data[this.config.primaryKey]] = new Data(this, data);
+  public saveData(data: DataType): PrimaryKey {
+    let key = this.config.primaryKey;
+    this.data[data[key]] = new Data<DataType>(this, data);
     this.size++;
-    return data[this.config.primaryKey];
+    return data[key];
   }
 
   /**
@@ -55,14 +56,14 @@ export class Collection {
    * @param {(Array<string>|string)} groups - Array of group names or single group name
    */
 
-  public collect(items: any | Array<any>, groups: GroupName | Array<GroupName>): void {
-    items = normalizeArray(items);
+  public collect(items: DataType | Array<DataType>, groups: GroupName | Array<GroupName>): void {
+    let _items = normalizeArray(items);
     groups = normalizeArray(groups);
 
     // if any of the groups don't already exist, create them
     groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
 
-    items.forEach(item => {
+    _items.forEach(item => {
       let key = this.saveData(item);
       (groups as Array<string>).forEach(groupName => {
         let group = this.groups[groupName];
@@ -78,10 +79,10 @@ export class Collection {
    * Return an item from this collection by primaryKey as Data instance (extends State)
    * @param {(number|string)} primaryKey - The primary key of the data
    */
-  public findById(id: PrimaryKey | State): State {
+  public findById(id: PrimaryKey | State): Data {
     if (id instanceof State) id = id.value;
     if (!this.data.hasOwnProperty(id as PrimaryKey)) {
-      return new State(this.instance, undefined);
+      return new Data(this, undefined);
     }
     return this.data[id as PrimaryKey];
   }
@@ -137,6 +138,10 @@ export class Collection {
 
     // return the Data instance
     return this.data[final[primary]];
+  }
+
+  public compute(func: (data: DataType) => DataType): void {
+    for (let groupName in this.groups) this.groups[groupName].compute(func);
   }
 
   public put(
@@ -206,6 +211,13 @@ export class Collection {
 
     return true;
   }
+
+  // public findGroupsToUpdate(primaryKeysChanged: Array<PrimaryKey>) {
+  //   let groupsToRegen
+  //   for (let groupName in this.groups) {
+
+  //   }
+  // }
 
   private updateDataKey(oldKey: PrimaryKey, newKey: PrimaryKey): void {
     // create copy of data

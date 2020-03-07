@@ -62,7 +62,7 @@ export default class Pulse {
    * @param config.primaryKey The primary key for the collection.
    * @param config.groups Define groups for this collection.
    */
-  public Collection = (config: any) => new Collection(() => this, config);
+  public Collection = <V>(config: any) => new Collection<V>(() => this, config);
   /**
    * Reset to initial state.
    * - Supports: State, Collections and Groups

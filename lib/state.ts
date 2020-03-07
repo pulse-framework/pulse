@@ -12,6 +12,7 @@ export class State<ValueType = any> {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this.masterValue;
   }
+  public output?: any;
   public watchers: { [key: string]: any } = {};
   public previousState: ValueType = null;
   public dep: Dep = null;
@@ -48,6 +49,10 @@ export class State<ValueType = any> {
     this.isSet = true;
 
     return this;
+  }
+  public getPublicValue() {
+    if (this.output !== undefined) return this.output;
+    return this.masterValue;
   }
   public patch(targetWithChange): this {
     if (!(typeof this.masterValue === 'object')) return this;
@@ -142,7 +147,7 @@ export class State<ValueType = any> {
     if (!Array.isArray(state)) state = [state];
 
     // add this to foriegn dep
-    state.forEach(state => state && state.dep.deps.add(this));
+    state.forEach(state => state && state.dep.depend(this));
 
     // refrence foriegn dep locally for cleanup
     this.dep.dynamic.add(this);

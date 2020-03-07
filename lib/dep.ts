@@ -9,4 +9,9 @@ export default class Dep {
   constructor(initialDeps?: Array<Dep>) {
     if (initialDeps) initialDeps.forEach(dep => this.deps.add(dep));
   }
+
+  public depend(instance: State) {
+    if (instance.dep === this) return;
+    this.deps.add(instance);
+  }
 }

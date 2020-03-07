@@ -1,29 +1,23 @@
 import State from './state';
 import Pulse from './pulse';
+import Dep from './dep';
 
 export class Computed<ComputedValueType = any> extends State<ComputedValueType> {
-  private func: Function;
-  private cleanup: Set<State> = new Set();
-  constructor(instance: () => Pulse, func: Function, deps?: Array<State>) {
+  // private cleanup: Set<State> = new Set();
+  constructor(public instance: () => Pulse, public func: Function, public deps?: Array<State>) {
     super(instance, instance().config.computedDefault || null);
 
-    this.func = func;
-
-    if (deps) deps.forEach(state => state.dep.deps.add(this));
-
+    if (deps) deps.forEach(state => state.dep.depend(this));
     this.mutation = () => {
-      if (deps) return this.func();
-      else {
-        this.instance().runtime.trackState = true;
-        let result = this.func();
-        let found = this.instance().runtime.getFoundState();
-        found.forEach(state => state.dep.deps.add(this));
-        return result;
-      }
+      if (deps) return func();
+      instance().runtime.trackState = true;
+      const computed = func();
+      let dependents = instance().runtime.getFoundState();
+      dependents.forEach(state => state.dep.depend(this));
+      return computed;
     };
-
-    // initial
     const output = this.mutation();
+
     this.set(output);
   }
 }
