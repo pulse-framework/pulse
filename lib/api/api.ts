@@ -8,7 +8,7 @@ interface PulseResponse extends Response {
 }
 
 export interface apiConfig {
-  options?: RequestInit;
+  options: RequestInit;
   baseURL?: string;
   timeout?: number;
   requestIntercept?: Function;
@@ -16,7 +16,7 @@ export interface apiConfig {
 }
 
 export default class API {
-  constructor(public config: apiConfig) {
+  constructor(public config: apiConfig = { options: {} }) {
     if (!config.options) config.options = {};
   }
 
@@ -116,7 +116,8 @@ export default class API {
 }
 
 const NotifyAPI = new API({
-  timeout: 500
+  timeout: 500,
+  options: {}
 });
 
 export const getChannel = channelId =>
