@@ -17,7 +17,7 @@ export default class Runtime {
 
   constructor(private instance: Pulse) {}
 
-  public ingest(state: State, newState?: any): void {
+  public ingest(state: State, newState?: any, perform: boolean = true): void {
     let job: Job = { state, newState };
     // grab nextState if newState not passed
     if (arguments[1] === undefined) job.newState = job.state.nextState;
@@ -25,13 +25,13 @@ export default class Runtime {
     this.queue.push(job);
 
     // if no current job, begin the next!
-    if (!this.current) this.perform(this.queue.shift());
+    if (perform) this.perform(this.queue.shift());
   }
 
   private perform(job: Job): void {
     // debugger;
     this.current = job;
-    job.state.previousState = copy(job.state.value);
+    job.state.previousState = copy(job.state.masterValue);
 
     // write new value as result of mutation
     job.state.privateWrite(job.newState);
@@ -71,7 +71,7 @@ export default class Runtime {
 
     // ingest dependents
     dep.deps.forEach(state => {
-      this.ingest(state, state.mutation());
+      this.ingest(state, state.mutation(), false);
     });
   }
 

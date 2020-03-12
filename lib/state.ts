@@ -56,8 +56,8 @@ export class State<ValueType = any> {
   }
   public patch(targetWithChange): this {
     if (!(typeof this.masterValue === 'object')) return this;
-    const newVal = deepmerge(this.value, targetWithChange);
-    this.set(newVal);
+    this.nextState = deepmerge(this.nextState, targetWithChange);
+    this.set();
     return this;
   }
   public interval(setFunc: (currentValue: any) => any, ms?: number): this {
