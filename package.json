@@ -7,6 +7,7 @@
   "scripts": {
     "test": "mocha --exit",
     "test-debug": "mocha --inspect-brk",
+    "build": "tsc",
     "dev": "tsc-watch",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
