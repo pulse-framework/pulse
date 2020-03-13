@@ -1,30 +1,21 @@
 import Pulse from '..';
 import State from '../state';
-import { ComponentContainer } from '../sub';
+import { ComponentContainer, SubscriptionContainer } from '../sub';
 import { normalizeDeps, getInstance } from '../utils';
 import Group from '../collection/group';
 
 type NamedStateObject = { [key: string]: State };
+type keyedState = { [key: string]: State };
 
-function ReactWrapper(
+export function PulseHOC(
   ReactComponent: any,
   deps?: Array<State> | { [key: string]: State },
   pulseInstance?: Pulse
 ) {
-  let pulse: Pulse;
-  try {
-    pulse = (pulseInstance || globalThis.__pulse) as Pulse;
-  } catch (e) {}
-
-  if (!pulse)
-    console.error(
-      `Pulse X React: Pulse instance inaccessible, it is likely you're using "Pulse.React()" before "new Pulse()"`
-    );
-
-  let React = pulse.config.frameworkConstructor;
-
+  if (!pulseInstance) pulseInstance = getInstance(deps[0]);
+  let React = pulseInstance.config.frameworkConstructor;
   return class extends React.Component {
-    pulseComponentContainer: ComponentContainer;
+    public pulseComponentContainer: SubscriptionContainer;
     constructor(public props: any) {
       super(props);
       // is array of deps
@@ -33,25 +24,25 @@ function ReactWrapper(
         // keyed object of deps, map to props
       } else if (typeof deps === 'object') {
         // keyed object of deps, map to props
+        const x = pulseInstance.subController.mapToProps(this, deps);
         props = {
           ...props,
-          ...pulseInstance.subController.mapToProps(this, deps)
+          ...x.props
         };
+        this.pulseComponentContainer = x.cC;
       }
     }
     componentDidMount() {
-      if (pulse.config.waitForMount) pulse.subController.mount(this);
+      if (pulseInstance.config.waitForMount) pulseInstance.subController.mount(this);
     }
     componentWillUnmount() {
-      pulse.subController.unsubscribe(this);
+      pulseInstance.subController.unsubscribe(this);
     }
     render() {
       return React.createElement(ReactComponent, this.props);
     }
   };
 }
-
-type keyedState = { [key: string]: State };
 
 export function usePulse(
   deps: Array<State | keyedState> | State,
@@ -95,11 +86,12 @@ export function usePulse(
 
 export default {
   name: 'react',
-  bind(pulseInstance: any | Pulse) {
+  bind(pulseInstance: Pulse) {
     //
-    pulseInstance.React = ReactWrapper;
-    // usePulse is able to get its context from the state passed in, below is redundant
-    pulseInstance.usePulse = (deps: Array<State>) => usePulse(deps, pulseInstance);
+    // pulseInstance.React = (instance: any, deps: Array<State>) =>
+    //   PulseHOC(instance, deps, pulseInstance);
+    // // usePulse is able to get its context from the state passed in, below is redundant
+    // pulseInstance.usePulse = (deps: Array<State>) => usePulse(deps, pulseInstance);
   },
   updateMethod(componentInstance: any, updatedData: Object) {
     if (updatedData) {

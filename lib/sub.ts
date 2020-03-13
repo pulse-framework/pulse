@@ -54,16 +54,13 @@ export default class SubController {
       }
     });
 
-    return returnProps;
+    return { cC, props: returnProps };
   }
 
   /**
    * Subscribe to Pulse state WITHOUT return object
    */
-  public subscribe(
-    instance: any,
-    subs: Array<State> = []
-  ): SubscriptionContainer {
+  public subscribe(instance: any, subs: Array<State> = []): SubscriptionContainer {
     let cC = this.registerComponent(instance, subs);
     subs.forEach(state => {
       if (state instanceof State) {
