@@ -61,7 +61,15 @@ export default class Storage {
           .catch(reject);
       });
     } else {
-      return JSON.parse(this.storageMethods.get(this.getKey(key)));
+      /**
+       * @itsRems - 3/23/20
+       * Added a trycatch to avoid an "unexpected error" when used outside of a Promise - There might be a better way to do this but it fixes the problem for now
+       */
+      try {
+        return JSON.parse(this.storageMethods.get(this.getKey(key)));
+      } catch (error) {
+        return undefined;
+      }
     }
   }
 
