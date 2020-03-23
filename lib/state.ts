@@ -50,7 +50,7 @@ export class State<ValueType = any> {
 
     return this;
   }
-  public getPublicValue() {
+  public getPublicValue(): ValueType {
     if (this.output !== undefined) return this.output;
     return this.masterValue;
   }
@@ -98,17 +98,19 @@ export class State<ValueType = any> {
     if (typeof key !== 'string' || typeof key !== 'number' || typeof callback !== 'function') {
       // console.error('Pulse watch, missing key or function');
     }
-
     this.watchers[key] = callback;
     return this;
   }
+
   public removeWatcher(key: number | string): this {
     delete this.watchers[key];
     return this;
   }
+
   public toggle(): this {
     return this;
   }
+
   public reset(): this {
     // this should go through runtime, but eh
     this.isSet = false;
@@ -131,7 +133,7 @@ export class State<ValueType = any> {
     return this.value !== x;
   }
 
-  public privateWrite(value: any): void {
+  public privateWrite(value: any): this {
     this.exists = !!value;
     this.masterValue = value;
 
@@ -141,14 +143,13 @@ export class State<ValueType = any> {
 
     if (this.persistState) this.instance().storage.set(this.name, value);
 
-    // console.log(`STATE "${this.name}" changed`, this.masterValue);
+    return this;
   }
+
   public relate(state: State | Array<State>) {
     if (!Array.isArray(state)) state = [state];
-
     // add this to foriegn dep
     state.forEach(state => state && state.dep.depend(this));
-
     // refrence foriegn dep locally for cleanup
     this.dep.dynamic.add(this);
   }

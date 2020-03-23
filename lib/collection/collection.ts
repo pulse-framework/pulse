@@ -5,7 +5,7 @@ import { defineConfig, normalizeGroups } from '../utils';
 import { deepmerge } from '../helpers/deepmerge';
 import { normalizeArray } from '../helpers/handy';
 import Computed from '../computed';
-import Data from './s';
+import Data from './data';
 
 export interface DefaultDataItem {
   [key: string]: any;
@@ -33,18 +33,22 @@ export class Collection<DataType = DefaultDataItem> {
   }
 
   // create a group instance on this collection
-  public createGroup(groupName: GroupName) {
+  public createGroup(groupName: GroupName): Group<DataType> {
     if (this.groups.hasOwnProperty(groupName))
       console.error(`Pulse Collection: Group ${groupName} already exists`);
     let group = new Group<DataType>(() => this);
     group.name = groupName as string;
     this.groups[groupName] = group;
+    return group;
   }
 
   // save data directly into collection storage
   public saveData(data: DataType): PrimaryKey {
     let key = this.config.primaryKey;
-    this.data[data[key]] = new Data<DataType>(this, data);
+    // if the data already exists, merge data
+    if (this.data[data[key]]) this.data[data[key]].patch(data);
+    // otherwise create new data instance
+    else this.data[data[key]] = new Data<DataType>(this, data);
     this.size++;
     return data[key];
   }
@@ -79,7 +83,7 @@ export class Collection<DataType = DefaultDataItem> {
    * Return an item from this collection by primaryKey as Data instance (extends State)
    * @param {(number|string)} primaryKey - The primary key of the data
    */
-  public findById(id: PrimaryKey | State): Data {
+  public findById(id: PrimaryKey | State): Data<DataType> {
     if (id instanceof State) id = id.value;
     if (!this.data.hasOwnProperty(id as PrimaryKey)) {
       return new Data(this, undefined);

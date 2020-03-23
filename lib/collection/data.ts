@@ -6,11 +6,7 @@ export default class Data<DataType = DefaultDataItem> extends State<DataType> {
   constructor(private collection: Collection, data: DataType) {
     super(collection.instance, data);
     this.type(Object);
-
     this.mutation = () => this.masterValue;
-
-    // side effect of direct data mutation
-    this.sideEffects = () => {};
   }
 }
 

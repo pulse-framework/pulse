@@ -14,6 +14,7 @@ export interface PulseConfig {
   framework?: any;
   frameworkConstructor?: any;
   storage?: {};
+  logJobs?: boolean;
 }
 
 export default class Pulse {
@@ -70,6 +71,9 @@ export default class Pulse {
    * @param Items Array of items to reset
    */
   public reset(items: Array<State | Group | Collection>): void {}
+  public nextPulse(callback: () => any): void {
+    this.runtime.nextPulse(callback);
+  }
   public setStorage(storageConfig: StorageMethods): void {
     const persistedState = this.storage.persistedState;
     this.storage = new Storage(this, storageConfig);

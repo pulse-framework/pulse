@@ -11,6 +11,7 @@ export default class Runtime {
   private current: Job = null;
   private queue: Array<Job> = [];
   private complete: Array<Job> = [];
+  private tasksOnceComplete: Array<() => any> = [];
 
   public trackState: boolean = false;
   public foundState: Set<State> = new Set();
@@ -44,8 +45,10 @@ export default class Runtime {
 
     // declare completed
     this.complete.push(job);
-    // console.log('job', job);
+
     this.current = null;
+
+    if (this.instance.config.logJobs) console.log(`Completed Job: Name:${job.state.name}`, job);
 
     // continue the loop and perform the next job or update subscribers
     if (this.queue.length > 0) this.perform(this.queue.shift());
@@ -103,7 +106,14 @@ export default class Runtime {
         this.instance.intergration.updateMethod(cC.instance, Runtime.assembleUpdatedValues(cC));
       }
     });
+
+    if (this.instance.config.logJobs && componentsToUpdate.size > 0)
+      console.log(`Rendered Components`, componentsToUpdate);
+
     this.complete = [];
+    // run any tasks for next runtime
+    this.tasksOnceComplete.forEach(task => typeof task === 'function' && task());
+    this.tasksOnceComplete = [];
   }
 
   public getFoundState() {
@@ -111,6 +121,10 @@ export default class Runtime {
     const ret = this.foundState;
     this.foundState = new Set();
     return ret;
+  }
+
+  public nextPulse(callback: () => any) {
+    this.tasksOnceComplete.push(callback);
   }
 
   static assembleUpdatedValues(cC: SubscriptionContainer) {

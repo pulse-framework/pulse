@@ -8,7 +8,7 @@ export type PrimaryKey = string | number;
 export type GroupName = string | number;
 export type Index = Array<PrimaryKey>;
 
-export default class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> {
+export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> {
   masterOutput: Array<any> = [];
   missingPrimaryKeys: Array<PrimaryKey> = [];
   computedFunc?: (data: DataType) => DataType;
@@ -64,3 +64,5 @@ export default class Group<DataType = DefaultDataItem> extends State<Array<Prima
 
   public add(primaryKey: PrimaryKey) {}
 }
+
+export default Group;

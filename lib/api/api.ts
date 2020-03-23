@@ -73,7 +73,7 @@ export default class API {
     if (endpoint.startsWith('http')) fullUrl = endpoint;
     else fullUrl = `${this.config.baseURL}/${endpoint}`;
 
-    if (config.requestIntercept) config.requestIntercept(config.options);
+    if (config.requestIntercept) config.requestIntercept({ ...config.options, endpoint: fullUrl });
 
     try {
       if (this.config.timeout) {
