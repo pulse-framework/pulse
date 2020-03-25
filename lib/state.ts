@@ -42,9 +42,16 @@ export class State<ValueType = any> {
    * Directly set state to a new value, if nothing is passed in State.nextState will be used as the next value
    * @param {Object} newState - The new value for this state
    */
-  public set(newState?: ValueType): this {
+  public set(newState?: ValueType, options: { background?: boolean } = {}): this {
+    if (this.valueType && !this.isCorrectType(newState)) return;
+
     // ingest update using most basic mutation method
-    this.instance().runtime.ingest(this, newState);
+    if (options.background) {
+      this.privateWrite(newState);
+      if (this.sideEffects) this.sideEffects();
+    } else {
+      this.instance().runtime.ingest(this, newState);
+    }
 
     this.isSet = true;
 
@@ -122,7 +129,7 @@ export class State<ValueType = any> {
 
   // returns a fresh copy of the current value
   public copy(): any {
-    return copy(this.masterValue);
+    return copy(this.value);
   }
 
   public is(x: any) {
@@ -132,26 +139,26 @@ export class State<ValueType = any> {
   public isNot(x: any) {
     return this.value !== x;
   }
-
-  public privateWrite(value: any): this {
-    this.exists = !!value;
-    this.masterValue = value;
-
-    for (let watcher in this.watchers) {
-      if (typeof this.watchers[watcher] === 'function') this.watchers[watcher](value);
-    }
-
-    if (this.persistState) this.instance().storage.set(this.name, value);
-
-    return this;
-  }
-
   public relate(state: State | Array<State>) {
     if (!Array.isArray(state)) state = [state];
     // add this to foriegn dep
     state.forEach(state => state && state.dep.depend(this));
     // refrence foriegn dep locally for cleanup
     this.dep.dynamic.add(this);
+  }
+
+  // INTERNAL
+  public privateWrite(value: any) {
+    this.exists = !!value;
+    this.masterValue = copy(value);
+    this.nextState = copy(value);
+
+    if (this.persistState) this.instance().storage.set(this.name, value);
+  }
+  private isCorrectType(value): boolean {
+    let type: string = typeof value;
+    if (type === 'object' && Array.isArray(value)) type = 'array';
+    return type === this.valueType;
   }
 }
 

@@ -13,12 +13,28 @@ export function cleanState(state: State): any {
 
 export function resetState(items: Array<State | Collection | any>) {
   items.forEach(item => {
-    if (item instanceof State) {
-      (item as State).reset();
-    } else if (item instanceof Collection) {
-      // meme
-    }
+    const stateSet = extractAll(item, State);
+    stateSet.forEach(state => state.reset());
   });
+}
+
+export function extractAll(obj, instance): Set<State> {
+  if (obj instanceof instance) return new Set(obj);
+  const found: Set<State> = new Set();
+  let next = [obj];
+  function look() {
+    let _next = [...next];
+    next = [];
+    _next.forEach(o => {
+      for (let property in o) {
+        if (o[property] instanceof instance) found.add(o[property]);
+        else if (isWatchableObject(o[property])) next.push(o[property]);
+      }
+    });
+    if (next.length > 0) look();
+  }
+  look();
+  return found;
 }
 
 export function getInstance(state: State): Pulse {

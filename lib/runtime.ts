@@ -37,9 +37,6 @@ export default class Runtime {
     // write new value as result of mutation
     job.state.privateWrite(job.newState);
 
-    // set next state for future mutations
-    job.state.nextState = copy(job.newState);
-
     // perform side effects
     this.sideEffects(job.state);
 
@@ -71,6 +68,11 @@ export default class Runtime {
     // this should not be used on root state class as it would be overwritten by extentions
     // this is used mainly to cause group to generate its output after changing
     if (typeof state.sideEffects === 'function') state.sideEffects();
+
+    for (let watcher in state.watchers) {
+      if (typeof state.watchers[watcher] === 'function')
+        state.watchers[watcher](state.getPublicValue());
+    }
 
     // ingest dependents
     dep.deps.forEach(state => {

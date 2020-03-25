@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './assets/logo.svg';
 import './App.css';
-import { usePulse, cleanState } from 'pulse-framework';
+import { usePulse } from 'pulse-framework';
 import Core from './core';
 
 interface Global {
@@ -29,8 +29,8 @@ const App = () => {
         >
           Pulse X React
         </a>
-        <p>{JSON.stringify(cleanState(time))}</p>
-        <p className="small-text">{JSON.stringify(cleanState(duration))}</p>
+        <p>{JSON.stringify(time)}</p>
+        <p className="small-text">{JSON.stringify(duration)}</p>
       </header>
     </div>
   );

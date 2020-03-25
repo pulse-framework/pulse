@@ -20,6 +20,8 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   constructor(private collection: () => Collection) {
     super(() => collection().instance(), []);
 
+    this.type(Array);
+
     this.sideEffects = () => this.build();
 
     this.mutation = () => this.value;
@@ -38,10 +40,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
         }
         // on each data item in this group, run compute
         if (this.computedFunc) {
-          // this.instance().runtime.trackState = true;
           let dataComputed = this.computedFunc(data.copy());
-          // let found = this.instance().runtime.getFoundState();
-          // found.forEach(dep => this.dep.dynamic.add(dep));
           return dataComputed;
         }
 
