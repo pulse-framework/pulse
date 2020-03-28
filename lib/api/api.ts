@@ -25,7 +25,8 @@ export default class API {
    * @param config - O
    */
   public with(config: apiConfig): API {
-    let _this = { ...this };
+    let _this = Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+
     _this.config = {
       ..._this.config,
       ...config

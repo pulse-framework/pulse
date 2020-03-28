@@ -109,6 +109,10 @@ export class State<ValueType = any> {
     return this;
   }
 
+  public undo() {
+    this.set(this.previousState);
+  }
+
   public removeWatcher(key: number | string): this {
     delete this.watchers[key];
     return this;

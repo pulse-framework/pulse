@@ -37,6 +37,8 @@ export function extractAll(obj, instance): Set<State> {
   return found;
 }
 
+export function undo() {}
+
 export function getInstance(state: State): Pulse {
   try {
     if (state.instance) return state.instance();
