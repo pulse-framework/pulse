@@ -2,7 +2,7 @@ import * as http from 'http';
 
 type Body = { [key: string]: any };
 
-interface PulseResponse extends Response {
+export interface PulseResponse extends Response {
   data?: any;
   timedout?: boolean;
 }

@@ -12,7 +12,6 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   masterOutput: Array<any> = [];
   missingPrimaryKeys: Array<PrimaryKey> = [];
   computedFunc?: (data: DataType) => DataType;
-
   public get output(): Array<any> {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this.masterOutput;
@@ -42,6 +41,10 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
         if (this.computedFunc) {
           let dataComputed = this.computedFunc(data.copy());
           return dataComputed;
+          // use collection level computed func if local does not exist
+        } else if (this.collection().computedFunc) {
+          let dataComputed = this.collection().computedFunc(data.copy());
+          return dataComputed;
         }
 
         return data.getPublicValue();
@@ -53,12 +56,12 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     this.masterOutput = group;
   }
 
-  public compute(func: (data: DataType) => DataType): void {
-    this.computedFunc = func;
-  }
-
   public has(primaryKey: PrimaryKey) {
     return this.value.includes(primaryKey) || false;
+  }
+
+  public compute(func: (data: DataType) => DataType): void {
+    this.computedFunc = func;
   }
 
   public add(primaryKey: PrimaryKey) {}

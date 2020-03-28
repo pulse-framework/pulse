@@ -22,6 +22,7 @@ export class Collection<DataType = DefaultDataItem> {
   public groups: { [key: string]: Group<DataType> } = {};
   public data: { [key: string]: Data<DataType> } = {};
   public size: number = 0;
+  public computedFunc: (data: DataType) => DataType;
   constructor(public instance: () => Pulse, config?: CollectionConfig) {
     this.config = defineConfig(config, {
       primaryKey: 'id',
@@ -145,7 +146,7 @@ export class Collection<DataType = DefaultDataItem> {
   }
 
   public compute(func: (data: DataType) => DataType): void {
-    for (let groupName in this.groups) this.groups[groupName].compute(func);
+    this.computedFunc = func;
   }
 
   public put(
