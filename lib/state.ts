@@ -43,7 +43,18 @@ export class State<ValueType = any> {
    * @param {Object} newState - The new value for this state
    */
   public set(newState?: ValueType, options: { background?: boolean } = {}): this {
-    if (this.valueType && !this.isCorrectType(newState)) return;
+    if (newState === undefined) {
+      this.instance().runtime.ingest(this, undefined);
+      return this;
+    }
+    if (this.valueType && !this.isCorrectType(newState)) {
+      console.warn(
+        `Pulse: Error setting state: Incorrect type (${typeof newState}) was provided. Type for this state is set to ${
+          this.valueType
+        }`
+      );
+      return this;
+    }
 
     // ingest update using most basic mutation method
     if (options.background) {

@@ -166,6 +166,7 @@ export class Collection<DataType = DefaultDataItem> {
       if (!this.groups.hasOwnProperty(groupName)) return;
 
       (primaryKeys as Array<PrimaryKey>).forEach(key => {
+        if (this.groups[groupName].masterValue.includes(key)) return;
         this.groups[groupName].nextState[config.method](key);
         this.instance().runtime.ingest(this.groups[groupName]);
       });
@@ -198,6 +199,7 @@ export class Collection<DataType = DefaultDataItem> {
         let group = this.getGroup(groupName);
 
         if (group.has(primaryKey)) {
+          group.nextState = group.nextState.filter(id => id !== primaryKey);
           groupsToRegen.add(group);
         }
       });
