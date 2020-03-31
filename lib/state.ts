@@ -1,6 +1,6 @@
 import Dep from './dep';
 import Pulse from './pulse';
-import { copy } from './utils';
+import { copy, shallowmerge } from './utils';
 import { deepmerge } from './helpers/deepmerge';
 
 export class State<ValueType = any> {
@@ -72,9 +72,14 @@ export class State<ValueType = any> {
     if (this.output !== undefined) return this.output;
     return this.masterValue;
   }
-  public patch(targetWithChange): this {
+  public patch(targetWithChange, config: { deep?: boolean } = {}): this {
     if (!(typeof this.masterValue === 'object')) return this;
-    this.nextState = deepmerge(this.nextState, targetWithChange);
+
+    this.nextState =
+      config.deep === false
+        ? shallowmerge(this.nextState, targetWithChange)
+        : deepmerge(this.nextState, targetWithChange);
+
     this.set();
     return this;
   }

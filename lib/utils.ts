@@ -37,8 +37,6 @@ export function extractAll(obj, instance): Set<State> {
   return found;
 }
 
-export function undo() {}
-
 export function getInstance(state: State): Pulse {
   try {
     if (state.instance) return state.instance();
@@ -87,6 +85,15 @@ export function normalizeGroups(groupsAsArray: any = []) {
     groups[groupName] = [];
   }
   return groups;
+}
+
+export function shallowmerge(source, changes) {
+  let keys = Object.keys(changes);
+  keys.forEach(property => {
+    source[property] = changes[property];
+  });
+
+  return source;
 }
 
 export function defineConfig(config, defaults) {

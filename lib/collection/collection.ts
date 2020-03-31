@@ -1,7 +1,7 @@
 import Pulse from '../';
 import State from '../state';
 import Group, { PrimaryKey, GroupName } from './group';
-import { defineConfig, normalizeGroups } from '../utils';
+import { defineConfig, normalizeGroups, shallowmerge } from '../utils';
 import { deepmerge } from '../helpers/deepmerge';
 import { normalizeArray } from '../helpers/handy';
 import Computed from '../computed';
@@ -47,7 +47,7 @@ export class Collection<DataType = DefaultDataItem> {
   public saveData(data: DataType): PrimaryKey {
     let key = this.config.primaryKey;
     // if the data already exists, merge data
-    if (this.data[data[key]]) this.data[data[key]].patch(data);
+    if (this.data[data[key]]) this.data[data[key]].patch(data, { deep: false });
     // otherwise create new data instance
     else this.data[data[key]] = new Data<DataType>(this, data);
     this.size++;
@@ -110,7 +110,11 @@ export class Collection<DataType = DefaultDataItem> {
    * @param {Object} changes - This object will be deep merged with the original
    */
 
-  public update(updateKey: PrimaryKey | State, changes: Expandable = {}): State {
+  public update(
+    updateKey: PrimaryKey | State,
+    changes: Expandable = {},
+    config: { deep?: boolean } = {}
+  ): State {
     // if State instance passed as updateKey grab the value
     if (updateKey instanceof State) updateKey = updateKey.value;
     updateKey = updateKey as PrimaryKey;
@@ -132,7 +136,9 @@ export class Collection<DataType = DefaultDataItem> {
     if (changes[primary]) updateDataKey = true;
 
     // deep merge the new data with the existing data
-    const final = deepmerge(currentData, changes);
+    const final = config.deep
+      ? deepmerge(currentData, changes)
+      : shallowmerge(currentData, changes);
 
     // assign the merged data to the next state of the State and ingest
     data.nextState = final;
