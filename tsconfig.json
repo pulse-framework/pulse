@@ -6,7 +6,8 @@
     "module": "commonjs",
     "noImplicitAny": false,
     "moduleResolution": "node",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "skipLibCheck": true
     // Old config, some of this might be needed?
     // "jsx": "preserve",
     // "esModuleInterop": true,
