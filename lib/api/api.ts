@@ -15,8 +15,23 @@ export interface apiConfig {
   responseIntercept?: Function;
 }
 
+const ensureProperHeaders = (headers) => {
+  let newHeaders = {};
+  Object.keys(headers).forEach(key => {
+    const value = headers[key];
+    newHeaders[key.toLowerCase()] = value;
+  })
+  return newHeaders;
+}
+
 export default class API {
   constructor(public config: apiConfig = { options: {} }) {
+    /**
+     * Make all headers lowerCase
+     */
+    if (config.options && config.options.headers) {
+      config.options.headers = ensureProperHeaders(config.options.headers);
+    } 
     if (!config.options) config.options = {};
   }
 
@@ -26,9 +41,12 @@ export default class API {
    */
   public with(config: apiConfig): API {
     let _this = { ...this };
+    if (config.options && config.options.headers) {
+      config.options.headers = ensureProperHeaders(config.options.headers);
+    }
     _this.config = {
       ..._this.config,
-      ...config
+      ...config,
     };
     return _this;
   }
