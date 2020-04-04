@@ -35,6 +35,17 @@ export default class API {
     if (!config.options) config.options = {};
   }
 
+  set (config: apiConfig) {
+    const conf = this.config;
+    if (config.options && config.options.headers) {
+      config.options.headers = ensureProperHeaders(config.options.headers);
+    }
+    this.config = {
+      ...conf,
+      ...config
+    }
+  }
+
   /**
    * Override API config and request options. Returns a modified instance this API with overrides applied.
    * @param config - O
