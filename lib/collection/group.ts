@@ -9,15 +9,15 @@ export type GroupName = string | number;
 export type Index = Array<PrimaryKey>;
 
 export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> {
-  masterOutput: Array<any> = [];
+  masterOutput: Array<DataType> = [];
   missingPrimaryKeys: Array<PrimaryKey> = [];
   computedFunc?: (data: DataType) => DataType;
-  public get output(): Array<any> {
+  public get output(): Array<DataType> {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this.masterOutput;
   }
-  constructor(private collection: () => Collection) {
-    super(() => collection().instance(), []);
+  constructor(private collection: () => Collection, initialIndex?: Array<PrimaryKey>) {
+    super(() => collection().instance(), initialIndex || []);
 
     this.type(Array);
 
@@ -52,7 +52,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
       .filter(item => item !== undefined);
 
     this.dep.dynamic.forEach(state => state.dep.depend(this));
-
+    //@ts-ignore
     this.masterOutput = group;
   }
 

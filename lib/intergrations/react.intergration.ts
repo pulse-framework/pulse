@@ -44,10 +44,7 @@ export function PulseHOC(
   };
 }
 
-export function usePulse(
-  deps: Array<State | keyedState> | State,
-  pulseInstance?: Pulse
-): Array<any> {
+export function usePulse(deps: Array<State | keyedState> | State, pulseInstance?: Pulse) {
   let depsArray = normalizeDeps(deps as Array<State>);
   if (!pulseInstance) pulseInstance = getInstance(depsArray[0]);
 

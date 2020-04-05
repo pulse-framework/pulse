@@ -34,18 +34,19 @@ export class Collection<DataType = DefaultDataItem> {
   }
 
   // create a group instance on this collection
-  public createGroup(groupName: GroupName): Group<DataType> {
+  public createGroup(groupName: GroupName, initialIndex?: Array<PrimaryKey>): Group<DataType> {
     if (this.groups.hasOwnProperty(groupName))
       console.error(`Pulse Collection: Group ${groupName} already exists`);
-    let group = new Group<DataType>(() => this);
+    let group = new Group<DataType>(() => this, initialIndex);
     group.name = groupName as string;
     this.groups[groupName] = group;
     return group;
   }
 
   // save data directly into collection storage
-  public saveData(data: DataType): PrimaryKey {
+  public saveData(data: DataType): PrimaryKey | null {
     let key = this.config.primaryKey;
+    if (!data || !data.hasOwnProperty(key)) return null;
     // if the data already exists, merge data
     if (this.data[data[key]]) this.data[data[key]].patch(data, { deep: false });
     // otherwise create new data instance
@@ -61,7 +62,11 @@ export class Collection<DataType = DefaultDataItem> {
    * @param {(Array<string>|string)} groups - Array of group names or single group name
    */
 
-  public collect(items: DataType | Array<DataType>, groups: GroupName | Array<GroupName>): void {
+  public collect(
+    items: DataType | Array<DataType>,
+    groups?: GroupName | Array<GroupName>,
+    config: { method?: 'push' | 'unshift' } = {}
+  ): void {
     let _items = normalizeArray(items);
     groups = normalizeArray(groups);
 
@@ -70,9 +75,10 @@ export class Collection<DataType = DefaultDataItem> {
 
     _items.forEach(item => {
       let key = this.saveData(item);
+      if (key === null) return;
       (groups as Array<string>).forEach(groupName => {
         let group = this.groups[groupName];
-        if (!group.value.includes(key)) group.nextState.push(key);
+        if (!group.value.includes(key)) group.nextState[config.method || 'push'](key);
       });
     });
 
@@ -96,7 +102,7 @@ export class Collection<DataType = DefaultDataItem> {
    * Return an group from this collection as Group instance (extends State)
    * @param {(number|string)} groupName - The name of your group
    */
-  public getGroup(groupName: string | number): Group {
+  public getGroup(groupName: string | number): Group<DataType> {
     if (this.groups[groupName]) {
       return this.groups[groupName];
     } else {

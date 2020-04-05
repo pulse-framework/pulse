@@ -55,7 +55,7 @@ export default class Pulse {
    * @param deps Array - An array of state items to depend on
    * @param func Function - A function where the return value is the state, ran every time a dep changes
    */
-  public Computed = <T>(func: Function, deps?: Array<any>) =>
+  public Computed = <T>(func: () => any, deps?: Array<any>) =>
     new Computed<T>(() => this, func, deps);
   /**
    * Create a Pulse collection
@@ -63,7 +63,7 @@ export default class Pulse {
    * @param config.primaryKey The primary key for the collection.
    * @param config.groups Define groups for this collection.
    */
-  public Collection = <V>(config: any) => new Collection<V>(() => this, config);
+  public Collection = <V>(config?: any) => new Collection<V>(() => this, config);
   /**
    * Reset to initial state.
    * - Supports: State, Collections and Groups
