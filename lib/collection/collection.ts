@@ -153,6 +153,8 @@ export class Collection<DataType = DefaultDataItem> {
     // if the data key has changed move it internally and ammend groups
     if (updateDataKey) this.updateDataKey(currentData[primary], final[primary]);
 
+    this.regenGroupsThatInclude(final[primary]);
+
     // return the Data instance
     return this.data[final[primary]];
   }
@@ -269,6 +271,12 @@ export class Collection<DataType = DefaultDataItem> {
       // ingest the group
       this.instance().runtime.ingest(group);
     }
+  }
+
+  public regenGroupsThatInclude(primarykey: PrimaryKey): void {
+    for (let groupName in this.groups)
+      if (this.groups[groupName].has(primarykey))
+        this.instance().runtime.ingest(this.groups[groupName]);
   }
 }
 

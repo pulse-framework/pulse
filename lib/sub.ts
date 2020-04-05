@@ -96,15 +96,14 @@ export default class SubController {
    * @param instance - Either a CallbackContainer or a bound component instance
    */
   public unsubscribe(instance: any) {
-    if (instance instanceof CallbackContainer) {
-      // do that
-    } else if (instance.pulseComponentContainer) {
-      let cC: ComponentContainer = instance.pulseComponentContainer;
+    const unsub = (cC: CallbackContainer | ComponentContainer) => {
       cC.ready = false;
       // remove component container from subs' dep
       cC.subs.forEach(state => {
         state.dep.subs.delete(cC);
       });
-    }
+    };
+    if (instance instanceof CallbackContainer) unsub(instance);
+    else if (instance.pulseComponentContainer) unsub(instance.pulseComponentContainer);
   }
 }
