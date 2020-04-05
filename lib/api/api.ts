@@ -72,8 +72,6 @@ export default class API {
 			config.options.headers['content-type'] = 'application/json';
 		} else config.options.body = payload;
 
-		console.log(config.options.headers);
-
     // construct endpoint
     if (endpoint.startsWith('http')) fullUrl = endpoint;
     else fullUrl = `${this.config.baseURL}/${endpoint}`;
@@ -102,7 +100,7 @@ export default class API {
 		}
 
 		// Return the old content type header
-		config.options.headers['content-type'] = originalType;
+		if (originalType) config.options.headers['content-type'] = originalType;
 
     // if we got here, PulseResponse is the actual response object
     let res = response as PulseResponse;
