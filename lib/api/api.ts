@@ -59,16 +59,18 @@ export default class API {
     // inject method into request options
     config.options.method = method;
 
-    if (!config.options.headers) config.options.headers = {};
+		if (!config.options.headers) config.options.headers = {};
+		let originalType = config.options.headers['content-type'];
 
-    if (typeof payload === 'object') {
+		if (payload && payload._parts && payload.getParts) {
+			// inject body if not get method
+			config.options.body = payload;
+			config.options.headers['content-type'] = 'multipart/form-data';
+		} else if (typeof payload === 'object') {
       // inject body if not get method
       config.options.body = JSON.stringify(payload);
-      // auto set header to application/json
-      if (!config.options.headers.hasOwnProperty('content-type')) {
-        config.options.headers['content-type'] = 'application/json';
-      }
-    } else config.options.body = payload;
+			config.options.headers['content-type'] = 'application/json';
+		} else config.options.body = payload;
 
     // construct endpoint
     if (endpoint.startsWith('http')) fullUrl = endpoint;
@@ -95,7 +97,10 @@ export default class API {
       }
     } catch (e) {
       response = Response.error();
-    }
+		}
+
+		// Return the old content type header
+		if (originalType) config.options.headers['content-type'] = originalType;
 
     // if we got here, PulseResponse is the actual response object
     let res = response as PulseResponse;
