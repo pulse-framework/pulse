@@ -192,7 +192,7 @@ export class Collection<DataType = DefaultDataItem> {
     primaryKeys = normalizeArray(primaryKeys);
     return {
       fromGroups: (groups: Array<string>) => this.removeFromGroups(primaryKeys, groups),
-      everywhere: (groups: Array<string>) => this.deleteData(primaryKeys, groups)
+      everywhere: () => this.deleteData(primaryKeys, Object.keys(this.groups))
     };
   }
 
@@ -227,6 +227,19 @@ export class Collection<DataType = DefaultDataItem> {
   ): boolean {
     primaryKeys = normalizeArray(primaryKeys);
     groups = normalizeArray(groups);
+
+    primaryKeys.forEach(key => {
+      delete this.data[key];
+      (groups as Array<GroupName>).forEach(groupName => {
+        this.groups[groupName].nextState = this.groups[groupName].nextState.filter(
+          id => id !== key
+        );
+      });
+    });
+
+    groups.forEach(groupName =>
+      this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState)
+    );
 
     return true;
   }
@@ -265,5 +278,5 @@ type Expandable = { [key: string]: any };
 type GroupsParam = string | number | Array<string>;
 interface RemoveOptions {
   fromGroups: (groups: string | number | Array<string>) => any;
-  everywhere: (groups: string | number | Array<string>) => any;
+  everywhere: () => any;
 }

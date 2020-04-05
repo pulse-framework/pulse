@@ -20,6 +20,9 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
 
     this.set(output);
   }
+  public recompute(): void {
+    this.set(this.mutation());
+  }
 }
 
 export default Computed;
