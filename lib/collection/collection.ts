@@ -30,6 +30,10 @@ export class Collection<DataType = DefaultDataItem> {
     });
 
     // create groups
+    this.initGroups();
+  }
+
+  public initGroups() {
     if (this.config.groups) this.config.groups.forEach(groupName => this.createGroup(groupName));
   }
 
@@ -277,6 +281,13 @@ export class Collection<DataType = DefaultDataItem> {
     for (let groupName in this.groups)
       if (this.groups[groupName].has(primarykey))
         this.instance().runtime.ingest(this.groups[groupName]);
+  }
+
+  public reset() {
+    this.data = {};
+    this.size = 0;
+    this.groups = {};
+    this.initGroups();
   }
 }
 

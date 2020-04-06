@@ -180,6 +180,10 @@ export class State<ValueType = any> {
     if (type === 'object' && Array.isArray(value)) type = 'array';
     return type === this.valueType;
   }
+  public destroy(): void {
+    this.dep.deps.clear();
+    this.dep.subs.clear();
+  }
 }
 
 export type StateGroupDefault = {
