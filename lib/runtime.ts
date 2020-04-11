@@ -16,7 +16,7 @@ export default class Runtime {
   public trackState: boolean = false;
   public foundState: Set<State> = new Set();
 
-  constructor(private instance: Pulse) {}
+  constructor(private instance: () => Pulse) {}
 
   public ingest(state: State, newState?: any, perform: boolean = true): void {
     let job: Job = { state, newState };
@@ -32,7 +32,7 @@ export default class Runtime {
   private perform(job: Job): void {
     // debugger;
     this.current = job;
-    job.state.previousState = copy(job.state.masterValue);
+    job.state.previousState = copy(job.state._masterValue);
 
     // write new value as result of mutation
     job.state.privateWrite(job.newState);
@@ -45,7 +45,7 @@ export default class Runtime {
 
     this.current = null;
 
-    if (this.instance.config.logJobs) console.log(`Completed Job: Name:${job.state.name}`, job);
+    if (this.instance().config.logJobs) console.log(`Completed Job: Name:${job.state.name}`, job);
 
     // continue the loop and perform the next job or update subscribers
     if (this.queue.length > 0) this.perform(this.queue.shift());
@@ -105,11 +105,11 @@ export default class Runtime {
         // is this a ComponentContainer
       } else if (cC instanceof ComponentContainer) {
         // call the current intergration's update method
-        this.instance.intergration.updateMethod(cC.instance, Runtime.assembleUpdatedValues(cC));
+        this.instance().intergration.updateMethod(cC.instance, Runtime.assembleUpdatedValues(cC));
       }
     });
 
-    if (this.instance.config.logJobs && componentsToUpdate.size > 0)
+    if (this.instance().config.logJobs && componentsToUpdate.size > 0)
       console.log(`Rendered Components`, componentsToUpdate);
 
     this.complete = [];

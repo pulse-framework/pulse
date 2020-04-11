@@ -23,9 +23,9 @@ export default class Pulse {
   public subController: SubController;
   public intergration: Intergration = null;
   constructor(public config: PulseConfig = {}) {
-    this.subController = new SubController(this);
-    this.runtime = new Runtime(this);
-    this.storage = new Storage(this, config.storage || {});
+    this.subController = new SubController();
+    this.runtime = new Runtime(() => this);
+    this.storage = new Storage(() => this, config.storage || {});
     if (config.framework) this.initFrameworkIntergration(config.framework);
     this.globalBind();
   }
@@ -76,7 +76,7 @@ export default class Pulse {
   }
   public setStorage(storageConfig: StorageMethods): void {
     const persistedState = this.storage.persistedState;
-    this.storage = new Storage(this, storageConfig);
+    this.storage = new Storage(() => this, storageConfig);
     this.storage.persistedState = persistedState;
     this.storage.persistedState.forEach(state => state.persist(state.name));
   }

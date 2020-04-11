@@ -14,8 +14,9 @@ export default class Storage {
   private storageType: 'localStorage' | 'custom' = 'localStorage';
   private storagePrefix: string = 'pulse';
   public persistedState: Set<State> = new Set();
-  constructor(private instance: Pulse, private storageMethods: StorageMethods = {}) {
-    if (this.instance.config.storagePrefix) this.storagePrefix = this.instance.config.storagePrefix;
+  constructor(private instance: () => Pulse, private storageMethods: StorageMethods = {}) {
+    if (this.instance().config.storagePrefix)
+      this.storagePrefix = this.instance().config.storagePrefix;
 
     if (storageMethods.async) this.isPromise = true;
 

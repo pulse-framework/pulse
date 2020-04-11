@@ -4,13 +4,13 @@ import { copy, shallowmerge } from './utils';
 import { deepmerge } from './helpers/deepmerge';
 
 export class State<ValueType = any> {
-  public masterValue: ValueType = null;
+  public _masterValue: ValueType = null;
   public set value(val: ValueType) {
-    this.masterValue = val;
+    this._masterValue = val;
   }
   public get value(): ValueType {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
-    return this.masterValue;
+    return this._masterValue;
   }
   public output?: any;
   public watchers: { [key: string]: any } = {};
@@ -31,7 +31,7 @@ export class State<ValueType = any> {
     this.set(value);
   }
   public get bind(): ValueType {
-    return this.masterValue;
+    return this._masterValue;
   }
   constructor(public instance: () => Pulse, public initalState, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
@@ -70,10 +70,10 @@ export class State<ValueType = any> {
   }
   public getPublicValue(): ValueType {
     if (this.output !== undefined) return this.output;
-    return this.masterValue;
+    return this._masterValue;
   }
   public patch(targetWithChange, config: { deep?: boolean } = {}): this {
-    if (!(typeof this.masterValue === 'object')) return this;
+    if (!(typeof this._masterValue === 'object')) return this;
 
     this.nextState =
       config.deep === false
@@ -105,6 +105,13 @@ export class State<ValueType = any> {
       else this.instance().runtime.ingest(this, value);
     }
     return this;
+  }
+  // this creates a watcher that will fire a callback then destroy itself after invoking
+  public onNext(callback: (value: ValueType) => void) {
+    this.watchers['_on_next_'] = () => {
+      callback(this.getPublicValue());
+      delete this.watchers['_on_next_'];
+    };
   }
   public key(key: string): this {
     // this.name = key;
@@ -170,7 +177,7 @@ export class State<ValueType = any> {
   // INTERNAL
   public privateWrite(value: any) {
     this.exists = !!value;
-    this.masterValue = copy(value);
+    this._masterValue = copy(value);
     this.nextState = copy(value);
 
     if (this.persistState) this.instance().storage.set(this.name, value);

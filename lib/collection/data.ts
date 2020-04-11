@@ -6,7 +6,7 @@ export default class Data<DataType = DefaultDataItem> extends State<DataType> {
   constructor(private collection: Collection, data: DataType) {
     super(collection.instance, data);
     this.type(Object);
-    this.mutation = () => this.masterValue;
+    this.mutation = () => this._masterValue;
   }
 }
 

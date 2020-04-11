@@ -9,12 +9,12 @@ export type GroupName = string | number;
 export type Index = Array<PrimaryKey>;
 
 export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> {
-  masterOutput: Array<DataType> = [];
+  _masterOutput: Array<DataType> = [];
   missingPrimaryKeys: Array<PrimaryKey> = [];
   computedFunc?: (data: DataType) => DataType;
   public get output(): Array<DataType> {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
-    return this.masterOutput;
+    return this._masterOutput;
   }
   constructor(private collection: () => Collection, initialIndex?: Array<PrimaryKey>) {
     super(() => collection().instance(), initialIndex || []);
@@ -30,7 +30,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   }
   public build() {
     this.missingPrimaryKeys = [];
-    let group = this.masterValue
+    let group = this._masterValue
       .map(primaryKey => {
         let data = this.collection().data[primaryKey];
         if (!data) {
@@ -53,7 +53,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
     this.dep.dynamic.forEach(state => state.dep.depend(this));
     //@ts-ignore
-    this.masterOutput = group;
+    this._masterOutput = group;
   }
 
   public has(primaryKey: PrimaryKey) {

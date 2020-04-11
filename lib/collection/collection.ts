@@ -184,7 +184,7 @@ export class Collection<DataType = DefaultDataItem> {
       if (!this.groups.hasOwnProperty(groupName)) return;
 
       (primaryKeys as Array<PrimaryKey>).forEach(key => {
-        if (this.groups[groupName].masterValue.includes(key)) return;
+        if (this.groups[groupName]._masterValue.includes(key)) return;
         this.groups[groupName].nextState[config.method](key);
         this.instance().runtime.ingest(this.groups[groupName]);
       });
@@ -269,7 +269,7 @@ export class Collection<DataType = DefaultDataItem> {
     for (let groupName in this.groups) {
       let group = this.groups[groupName];
       // if group does not contain oldKey, continue.
-      if (!group.masterValue.includes(oldKey)) continue;
+      if (!group._masterValue.includes(oldKey)) continue;
       // replace the primaryKey at current index
       group.nextState.splice(group.nextState.indexOf(oldKey), 1, newKey);
       // ingest the group

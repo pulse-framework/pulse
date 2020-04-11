@@ -30,7 +30,7 @@ export default class SubController {
   public components: Set<ComponentContainer> = new Set();
   public callbacks: Set<CallbackContainer> = new Set();
 
-  constructor(public instance: Pulse) {}
+  constructor() {}
 
   /**
    * Subscribe to Pulse state WITH return object
