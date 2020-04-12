@@ -18,7 +18,6 @@ export class State<ValueType = any> {
   public dep: Dep = null;
   public nextState: ValueType = null;
   public isSet: boolean = false; // has been changed from inital value
-  public exists: boolean = false; // is value truthey or falsey
   public persistState: boolean = false;
   public name?: string;
   public valueType?: string;
@@ -32,6 +31,9 @@ export class State<ValueType = any> {
   }
   public get bind(): ValueType {
     return this._masterValue;
+  }
+  public get exists(): boolean {
+    return !!this.value; // is value truthey or falsey
   }
   constructor(public instance: () => Pulse, public initalState, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
@@ -176,7 +178,6 @@ export class State<ValueType = any> {
 
   // INTERNAL
   public privateWrite(value: any) {
-    this.exists = !!value;
     this._masterValue = copy(value);
     this.nextState = copy(value);
 
