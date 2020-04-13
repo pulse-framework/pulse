@@ -82,7 +82,7 @@ export class Collection<DataType = DefaultDataItem> {
       if (key === null) return;
       (groups as Array<string>).forEach(groupName => {
         let group = this.groups[groupName];
-        if (!group.value.includes(key)) group.nextState[config.method || 'push'](key);
+        if (!group.nextState.includes(key)) group.nextState[config.method || 'push'](key);
       });
     });
 
@@ -100,6 +100,10 @@ export class Collection<DataType = DefaultDataItem> {
       return new Data(this, undefined);
     }
     return this.data[id as PrimaryKey];
+  }
+
+  public getValueById(id: PrimaryKey | State): DataType {
+    return this.computedFunc ? this.computedFunc(this.findById(id).value) : this.findById(id).value;
   }
 
   /**

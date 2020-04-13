@@ -91,9 +91,15 @@ export class State<ValueType = any> {
     }, ms || 1000);
     return this;
   }
-  public persist(key: string): this {
+  public persist(key?: string): this {
     this.persistState = true;
-    this.name = key;
+    if (!key && this.name) {
+      key = this.name;
+    } else if (!key) {
+      console.warn('Pulse Persist Error: No key provided');
+    } else {
+      this.name = key;
+    }
     const storage = this.instance().storage;
     storage.persistedState.add(this);
     if (storage.isPromise) {
