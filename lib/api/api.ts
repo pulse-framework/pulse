@@ -40,8 +40,10 @@ export default class API {
     let _this = Object.assign(Object.create(Object.getPrototypeOf(this)), this);
 
     if (config.options && config.options.headers) {
-      config.options.headers = ensureProperHeaders(config.options.headers);
-    }
+      config.options.headers = ensureProperHeaders({ ..._this.config.options.headers, ...config.options.headers });
+		}
+
+		console.log(config.options.headers, 'final headers')
 
     _this.config = {
       ..._this.config,
