@@ -43,8 +43,6 @@ export default class API {
       config.options.headers = ensureProperHeaders({ ..._this.config.options.headers, ...config.options.headers });
 		}
 
-		console.log(config.options.headers, 'final headers')
-
     _this.config = {
       ..._this.config,
       ...config
