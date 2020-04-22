@@ -65,7 +65,6 @@ export class Collection<DataType = DefaultDataItem> {
    * @param {(Array<object>|object)} data - Array of data, or single data object
    * @param {(Array<string>|string)} groups - Array of group names or single group name
    */
-
   public collect(
     items: DataType | Array<DataType>,
     groups?: GroupName | Array<GroupName>,
@@ -103,7 +102,10 @@ export class Collection<DataType = DefaultDataItem> {
   }
 
   public getValueById(id: PrimaryKey | State): DataType {
-    return this.computedFunc ? this.computedFunc(this.findById(id).value) : this.findById(id).value;
+    let data = this.findById(id).value;
+    // @ts-ignore
+    if (!data) data = {};
+    return this.computedFunc ? this.computedFunc(data) : data;
   }
 
   /**
