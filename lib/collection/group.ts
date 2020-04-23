@@ -38,11 +38,11 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
           return undefined;
         }
         // on each data item in this group, run compute
-        if (this.computedFunc) {
+        if (this.computedFunc && data) {
           let dataComputed = this.computedFunc(data.copy());
           return dataComputed;
           // use collection level computed func if local does not exist
-        } else if (this.collection().computedFunc) {
+        } else if (this.collection().computedFunc && data) {
           let dataComputed = this.collection().computedFunc(data.copy());
           return dataComputed;
         }
