@@ -1,4 +1,4 @@
-import State from './state';
+import State, { reset } from './state';
 import Pulse from './pulse';
 import Dep from './dep';
 
@@ -22,6 +22,11 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
   }
   public recompute(): void {
     this.set(this.mutation());
+  }
+  public reset() {
+    reset(this);
+    this.recompute();
+    return this;
   }
 }
 

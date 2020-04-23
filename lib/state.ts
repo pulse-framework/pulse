@@ -154,11 +154,7 @@ export class State<ValueType = any> {
   }
 
   public reset(): this {
-    // this should go through runtime, but eh
-    this.isSet = false;
-    this.previousState = null;
-    this.privateWrite(this.initalState);
-    if (this.persistState) this.instance().storage.remove(this.name);
+    reset(this);
     return this;
   }
 
@@ -212,3 +208,10 @@ export const StateGroup = (instance: () => Pulse, stateGroup: Object): any => {
   return group;
 };
 export default State;
+
+export function reset(instance: State) {
+  instance.isSet = false;
+  instance.previousState = null;
+  instance.privateWrite(instance.initalState);
+  if (instance.persistState) instance.instance().storage.remove(instance.name);
+}
