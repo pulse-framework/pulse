@@ -296,8 +296,8 @@ export class Collection<DataType = DefaultDataItem> {
   public reset() {
     this.data = {};
     this.size = 0;
-    this.groups = {};
-    this.initGroups();
+    const groups = Object.keys(this.groups);
+    groups.forEach(groupName => this.groups[groupName].reset());
   }
 }
 
