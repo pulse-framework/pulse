@@ -68,7 +68,10 @@ export class Collection<DataType = DefaultDataItem> {
   public collect(
     items: DataType | Array<DataType>,
     groups?: GroupName | Array<GroupName>,
-    config: { method?: 'push' | 'unshift' } = {}
+    config: {
+      method?: 'push' | 'unshift';
+      forEachItem?: (item: DataType, key: PrimaryKey, index: number) => void;
+    } = {}
   ): void {
     let _items = normalizeArray(items);
     groups = normalizeArray(groups);
@@ -76,8 +79,9 @@ export class Collection<DataType = DefaultDataItem> {
     // if any of the groups don't already exist, create them
     groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
 
-    _items.forEach(item => {
+    _items.forEach((item, index) => {
       let key = this.saveData(item);
+      if (config.forEachItem) config.forEachItem(item, key, index);
       if (key === null) return;
       (groups as Array<string>).forEach(groupName => {
         let group = this.groups[groupName];
