@@ -98,16 +98,26 @@ export default class API {
       if (this.config.timeout) {
         response = await Promise.race([
           fetch(fullUrl, this.config.options),
-          setTimeout(
-            () =>
-              Promise.reject(() => {
-                const timeoutError: PulseResponse = Response.error();
-                timeoutError.timedout = true;
-                return timeoutError;
-              }),
-            this.config.timeout
-          )
+          new Promise( (resolve, reject) => {
+            // setTimeout isn't inheritly asyncronous, so we need to wrap it in a promise!
+            setTimeout(
+              () => {
+                // iff response is undefined, (meaning the fetch lost the race)...
+                if (!response) reject(() => {
+                  const timeoutError: PulseResponse = Response.error();
+                  timeoutError.timedout = true;
+                  return timeoutError;
+                });
+                // we return the promise reject because this would technically be a faliure to fetch
+                // this is only important because all promises get resolved when using Promise.race, so an uncaught promise error will be thrown without this check.
+              },
+              this.config.timeout
+            )
+          })
+            
+          
         ]);
+
       } else {
         response = await fetch(fullUrl, this.config.options);
       }
