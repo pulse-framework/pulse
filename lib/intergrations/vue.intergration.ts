@@ -11,7 +11,7 @@ type keyedState = {
 export default {
 	name: 'vue',
 	bind(pulseConstructor) {
-		pulseConstructor.install = (Vue, options) => {
+		pulseConstructor.install = (Vue, options: any) => {
 			const pulse = globalThis.__pulse;
 			Vue.mixin({
 				beforeCreate() {
@@ -20,11 +20,12 @@ export default {
 					if (pulseConstructor.Collection) this.Collection = pulseConstructor.Collection;
 					if (pulseConstructor.API) this.API = pulseConstructor.API;
 					if (pulseConstructor.Computed) this.Computed = pulseConstructor.Computed;
-					if (usePulse) this.usePulse.bind(usePulse);
-
-					// Object.keys(global.contextRef).forEach(moduleInstance => {
-					// 	this['$' + moduleInstance] = global.contextRef[moduleInstance];
-					// });
+					if (usePulse) usePulse.bind(this);
+					
+					Object.keys(options).forEach((key, i) => {
+						this[`$${key}`] = options[key];
+					})
+					
 					// if (pulse.utils) this.$utils = pulse.utils;
 					// if (pulse.services) this.$services = pulse.services;
 
