@@ -1,5 +1,5 @@
 import reactIntergration from './react.intergration';
-import vueIntergration from './vue.integration';
+import vueIntergration from './vue.intergration';
 import Pulse from '../pulse';
 
 export interface Intergration {
