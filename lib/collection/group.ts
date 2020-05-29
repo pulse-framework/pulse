@@ -12,6 +12,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   _masterOutput: Array<DataType> = [];
   missingPrimaryKeys: Array<PrimaryKey> = [];
   computedFunc?: (data: DataType) => DataType;
+  _length: State;
   public get output(): Array<DataType> {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this._masterOutput;
@@ -58,6 +59,10 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
   public has(primaryKey: PrimaryKey) {
     return this.value.includes(primaryKey) || false;
+  }
+
+  public get size(): number {
+    return this.value.length;
   }
 
   public compute(func: (data: DataType) => DataType): void {
