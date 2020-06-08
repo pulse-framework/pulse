@@ -27,11 +27,6 @@
     // "pretty": true,
     // "suppressImplicitAnyIndexErrors": true
   },
-  "include": [
-    "./lib/**/*"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
-  ]
+  "include": ["./lib/**/*", "next"],
+  "exclude": ["dist", "node_modules"]
 }

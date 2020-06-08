@@ -19,9 +19,9 @@ export function resetState(items: Array<State | Collection | any>) {
   });
 }
 
-export function extractAll(obj, instance): Set<State> {
+export function extractAll<I = any>(obj, instance: any): Set<I> {
   if (obj instanceof instance) return new Set(obj);
-  const found: Set<State> = new Set();
+  const found: Set<I> = new Set();
   let next = [obj];
   function look() {
     let _next = [...next];
