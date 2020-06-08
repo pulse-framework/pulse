@@ -16,8 +16,14 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this._masterOutput;
   }
-  constructor(private collection: () => Collection, initialIndex?: Array<PrimaryKey>) {
+  constructor(
+    private collection: () => Collection,
+    initialIndex?: Array<PrimaryKey>,
+    config: { name?: string } = {}
+  ) {
     super(() => collection().instance(), initialIndex || []);
+
+    if (config.name) this.name = config.name;
 
     this.type(Array);
 

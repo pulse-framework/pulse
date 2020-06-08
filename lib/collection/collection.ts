@@ -120,7 +120,7 @@ export class Collection<DataType = DefaultDataItem> {
     if (this.groups[groupName]) {
       return this.groups[groupName];
     } else {
-      return new Group(() => this); // return empty group
+      return new Group(() => this, [], { name: 'dummy' }); // return empty group
     }
   }
 
