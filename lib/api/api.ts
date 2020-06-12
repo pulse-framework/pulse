@@ -117,7 +117,7 @@ export default class API {
         response = await fetch(fullUrl, this.config.options);
       }
     } catch (e) {
-      response = Response && typeof Response.error === 'function' && Response.error();
+      return e;
     }
 
     // Return the old content type header
