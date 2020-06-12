@@ -10,6 +10,7 @@ export interface PulseResponse extends Response {
 export interface apiConfig {
   options: RequestInit;
   baseURL?: string;
+  path?: string;
   timeout?: number;
   requestIntercept?: Function;
   responseIntercept?: Function;
@@ -40,8 +41,11 @@ export default class API {
     let _this = Object.assign(Object.create(Object.getPrototypeOf(this)), this);
 
     if (config.options && config.options.headers) {
-      config.options.headers = ensureProperHeaders({ ..._this.config.options.headers, ...config.options.headers });
-		}
+      config.options.headers = ensureProperHeaders({
+        ..._this.config.options.headers,
+        ...config.options.headers
+      });
+    }
 
     _this.config = {
       ..._this.config,
@@ -89,8 +93,9 @@ export default class API {
     } else config.options.body = payload;
 
     // construct endpoint
+    let path = this.config.path ? '/' + this.config.path : '';
     if (endpoint.startsWith('http')) fullUrl = endpoint;
-    else fullUrl = `${this.config.baseURL}/${endpoint}`;
+    else fullUrl = `${this.config.baseURL}${path}/${endpoint}`;
 
     if (config.requestIntercept) config.requestIntercept({ ...config.options, endpoint: fullUrl });
 
