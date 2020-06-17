@@ -3,6 +3,7 @@ import Pulse from '../pulse';
 import State from '../state';
 import Collection, { DefaultDataItem } from './collection';
 import Computed from '../computed';
+import { defineConfig } from '../utils';
 
 export type PrimaryKey = string | number;
 export type GroupName = string | number;
@@ -70,7 +71,40 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     this.computedFunc = func;
   }
 
-  public add(primaryKey: PrimaryKey) {}
+  public add(primaryKey: PrimaryKey, options: GroupAddOptions = {}): this {
+    // set defaults
+    options = defineConfig(options, { method: 'push', overwrite: true });
+    const useIndex = options.atIndex !== undefined;
+    const exists = this.nextState.includes(primaryKey);
+
+    if (options.overwrite) this.nextState = this.nextState.filter(i => i !== primaryKey);
+    // if we do not want to overwrite and key already exists in group, exit
+    else if (exists) return this;
+
+    // if atIndex is set, inject at that index.
+    if (useIndex) {
+      if (options.atIndex > this.nextState.length) options.atIndex = this.nextState.length - 1;
+      this.nextState.splice(options.atIndex, 0, primaryKey);
+    }
+    // push or unshift into state
+    else this.nextState[options.method](primaryKey);
+
+    // send nextState to runtime and return
+    this.set();
+    return this;
+  }
+
+  public remove(primaryKey: PrimaryKey): this {
+    this.nextState = this.nextState.filter(i => i !== primaryKey);
+    this.set();
+    return this;
+  }
 }
 
 export default Group;
+
+export interface GroupAddOptions {
+  atIndex?: number; //
+  method?: 'unshift' | 'push'; // method to add to group
+  overwrite?: boolean; // set to false to leave primary key in place if already present
+}
