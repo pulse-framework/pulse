@@ -1,6 +1,6 @@
 import Pulse from '../';
 import State from '../state';
-import Group, { PrimaryKey, GroupName } from './group';
+import Group, { PrimaryKey, GroupName, GroupAddOptions } from './group';
 import { defineConfig, normalizeGroups, shallowmerge } from '../utils';
 import { deepmerge } from '../helpers/deepmerge';
 import { normalizeArray } from '../helpers/handy';
@@ -180,13 +180,8 @@ export class Collection<DataType = DefaultDataItem> {
   public put(
     primaryKeys: PrimaryKey | Array<PrimaryKey>,
     groupNames: GroupName | Array<GroupName>,
-    config?: {
-      method: 'push' | 'unshift';
-    }
+    options?: GroupAddOptions
   ) {
-    config = defineConfig(config, {
-      method: 'push'
-    });
     primaryKeys = normalizeArray(primaryKeys);
     groupNames = normalizeArray(groupNames);
 
@@ -194,9 +189,7 @@ export class Collection<DataType = DefaultDataItem> {
       if (!this.groups.hasOwnProperty(groupName)) return;
 
       (primaryKeys as Array<PrimaryKey>).forEach(key => {
-        if (this.groups[groupName]._masterValue.includes(key)) return;
-        this.groups[groupName].nextState[config.method](key);
-        this.instance().runtime.ingest(this.groups[groupName]);
+        this.groups[groupName].add(key);
       });
     });
   }
@@ -218,22 +211,13 @@ export class Collection<DataType = DefaultDataItem> {
   ): boolean {
     primaryKeys = normalizeArray(primaryKeys);
     groups = normalizeArray(groups);
-    let groupsToRegen: Set<Group> = new Set();
-
     groups.forEach(groupName => {
       (primaryKeys as Array<PrimaryKey>).forEach(primaryKey => {
         if (!this.groups[groupName]) return;
-
         let group = this.getGroup(groupName);
-
-        if (group.has(primaryKey)) {
-          group.nextState = group.nextState.filter(id => id !== primaryKey);
-          groupsToRegen.add(group);
-        }
+        group.remove(primaryKey);
       });
     });
-
-    groupsToRegen.forEach(group => this.instance().runtime.ingest(group));
     return true;
   }
 
