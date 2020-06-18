@@ -150,6 +150,10 @@ export class State<ValueType = any> {
   }
 
   public toggle(): this {
+    if (typeof this._masterValue === 'boolean') {
+      // @ts-ignore
+      this.set(!this._masterValue);
+    }
     return this;
   }
 

@@ -7,6 +7,7 @@ export function preserveServerState(
 ) {
   const collections = extractAll<Collection>(core, Collection);
   const state = extractAll<State>(core, State);
+
   const PULSE_DATA = {
     collections: [],
     state: {}
