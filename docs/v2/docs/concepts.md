@@ -28,7 +28,7 @@ Changing that data can now be done as if it were a plain Javascript object:
 pulse.something = false;
 ```
 
-The typical way to use Pulse is with another framework, learn how to intergrate this into [React]() or [Vue]() for automatic component re-renders when Pulse data changes.
+The typical way to use Pulse is with another framework, learn how to intergrate this into [React](https://github.com/pulse-framework/pulse/blob/master/docs/v2/getting-started/setup-with-react.md) or [Vue](https://github.com/pulse-framework/pulse/blob/master/docs/v2/getting-started/setup-with-vue.md) for automatic component re-renders when Pulse data changes.
 
 A manual way to listen for a state change would be using `watch()`
 
