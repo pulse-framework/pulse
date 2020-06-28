@@ -12,6 +12,7 @@ export interface DefaultDataItem {
 }
 export interface CollectionConfig {
   groups: Array<string>;
+  name?: string;
   primaryKey: string | number;
   model?: Object;
 }
@@ -54,7 +55,7 @@ export class Collection<DataType = DefaultDataItem> {
     // if the data already exists, merge data
     if (this.data[data[key]]) this.data[data[key]].patch(data, { deep: false });
     // otherwise create new data instance
-    else this.data[data[key]] = new Data<DataType>(this, data);
+    else this.data[data[key]] = new Data<DataType>(() => this, data);
     this.size++;
     return data[key];
   }
@@ -74,6 +75,7 @@ export class Collection<DataType = DefaultDataItem> {
     } = {}
   ): void {
     let _items = normalizeArray(items);
+    if (!groups) groups = 'default';
     groups = normalizeArray(groups);
 
     // if any of the groups don't already exist, create them
@@ -100,7 +102,7 @@ export class Collection<DataType = DefaultDataItem> {
   public findById(id: PrimaryKey | State): Data<DataType> {
     if (id instanceof State) id = id.value;
     if (!this.data.hasOwnProperty(id as PrimaryKey)) {
-      return new Data(this, undefined);
+      return new Data(() => this, undefined);
     }
     return this.data[id as PrimaryKey];
   }

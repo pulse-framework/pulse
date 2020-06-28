@@ -11,11 +11,7 @@ interface Global {
 
 const App = () => {
   // usePulse to subscribe to Pulse state
-  const [dark, time, duration] = usePulse([
-    Core.state.DARK_THEME,
-    Core.state.THE_TIME,
-    Core.state.SESSION_DURATION
-  ]);
+  const [dark, time, duration] = usePulse([Core.state.DARK_THEME, Core.state.THE_TIME]);
 
   return (
     <div className="App">
@@ -30,7 +26,7 @@ const App = () => {
           Pulse X React
         </a>
         <p>{JSON.stringify(time)}</p>
-        <p className="small-text">{JSON.stringify(duration)}</p>
+        {/* <p className="small-text">{JSON.stringify(duration)}</p> */}
       </header>
     </div>
   );

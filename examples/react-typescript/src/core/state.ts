@@ -9,12 +9,9 @@ export const AUTH_TOKEN = App.State('')
   .type(String);
 
 export const THE_TIME = App.State(new Date())
-  .interval(() => new Date(), 1000)
+  // .interval(() => new Date(), 1000)
   .type(String);
 
-export const SESSION_DURATION = App.Computed(
-  function() {
-    return ((THE_TIME.value.getTime() - THE_TIME.initalState.getTime()) / 1000).toFixed();
-  },
-  [THE_TIME]
-);
+// export const SESSION_DURATION = App.Computed(function() {
+//   return ((THE_TIME.value.getTime() - THE_TIME.initalState.getTime()) / 1000).toFixed();
+// });

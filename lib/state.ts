@@ -138,7 +138,7 @@ export class State<ValueType = any> {
   }
 
   public key(key: string): this {
-    // this.name = key;
+    this.name = key;
     return this;
   }
 
