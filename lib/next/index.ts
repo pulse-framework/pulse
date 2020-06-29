@@ -15,7 +15,7 @@ export function preserveServerState(
 
   state.forEach(stateItem => {
     if (stateItem.name && stateItem.isSet)
-      PULSE_DATA.state[stateItem.name] = JSON.stringify(stateItem._masterValue);
+      PULSE_DATA.state[stateItem.name] = stateItem._masterValue;
   });
 
   collections.forEach(collection => {
@@ -35,10 +35,21 @@ export function preserveServerState(
   return nextProps;
 }
 
-export function loadServerState() {
+export function loadServerState(core: { [key: string]: any }) {
   if (isServer()) return;
+  if (globalThis?.__NEXT_DATA__?.props?.pageProps?.PULSE_DATA) {
+    const pulseData = globalThis.__NEXT_DATA__.props.pageProps.PULSE_DATA
+
+    const state = extractAll<State>(core, State);
+
+    state.forEach(item => {
+      if (item.name && pulseData.state[item.name]) 
+        item.set(pulseData.state[item.name])    
+    })
+  }
+
 }
 
 export function isServer() {
-  return typeof process !== 'undefined' && process.release.name === 'node';
+  return typeof process !== 'undefined' && process?.release?.name === 'node';
 }
