@@ -191,7 +191,7 @@ export class Collection<DataType = DefaultDataItem> {
       if (!this.groups.hasOwnProperty(groupName)) return;
 
       (primaryKeys as Array<PrimaryKey>).forEach(key => {
-        this.groups[groupName].add(key);
+        this.groups[groupName].add(key, options);
       });
     });
   }

@@ -41,6 +41,7 @@ export function loadServerState(core: { [key: string]: any }) {
     const pulseData = globalThis.__NEXT_DATA__.props.pageProps.PULSE_DATA
 
     const state = extractAll<State>(core, State);
+  const collections = extractAll<Collection>(core, Collection);
 
     state.forEach(item => {
       if (item.name && pulseData.state[item.name]) 

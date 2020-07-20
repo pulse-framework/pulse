@@ -2,9 +2,12 @@ import * as http from 'http';
 
 type Body = { [key: string]: any };
 
-export interface PulseResponse<DataType = any> extends Response {
-	data?: DataType;
+export interface PulseResponse<DataType = any>  {
+	data: DataType;
 	timedout?: boolean;
+	status: number;
+	raw?: Response,
+	type?: string;
 }
 
 export interface apiConfig {
@@ -99,42 +102,44 @@ export default class API {
 
 		if (config.requestIntercept) config.requestIntercept({ ...config.options, endpoint: fullUrl });
 
-		try {
-			if (this.config.timeout) {
-				response = await Promise.race([
-					fetch(fullUrl, this.config.options),
-					setTimeout(
-						() =>
-							Promise.reject(() => {
-								const timeoutError: PulseResponse = Response.error();
-								timeoutError.timedout = true;
-								return timeoutError;
-							}),
-						this.config.timeout
-					)
-				]);
-			} else {
-				response = await fetch(fullUrl, this.config.options);
-			}
-		} catch (e) {
-			return e;
+		let timedout = false;
+		if (this.config.timeout) {
+			let t: NodeJS.Timeout;
+			const timeout = new Promise((resolve) => {
+				t = setTimeout(() => {
+					timedout = true;
+					resolve();
+				}, this.config.timeout);
+				})
+			const request = new Promise((resolve, reject) => {
+				fetch(fullUrl, this.config.options).then((data) => {
+					clearTimeout(t);
+					resolve(data);
+				}).catch(reject)
+			})
+			response = await Promise.race([timeout, request])
+		} else {
+			response = await fetch(fullUrl, this.config.options);
 		}
 
 		// Return the old content type header
 		if (originalType) config.options.headers['content-type'] = originalType;
 
 		// if we got here, PulseResponse is the actual response object
-		let res = response as PulseResponse;
-		let contentType = res.headers.get('content-type');
+		let res: PulseResponse = {
+			status: timedout? 408 :(response as Response)?.status,
+			raw: response as Response,
+			data: {},
+			type: (response as Response)?.headers?.get('content-type') || 'text/plain',
+			timedout
+		};
 
 		// extract response data
-		if (contentType && contentType.indexOf('application/json') !== -1) {
-			data = await res.json();
-		} else {
-			data = await res.text();
+		if (res.type?.includes('application/json')) {
+			res.data = await res.raw.json();
+		} else if (typeof res?.raw?.text === 'function') {
+			res.data = await res.raw.text();
 		}
-
-		res.data = data;
 
 		if (config.responseIntercept) config.responseIntercept(res);
 
