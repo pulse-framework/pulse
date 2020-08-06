@@ -1,31 +1,40 @@
 import { App } from "../../pulse";
-import { AccountBody } from "./account.interfaces";
-
+import { Controller } from "pulse-framework";
+import { AuthCreds } from "./account.interfaces";
 import * as actions from "./account.actions";
 import * as helpers from "./account.helpers";
 import * as routes from "./account.routes";
 
-// define state as an object of state instances
-// state object can also contain computed values
-const state = {
-	LAST_ACCOUNT_ID: App.State<string>("").persist(),
-	ENABLE_SOMETHING: App.State<boolean>(true).persist().type(Boolean),
+export interface AccountBody {
+	id: number;
+	username: string;
+	email: string;
+}
+// Define an object of state instances with chained modifiers
+const AccountState = {
+	LAST_ACCOUNT_ID: App.State<number>(0).persist(),
+	CREDENTIALS: App.State<AuthCreds>({}).persist(),
 };
-
-// define collection
-const collection = App.CollectionT<AccountBody>()(collection => ({
+// Define a Pulse Collection to store theoretical authenticated accounts
+// Pass in AccountBody type as generic "DataType"
+// All data items, groups and selectors within this collection will be given the AccountBody type
+const AccountCollection = App.Collection<AccountBody>()(Collection => ({
 	groups: {
-		AUTHED: collection.Group(),
+		AUTHED: Collection.Group().persist(), // a group for all authenticated accounts
 	},
 	selectors: {
-		CURRENT: collection.Selector(),
+		// NEW: Introducing Selectors for Collections
+		CURRENT: Collection.Selector(), // cached refrence to the current account within this collection
 	},
 }));
-
-// define controller and pass in imports
-export const accounts = App.Controller({
-	state,
-	collection,
+// Type Saftey Improvements: Collections now use a double parentheses syntax to allow the explicit generic "DataType" while also preserving the inferred types for groups and selectors.
+AccountCollection.selectors.CURRENT.value.username; // AccountBody
+// Update Selector like this
+AccountCollection.selectors.CURRENT.select(2); // select account with id "2" from collection
+// Define controller and pass in imports
+export const accounts = new Controller({
+	state: AccountState,
+	collection: AccountCollection,
 	actions,
 	helpers,
 	routes,

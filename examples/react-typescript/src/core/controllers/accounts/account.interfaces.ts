@@ -1,4 +1,10 @@
 export interface AccountBody {
-  id: string;
-  jeff: true;
+	id: number;
+	username: string;
+	email: string;
+}
+
+export interface AuthCreds {
+	username?: string;
+	password?: string;
 }

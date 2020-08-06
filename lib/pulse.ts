@@ -7,7 +7,7 @@ import Storage, { StorageMethods } from './storage';
 import API, { apiConfig } from './api/api';
 import Group, { GroupName, PrimaryKey } from './collection/group';
 import use, { Intergration } from './intergrations/use';
-import { Controller, ControllerConfig, ActionInitializer, StateInitializer } from './controller';
+import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
 import Data from './collection/data';
 
 export interface PulseConfig {
@@ -39,10 +39,12 @@ export default class Pulse {
     use(frameworkConstructor, this);
   }
 
-  public Controller = <S = StateInitializer, C = Collection, A = ActionInitializer>(config: ControllerConfig<S, C, A>): Controller => {
-    this.controllers[name] = new Controller<S, C, A>(config);
-    return this.controllers[name];
-  };
+  // public Controller = <S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj>(
+  //   config: ControllerConfig<S, C, A, H, R>
+  // ): Controller<S, C, A, H, R> => {
+  //   this.controllers[name] = new Controller<S, C, A, H, R>(config);
+  //   return this.controllers[name];
+  // };
   /**
    * Create Pulse API
    * @param config Object
@@ -73,8 +75,8 @@ export default class Pulse {
    * @param config.primaryKey The primary key for the collection.
    * @param config.groups Define groups for this collection.
    */
-  public Collection = <DataType = DefaultDataItem, G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) =>
-    new Collection<DataType, G, S>(() => this, config);
+  // public Collection = <DataType = DefaultDataItem, G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) =>
+  //   new Collection<DataType, G, S>(() => this, config);
   // /**
   //  * Create a Pulse collection with automatic type inferring
   //  * @param config object
@@ -89,7 +91,8 @@ export default class Pulse {
    * @param config.primaryKey string - The primary key for the collection.
    * @param config.groups object - Define groups for this collection.
    */
-  public CollectionT = <DataType = DefaultDataItem>() => {
+  public Error(e: any, data?: any) {}
+  public Collection = <DataType = DefaultDataItem>() => {
     return <G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) => {
       return new Collection<DataType, G, S>(() => this, config);
     };
