@@ -27,15 +27,9 @@ const AccountCollection = App.Collection<AccountBody>()(Collection => ({
 		CURRENT: Collection.Selector(), // cached refrence to the current account within this collection
 	},
 }));
-// Type Saftey Improvements: Collections now use a double parentheses syntax to allow the explicit generic "DataType" while also preserving the inferred types for groups and selectors.
-AccountCollection.selectors.CURRENT.value.username; // AccountBody
-// Update Selector like this
-AccountCollection.selectors.CURRENT.select(2); // select account with id "2" from collection
+
 // Define controller and pass in imports
 export const accounts = new Controller({
 	state: AccountState,
 	collection: AccountCollection,
-	actions,
-	helpers,
-	routes,
 });

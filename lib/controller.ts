@@ -15,7 +15,6 @@ export interface ControllerConfig<S, C, A, H, R> {
 }
 
 export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj> {
-  public shit: Pick<ControllerConfig<S, C, A, H, R>, 'state' | 'collection' | 'actions' | 'helpers' | 'routes' | 'name'>;
   public name?: string;
 
   public state: this['config']['state'];
@@ -23,17 +22,11 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
   public actions: this['config']['actions'];
   public helpers: this['config']['helpers'];
   public routes: this['config']['routes'];
-  private pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
-    const copy = {} as Pick<T, K>;
 
-    keys.forEach((key) => (copy[key] = obj[key]));
+  public config: ControllerConfig<S, C, A, H, R>;
 
-    return copy;
-  }
-  constructor(public config: ControllerConfig<S, C, A, H, R>) {
-    const shit = this.pick(config, ...(Object.keys(config) as []));
-
-    this.shit = shit;
+  constructor(config: Partial<ControllerConfig<S, C, A, H, R>>) {
+    this.config = config as Required<ControllerConfig<S, C, A, H, R>>;
   }
   private applyKeys() {
     // for (const instanceName in this.state) this.config.state[instanceName].key(instanceName);
