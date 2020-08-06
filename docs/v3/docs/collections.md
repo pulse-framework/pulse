@@ -58,7 +58,42 @@ const MyCollection = App.Collection<DataType>()(Collection => ({
 - `name` [string]() - Create a default Group that catches all collected items.
 
  ## Groups
+Groups handy to provide arrays of collection data and can be used independently in your components. When the index of a group is modified, it will "rebuild" the `output` with actual collection data.
+```js
+const MyCollection = App.Collection<DataType>()(Collection => ({
+  groups: {
+    MY_GROUP: Collection.Group()
+  }
+}))
+```
+Groups are dependent on a Collection instance, thus the config function returns the Collection instance.
+::: tip Groups extend the State class
+   Groups have all the methods and functionality State does (See [State methods]()), plus aditional methods listed below. The `value` of the State is the Group's index, and the additional `output` property is the cached collection data.
+   
+:::
+```js
+MyCollection.groups.MY_GROUP.output // Actual data
+MyCollection.groups.MY_GROUP.value // Array of primary keys
+```
+### Group methods
+> `Group.has()` [Function]() - Check if a group has a primary key
+  ```js
+  MyCollection.groups.MY_GROUP.has(23) // boolean
+  ```
+> `Group.add()` [Function]() - Add a key to a group. Takes an options object as the second parameter.
+  ```js
+  MyCollection.groups.MY_GROUP.add(23, {}) // boolean
 
+  interface Options {
+    atIndex?: number; // specify explicit index to insert
+    method?: 'unshift' | 'push'; // (default: push) method to add to group
+    overwrite?: boolean; // (default: false) set to false to leave primary key in place if already present
+  } 
+  ```
+> `Group.build()` [Function]() - Force rebuild the group output
+  ```js
+    MyCollection.groups.MY_GROUP.build() // void
+  ```
  ## Selectors 
 
  ## `collect()`
