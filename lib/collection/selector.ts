@@ -16,10 +16,12 @@ export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = Sele
   }
   constructor(collection: () => Collection<DataType, G, S>, key: PrimaryKey) {
     if (!key) key = 0;
+    // initialize computed constructor with initial compute state
+    super(collection().instance, () => collection().findById(key).value);
+
     // computed function that returns a given item from collection
-    const func = () => collection().findById(this.selected).value;
-    // initialize computed constructor
-    super(collection().instance, func);
+    this.func = () => collection().findById(this._masterSelected).value;
+
     // alias collection function
     this.collection = collection;
 

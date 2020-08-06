@@ -14,7 +14,6 @@ const state = {
 
 // define collection
 const collection = App.CollectionT<AccountBody>()(collection => ({
-	indexAll: true,
 	groups: {
 		AUTHED: collection.Group(),
 	},
@@ -22,8 +21,6 @@ const collection = App.CollectionT<AccountBody>()(collection => ({
 		CURRENT: collection.Selector(),
 	},
 }));
-
-collection.selectors.CURRENT.output;
 
 // define controller and pass in imports
 export const accounts = App.Controller({
