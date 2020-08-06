@@ -43,7 +43,7 @@ export const core = {
 - **State** is now a class with methods to **set**, **read**, **undo**, etc... Previously in Pulse this was referred to as _data_ and was part of a _collection_ or _module_, but now it is free.
 
 ```js
-const STATE = App.state(true).type(Boolean);
+const STATE = App.State(true).type(Boolean);
 
 STATE.set();
 STATE.value; // static value

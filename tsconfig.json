@@ -7,7 +7,7 @@
     "noImplicitAny": false,
     "moduleResolution": "node",
     "outDir": "./dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
     // Old config, some of this might be needed?
     // "jsx": "preserve",
     // "esModuleInterop": true,

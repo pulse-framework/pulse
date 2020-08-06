@@ -13,8 +13,6 @@ export default {
           Object.keys(global.contextRef).forEach(moduleInstance => {
             this['$' + moduleInstance] = global.contextRef[moduleInstance];
           });
-          if (pulse.utils) this.$utils = pulse.utils;
-          if (pulse.services) this.$services = pulse.services;
 
           // register component with Pulse
           global.subs.registerComponent(this);
@@ -25,12 +23,10 @@ export default {
           this.mapData = properties => mapData(properties, this);
         },
         mounted() {
-          if (this.__pulseUniqueIdentifier && config.waitForMount)
-            pulse.mount(this);
+          if (this.__pulseUniqueIdentifier && config.waitForMount) pulse.mount(this);
         },
         beforeDestroy() {
-          if (this.__pulseUniqueIdentifier && config.autoUnmount)
-            global.subs.unmount(this);
+          if (this.__pulseUniqueIdentifier && config.autoUnmount) global.subs.unmount(this);
         }
       });
     };

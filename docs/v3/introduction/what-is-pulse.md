@@ -34,3 +34,6 @@ I built Pulse reflective of the architecture in which we use at Notify.me, and a
 - :leaves: Lightweight (only 100KB) with 0 dependencies
 - :fire: Supports Vue, React and React Native `usePulse()`
 - :yellow_heart: Well documented (I'm getting there...)
+
+
+Full Documentation: [https://www.notion.so/notify/Pulse-Framework-3-0-A-Complete-Guide-a86cbbd6260b44f495492312d324b8ad](https://www.notion.so/notify/Pulse-Framework-3-0-A-Complete-Guide-a86cbbd6260b44f495492312d324b8ad)

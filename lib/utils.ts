@@ -12,10 +12,10 @@ export function cleanState(state: State): any {
 }
 
 export function resetState(items: Array<State | Collection | any>) {
-  items.forEach(item => {
+  items.forEach((item) => {
     if (item instanceof Collection) item.reset();
     const stateSet = extractAll(item, State);
-    stateSet.forEach(state => state.reset());
+    stateSet.forEach((state) => state.reset());
   });
 }
 
@@ -26,7 +26,7 @@ export function extractAll<I = any>(obj, instance: any): Set<I> {
   function look() {
     let _next = [...next];
     next = [];
-    _next.forEach(o => {
+    _next.forEach((o) => {
       for (let property in o) {
         if (o[property] instanceof instance) found.add(o[property]);
         else if (isWatchableObject(o[property])) next.push(o[property]);
@@ -71,7 +71,7 @@ export const collectionFunctions = [
   'remove'
 ];
 
-export const copy = val => {
+export const copy = (val) => {
   if (isWatchableObject(val)) val = { ...val };
   else if (Array.isArray(val)) val = [...val];
 
@@ -90,23 +90,19 @@ export function normalizeGroups(groupsAsArray: any = []) {
 
 export function shallowmerge(source, changes) {
   let keys = Object.keys(changes);
-  keys.forEach(property => {
+  keys.forEach((property) => {
     source[property] = changes[property];
   });
 
   return source;
 }
 
-export function defineConfig(config, defaults) {
+export function defineConfig<C>(config: C, defaults): C {
   return { ...defaults, ...config };
 }
 
 export function genId(): string {
-  return (
-    Math.random()
-      .toString()
-      .split('.')[1] + Date.now()
-  );
+  return Math.random().toString().split('.')[1] + Date.now();
 }
 
 export function isWatchableObject(value) {
@@ -114,12 +110,7 @@ export function isWatchableObject(value) {
     try {
       return obj instanceof HTMLElement;
     } catch (e) {
-      return (
-        typeof obj === 'object' &&
-        obj.nodeType === 1 &&
-        typeof obj.style === 'object' &&
-        typeof obj.ownerDocument === 'object'
-      );
+      return typeof obj === 'object' && obj.nodeType === 1 && typeof obj.style === 'object' && typeof obj.ownerDocument === 'object';
     }
   }
   let type = typeof value;
@@ -127,9 +118,7 @@ export function isWatchableObject(value) {
 }
 
 export function normalizeMap(map) {
-  return Array.isArray(map)
-    ? map.map(key => ({ key, val: key }))
-    : Object.keys(map).map(key => ({ key, val: map[key] }));
+  return Array.isArray(map) ? map.map((key) => ({ key, val: key })) : Object.keys(map).map((key) => ({ key, val: map[key] }));
 }
 
 export const arrayFunctions = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
