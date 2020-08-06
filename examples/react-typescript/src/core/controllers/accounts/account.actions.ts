@@ -4,7 +4,7 @@ import { App } from "../../pulse";
 // Functions exported from here will be accessible in the accounts conroller
 
 // Grab refrence to all controllers via the Core() function
-const { accounts } = Core();
+const { accounts } = App.Core<Core>();
 
 // Login function, all errors will be processed by the configurable Pulse error handler
 export async function Login() {

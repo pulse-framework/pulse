@@ -38,6 +38,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   }
   public build() {
     this.missingPrimaryKeys = [];
+    if (!Array.isArray(this._masterValue)) return [];
     let group = this._masterValue
       .map((primaryKey) => {
         let data = this.collection().data[primaryKey];

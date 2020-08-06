@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'PulseJS',
+  title: 'Pulse Framework',
   description: 'A global state and logic framework for reactive Javascript applications.',
   dest: 'dist',
   serviceWorker: true,

@@ -1,21 +1,21 @@
 // import Pulse first
-import { App } from './pulse';
+import { App } from "./pulse";
+import { accounts } from "./controllers/accounts";
 // then import controllers
-import { accounts } from './controllers/accounts';
 
 // Create API instance
 export const API = App.API({
-  baseURL: 'https://my.api.me',
-  timeout: 10000,
-  options: {
-    credentials: 'include'
-  }
+	baseURL: "https://my.api.me",
+	timeout: 10000,
+	options: {
+		credentials: "include",
+	},
 });
 
 // export static core
 export const core = {
-  accounts
+	accounts,
 };
 
 // export core as internal alias function
-export const Core = () => core;
+export type Core = typeof core;

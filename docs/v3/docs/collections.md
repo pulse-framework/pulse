@@ -2,7 +2,7 @@
 title: Collections
 ---
 
-## Collection Basics
+# `App.Collection()`
 
 Pulse provides "collections" as a way to easily save data. Collections are designed for data following the same structure or "model". Such as posts, comments, reviews, store items- for example.
 

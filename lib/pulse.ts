@@ -52,6 +52,9 @@ export default class Pulse {
    * @param config.baseURL String - Url to prepend to endpoints (without trailing slash)
    * @param config.timeout Number - Time to wait for request before throwing error
    */
+  public Core = <CoreType>(): CoreType => {
+    return this.controllers as CoreType;
+  };
   public API = (config: apiConfig) => new API(config);
   /**
    * Create Pulse state
