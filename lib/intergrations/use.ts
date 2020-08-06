@@ -1,5 +1,5 @@
 import reactIntergration from './react.intergration';
-// import vueIntergration from './vue.intergration';
+import vueIntergration from './vue.intergration';
 import Pulse from '../pulse';
 
 export interface Intergration {
@@ -25,7 +25,7 @@ export default function use(plugin: any, pulseInstance: Pulse) {
       intergrate(reactIntergration, 'react');
       break;
     case 'vue':
-      // intergrate(vueIntergration, 'vue');
+      intergrate(vueIntergration, 'vue');
       break;
     case 'custom':
       if (validateCustomFramework(plugin as Intergration)) intergrate(plugin, 'custom');
