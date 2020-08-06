@@ -14,6 +14,7 @@ export function cleanState(state: State): any {
 export function resetState(items: Array<State | Collection | any>) {
   items.forEach((item) => {
     if (item instanceof Collection) item.reset();
+    if (item instanceof State) return item.reset();
     const stateSet = extractAll(item, State);
     stateSet.forEach((state) => state.reset());
   });
