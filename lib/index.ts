@@ -5,6 +5,7 @@ export * from './computed';
 export * from './collection/collection';
 export * from './collection/group';
 export * from './pulse';
+export { Controller } from './controller';
 
 export type PrimaryKey = string | number;
 

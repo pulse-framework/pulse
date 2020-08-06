@@ -1,12 +1,15 @@
 import State, { StateGroup } from './state';
 import Computed from './computed';
-import Collection from './collection/collection';
+import Collection, { GroupObj, DefaultDataItem, SelectorObj, CollectionConfig, Config } from './collection/collection';
 import SubController from './sub';
 import Runtime from './runtime';
 import Storage, { StorageMethods } from './storage';
 import API, { apiConfig } from './api/api';
-import Group from './collection/group';
+import Group, { GroupName, PrimaryKey } from './collection/group';
 import use, { Intergration } from './intergrations/use';
+import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
+import Data from './collection/data';
+
 export interface PulseConfig {
   storagePrefix?: string;
   computedDefault?: any;
@@ -20,8 +23,10 @@ export interface PulseConfig {
 export default class Pulse {
   public runtime: Runtime;
   public storage: Storage;
+  public controllers: { [key: string]: any } = {};
   public subController: SubController;
   public intergration: Intergration = null;
+
   constructor(public config: PulseConfig = {}) {
     this.subController = new SubController();
     this.runtime = new Runtime(() => this);
@@ -29,9 +34,17 @@ export default class Pulse {
     if (config.framework) this.initFrameworkIntergration(config.framework);
     this.globalBind();
   }
+
   public initFrameworkIntergration(frameworkConstructor) {
     use(frameworkConstructor, this);
   }
+
+  // public Controller = <S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj>(
+  //   config: ControllerConfig<S, C, A, H, R>
+  // ): Controller<S, C, A, H, R> => {
+  //   this.controllers[name] = new Controller<S, C, A, H, R>(config);
+  //   return this.controllers[name];
+  // };
   /**
    * Create Pulse API
    * @param config Object
@@ -39,6 +52,9 @@ export default class Pulse {
    * @param config.baseURL String - Url to prepend to endpoints (without trailing slash)
    * @param config.timeout Number - Time to wait for request before throwing error
    */
+  public Core = <CoreType>(): CoreType => {
+    return this.controllers as CoreType;
+  };
   public API = (config: apiConfig) => new API(config);
   /**
    * Create Pulse state
@@ -55,18 +71,38 @@ export default class Pulse {
    * @param deps Array - An array of state items to depend on
    * @param func Function - A function where the return value is the state, ran every time a dep changes
    */
-  public Computed = <T>(func: () => any, deps?: Array<any>) =>
-    new Computed<T>(() => this, func, deps);
+  public Computed = <T>(func: () => any, deps?: Array<any>) => new Computed<T>(() => this, func, deps);
   /**
    * Create a Pulse collection
    * @param config object
    * @param config.primaryKey The primary key for the collection.
    * @param config.groups Define groups for this collection.
    */
-  public Collection = <V>(config?: any) => new Collection<V>(() => this, config);
+  // public Collection = <DataType = DefaultDataItem, G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) =>
+  //   new Collection<DataType, G, S>(() => this, config);
+  // /**
+  //  * Create a Pulse collection with automatic type inferring
+  //  * @param config object
+  //  * @param config.primaryKey string - The primary key for the collection.
+  //  * @param config.groups object - Define groups for this collection.
+  //  */
+  // public TCollection = <G = GroupObj, S = SelectorObj>(config: Config<G, S>) => <DataType = DefaultDataItem>() =>
+  //   new Collection<DataType, G, S>(() => this, config);
+  /**
+   * Create a Pulse collection with automatic type inferring
+   * @param config object | function returning object
+   * @param config.primaryKey string - The primary key for the collection.
+   * @param config.groups object - Define groups for this collection.
+   */
+  public Error(e: any, data?: any) {}
+  public Collection = <DataType = DefaultDataItem>() => {
+    return <G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) => {
+      return new Collection<DataType, G, S>(() => this, config);
+    };
+  };
   /**
    * Reset to initial state.
-   * - Supports: State, Collections and Groups
+   * - Supports: State, Collections and Groupss
    * - Removes persisted state from storage.
    * @param Items Array of items to reset
    */
@@ -78,7 +114,7 @@ export default class Pulse {
     const persistedState = this.storage.persistedState;
     this.storage = new Storage(() => this, storageConfig);
     this.storage.persistedState = persistedState;
-    this.storage.persistedState.forEach(state => state.persist(state.name));
+    this.storage.persistedState.forEach((state) => state.persist(state.name));
   }
 
   /**
@@ -95,20 +131,5 @@ export default class Pulse {
 
 // Handy utils
 export function persist(items: Array<State>): void {
-  items.forEach(item => item.persist(item.name));
+  items.forEach((item) => item.persist(item.name));
 }
-
-type Ojb = { [key: string]: any };
-
-export function SSR(instance: () => Pulse, tree: Ojb): Ojb {
-  let pulse = instance();
-
-  return;
-}
-
-// SSR
-//  1. Detect if Node & Next
-//  2. Save each State to globalThis.__NEXT_DATA__.__PULSE_DATA__
-//  3. Increment globalThis.__NEXT_DATA__.__PULSE_DATA__.stateKey
-
-// 3. If not NODE load state

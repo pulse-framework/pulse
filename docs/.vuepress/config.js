@@ -1,7 +1,6 @@
 module.exports = {
-  title: 'PulseJS',
-  description:
-    'A global state and logic framework for reactive Javascript applications.',
+  title: 'Pulse Framework',
+  description: 'A global state and logic framework for reactive Javascript applications.',
   dest: 'dist',
   serviceWorker: true,
   base: '/',
@@ -83,10 +82,7 @@ module.exports = {
         {
           title: 'Quick Start',
           collapsable: false,
-          children: [
-            'getting-started/setup-with-react',
-            'getting-started/setup-with-vue'
-          ]
+          children: ['getting-started/setup-with-react', 'getting-started/setup-with-vue']
         },
         {
           title: 'Documentation',
@@ -125,7 +121,12 @@ module.exports = {
         {
           title: 'Getting Started',
           collapsable: false,
-          children: ['getting-started/style-guide']
+          children: ['getting-started/style-guide', 'getting-started/concepts']
+        },
+        {
+          title: 'Documentation',
+          collapsable: false,
+          children: ['docs/state', 'docs/collections', 'docs/controllers']
         },
         {
           title: 'Resources',
@@ -163,7 +164,7 @@ module.exports = {
       'container',
       {
         type: 'upgrade',
-        before: info => `<UpgradePath title="${info}">`,
+        before: (info) => `<UpgradePath title="${info}">`,
         after: '</UpgradePath>'
       }
     ],

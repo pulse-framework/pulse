@@ -9,57 +9,45 @@ type keyedState = {
 };
 
 export default {
-	name: 'vue',
-	bind(pulseConstructor) {
-		pulseConstructor.install = Vue => {
-			const pulse = globalThis.__pulse;
-			// const global = pulse._private.global;
-			// const config = pulse._private.global.config;
-			Vue.mixin({
-				beforeCreate() {
-					// bind root properties
-					console.log(pulseConstructor);
-					if (pulseConstructor.State) this.State = pulseConstructor.State;
-					if (pulseConstructor.Collection) this.Collection = pulseConstructor.Collection;
-					if (pulseConstructor.API) this.API = pulseConstructor.API;
-					if (pulseConstructor.Computed) this.Computed = pulseConstructor.Computed;
-					if (usePulse) this.usePulse.bind(usePulse);
+  name: 'vue',
+  bind(pulseConstructor) {
+    pulseConstructor.install = Vue => {
+      const pulse = globalThis.__pulse;
+      const global = pulse._private.global;
+      const config = pulse._private.global.config;
+      Vue.mixin({
+        beforeCreate() {
+          // bind root properties
+          Object.keys(global.contextRef).forEach(moduleInstance => {
+            this['$' + moduleInstance] = global.contextRef[moduleInstance];
+          });
 
-					// Object.keys(global.contextRef).forEach(moduleInstance => {
-					// 	this['$' + moduleInstance] = global.contextRef[moduleInstance];
-					// });
-					// if (pulse.utils) this.$utils = pulse.utils;
-					// if (pulse.services) this.$services = pulse.services;
+          // register component with Pulse
+          global.subs.registerComponent(this);
 
-					// // register component with Pulse
-					// global.subs.registerComponent(this);
+          // alias map
+          const mapData = global.subs.mapData.bind(global.subs);
 
-					// // alias map
-					// const mapData = global.subs.mapData.bind(global.subs);
-
-					// this.mapData = properties => mapData(properties, this);
-				},
-				mounted() {
-					// if (this.__pulseUniqueIdentifier && config.waitForMount)
-					// 	pulse.mount(this);
-				},
-				beforeDestroy() {
-					// if (this.__pulseUniqueIdentifier && config.autoUnmount)
-					// 	global.subs.unmount(this);
-				}
-			});
-		};
-	},
-	updateMethod(componentInstance: any, updatedData: Object) {
-		for (let dataKey in updatedData) {
-			componentInstance.$set(componentInstance, dataKey, updatedData[dataKey]);
-		}
-	},
-	onReady(pulseInstance: any | Pulse) {
-		const Vue = pulseInstance.intergration.frameworkConstructor;
-		pulseInstance.usePulse = (deps: Array<State> | State) => usePulse(deps, pulseInstance);
-		Vue.use(pulseInstance);
-	}
+          this.mapData = properties => mapData(properties, this);
+        },
+        mounted() {
+          if (this.__pulseUniqueIdentifier && config.waitForMount) pulse.mount(this);
+        },
+        beforeDestroy() {
+          if (this.__pulseUniqueIdentifier && config.autoUnmount) global.subs.unmount(this);
+        }
+      });
+    };
+  },
+  updateMethod(componentInstance: any, updatedData: Object) {
+    for (let dataKey in updatedData) {
+      componentInstance.$set(componentInstance, dataKey, updatedData[dataKey]);
+    }
+  },
+  onReady(pulseConstructor: Pulse) {
+    const Vue = pulseConstructor.intergration.frameworkConstructor;
+    Vue.use(pulseConstructor);
+  }
 };
 
 export function usePulse(deps: Array<State | keyedState> | State, pulseInstance?: Pulse) {

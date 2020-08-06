@@ -20,8 +20,12 @@ export default class Runtime {
 
   public ingest(state: State, newState?: any, perform: boolean = true): void {
     let job: Job = { state, newState };
-    // grab nextState if newState not passed
-    if (arguments[1] === undefined) job.newState = job.state.nextState;
+    // grab nextState if newState not passed, compute if needed
+    if (arguments[1] === undefined) {
+      job.newState = job.state.computeValue
+        ? job.state.computeValue(job.state.nextState)
+        : job.state.nextState;
+    }
 
     this.queue.push(job);
 
@@ -75,9 +79,7 @@ export default class Runtime {
     }
 
     // ingest dependents
-    dep.deps.forEach(state => {
-      this.ingest(state, state.mutation(), false);
-    });
+    dep.deps.forEach(state => this.ingest(state, undefined, false));
   }
 
   private updateSubscribers(): void {

@@ -3,10 +3,10 @@ import { Collection, DefaultDataItem } from './collection';
 
 export default class Data<DataType = DefaultDataItem> extends State<DataType> {
   public output: DataType | DefaultDataItem;
-  constructor(private collection: Collection, data: DataType) {
-    super(collection.instance, data);
+  constructor(private collection: () => Collection, data: DataType) {
+    super(collection().instance, data);
     this.type(Object);
-    this.mutation = () => this._masterValue;
+    // this.name = data && data[collection().config.primaryKey];
   }
 }
 

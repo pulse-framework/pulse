@@ -23,8 +23,8 @@ export class State<ValueType = any> {
   public valueType?: string;
   // sideEffects can be set by extended classes, such as Groups to build their output.
   public sideEffects?: Function;
-  // mutation is the method to return a new value. it is undefined in State but can be used by extended classes such as Computed, which creates it's own value
-  public mutation?: () => any;
+  // computeValue is the method to return a new value. it is undefined in State but can be used by extended classes such as Computed, which creates it's own value
+  public computeValue?: (newState?: ValueType) => ValueType;
 
   public set bind(value: ValueType) {
     this.set(value);
@@ -35,23 +35,34 @@ export class State<ValueType = any> {
   public get exists(): boolean {
     return !!this.value; // is value truthey or falsey
   }
+
   constructor(public instance: () => Pulse, public initalState, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
     this.privateWrite(initalState);
     this.nextState = copy(initalState);
   }
+
   /**
    * Directly set state to a new value, if nothing is passed in State.nextState will be used as the next value
    * @param {Object} newState - The new value for this state
    */
-  public set(newState?: ValueType, options: { background?: boolean } = {}): this {
+  public set(
+    newState?: ValueType | SetFunc<ValueType>,
+    options: { background?: boolean } = {}
+  ): this {
+    // if newState not provided, just ingest update with existing value
     if (newState === undefined) {
       this.instance().runtime.ingest(this, undefined);
       return this;
     }
+    // if newState is a function, run that function and supply existing value as first param
+    if (typeof newState === 'function')
+      newState = (newState as SetFunc<ValueType>)(this._masterValue);
+
+    // check type if set and correct otherwise exit
     if (this.valueType && !this.isCorrectType(newState)) {
       console.warn(
-        `Pulse: Error setting state: Incorrect type (${typeof newState}) was provided. Type for this state is set to ${
+        `Pulse: Error setting state: Incorrect type (${typeof newState}) was provided. Type fixed to ${
           this.valueType
         }`
       );
@@ -67,13 +78,14 @@ export class State<ValueType = any> {
     }
 
     this.isSet = true;
-
     return this;
   }
+
   public getPublicValue(): ValueType {
     if (this.output !== undefined) return this.output;
     return this._masterValue;
   }
+
   public patch(targetWithChange, config: { deep?: boolean } = {}): this {
     if (!(typeof this._masterValue === 'object')) return this;
 
@@ -85,12 +97,14 @@ export class State<ValueType = any> {
     this.set();
     return this;
   }
+
   public interval(setFunc: (currentValue: any) => any, ms?: number): this {
     setInterval(() => {
       this.set(setFunc(this.value));
     }, ms || 1000);
     return this;
   }
+
   public persist(key?: string): this {
     this.persistState = true;
     if (!key && this.name) {
@@ -114,6 +128,7 @@ export class State<ValueType = any> {
     }
     return this;
   }
+
   // this creates a watcher that will fire a callback then destroy itself after invoking
   public onNext(callback: (value: ValueType) => void) {
     this.watchers['_on_next_'] = () => {
@@ -121,10 +136,12 @@ export class State<ValueType = any> {
       delete this.watchers['_on_next_'];
     };
   }
+
   public key(key: string): this {
-    // this.name = key;
+    this.name = key;
     return this;
   }
+
   public type(type: any): this {
     const supportedConstructors = ['String', 'Boolean', 'Array', 'Object', 'Number'];
     if (typeof type === 'function' && supportedConstructors.includes(type.name)) {
@@ -132,6 +149,7 @@ export class State<ValueType = any> {
     }
     return this;
   }
+
   public watch(key: number | string, callback: (value: any) => void): this {
     if (typeof key !== 'string' || typeof key !== 'number' || typeof callback !== 'function') {
       // console.error('Pulse watch, missing key or function');
@@ -150,6 +168,10 @@ export class State<ValueType = any> {
   }
 
   public toggle(): this {
+    if (typeof this._masterValue === 'boolean') {
+      // @ts-ignore
+      this.set(!this._masterValue);
+    }
     return this;
   }
 
@@ -170,6 +192,7 @@ export class State<ValueType = any> {
   public isNot(x: any) {
     return this.value !== x;
   }
+
   public relate(state: State | Array<State>) {
     if (!Array.isArray(state)) state = [state];
     // add this to foriegn dep
@@ -185,11 +208,13 @@ export class State<ValueType = any> {
 
     if (this.persistState) this.instance().storage.set(this.name, value);
   }
+
   private isCorrectType(value): boolean {
     let type: string = typeof value;
     if (type === 'object' && Array.isArray(value)) type = 'array';
     return type === this.valueType;
   }
+
   public destroy(): void {
     this.dep.deps.clear();
     this.dep.subs.clear();
@@ -215,3 +240,5 @@ export function reset(instance: State) {
   instance.privateWrite(instance.initalState);
   if (instance.persistState) instance.instance().storage.remove(instance.name);
 }
+
+type SetFunc<ValueType> = (state: ValueType) => ValueType;

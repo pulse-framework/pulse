@@ -8,7 +8,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     super(instance, instance().config.computedDefault || null);
 
     if (deps) deps.forEach(state => state.dep.depend(this));
-    this.mutation = () => {
+    this.computeValue = () => {
       if (deps) return func();
       instance().runtime.trackState = true;
       const computed = func();
@@ -16,16 +16,20 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
       dependents.forEach(state => state.dep.depend(this));
       return computed;
     };
-    const output = this.mutation();
+    const output = this.computeValue();
 
     this.set(output);
   }
   public recompute(): void {
-    this.set(this.mutation());
+    this.set(this.computeValue());
   }
   public reset() {
     reset(this);
     this.recompute();
+    return this;
+  }
+  public patch() {
+    throw 'Error, can not use patch method on Computed since the value is dynamic.';
     return this;
   }
 }

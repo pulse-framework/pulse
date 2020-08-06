@@ -7,7 +7,7 @@
     "noImplicitAny": false,
     "moduleResolution": "node",
     "outDir": "./dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
     // Old config, some of this might be needed?
     // "jsx": "preserve",
     // "esModuleInterop": true,
@@ -27,11 +27,6 @@
     // "pretty": true,
     // "suppressImplicitAnyIndexErrors": true
   },
-  "include": [
-    "./lib/**/*"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
-  ]
+  "include": ["./lib/**/*", "next"],
+  "exclude": ["dist", "node_modules"]
 }
