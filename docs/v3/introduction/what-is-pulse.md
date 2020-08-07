@@ -8,7 +8,7 @@ title: Welcome
 ## Introduction
 # Pulse Framework `3.0`
 
-*Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native.*
+*Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native.*
 
 **Created by [@jamiepine]() & the [notify.me]() team**
 <p align="left">
@@ -29,6 +29,9 @@ const Hello = App.State<string>('the sound of music');
 ## Why Pulse?
 
 Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourges developers to construct a core logic library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
+
+### Typescript
+Pulse is written in Typescript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code.
 
 ## Quick Walk-Through
 
