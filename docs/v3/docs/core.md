@@ -48,7 +48,7 @@ Now we register the core with `App.Core()` which snapshots the core object. It c
 See [Creating your core]() for the more detailed structure.
 
 ::: tip Why export the type?
-We're unable to directly import the core into controllers, as it would create cyclic dependencies which can cause horrible complile issues, especially at scale.
+We're unable to directly import the core into controllers, as it would create cyclic dependencies which can cause horrible complile issues, especially at scale. This is why we use `App.Core()` to get the core inside controllers, but it still wouldn't be type safe.
 
 However, Typescript types are immune to this paradox and can travel back in time for use inside your controllers (provided you import _only_ the type from this file).
 
@@ -144,21 +144,26 @@ import { App } from './app';
 import accounts from './controllers/accounts';
 import authentication from './controllers/authentication';
 
-const core = App.Core({
+export const core = App.Core({
   accounts,
   authentication
 });
 
 export type ICore = typeof core;
-
-export default core;
 ```
 
 Everything comes together in `core.ts`, it handles importing the Pulse instance, followed by your controllers.
 
 `App.Core()` declares the final core structure and saves it to the instance so that susequent calls.
 
-Finally the core is exported as default, for your components to use and `ICore` is exported as a type declaration so that the rest of the core can have type saftey.
+Finally the core is registered and exported and `ICore` is exported as a type declaration.
+
+### Export everything `index.ts`
+
+```ts
+import { core } from './core';
+export default core;
+```
 
 ## Structure at scale
 
