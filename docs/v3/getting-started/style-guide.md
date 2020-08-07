@@ -6,7 +6,7 @@ title: Style Guide
 
 You're free to design your application in whichever way suits your needs, but this is the Pulse way:
 
-- Index files`index.ts`should only handle imports/exports.
+<!-- - Index files`index.ts`should only handle imports/exports.
 - File names should be formatted as [module]().[type]().[extention](). `(eg: auth.routes.ts)`
 - Your Pulse code is the core of your application, so would sit in a directory or repository named "core".
 - Your core file structure would consist of the following directories:
@@ -37,4 +37,4 @@ You're free to design your application in whichever way suits your needs, but th
 
 * Controller actions should never directly return route response
 * Controller actions should recieve prameters instead of just one object to assemple request payloads
-* Controller functions should use async / await when calling routes
+* Controller functions should use async / await when calling routes -->

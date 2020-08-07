@@ -26,7 +26,7 @@ export default class Pulse {
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
   public intergration: Intergration = null;
-
+  public core: any;
   constructor(public config: PulseConfig = {}) {
     this.subController = new SubController();
     this.runtime = new Runtime(() => this);
@@ -39,12 +39,12 @@ export default class Pulse {
     use(frameworkConstructor, this);
   }
 
-  // public Controller = <S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj>(
-  //   config: ControllerConfig<S, C, A, H, R>
-  // ): Controller<S, C, A, H, R> => {
-  //   this.controllers[name] = new Controller<S, C, A, H, R>(config);
-  //   return this.controllers[name];
-  // };
+  public Controller = <S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj>(
+    config: Partial<ControllerConfig<S, C, A, H, R>>
+  ): Controller<S, C, A, H, R> => {
+    this.controllers[name] = new Controller<S, C, A, H, R>(config);
+    return this.controllers[name];
+  };
   /**
    * Create Pulse API
    * @param config Object
@@ -52,9 +52,11 @@ export default class Pulse {
    * @param config.baseURL String - Url to prepend to endpoints (without trailing slash)
    * @param config.timeout Number - Time to wait for request before throwing error
    */
-  public Core = <CoreType>(): CoreType => {
-    return this.controllers as CoreType;
+  public Core = <CoreType>(core?: CoreType): CoreType => {
+    if (!this.core && core) this.core = core;
+    return this.core as CoreType;
   };
+
   public API = (config: apiConfig) => new API(config);
   /**
    * Create Pulse state
