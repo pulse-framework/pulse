@@ -2,156 +2,168 @@
 title: State
 ---
 
-# `App.State()`
+## Introduction
 
-This is the foundation of Pulse, most everything either *is* State or *extends* the functionality of State.
+# State
 
-State is used to preserve a value, while providing a toolkit to use and mutate it. It also has the ability to track its dependents and issue "reactive" side effects such as recomputing Computed state and updating React/Vue components. 
+This is the foundation of Pulse, most everything either _is_ State or _extends_ the functionality of State.
+
+State is used to preserve a value, while providing a toolkit to use and mutate it. It also has the ability to track its dependents and issue "reactive" side effects such as recomputing Computed state and updating React/Vue components.
 
 **Basic Usage**
+
 ```typescript
-import Pulse from 'pulse-framework';
 const App = new Pulse();
 
-const MY_STATE = App.State(true); // the parameter here is the default value of the state. Here, this state is a boolean with a default value of true.
-// ...
+const MY_STATE = App.State<Boolean>(true);
 ```
-**NOTE** All functions are chain-able!
 
-## **Available functions and properties**
+- State accepts a generic type for type saftey
+- The only parameter of State is the default value, methods to modify, mutate and access the State value are chainable.
 
-*Refer to Typescript / Intellisense for detailed param descriptions*
+```typescript
+MY_STATE.persist().type(Boolean).toggle(); // false
+```
 
-### `State.set()` 
-*Allows you to mutate a value*
+_Refer to Typescript / Intellisense for detailed param descriptions_
+
+## `State.set()`
+
+_Allows you to mutate a value_
 
 ```typescript
 const MY_STATE = App.State(true);
-// ...
+
 MY_STATE.set(false); // the value is now reactively set to false
-// ...
 ```
 
-### `State.value` 
-*Provides the current value (read-only)*
+## `State.value`
+
+_Provides the current value (read-only)_
 
 ```typescript
-const MY_STATE = App.State("hello My name is Jam!");
-// ...
-console.log(MY_STATE.value) // Expected Output: "hello My name is Jam!"
-// ...
+const MY_STATE = App.State('hello');
+
+MY_STATE.value; // Expected Output: "hello"
 ```
 
-### `State.bind` 
-*Provides the current value (reactive, can be written to, automatically invokes `set()`)*
+## `State.bind`
+
+_Provides the current value (reactive, can be written to, automatically invokes `set()`)_
 
 ```typescript
-const MY_STATE = App.State("hello My name is Jam!");
-// ...
-console.log(MY_STATE.value) // Expected Output: "hello My name is Jam!"
-MY_STATE.bind = "My name is not Jam!"
-console.log(MY_STATE.value) // Expected Output: "My name is not Jam!"
-// ...
+const MY_STATE = App.State('hello');
+
+MY_STATE.bind = 'bye';
 ```
 
-### `State.undo()` 
-*Revert to previous state*
+## `State.undo()`
+
+_Revert to previous state_
 
 ```typescript
-const MY_STATE = App.State("hello My name is Jam!");
-// ...
-console.log(MY_STATE.value) // Expected Output: "hello My name is Jam!"
-MY_STATE.bind = "My name is not Jam!"
-console.log(MY_STATE.value) // Expected Output: "My name is not Jam!"
+const MY_STATE = App.State('hello');
 
-MY_STATE.undo() // << Undo the value change
-console.log(MY_STATE.value) // Expected Output: "hello My name is Jam!"
-// ...
+MY_STATE.set('bye');
+
+MY_STATE.undo();
+
+MY_STATE.value; // Expected Output: "hello"
 ```
 
-### `State.previousState` 
-*Returns the previous state*
+## `State.previousState`
+
+_Returns the previous state_
 
 ```typescript
-const MY_STATE = App.State("hello My name is Jam!");
-// ...
-console.log(MY_STATE.value) // Expected Output: "hello My name is Jam!"
-MY_STATE.bind = "My name is not Jam!"
-console.log(MY_STATE.value) // Expected Output: "My name is not Jam!"
+MY_STATE.set('bye');
 
-console.log(MY_STATE.previousState) // Expected Output: "hello My name is Jam!"
-// ...
+MY_STATE.previousState; // hello
 ```
 
-### `State.type()` 
-*Force State to only allow mutations of provided type*
+## `State.type()`
+
+Force State to only allow mutations of provided type.
 
 ```typescript
-import Pulse from 'pulse-framework';
-const App = new Pulse();
-
-const MY_STATE = App.State(true); // the parameter here is the default value of the state. Here, this state is a boolean with a default value of true.
-MY_STATE.type(Boolean)
-
+MY_STATE.type(Boolean);
 ```
 
-### `State.key()` 
-*Provide a name (or key) to identify the state, required for SSR and persisting*
+## `State.key()`
+
+Provide a name (or key) to identify the state, required for SSR and persisting
+
+Not required if using [Controllers]() as the key will be set automatically based on the key of the object the State is present in.
 
 ```typescript
-import Pulse from 'pulse-framework';
-const App = new Pulse();
-
-const MY_STATE = App.State(true).key('My_State');
+MY_STATE.key('MY_STATE');
 ```
 
-### `State.name` 
-*The name of the state, can be set directly or using above `key()`*
+## `State.name`
 
-### `State.persist()` 
-*Will preserve state in the appropriate local storage for the environment (web / mobile)*
+_The name of the state, can be set directly or using above `key()`_
 
-### `State.exists` 
-*Returns truthiness of the current value*
+```typescript
+MY_STATE.name; // MY_STATE
+```
 
-### `State.is()` 
-*Equivalent to `===`*
+## `State.persist()`
 
-### `State.isNot()` 
-*Equivalent to `!==`*
+_Will preserve state in the appropriate local storage for the environment (web / mobile)_
 
-### `State.initialState` 
-*The starting value as established in code*
+## `State.exists`
 
-### `State.onNext()` 
-*A callback that fires on the next mutation, then destroys itself.*
+_Returns truthiness of the current value_
+
+## `State.is()`
+
+_Equivalent to `===`_
+
+## `State.isNot()`
+
+_Equivalent to `!==`_
+
+## `State.initialState`
+
+_The starting value as established in code_
+
+## `State.onNext()`
+
+_A callback that fires on the next mutation, then destroys itself._
 
 ```typescript
 import Pulse from 'pulse-framework';
 const App = new Pulse();
 
 const MY_STATE = App.State(true).onNext(() => {
-    // do some stuff 
+  // do some stuff
 });
 ```
 
-### `State.patch()` 
-*A function to edit ("patch") deep properties of an object, provided the State value is an object*
+## `State.patch()`
 
-### `State.watch()` 
-*A keyed callback that will fire every mutation, provides current value in as first param in callback*
+_A function to edit ("patch") deep properties of an object, provided the State value is an object_
 
-### `State.removeWatcher()` 
-*Remove a watcher by key*
+## `State.watch()`
 
-### `State.relate()` 
-*[WIP] Associate two State instances, used for Group, Data and Computed*
+_A keyed callback that will fire every mutation, provides current value in as first param in callback_
 
-### `State.reset()` 
-*Reset state to initial value*
+## `State.removeWatcher()`
 
-### `State.toggle()` 
-*If current value is a boolean, this will invert it.*
+_Remove a watcher by key_
 
-### `State.interval()` 
-*A mutation callback fired on a self contained interval*
+## `State.relate()`
+
+_[WIP] Associate two State instances, used for Group, Data and Computed_
+
+## `State.reset()`
+
+_Reset state to initial value_
+
+## `State.toggle()`
+
+_If current value is a boolean, this will invert it._
+
+## `State.interval()`
+
+_A mutation callback fired on a self contained interval_

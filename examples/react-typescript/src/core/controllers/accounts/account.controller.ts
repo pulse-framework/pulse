@@ -1,9 +1,8 @@
 import { App } from "../../pulse";
-import { Controller } from "pulse-framework";
 import { AuthCreds } from "./account.interfaces";
 import * as actions from "./account.actions";
-import * as helpers from "./account.helpers";
 import * as routes from "./account.routes";
+// import * as helpers from "./account.helpers";
 
 export interface AccountBody {
 	id: number;
@@ -29,7 +28,9 @@ const AccountCollection = App.Collection<AccountBody>()(Collection => ({
 }));
 
 // Define controller and pass in imports
-export const accounts = new Controller({
+export const accounts = App.Controller({
 	state: AccountState,
 	collection: AccountCollection,
+	actions,
+	routes,
 });
