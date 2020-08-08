@@ -126,7 +126,7 @@ module.exports = {
         {
           title: 'Documentation',
           collapsable: false,
-          children: ['docs/core', 'docs/state', 'docs/collections', 'docs/controllers']
+          children: ['docs/state', 'docs/computed', 'docs/collections', 'docs/controllers', 'docs/core']
         },
         {
           title: 'Resources',
