@@ -2,6 +2,8 @@
 title: Pulse Instance
 ---
 
+## Introduction
+
 # Pulse Instance
 
 Everything you write with Pulse will use the `App` instance. which is created with `new Pulse()`. With this you can create [State](), [Computed State](), [Collections](), [APIs]() and more.
@@ -35,20 +37,36 @@ const App = new Pulse({
 
 ```ts
 interface PulseConfig {
-  storagePrefix?: string;
+  storage?: StorageMethods;
   computedDefault?: any;
   waitForMount?: boolean;
   framework?: any;
-  frameworkConstructor?: any;
-  storage?: StorageMethods;
   logJobs?: boolean;
 }
+```
 
+## Options Refrence
+
+### `storage`
+
+This option is for state persistence with local storage or a custom storage API such as React Native's AsyncStorage
+
+```ts
 interface StorageMethods {
-  type?: 'custom' | 'localStorage';
-  async?: boolean;
-  get?: any;
-  set?: any;
-  remove?: any;
+  get: () => any;
+  set: (key: string) => any;
+  remove: (key: string) => any;
+  async?: boolean; // Is the storage asynchronous
+  prefix?: string; // a custom prefix for local storage keys
 }
 ```
+
+### `computedDefault`
+
+The value provided here will be the fallback used when the result of a computed function is `null` or `undefined`.
+
+### `waitForMount`
+
+### `computedDefault`
+
+### `framework`

@@ -16,7 +16,7 @@ Unlike State you can not directly mutate it, so `.set()`, `.bind` are disabled.
 
 `.persist()` is also blocked as persisting a computed value isn't necessary.
 
-However other State methods are still useable! Refer to [State Methods]().
+Other State methods are still useable! Refer to [State Methods]().
 :::
 
 ## Example

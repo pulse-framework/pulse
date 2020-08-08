@@ -31,7 +31,16 @@ pre.vue-container
     strong 
       color #fff;
 
- 
+code p
+    font-weight: bold !important;
+
+.theme-default-content:not(.custom)
+    margin 0
+
+@font-face {
+  font-family: dank;
+  src: url(/DankMono-Regular.ttf);
+}
 
 // body, .sidebar, .navbar, .navbar .links {
 //   background-color: #1d1d1d !important;
@@ -40,10 +49,14 @@ pre.vue-container
 //   background: #1d1d1d !important;
 // }
 
-pre
-    background-color $pulseCodeBackground !important;
-    code 
-        color #CDD8E1 !important;
+.theme-default-content
+    pre
+        background-color $pulseCodeBackground !important;
+        code 
+            color #CDD8E1 !important;
+            font-weight: bold;
+            font-family: dank;
+            font-size: 0.90em;
 
 .token.comment
     color $pulseFaint;
