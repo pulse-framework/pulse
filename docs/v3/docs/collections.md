@@ -57,8 +57,8 @@ const MyCollection = App.Collection<DataType>()(Collection => ({
 }))
 ```
 
-::: tip Type Saftey
-Collections will infer the types for groups and selectors automatically from the config object. Meaning you do not need to write custom interfaces to have type saftey and Intellisense when using your Collection instance.
+::: tip Type Safety
+Collections will infer the types for groups and selectors automatically from the config object. Meaning you do not need to write custom interfaces to have type Safety and Intellisense when using your Collection instance.
 :::
 **All config parameters** _(All params are optional)_
 

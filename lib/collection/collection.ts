@@ -54,7 +54,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     // if collection config is a function, execute and assign to config
     if (typeof config === 'function') config = config(this) as CollectionConfig<G, S>;
 
-    // assign defaults to config object ensuring type saftey
+    // assign defaults to config object ensuring type safety
     this.config = defineConfig<typeof config>(config, {
       primaryKey: 'id',
       groups: []

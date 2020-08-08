@@ -32,7 +32,7 @@ const config = {
         MY_COMPUTED_STATE: App.Computed<boolean>(() => true)
     }
 }
-export const MyController = App.Controller(controller);
+export const accounts = App.Controller(controller);
 ```
 
 ### Controller Config Structure
@@ -51,6 +51,12 @@ interface ControllerConfig {
 }
 ```
 
+These are the only available properties for the `ControllerConfig`, any aditional will be ignored. However it is possible to add custom root properties ([See Below]()).
+
+::: tip Type Safety
+For Typescript users, the inferred types of the object you pass in will be preserved, but only for the properties shown on the above object.
+:::
+
 ## Custom Root Properties
 
 In some cases you will prefer to use more than the default Controller categories, you might want to spread actions to the root of the controller instance so they can be access like the following.
@@ -61,7 +67,7 @@ accounts.myAction();
 
 We can do this with the second parameter of the `App.Controller` function. The properties of the supplied object will be spread to the root of the Controller instance.
 
-In order to maintain type saftey we can export the account and cast a custom type that combines the `controller` with `actions` in this case.
+In order to maintain type safety we can export the account and cast a custom type that combines the `controller` with `actions` in this case.
 
 ```js
 const controller = App.Controller(

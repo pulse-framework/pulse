@@ -18,7 +18,7 @@ const App = new Pulse();
 const MY_STATE = App.State<Boolean>(true);
 ```
 
-- State accepts a generic type for type saftey
+- State accepts a generic type for type safety
 - The only parameter of State is the default value, methods to modify, mutate and access the State value are chainable.
 
 ```typescript
