@@ -24,9 +24,7 @@ However other State methods are still useable! Refer to [State Methods]().
 ```ts
 const App = new Pulse();
 
-const MY_COMPUTED = App.Computed(() => {
-  return 1 + 2;
-});
+const MY_COMPUTED = App.Computed(() => 1 + 2);
 
 MY_COMPUTED.value; // 3
 ```
@@ -40,9 +38,7 @@ Here is an example with a dependency:
 ```ts
 const MY_STATE = App.State(5);
 
-const MY_COMPUTED = App.Computed(() => {
-  return MY_STATE.value + 2;
-});
+const MY_COMPUTED = App.Computed(() => MY_STATE.value + 2);
 
 MY_COMPUTED.value; // 7
 ```

@@ -25,8 +25,10 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
 
   public config: ControllerConfig<S, C, A, H, R>;
 
-  constructor(config: Partial<ControllerConfig<S, C, A, H, R>>) {
+  constructor(config: Partial<ControllerConfig<S, C, A, H, R>>, spreadToRoot: any) {
     this.config = config as Required<ControllerConfig<S, C, A, H, R>>;
+
+    for (const propertyName in spreadToRoot) this[propertyName] = spreadToRoot[propertyName];
 
     for (const sectionName in this.config) {
       if (Controller.prototype[sectionName]) this[sectionName] = this.config[sectionName];

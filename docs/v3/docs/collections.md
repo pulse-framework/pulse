@@ -50,8 +50,8 @@ Configuration is optional, but recomended. The second pair of parentheses is whe
 
 ```js
 const MyCollection = App.Collection<DataType>()(Collection => ({
-  primaryKey: 'id',
-  indexAll: true
+  primaryKey: 'id', // default
+  indexAll: true // default false
   groups: {},
   selectors: {},
 }))
