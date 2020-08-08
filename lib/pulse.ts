@@ -16,7 +16,7 @@ export interface PulseConfig {
   waitForMount?: boolean;
   framework?: any;
   frameworkConstructor?: any;
-  storage?: {};
+  storage?: StorageMethods;
   logJobs?: boolean;
 }
 

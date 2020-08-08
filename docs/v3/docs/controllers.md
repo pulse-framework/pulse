@@ -23,6 +23,8 @@ core.accounts.myAction();
 The first parameter of the of the Controller function is `ControllerConfig`
 
 ```js
+const App = new Pulse();
+
 const config = {
     collection: App.Collection()();
     state: {
