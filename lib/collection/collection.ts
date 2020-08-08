@@ -22,8 +22,8 @@ export type SelectorObj = { [key: string]: Selector<any> };
 
 // Interface for the collection config object
 export interface CollectionConfig<G, S> {
-  groups: G;
-  selectors: S;
+  groups?: G;
+  selectors?: S;
   name?: string;
   primaryKey?: string | number;
   indexAll?: boolean;
@@ -36,7 +36,7 @@ export type Config<DataType = DefaultDataItem, G = GroupObj, S = SelectorObj> =
 
 // The collection class, should be created by the Pulse class for functioning types
 export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorObj> {
-  public config: CollectionConfig<G, S>;
+  public config: Required<CollectionConfig<G, S>>;
   // the amount of data items stored inside this collection
   public size: number = 0;
 
@@ -55,7 +55,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     if (typeof config === 'function') config = config(this) as CollectionConfig<G, S>;
 
     // assign defaults to config object ensuring type saftey
-    this.config = defineConfig<typeof config>(config, {
+    this.config = defineConfig<Required<typeof config>>(config as Required<typeof config>, {
       primaryKey: 'id',
       groups: []
     });

@@ -6,9 +6,9 @@ title: State
 
 # State
 
-This is the foundation of Pulse, most everything either _is_ State or _extends_ the functionality of State.
+State is the foundation of Pulse, most everything either _is_ State or _extends_ the functionality of State. It is used to preserve a value, while providing a toolkit to use and mutate it.
 
-State is used to preserve a value, while providing a toolkit to use and mutate it. It also has the ability to track its dependents and issue "reactive" side effects such as recomputing Computed state and updating React/Vue components.
+State also has the ability to track its dependents and issue "reactive" side effects such as recomputing Computed state and updating React/Vue components.
 
 **Basic Usage**
 
