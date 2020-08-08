@@ -18,9 +18,7 @@ core.posts.collection.findById(21);
 core.authentication.state.TOKEN.value;
 ```
 
-> _Some random examples of how the core can be used._
-
-From your core you are able to puppet string your entire application—see all state, call all methods and browse cached data and groups.
+> _Arbitary examples of how the core can be used._
 
 ## Definition
 
