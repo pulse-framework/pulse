@@ -18,7 +18,7 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
   public name?: string;
 
   public state: this['config']['state'] & StateObj;
-  public collection: this['config']['collection'] & Collection;
+  public collection: this['config']['collection'];
   public actions: this['config']['actions'] & FuncObj;
   public helpers: this['config']['helpers'] & FuncObj;
   public routes: this['config']['routes'] & FuncObj;

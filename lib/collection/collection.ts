@@ -55,10 +55,10 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     if (typeof config === 'function') config = config(this) as CollectionConfig<G, S>;
 
     // assign defaults to config object ensuring type saftey
-    this.config = defineConfig<Required<typeof config>>(config as Required<typeof config>, {
+    this.config = defineConfig<typeof config>(config, {
       primaryKey: 'id',
       groups: []
-    });
+    }) as Required<typeof config>;
 
     // create groups
     if (config.groups) this.initSubInstances('groups');

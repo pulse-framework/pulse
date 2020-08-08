@@ -20,5 +20,7 @@ export const core = App.Core({
 	test,
 });
 
+core.accounts.collection.groups;
+
 // export core as internal alias function
 export type ICore = typeof core;
