@@ -38,7 +38,7 @@ Pulse is written in Typescript and is designed to support it heavily. Everything
 
 ## Quick Walk-Through
 
-### :zap: **State** :: [App.State()]()
+### :zap: **State** — [App.State()]()
 
 A handy container to store, manipulate and relate data.
 
@@ -52,7 +52,7 @@ const MY_STATE = App.State<boolean>(true);
 MY_STATE.toggle().persist().set().type().watch().reset().undo(); // etc...
 ```
 
-### :robot: Computed :: [App.Computed()]()
+### :robot: Computed State — [App.Computed()]()
 
 A function in which the return value is cached inside an extended State instance. Will magically recompute when it's dependencies change. Can track dependencies automatically or manually.
 
@@ -60,16 +60,34 @@ A function in which the return value is cached inside an extended State instance
 const MY_COMPUTED = App.Computed<boolean>(() => MY_STATE.toggle());
 ```
 
-### :sparkles: Collections :: [App.Collection()]()
+### :sparkles: Collections — [App.Collection()]()
 
-a DB/ORM-like class for groups of data `Collection.collect()`
+A DB/ORM-like class for front-end data collection.
+
+Collections are designed for arrays of data following the same structure, usually returned from an API. They have handy features to work with that data and act as a single source of truth.
 
 ```ts
 type DataType = { id: number }; // Object with primary Key
 const AccountCollection = App.Collection<DataType>()();
+
+AccountCollection.collect(data);
 ```
 
-### :telephone_receiver: Built-in promise based HTTP request API
+### :sparkles: Groups — [Collection.Group()]()
+
+Groups handy to provide arrays of collection data and can be used independently in your components. When the index of a group is modified, it will "rebuild" the `output` with actual collection data.
+
+```ts
+const AccountCollection = App.Collection<DataType>()((Collection) => {
+  groups: {
+    AUTHED: Collection.Group();
+  }
+});
+
+AccountCollection.groups.AUTHED.output; // cached data
+```
+
+### :telephone_receiver: Promise based HTTP request API — [App.API()]()
 
 ```ts
 const API = App.API({
@@ -79,7 +97,7 @@ const API = App.API({
 });
 ```
 
-### :floppy_disk: Persisted data API for localStorage and async storage
+### :floppy_disk: Persisted Storage API — [App.Storage()]()
 
 ```ts
 // localStorage is automatic, so here's a custom example
@@ -91,7 +109,7 @@ App.Storage({
 });
 ```
 
-### :timer_clock: Turn back the clock with [undo]() `State.undo()`
+### :timer_clock: Turn back the clock — [State.undo()]()
 
 ```ts
 const MY_STATE = App.State('hello');
@@ -103,17 +121,17 @@ MY_STATE.undo();
 MY_STATE.value; // Expected Output: "hello"
 ```
 
-### :bus: Event bus `.on() / .emit()`
+### :bus: Event bus — [App.on()]()
 
 ```ts
-App.on('EVENT_NAME', () => {
+App.on('EVENT_NAME', (payload) => {
   // do something
 });
 
-App.emit('EVENT_NAME');
+App.emit('EVENT_NAME', payload);
 ```
 
-### :hourglass_flowing_sand: [WIP] Timed interval task handler using [Jobs]()
+### :hourglass_flowing_sand: [WIP] CRON Jobs — [App.Job()]()
 
 ```ts
 App.Job(60000, () => {
@@ -121,7 +139,7 @@ App.Job(60000, () => {
 }).start();
 ```
 
-### :first_quarter_moon: Lifecycle hooks [`watch()`]() / `onReady()` / `nextPulse()`
+### :first_quarter_moon: Lifecycle hooks — [State.watch()]() / [App.onReady()]() / [App.nextPulse()]()
 
 ```ts
 MY_STATE.watch('name', () => {

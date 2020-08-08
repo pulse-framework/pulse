@@ -6,7 +6,7 @@ title: Collections
 
 # Collections
 
-Pulse provides _Collections_ as a way to predictably save external data. Collections are designed for groups of data following the same structure, usually returned from an API. Such as posts, comments, reviews, store items—for example.
+Pulse provides _Collections_ as a way to predictably save external data. Collections are designed for arrays of data following the same structure, usually returned from an API. Such as posts, comments, reviews, store items—for example.
 
 ### **Think of a Collection like a database table.**
 
