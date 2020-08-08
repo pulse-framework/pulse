@@ -41,14 +41,14 @@ The Pulse instance is created first as `App`, followed by an object that forms t
 
 Now we register the core with `App.Core()` which snapshots the core object. It can now be accessed anywhere with the very same function, without any parameters. (See [Usage]())
 
-> _The initilization of App should be in a seperate file (eg: `app.ts`) as it must occur before the imports that require the `App` instance. We can't do this in practice as TSLint doesn't like code above import level, but TSLint isn't here right now._ :wink:
+> _In practice the initilization of App should be in a seperate file (eg: `app.ts`) as it must occur before the imports that require the `App` instance and TSLint doesn't like code above imports._
 
 See [Creating your core]() for the more detailed structure.
 
 ::: tip Why export the type?
 We're unable to directly import the core into controllers, as it would create cyclic dependencies which can cause horrible complile issues, especially at scale. This is why we use `App.Core()` to get the core inside controllers, but it still wouldn't be type safe.
 
-However, Typescript types are immune to this paradox and can travel back in time for use inside your controllers (provided you import _only_ the type from this file).
+However, Typescript types are immune to this paradox and can time travel. :crystal_ball: Once you declare them, they are able to be refrenced in code before and after declaration. This means we can import just the type of the finalized core into our individual controllers.
 
 Now when making changes to one Controller you'll see full intelisense in the other—regardless of the order the controllers are initialized.
 :::

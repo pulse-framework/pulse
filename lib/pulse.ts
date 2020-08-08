@@ -120,6 +120,9 @@ export default class Pulse {
     this.storage.persistedState = persistedState;
     this.storage.persistedState.forEach((state) => state.persist(state.name));
   }
+  public Storage(storageConfig: StorageMethods): void {
+    return this.setStorage(storageConfig);
+  }
 
   /**
    * Global refrence to the first pulse instance created this runtime

@@ -29,7 +29,9 @@ Pulse takes an optional configuration object as the only parameter
 ```ts
 const App = new Pulse({
   framework: React,
-  storagePrefix: 'CoolApp'
+  storage: {
+    prefix: 'CoolApp'
+  }
 });
 ```
 

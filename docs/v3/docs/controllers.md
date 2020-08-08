@@ -70,14 +70,11 @@ We can do this with the second parameter of the `App.Controller` function. The p
 In order to maintain type safety we can export the account and cast a custom type that combines the `controller` with `actions` in this case.
 
 ```js
-const controller = App.Controller(
-	{
-		state: AccountState,
-		collection: AccountCollection,
-		routes,
-	},
-	actions
-);
+const controller = App.Controller({
+    state: AccountState,
+    collection: AccountCollection,
+    routes,
+}, actions);
 
 export const accounts = controller as typeof controller & typeof actions;
 ```
