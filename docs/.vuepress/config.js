@@ -121,17 +121,17 @@ module.exports = {
         {
           title: 'Getting Started',
           collapsable: false,
-          children: ['getting-started/setup-with-react', 'getting-started/style-guide', 'getting-started/concepts']
+          children: ['getting-started/setup-with-react', 'getting-started/concepts']
         },
         {
           title: 'Documentation',
           collapsable: false,
-          children: ['docs/core', 'docs/state', 'docs/collections', 'docs/controllers']
+          children: ['docs/pulse-instance', 'docs/state', 'docs/computed', 'docs/collections', 'docs/actions', 'docs/controllers', 'docs/core']
         },
         {
           title: 'Resources',
           collapsable: false,
-          children: ['resources/snippets']
+          children: ['resources/snippets', 'getting-started/style-guide']
         }
       ]
     }

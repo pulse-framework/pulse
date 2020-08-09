@@ -16,7 +16,7 @@ const Hello = App.State<string>('the sound of music');
 
 ### :gem: New Features
 
- See full [documentation]() for everything new!
+See full [documentation]() for everything new!
 
 - Complete rewrite
 - Fully **typesafe**, written in Typescript. (Intellisense for TS users!)
@@ -28,7 +28,6 @@ const Hello = App.State<string>('the sound of music');
 - Added Collection.Selector()
 - Added Controllers
 - **Namespace** no longer controlled by Pulse, everything is completely modular.
-
 
 ### Conclusion
 

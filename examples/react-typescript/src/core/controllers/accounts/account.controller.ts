@@ -28,9 +28,13 @@ const AccountCollection = App.Collection<AccountBody>()(Collection => ({
 }));
 
 // Define controller and pass in imports
-export const accounts = App.Controller({
-	state: AccountState,
-	collection: AccountCollection,
-	actions,
-	routes,
-});
+const controller = App.Controller(
+	{
+		state: AccountState,
+		collection: AccountCollection,
+		routes,
+	},
+	actions
+);
+
+export const accounts = controller as typeof controller & typeof actions;
