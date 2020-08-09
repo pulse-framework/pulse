@@ -59,10 +59,8 @@ This works for Groups, Selectors, Collection Data and anything that extends the 
 
 ## `.recompute()`
 
-_Provides the current value (read-only)_
+_Forces the Computed instance to recompute_
 
 ```typescript
-const MY_STATE = App.State('hello');
-
-MY_STATE.value; // Expected Output: "hello"
+MY_COMPUTED.recompute();
 ```

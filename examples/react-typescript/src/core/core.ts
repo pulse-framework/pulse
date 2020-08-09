@@ -22,5 +22,3 @@ export const core = App.Core({
 
 // export core as internal alias function
 export type ICore = typeof core;
-
-core.accounts.Dustin;

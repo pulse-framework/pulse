@@ -32,7 +32,7 @@ const config = {
         MY_COMPUTED_STATE: App.Computed<boolean>(() => true)
     }
 }
-export const accounts = App.Controller(controller);
+export const accounts = App.Controller(config);
 ```
 
 ### Controller Config Structure

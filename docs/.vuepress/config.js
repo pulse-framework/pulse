@@ -121,7 +121,7 @@ module.exports = {
         {
           title: 'Getting Started',
           collapsable: false,
-          children: ['getting-started/setup-with-react', 'getting-started/style-guide', 'getting-started/concepts']
+          children: ['getting-started/setup-with-react', 'getting-started/concepts']
         },
         {
           title: 'Documentation',
@@ -131,7 +131,7 @@ module.exports = {
         {
           title: 'Resources',
           collapsable: false,
-          children: ['resources/snippets']
+          children: ['resources/snippets', 'getting-started/style-guide']
         }
       ]
     }

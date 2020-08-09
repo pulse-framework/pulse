@@ -9,9 +9,9 @@ title: Welcome
 
 # Pulse Framework `3.0`
 
-_Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
+Created by [@jamiepine]() | Sponsored and maintained by the [Notify Team]()
 
-**Created by [@jamiepine]() & the [notify.me]() team**
+> _Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
 
 <p align="left">
   <a href="https://discord.gg/RjG8ShB"><img src="https://discordapp.com/api/guilds/658189217746255881/embed.png" alt="Join Discord"></a>
@@ -20,17 +20,17 @@ _Pulse is a global state and logic framework for reactive Typescript & Javascrip
   <a href="https://twitter.com/pulseframework"><img src="https://img.shields.io/twitter/follow/pulseframework.svg?label=Pulse+Twitter" alt="Follow Pulse on twitter"></a>
 </p>
 
-Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to creare a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
-
 ```ts
 const App = new Pulse();
 
 const Hello = App.State<string>('the sound of music');
 ```
 
+Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to creare a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
+
 ## Why Pulse?
 
-Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourges developers to construct a core logic library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
+Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourges developers to construct a core library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
 
 ### Typescript
 

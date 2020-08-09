@@ -41,7 +41,7 @@ export default class Pulse {
 
   public Controller = <S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj>(
     config: Partial<ControllerConfig<S, C, A, H, R>>,
-    spreadToRoot: any
+    spreadToRoot?: any
   ): Controller<S, C, A, H, R> => {
     this.controllers[name] = new Controller<S, C, A, H, R>(config, spreadToRoot);
     return this.controllers[name];

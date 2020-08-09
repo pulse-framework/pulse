@@ -70,7 +70,9 @@ Collections will infer the types for groups and selectors automatically from the
 
 ## Groups
 
-Groups handy to provide arrays of collection data and can be used independently in your components. When the index of a group is modified, it will "rebuild" the `output` with actual collection data.
+Groups are arrays of primary keys referencing data inside a Collection, we call this the `index`.
+
+Groups provide a cached array of actual collection data mirroring the index. When the index is modified, the `output` will rebuild with actual collection data.
 
 ```js
 const MyCollection = App.Collection<DataType>()(Collection => ({
@@ -87,7 +89,7 @@ Groups have all the methods and functionality State does (See [State methods]())
 
 ```js
 MyCollection.groups.MY_GROUP.output; // Actual data
-MyCollection.groups.MY_GROUP.value; // Array of primary keys
+MyCollection.groups.MY_GROUP.index; // Array of primary keys
 ```
 
 ### Group methods
