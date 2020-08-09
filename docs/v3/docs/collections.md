@@ -11,7 +11,7 @@ Pulse provides *Collections* as a way to predictably save external data. Collect
  - [Groups](#Groups) are unique arrays of primary keys that cache real Collection data as an *output*.
  - [Selectors](#Selectors) allow you to reference a single cached item from a Collection
  - Collections include database-like methods to manipulate data.
- - Each item collected is ijs own [State](/docs/state) instance.
+ - Each item collected is its own [State](/docs/state) instance.
 
 *The beauty of Collections is that data can only be **collected once**, meaning if you need to modify it, there's one place to do so, and everything using that data will update accordingly. Collecting the same data again will overwrite the old data.
 
@@ -121,14 +121,14 @@ MyCollection.selectors.MY_SELECTOR.select(1) // select a new primary key
 
 ## `collect()`
 
-The Collect method allows you to _collect_ data and add it to a collection (single object or an array of objecjs). The second parameter is the group you would like the data to be collected into and is optional. 
+The Collect method allows you to _collect_ data and add it to a collection (single object or an array of objects). The second parameter is the group you would like the data to be collected into and is optional. 
 
 ### Parameters
 - `data` [Object]()
 - `groupNames` [string | string[]]() - optional
 
 ::: tip Collect can only accept objects
-  The Collect function can **only** accept an object or an array of objecjs. If you try to pass any other primitive data type it will not work.
+  The Collect function can **only** accept an object or an array of objects. If you try to pass any other primitive data type it will not work.
 :::
 
 ```js
@@ -156,7 +156,7 @@ The put method allows you to _put_ data from one group into another! A great exa
 ### Parameters
 - `primaryKeys` [string | number | string[] | number[]]()
 - `groupNames` [string | string[]]()
-- `options` [Object]() - _optional_
+- `options` [Object]() _optional_
 
 
 ```js
