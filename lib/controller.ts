@@ -18,15 +18,17 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
   public name?: string;
 
   public state: this['config']['state'] & StateObj;
-  public collection: this['config']['collection'] & Collection;
+  public collection: this['config']['collection'];
   public actions: this['config']['actions'] & FuncObj;
   public helpers: this['config']['helpers'] & FuncObj;
   public routes: this['config']['routes'] & FuncObj;
 
   public config: ControllerConfig<S, C, A, H, R>;
 
-  constructor(config: Partial<ControllerConfig<S, C, A, H, R>>) {
+  constructor(config: Partial<ControllerConfig<S, C, A, H, R>>, spreadToRoot?: any) {
     this.config = config as Required<ControllerConfig<S, C, A, H, R>>;
+
+    for (const propertyName in spreadToRoot) this[propertyName] = spreadToRoot[propertyName];
 
     for (const sectionName in this.config) {
       if (Controller.prototype[sectionName]) this[sectionName] = this.config[sectionName];

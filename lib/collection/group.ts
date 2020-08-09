@@ -15,7 +15,9 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   missingPrimaryKeys: Array<PrimaryKey> = [];
   computedFunc?: (data: DataType) => DataType;
   collection: () => Collection<DataType>;
-  
+  public get index(): Array<PrimaryKey> {
+    return this.value;
+  }
   public get output(): Array<DataType> {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this._masterOutput;

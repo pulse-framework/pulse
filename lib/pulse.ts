@@ -16,7 +16,7 @@ export interface PulseConfig {
   waitForMount?: boolean;
   framework?: any;
   frameworkConstructor?: any;
-  storage?: {};
+  storage?: StorageMethods;
   logJobs?: boolean;
 }
 
@@ -40,9 +40,10 @@ export default class Pulse {
   }
 
   public Controller = <S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj>(
-    config: Partial<ControllerConfig<S, C, A, H, R>>
+    config: Partial<ControllerConfig<S, C, A, H, R>>,
+    spreadToRoot?: any
   ): Controller<S, C, A, H, R> => {
-    this.controllers[name] = new Controller<S, C, A, H, R>(config);
+    this.controllers[name] = new Controller<S, C, A, H, R>(config, spreadToRoot);
     return this.controllers[name];
   };
   /**
@@ -97,6 +98,7 @@ export default class Pulse {
    * @param config.groups object - Define groups for this collection.
    */
   public Error(e: any, data?: any) {}
+
   public Collection = <DataType = DefaultDataItem>() => {
     return <G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) => {
       return new Collection<DataType, G, S>(() => this, config);
@@ -117,6 +119,9 @@ export default class Pulse {
     this.storage = new Storage(() => this, storageConfig);
     this.storage.persistedState = persistedState;
     this.storage.persistedState.forEach((state) => state.persist(state.name));
+  }
+  public Storage(storageConfig: StorageMethods): void {
+    return this.setStorage(storageConfig);
   }
 
   /**
