@@ -312,7 +312,7 @@ This method allows you to easily change the key of any piece of data in your col
 MyCollection.updateDataKey(1, 4550);
 ```
 
-## `regenGroupsThatInclude()`
+## `rebuildGroupsThatInclude()`
 
 ### Parameters
 

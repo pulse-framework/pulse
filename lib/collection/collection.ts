@@ -219,7 +219,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     // if the data key has changed move it internally and ammend groups
     if (updateDataKey) this.updateDataKey(currentData[primary], final[primary]);
 
-    this.regenGroupsThatInclude(final[primary]);
+    this.rebuildGroupsThatInclude(final[primary]);
 
     // return the Data instance
     return this.data[final[primary]];
@@ -309,7 +309,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     }
   }
 
-  public regenGroupsThatInclude(primarykey: PrimaryKey): void {
+  public rebuildGroupsThatInclude(primarykey: PrimaryKey): void {
     for (let groupName in this.groups) {
       const group = this.getGroup(groupName);
       if (group.has(primarykey)) this.instance().runtime.ingest(group);
