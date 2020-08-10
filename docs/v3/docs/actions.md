@@ -28,7 +28,7 @@ export async function MyAction() {
 
 > App.Error() is a configurable global error handler. You might want to emit an event to trigger a UI error popup, for example.
 
-## `App.Action()`
+## `App.Action()` [WIP]
 
 ```js [WIP, Coming Soon]
 export const MyAction = App.Action(() => {

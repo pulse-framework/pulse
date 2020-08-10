@@ -72,3 +72,32 @@ The value provided here will be the fallback used when the result of a computed 
 ### `computedDefault`
 
 ### `framework`
+
+### `errors` [wip]
+
+```ts
+interface ErrorConfig {}
+```
+
+## Error Handling [WIP]
+
+Pulse offers a global error handler best suited for use with [Actions]() on a try/catch and automatically used by [App.Action()]().
+
+```ts
+App.onError((error: ErrorObject) => {
+  if (error.code === 401) core.accounts.logout();
+});
+```
+
+Pulse will try to parse a caught error, and will always provide this object so you can safely process the error.
+
+```ts
+interface ErrorObject {
+  code: number; // if the error was because of a request, this will be the request error code
+  message: string;
+  action: Function; // reference to action in which the error occurred
+  raw: any; // The raw error
+}
+```
+
+You can configure your [API]() instance to prepare response data for the error handler also. More about this on [API]();

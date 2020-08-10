@@ -8,7 +8,7 @@ title: State
 
 State is the foundation of Pulse, most everything either _is_ State or _extends_ the functionality of State. It is used to preserve a value, while providing a toolkit to use and mutate it.
 
-State also has the ability to track its dependents and issue "reactive" side effects such as recomputing Computed state and updating React/Vue components.
+State also has the ability to track its dependents and issue "reactive" side effects such as recomputing [Computed State]() and updating React/Vue components.
 
 **Basic Usage**
 
@@ -18,8 +18,9 @@ const App = new Pulse();
 const MY_STATE = App.State<Boolean>(true);
 ```
 
-- State accepts a generic type for type safety
-- The only parameter of State is the default value, methods to modify, mutate and access the State value are chainable.
+- State accepts an optional generic type for type safety, if none is supplied the type will be inferred from the initial value provided.
+- The only parameter of State is the initial value.
+- Methods to modify, mutate and access the State value are chainable.
 
 ```typescript
 MY_STATE.persist().type(Boolean).toggle(); // false
