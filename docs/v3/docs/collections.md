@@ -86,9 +86,7 @@ const MyCollection = App.Collection<DataType>()(Collection => ({
 
 Groups are dependent on a Collection instance, thus the config function returns the Collection instance.
 ::: tip Groups extend the State class
-
-   Groups have all the methods and functionality State does (See [State methods]()), plus additional methods listed below. The `value` of the State is the Group's index, and the additional `output` property is the cached collection data.
-
+  Groups have all the methods and functionality State does (See [State methods]()), plus additional methods listed below. The `value` of the State is the Group's index, and the additional `output` property is the cached collection data.
 :::
 
 ```js
@@ -143,9 +141,7 @@ const MyCollection = App.Collection<DataType>()(Collection => ({
 
 The default value of a selector can be any primary key.
 ::: tip Selectors extend the Computed class (which extends State)
-
   Selectors store the selected primary key under `Selector.selected`, the Collection data matching the selected primary key is cached under `Selector.value`. To understand how Computed works see [Computed]()
-
 :::
 
 ```js

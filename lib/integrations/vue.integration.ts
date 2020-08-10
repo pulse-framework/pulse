@@ -25,8 +25,7 @@ export default {
 					if (pulseConstructor.API) this.API = pulseConstructor.API;
 					if (pulseConstructor.Computed) this.Computed = pulseConstructor.Computed;
 					
-					if (getPulse) this.getPulse = getPulse.bind(pulseConstructor._SSOT);
-					if (usePulse) this.usePulse = usePulse;
+					if (usePulse) this.usePulse = usePulse.bind(pulseConstructor._SSOT);
 					
 					Object.keys(options).forEach((key, i) => {
 						this['$'+key] = pulseConstructor._SSOT['$'+key];
@@ -49,8 +48,8 @@ export default {
 		}
 	},
 	onReady(pulseInstance: any | Pulse) {
-		const Vue = pulseInstance.intergration.frameworkConstructor;
-		pulseInstance.usePulse = (deps: Array<string> | string) => getPulse(deps, pulseInstance);
+		const Vue = pulseInstance.integration.frameworkConstructor;
+		pulseInstance.usePulse = (deps: Array<string> | string) => usePulse(deps, pulseInstance);
 		Vue.use(pulseInstance);
 	}
 };
@@ -60,14 +59,14 @@ export default {
  * @param deps Can either be a string or an array of strings set equal to the same of the pulse objects defined in Vue.use()
  * @param pulseInstance The pulse container to look at if you want to use a different SSOT
  */
-export function getPulse(deps: Array<string|State|keyedState> | string | State, pulseInstance?: Pulse) {
+export function usePulse(deps: Array<string|State|keyedState> | string | State, pulseInstance?: Pulse) {
 
 	enum ReturnType{
 		'STRING',
 		'STATE',
 		'KEYED'
 	}
-	// console.log(this);
+	console.log(this);
 	
 	let depsArray: (string | State | keyedState)[];
 	let depsArrayFinal: (State|keyedState)[] = [];
@@ -113,7 +112,7 @@ export function getPulse(deps: Array<string|State|keyedState> | string | State, 
 
 	// get Vue constructor
 	if (pulseInstance){
-		const Vue = pulseInstance.intergration.frameworkConstructor;
+		const Vue = pulseInstance.integration.frameworkConstructor;
 		if (!Vue) return;
 	}
 	
@@ -133,40 +132,30 @@ export function getPulse(deps: Array<string|State|keyedState> | string | State, 
 	}
 	
 }
+// export function usePulse(deps: Array<State | keyedState> | State, pulseInstance?: Pulse) {
+// 	console.log(this);
+// 	let depsArray = normalizeDeps(deps as Array<State>);
+// 	if (!pulseInstance) pulseInstance = getInstance(depsArray[0]);
 
-export function usePulse(deps: Array<State | keyedState> | State, pulseInstance?: Pulse) {
-	let depsArray = normalizeDeps(deps as Array<State>);
-	if (!pulseInstance) pulseInstance = getInstance(depsArray[0]);
+// 	// The final list of states and dependancies 
+// 	let depsArrayFinal: Array<State> = [];
 
-	let depsArrayFinal: Array<State> = [];
+// 	// this allows you to pass in a keyed object of States and subscribe to all  State within the first level of the object. Useful if you wish to subscribe a component to several State instances at the same time.
+// 	depsArray.forEach(dep => {
+// 		if (dep instanceof State) depsArrayFinal.push(dep);
+// 		else if (typeof dep === 'object')
+// 			for (let d in dep as keyedState) {
+// 				if ((dep[d] as any) instanceof State) depsArrayFinal.push(dep[d]);
+// 			}
+// 	});
 
-	// this allows you to pass in a keyed object of States and subscribe to all  State within the first level of the object. Useful if you wish to subscribe a component to several State instances at the same time.
-	depsArray.forEach(dep => {
-		if (dep instanceof State) depsArrayFinal.push(dep);
-		else if (typeof dep === 'object')
-			for (let d in dep as keyedState) {
-				if ((dep[d] as any) instanceof State) depsArrayFinal.push(dep[d]);
-			}
-	});
+// 	// get Vue constructor
+// 	const Vue = pulseInstance.integration.frameworkConstructor;
+// 	if (!Vue) return;
 
-	// get React constructor
-	const React = pulseInstance.intergration.frameworkConstructor;
-	if (!React) return;
-
-	// this is a trigger state used to force the component to re-render
-	const [_, set_] = React.useState({});
-
-	React.useEffect(function () {
-		// create a callback based subscription, callback invokes re-render trigger
-		const cC = pulseInstance.subController.subscribe(() => {
-			set_({});
-		}, depsArray);
-		// unsubscribe on unmount
-		return () => pulseInstance.subController.unsubscribe(cC);
-	}, []);
-
-	return depsArray.map(dep => {
-		if (dep instanceof State) return dep.getPublicValue();
-		return dep;
-	});
-}
+// 	// return depsArray.map(dep => {
+// 	// 	if (dep instanceof State) return dep.getPublicValue();
+// 	// 	return dep;
+// 	// });
+// 	return depsArrayFinal;
+// }
