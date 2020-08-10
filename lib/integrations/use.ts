@@ -1,8 +1,8 @@
-import reactIntergration from './react.intergration';
-import vueIntergration from './vue.intergration';
+import reactIntegration from './react.integration';
+import vueIntegration from './vue.integration';
 import Pulse from '../pulse';
 
-export interface Intergration {
+export interface Integration {
   ready?: boolean;
   frameworkConstructor?: any;
   name?: any;
@@ -12,8 +12,8 @@ export interface Intergration {
   onReady?: Function;
 }
 
-// This gets assigned to the constructor Pulse.intergration
-const intergration: Intergration = {
+// This gets assigned to the constructor Pulse.integration
+const integration: Integration = {
   ready: false
 };
 
@@ -22,27 +22,27 @@ export default function use(plugin: any, pulseInstance: Pulse) {
 
   switch (frameworkName) {
     case 'react':
-      intergrate(reactIntergration, 'react');
+      integrate(reactIntegration, 'react');
       break;
     case 'vue':
-      intergrate(vueIntergration, 'vue');
+      integrate(vueIntegration, 'vue');
       break;
     case 'custom':
-      if (validateCustomFramework(plugin as Intergration)) intergrate(plugin, 'custom');
+      if (validateCustomFramework(plugin as Integration)) integrate(plugin, 'custom');
       break;
   }
 
-  // assign framework constructor to intergration object
-  if (frameworkName !== 'custom') intergration.frameworkConstructor = plugin;
+  // assign framework constructor to integration object
+  if (frameworkName !== 'custom') integration.frameworkConstructor = plugin;
 
   // Inject into static property of constructor
-  pulseInstance.intergration = intergration;
+  pulseInstance.integration = integration;
 
-  // if the intergration is ready, call bind otherwise warn user
-  if (intergration.ready) intergration.bind(pulseInstance);
+  // if the integration is ready, call bind otherwise warn user
+  if (integration.ready) integration.bind(pulseInstance);
   else {
     console.error(
-      `Pulse: Failed to intergrate with framework! It's possible you didn't call Pulse.use() before new Pulse.`
+      `Pulse: Failed to integrate with framework! It's possible you didn't call Pulse.use() before new Pulse.`
     );
     // TODO: in some cases one might want to use Pulse without a framework so consider making this warning only show in dev, and making a config option to hide it entirely.
   }
@@ -50,21 +50,21 @@ export default function use(plugin: any, pulseInstance: Pulse) {
 
 //******** HELPERS BELOW *******
 
-function intergrate(int: Intergration, frameworkName: string) {
-  // bind all properties from intergration
+function integrate(int: Integration, frameworkName: string) {
+  // bind all properties from integration
   Object.keys(int).forEach(property => {
-    intergration[property] = int[property];
+    integration[property] = int[property];
   });
   // assign name and set ready
-  intergration.name = int.name || frameworkName;
-  intergration.ready = true;
+  integration.name = int.name || frameworkName;
+  integration.ready = true;
 }
 
-function validateCustomFramework(customIntergration: Intergration): boolean {
+function validateCustomFramework(customIntegration: Integration): boolean {
   let valid: boolean = true;
   // check for required properties
   ['name', 'bind', 'updateData'].forEach(property => {
-    if (!customIntergration.hasOwnProperty(property)) valid = false;
+    if (!customIntegration.hasOwnProperty(property)) valid = false;
   });
   return valid;
 }
