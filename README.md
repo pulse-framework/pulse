@@ -1,31 +1,32 @@
-# PulseJS
+# Pulse Framework `3.0`
 
-Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginners.
+_Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
 
-Pulse replaces global state management solutions such as Redux, VueX and MobX, including HTTP libraries such as Axios, Fetch or Request.js. It makes your application more modular, ensuring you follow the best practices while writing significantly less code. Your Pulse code can be used in many different applications, such as a webapp in Vue and a mobile app in React native; if it uses Javascript, it can use Pulse.
+Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to creare a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
+
+Created by [@jamiepine]() | Sponsored and maintained by the [Notify Team]()
+
+### Official website: [pulsejs.org](https://pulsejs.org/v3/introduction/what-is-pulse.html)
+
+<p align="left">
+  <a href="https://discord.gg/RjG8ShB"><img src="https://discordapp.com/api/guilds/658189217746255881/embed.png" alt="Join Discord"></a>
+  <a href="https://patreon.com/jamiepine"><img src="https://img.shields.io/badge/donate-patreon-F96854.svg" alt="Donate on patreon"></a>
+  <a href="https://twitter.com/jamiepine"><img src="https://img.shields.io/twitter/follow/jamiepine.svg?label=Jamie's Twitter" alt="Follow on twitter"></a>
+  <a href="https://twitter.com/pulseframework"><img src="https://img.shields.io/twitter/follow/pulseframework.svg?label=Pulse+Twitter" alt="Follow Pulse on twitter"></a>
+</p>
+
+```ts
+const App = new Pulse();
+
+const Hello = App.State<string>('the sound of music');
+```
 
 ## Why Pulse?
 
-After exploring the many options for Javascript state libraries, including the popular VueX and Redux, I felt like I needed a simpler solution. I wanted to get more out of a library than just state management― something that could provide solid structure for the **entire** application. It needed to be structured and simple, but also scalable. This framework provides everything needed to get a reactive javascript front-end application working fast, taking care to follow best practices and to employ simple terminology that makes sense even to beginners.
+Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourges developers to construct a core library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
 
-I built Pulse reflective of the architecture in which we use at Notify.me, and as a replacement for VueX at Notify also, making sure it is also compatible with React and vanilla environments. The team at Notify love it and I think you will too.
+### Typescript
 
-## Features
+Pulse is written in Typescript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code.
 
-- :zap: State, a modular class for handling state ([State]()) `Pulse.State()`
-- :robot: Computed state with automatic dependency tracking ([Computed]())
-- :telephone_receiver: Promise based HTTP request API
-- :timer_clock: Turn back the clock with [smart undo]() `State.undo()`
-- :sparkles: [Collections]() a DB/ORM-like class for groups of data `Collection.collect()`
-- :floppy_disk: Persisted data API for localStorage and async storage
-- :first_quarter_moon: Lifesycle hooks [`watch()`]() / `onReady()` / `nextPulse()`
-- :crystal_ball: Dynamic relations between collections using [Populate]() `populate()`
-- :construction: Task queuing for race condition prevention
-- :bus: Event bus `pulse.on() / pulse.emit()`
-- :hourglass_flowing_sand: Timed interval task handler using [Jobs]()
-- :closed_book: Error logging & snapshot bug reporting (WIP)
-- :leaves: Lightweight (only 100KB) with 0 dependencies
-- :fire: Supports Vue, React and React Native `usePulse()`
-- :yellow_heart: Well documented (I'm getting there...)
-
-Full Documentation: [https://www.notion.so/notify/Pulse-Framework-3-0-A-Complete-Guide-a86cbbd6260b44f495492312d324b8ad](https://www.notion.so/notify/Pulse-Framework-3-0-A-Complete-Guide-a86cbbd6260b44f495492312d324b8ad)
+Read the [documentation](https://pulsejs.org/v3/introduction/what-is-pulse.html) to learn more!
