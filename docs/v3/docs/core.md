@@ -63,7 +63,7 @@ The core can be accessed from both outside and within itself, which means the sy
 import { App } from './app'; // instance
 import { ICore } from './core'; // type from the future
 
-const { accounts } = App.Core<ICore>();
+const core = App.Core<ICore>();
 ```
 
 This method ensures this Controller can access other Controllers, even ones that might not be initialized yet. We import our time-traveling type `ICore` and assign it to the Core functions' generic.
@@ -120,7 +120,7 @@ Create a folder for your conrollers. Pulse advocates splitting up your core into
 import { App } from './app'; // instance
 import { ICore } from './core'; // type from the future
 
-const { authentication } = App.Core<ICore>(); // grab sister controller
+const core = App.Core<ICore>(); // grab sister controller
 
 export const accounts = App.Controller({
   state: {
@@ -128,7 +128,7 @@ export const accounts = App.Controller({
   }
   actions: {
     logout() {
-      App.reset(authentication.state)
+      App.reset(core.authentication.state)
     }
   }
 });

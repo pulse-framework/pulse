@@ -1,9 +1,18 @@
 import { App } from "../pulse";
 import { ICore } from "../core";
-const { accounts } = App.Core<ICore>();
+
+const core = App.Core<ICore>(); // works
+
+export function Test() {
+	console.log(core.accounts);
+	core.accounts.lol();
+}
 
 export const test = App.Controller({
 	state: {
 		jeff: App.State("true"),
+	},
+	actions: {
+		Test,
 	},
 });

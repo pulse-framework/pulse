@@ -31,12 +31,12 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
     for (const propertyName in spreadToRoot) this[propertyName] = spreadToRoot[propertyName];
 
     for (const sectionName in this.config) {
-      if (Controller.prototype[sectionName]) this[sectionName] = this.config[sectionName];
+      this[sectionName] = this.config[sectionName];
     }
 
     this.applyKeys();
   }
   private applyKeys() {
-    for (const name in this.state as StateObj) this.state[name].key(name);
+    for (const name in this.state as StateObj) if (name && this.state[name] instanceof State) this.state[name].key(name);
   }
 }

@@ -10,14 +10,14 @@ export interface AccountBody {
 	email: string;
 }
 // Define an object of state instances with chained modifiers
-const AccountState = {
+export const AccountState = {
 	LAST_ACCOUNT_ID: App.State<number>(0).persist(),
 	CREDENTIALS: App.State<AuthCreds>({}).persist(),
 };
 // Define a Pulse Collection to store theoretical authenticated accounts
 // Pass in AccountBody type as generic "DataType"
 // All data items, groups and selectors within this collection will be given the AccountBody type
-const AccountCollection = App.Collection<AccountBody>()(Collection => ({
+export const AccountCollection = App.Collection<AccountBody>()(Collection => ({
 	groups: {
 		AUTHED: Collection.Group().persist(), // a group for all authenticated accounts
 	},
