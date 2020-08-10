@@ -25,8 +25,10 @@ export default class Pulse {
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
+
   public integration: Integration = null;
   public core: any;
+
   constructor(public config: PulseConfig = {}) {
     this.subController = new SubController();
     this.runtime = new Runtime(() => this);
@@ -54,7 +56,8 @@ export default class Pulse {
    * @param config.timeout Number - Time to wait for request before throwing error
    */
   public Core = <CoreType>(core?: CoreType): CoreType => {
-    if (!this.core && core) this.core = core;
+    // set the core
+    if (core) for (let p in core) this.core[p] = core[p];
     return this.core as CoreType;
   };
 

@@ -30,7 +30,7 @@ export async function MyAction() {
 
 ## `App.Action()`
 
-```js
+```js [WIP, Coming Soon]
 export const MyAction = App.Action(() => {
   // do something
 });
