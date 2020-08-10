@@ -9,9 +9,9 @@ export { Controller } from './controller';
 
 export type PrimaryKey = string | number;
 
-export { usePulse } from './intergrations/react.intergration';
+export { usePulse } from './integrations/react.integration';
 export { PulseResponse } from './api/api';
-export { PulseHOC } from './intergrations/react.intergration';
+export { PulseHOC } from './integrations/react.integration';
 export { cleanState, resetState, extractAll } from './utils';
 
 export default Pulse;

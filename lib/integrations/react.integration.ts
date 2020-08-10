@@ -66,7 +66,7 @@ export function usePulse(deps: Array < State | keyedState > | State, pulseInstan
 	});
 
 	// get React constructor
-	const React = pulseInstance.intergration.frameworkConstructor;
+	const React = pulseInstance.integration.frameworkConstructor;
 	if (!React) return;
 
 	// this is a trigger state used to force the component to re-render

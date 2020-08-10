@@ -106,8 +106,8 @@ export default class Runtime {
         (cC as CallbackContainer).callback();
         // is this a ComponentContainer
       } else if (cC instanceof ComponentContainer) {
-        // call the current intergration's update method
-        this.instance().intergration.updateMethod(cC.instance, Runtime.assembleUpdatedValues(cC));
+        // call the current integration's update method
+        this.instance().integration.updateMethod(cC.instance, Runtime.assembleUpdatedValues(cC));
       }
     });
 

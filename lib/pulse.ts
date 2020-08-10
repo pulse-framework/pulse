@@ -6,7 +6,7 @@ import Runtime from './runtime';
 import Storage, { StorageMethods } from './storage';
 import API, { apiConfig } from './api/api';
 import Group, { GroupName, PrimaryKey } from './collection/group';
-import use, { Intergration } from './intergrations/use';
+import use, { Integration } from './integrations/use';
 import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
 import Data from './collection/data';
 
@@ -25,17 +25,19 @@ export default class Pulse {
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
-  public intergration: Intergration = null;
-  public core: any = {};
+
+  public integration: Integration = null;
+  public core: any;
+
   constructor(public config: PulseConfig = {}) {
     this.subController = new SubController();
     this.runtime = new Runtime(() => this);
     this.storage = new Storage(() => this, config.storage || {});
-    if (config.framework) this.initFrameworkIntergration(config.framework);
+    if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
   }
 
-  public initFrameworkIntergration(frameworkConstructor) {
+  public initFrameworkIntegration(frameworkConstructor) {
     use(frameworkConstructor, this);
   }
 
