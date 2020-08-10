@@ -78,6 +78,45 @@ core.accounts;
 
 It's safe to use the default import here as we know everything has been initialized, this would be the easiest way to access the core in your UI components.
 
+### Caveats
+
+#### 1) Core-ception
+
+You can not access a `controller` via your core from within that **same controller folder**. So `core.accounts` can not be used in files in the `account` controller folder, but it can see all other controllers. You'll need to use direct imports to use State, Collections and actions etc. from the same controller.
+
+#### 2) Destructuing imports
+
+In an ideal world we'd be able to do this:
+
+```ts
+const { accounts } = App.Core<ICore>();
+```
+
+This would not work because at import-level accounts has not been defined yet, as assembly of the core happens last.
+
+However if you import **without** destructuing, the constant you assign will be a direct refrence to the core object within the App instance. So at runtime it will work.
+
+```ts
+const core = App.Core<ICore>();
+```
+
+#### 3) Using the core to supply initial state
+
+A way to remember this rule, is to only use sister controllers inside functions that are not immediately called. Computed functions for example will be called post-core assembly, actions too.
+
+```js
+const core = App.Core<ICore>();
+// Imagine this is a "posts" controller, or anything but accounts
+const state = {
+  noworks: App.State(core.accounts), // compile error
+  works: App.Computed(() => {		   // no complile error
+    core.accounts
+  }),
+},
+```
+
+This isn't all bad, you shouldn't need to use sister controllers for default state values, most of the time you'll be using sister controllers in [Actions]() or [Computed State]().
+
 ## Creating your core
 
 Refer to the [examples/react-typescript/src/core]() directory on the Pulse repo for a finalized example.

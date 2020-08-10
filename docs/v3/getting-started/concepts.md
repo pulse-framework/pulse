@@ -9,3 +9,11 @@ Pulse was designed to take all business logic out of components, meaning your Re
 ## Reactivity
 
 Reactive data is state that will react to mutations in order to cause component re-renders. Components can subscribe to Pulse state and will be updated when the state changes.
+
+## Thesaurus
+
+In these docs we will refer to our classes with a capital first letter. When you see "state" we're referring to the programming concept `state`, but when you see `State` we're referring to our [State]() class.
+
+- **Pulse Instance**: The result of initializing Pulse, a refrence to your Pulse application.
+- **core**: You library of State, Collections and Controllers
+- **reactive**: Can cause component re-renders

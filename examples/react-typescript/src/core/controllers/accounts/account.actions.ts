@@ -1,12 +1,11 @@
 // Account Actions
 import { ICore } from "../../core";
-import { App } from "../../pulse";
+import { App } from "../../app";
+import * as routes from "./account.routes";
 import {
 	AccountState as state,
 	AccountCollection as collection,
 } from "./account.controller";
-import * as routes from "./account.routes";
-// Functions exported from here will be accessible in the accounts conroller
 
 // Grab refrence to all controllers via the Core() function
 const core = App.Core<ICore>();

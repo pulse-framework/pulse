@@ -20,12 +20,20 @@ export interface PulseConfig {
   logJobs?: boolean;
 }
 
+interface ErrorObject {
+  code: number; // if the error was because of a request, this will be the request error code
+  message: string;
+  action: Function; // reference to action in which the error occurred
+  raw: any; // The raw error
+}
+
 export default class Pulse {
   public runtime: Runtime;
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
 
+  public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
   public integration: Integration = null;
   public core: any;
 
@@ -84,24 +92,23 @@ export default class Pulse {
    * @param config.primaryKey The primary key for the collection.
    * @param config.groups Define groups for this collection.
    */
-  // public Collection = <DataType = DefaultDataItem, G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) =>
-  //   new Collection<DataType, G, S>(() => this, config);
-  // /**
-  //  * Create a Pulse collection with automatic type inferring
-  //  * @param config object
-  //  * @param config.primaryKey string - The primary key for the collection.
-  //  * @param config.groups object - Define groups for this collection.
-  //  */
-  // public TCollection = <G = GroupObj, S = SelectorObj>(config: Config<G, S>) => <DataType = DefaultDataItem>() =>
-  //   new Collection<DataType, G, S>(() => this, config);
+  public onError(handler: (error: ErrorObject) => void) {}
+  public Error(error: any, code?: string) {}
+
+  public Action(func: Function) {
+    return () => {
+      const returnValue = func();
+
+      return returnValue;
+    };
+  }
+
   /**
    * Create a Pulse collection with automatic type inferring
    * @param config object | function returning object
    * @param config.primaryKey string - The primary key for the collection.
    * @param config.groups object - Define groups for this collection.
    */
-  public Error(e: any, data?: any) {}
-
   public Collection = <DataType = DefaultDataItem>() => {
     return <G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) => {
       return new Collection<DataType, G, S>(() => this, config);

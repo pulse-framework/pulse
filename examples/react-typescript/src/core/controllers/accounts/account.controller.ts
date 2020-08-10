@@ -1,4 +1,4 @@
-import { App } from "../../pulse";
+import { App } from "../../app";
 import { AuthCreds } from "./account.interfaces";
 import * as actions from "./account.actions";
 import * as routes from "./account.routes";

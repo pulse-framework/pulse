@@ -126,12 +126,21 @@ module.exports = {
         {
           title: 'Documentation',
           collapsable: false,
-          children: ['docs/pulse-instance', 'docs/state', 'docs/computed', 'docs/collections', 'docs/actions', 'docs/controllers', 'docs/core', 'docs/api']
+          children: [
+            'docs/pulse-instance',
+            'docs/state',
+            'docs/computed',
+            'docs/collections',
+            'docs/actions',
+            'docs/controllers',
+            'docs/core',
+            'docs/api'
+          ]
         },
         {
           title: 'Resources',
           collapsable: false,
-          children: ['resources/snippets', 'getting-started/style-guide']
+          children: ['resources/snippets', 'getting-started/style-guide', 'resources/ideas']
         }
       ]
     }

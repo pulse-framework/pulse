@@ -1,9 +1,7 @@
 // import Pulse first
-import { App } from "./pulse";
+import { App } from "./app";
 import { accounts } from "./controllers/accounts";
 import { test } from "./controllers/test";
-import Pulse from "pulse-framework";
-// then import controllers
 
 // Create API instance
 export const API = App.API({

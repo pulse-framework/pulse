@@ -1,4 +1,4 @@
-import { App } from "../pulse";
+import { App } from "../app";
 import { ICore } from "../core";
 
 const core = App.Core<ICore>(); // works
@@ -10,7 +10,11 @@ export function Test() {
 
 export const test = App.Controller({
 	state: {
-		jeff: App.State("true"),
+		// noworks: App.State(core.accounts), // compile error
+		works: App.Computed(() => {
+			// no complile error
+			core.accounts;
+		}),
 	},
 	actions: {
 		Test,
