@@ -23,18 +23,18 @@ export function resetState(items: Array<State | Collection | any>) {
 
 // A helper function to extract all instances of a target instance from an object
 // This function will always fail silently, so it can be safely used without much knowledge of the obj
-export function extractAll<O, I>(obj: O, targetClass: I): Set<I> {
-  // strip type from targetClass for instanceOf compatibility
-  const typelessClass: any = targetClass;
-  // safety net: object passed is not an obj, but rather an instance of the targetClass in question, return that
-  if (obj instanceof typelessClass) return new Set([typelessClass]) as Set<I>;
+export function extractAll<I extends new (...args: any) => any, O>(testClass: I, fromObj: O): Set<InstanceType<I>> {
+  // strip type from testClass for instanceOf compatibility
+  const typelessClass: any = testClass;
+  // safety net: object passed is not an obj, but rather an instance of the testClass in question, return that
+  if (fromObj instanceof typelessClass) return new Set([typelessClass]) as Set<InstanceType<I>>;
   // safty net: if type passed is not iterable, return empty set
-  if (typeof obj !== 'object') return new Set<I>();
+  if (typeof fromObj !== 'object') return new Set<InstanceType<I>>();
 
-  // define return Set with typeof targetClass
-  const found: Set<I> = new Set();
+  // define return Set with typeof testClass
+  const found: Set<InstanceType<I>> = new Set();
   // storage for the look function's state
-  let next = [obj];
+  let next = [fromObj];
   function look() {
     let _next = [...next]; // copy last state
     next = []; // reset the original state
