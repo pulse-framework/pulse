@@ -18,7 +18,7 @@ Pulse provides _Collections_ as a way to predictably save external data. Collect
 
 \*The beauty of Collections is that data can only be **collected once**, meaning if you need to modify it, there's one place to do so, and everything using that data will update accordingly. Collecting the same data again will overwrite the old data.
 
-## Setup
+## Setup 
 
 ```js
 const MyCollection = App.Collection()();
