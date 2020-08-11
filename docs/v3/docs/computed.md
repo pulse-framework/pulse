@@ -6,7 +6,7 @@ title: Computed State
 
 # Computed State
 
-Computed State is an extension of the [State]() class. It computes a cached value from a function that you provide.
+Computed State is an extension of [State](./state.md). It computes a value from a function that you provide, and caches it to avoid unnecessary recomputation.
 
 - It will magically recompute when its dependencies change.
 - Computed can track dependencies automatically or manually.
@@ -16,7 +16,7 @@ Unlike State you can not directly mutate it, so `.set()`, `.bind` are disabled.
 
 `.persist()` is also blocked as persisting a computed value isn't necessary.
 
-Other State methods are still useable! Refer to [State Methods]().
+Other State methods are still useable! Refer to [State Methods](./state.md#methods).
 :::
 
 ## Example
@@ -57,7 +57,9 @@ The State class has a reactive getter `State.value`. When the computed function 
 This works for Groups, Selectors, Collection Data and anything that extends the State class.
 :::
 
-## `.recompute()`
+## Methods
+
+### `.recompute()`
 
 _Forces the Computed instance to recompute_
 
