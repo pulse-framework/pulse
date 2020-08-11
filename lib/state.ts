@@ -23,8 +23,6 @@ export class State<ValueType = any> {
   public valueType?: string;
   // sideEffects can be set by extended classes, such as Groups to build their output.
   public sideEffects?: Function;
-  // computeValue is the method to return a new value. it is undefined in State but can be used by extended classes such as Computed, which creates it's own value
-  public computeValue?: (newState?: ValueType) => ValueType;
 
   public set bind(value: ValueType) {
     this.set(value);

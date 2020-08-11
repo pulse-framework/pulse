@@ -14,18 +14,18 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     super(instance, instance().config.computedDefault || null);
 
     if (deps) deps.forEach((state) => state.dep.depend(this));
-
-    this.computeValue = () => {
-      if (deps) return func();
-      instance().runtime.trackState = true;
-      const computed = func();
-      let dependents = instance().runtime.getFoundState();
-      dependents.forEach((state) => state.dep.depend(this));
-      return computed;
-    };
+    const output = this.computeValue();
 
     // const output = this.computeValue();
     // this.set(output);
+  }
+  private computeValue() {
+    if (this.deps) return this.func();
+    this.instance().runtime.trackState = true;
+    const computed = this.func();
+    let dependents = this.instance().runtime.getFoundState();
+    dependents.forEach((state) => state.dep.depend(this));
+    return computed;
   }
   public recompute(): void {
     this.set(this.computeValue());
