@@ -239,4 +239,4 @@ export function reset(instance: State) {
   if (instance.persistState) instance.instance().storage.remove(instance.name);
 }
 
-type SetFunc<ValueType> = (state: ValueType) => ValueType;
+export type SetFunc<ValueType> = (state: ValueType) => ValueType;
