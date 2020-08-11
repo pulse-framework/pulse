@@ -21,7 +21,12 @@ export default class Runtime {
     let job: Job = { state, newState };
     // grab nextState if newState not passed, compute if needed
     if (arguments[1] === undefined) {
-      job.newState = job.state.computeValue ? job.state.computeValue(job.state.nextState) : job.state.nextState;
+
+      job.newState = job.state instanceof Computed
+        // if computed, recompute value
+        ? job.state.computeValue()
+        // otherwise, default to nextState
+        : job.state.nextState;
     }
 
     this.queue.push(job);

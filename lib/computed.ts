@@ -19,7 +19,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     // const output = this.computeValue();
     // this.set(output);
   }
-  private computeValue(): ComputedValueType | SetFunc<ComputedValueType> {
+  public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {
     if (this.deps) return this.func();
     this.instance().runtime.trackState = true;
     const computed = this.func();
