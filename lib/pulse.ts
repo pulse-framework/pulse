@@ -54,8 +54,7 @@ export default class Pulse {
     config: Partial<ControllerConfig<S, C, A, H, R>>,
     spreadToRoot?: any
   ): Controller<S, C, A, H, R> => {
-    this.controllers[name] = new Controller<S, C, A, H, R>(config, spreadToRoot);
-    return this.controllers[name];
+    return new Controller<S, C, A, H, R>(config, spreadToRoot);
   };
   /**
    * Create Pulse API
