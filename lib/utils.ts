@@ -1,5 +1,6 @@
 import Pulse, { Collection } from '.';
 import State from './state';
+
 export function cleanState(state: State): any {
   return {
     value: state.value,
@@ -20,19 +21,34 @@ export function resetState(items: Array<State | Collection | any>) {
   });
 }
 
-export function extractAll<I = any>(obj, instance: any): Set<I> {
-  if (obj instanceof instance) return new Set(obj);
+// A helper function to extract all instances of a target instance from an object
+// This function will always fail silently, so it can be safely used without much knowledge of the obj
+export function extractAll<O, I>(obj: O, targetClass: I): Set<I> {
+  // strip type from targetClass for instanceOf compatibility
+  const typelessClass: any = targetClass;
+  // safety net: object passed is not an obj, but rather an instance of the targetClass in question, return that
+  if (obj instanceof typelessClass) return new Set([typelessClass]) as Set<I>;
+  // safty net: if type passed is not iterable, return empty set
+  if (typeof obj !== 'object') return new Set<I>();
+
+  // define return Set with typeof targetClass
   const found: Set<I> = new Set();
+  // storage for the look function's state
   let next = [obj];
   function look() {
-    let _next = [...next];
-    next = [];
+    let _next = [...next]; // copy last state
+    next = []; // reset the original state
     _next.forEach((o) => {
+      const typelessObject: any = o;
+      // look at every property in object
       for (let property in o) {
-        if (o[property] instanceof instance) found.add(o[property]);
-        else if (isWatchableObject(o[property])) next.push(o[property]);
+        // check if instance type of class
+        if (o[property] instanceof typelessClass) found.add(typelessObject[property]);
+        // otherwise if object, store child object for next loop
+        else if (isWatchableObject(o[property])) next.push(typelessObject[property]);
       }
     });
+    // if next state has items, loop function
     if (next.length > 0) look();
   }
   look();
