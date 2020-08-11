@@ -11,7 +11,7 @@
     "dev": "tsc-watch",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
-    "now-build": "npm run docs:build",
+    "now-build": "yarn run docs:build",
     "postinstall": "tsc --noEmit"
   },
   "types": "./dist/index.d.ts",
