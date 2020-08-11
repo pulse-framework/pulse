@@ -9,6 +9,7 @@ import Group, { GroupName, PrimaryKey } from './collection/group';
 import use, { Integration } from './integrations/use';
 import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
 import Data from './collection/data';
+import { extractAll } from './utils';
 
 export interface PulseConfig {
   storagePrefix?: string;
@@ -36,7 +37,7 @@ export default class Pulse {
   public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
   public integration: Integration = null;
   public core: any;
-
+  public ready: boolean = false;
   constructor(public config: PulseConfig = {}) {
     this.subController = new SubController();
     this.runtime = new Runtime(() => this);
@@ -64,10 +65,18 @@ export default class Pulse {
    * @param config.timeout Number - Time to wait for request before throwing error
    */
   public Core = <CoreType>(core?: CoreType): CoreType => {
+    if (!this.ready) this.onInstanceReady();
     // set the core
     if (core) for (let p in core) this.core[p] = core[p];
     return this.core as CoreType;
   };
+
+  private onInstanceReady() {
+    this.ready = true;
+
+    // run all computed functions
+    extractAll(Computed, this.core).forEach((instance) => instance.recompute());
+  }
 
   public API = (config: apiConfig) => new API(config);
   /**

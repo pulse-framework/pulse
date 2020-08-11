@@ -144,7 +144,7 @@ const MyCollection = App.Collection<DataType>()(Collection => ({
 The default value of a selector can be any primary key.
 ::: tip Selectors extend the Computed class (which extends State)
 
-Selectors store the selected primary key under `Selector.selected`, the Collection data matching the selected primary key is cached under `Selector.value`. To understand how Computed works see [Computed]()
+Selectors store the selected primary key under `Selector.id`, the Collection data matching the selected primary key is cached under `Selector.value`. To understand how Computed works see [Computed]()
 
 :::
 

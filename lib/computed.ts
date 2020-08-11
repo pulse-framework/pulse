@@ -14,6 +14,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     super(instance, instance().config.computedDefault || null);
 
     if (deps) deps.forEach((state) => state.dep.depend(this));
+
     this.computeValue = () => {
       if (deps) return func();
       instance().runtime.trackState = true;
@@ -22,9 +23,9 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
       dependents.forEach((state) => state.dep.depend(this));
       return computed;
     };
-    const output = this.computeValue();
 
-    this.set(output);
+    // const output = this.computeValue();
+    // this.set(output);
   }
   public recompute(): void {
     this.set(this.computeValue());

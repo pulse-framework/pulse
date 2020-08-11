@@ -15,16 +15,13 @@ export default class Runtime {
 
   public trackState: boolean = false;
   public foundState: Set<State> = new Set();
-
   constructor(private instance: () => Pulse) {}
 
   public ingest(state: State, newState?: any, perform: boolean = true): void {
     let job: Job = { state, newState };
     // grab nextState if newState not passed, compute if needed
     if (arguments[1] === undefined) {
-      job.newState = job.state.computeValue
-        ? job.state.computeValue(job.state.nextState)
-        : job.state.nextState;
+      job.newState = job.state.computeValue ? job.state.computeValue(job.state.nextState) : job.state.nextState;
     }
 
     this.queue.push(job);
@@ -64,7 +61,7 @@ export default class Runtime {
     let dep = state.dep;
 
     // cleanup dynamic deps
-    dep.dynamic.forEach(state => {
+    dep.dynamic.forEach((state) => {
       state.dep.deps.delete(dep);
     });
     dep.dynamic = new Set();
@@ -74,18 +71,17 @@ export default class Runtime {
     if (typeof state.sideEffects === 'function') state.sideEffects();
 
     for (let watcher in state.watchers) {
-      if (typeof state.watchers[watcher] === 'function')
-        state.watchers[watcher](state.getPublicValue());
+      if (typeof state.watchers[watcher] === 'function') state.watchers[watcher](state.getPublicValue());
     }
 
     // ingest dependents
-    dep.deps.forEach(state => this.ingest(state, undefined, false));
+    dep.deps.forEach((state) => this.ingest(state, undefined, false));
   }
 
   private updateSubscribers(): void {
     let componentsToUpdate: Set<SubscriptionContainer> = new Set();
-    this.complete.forEach(job =>
-      job.state.dep.subs.forEach(cC => {
+    this.complete.forEach((job) =>
+      job.state.dep.subs.forEach((cC) => {
         // for containers that require props to be passed
         if (cC.passProps) {
           let localKey: string;
@@ -99,7 +95,7 @@ export default class Runtime {
     );
 
     // perform component or callback updates
-    componentsToUpdate.forEach(cC => {
+    componentsToUpdate.forEach((cC) => {
       // are we dealing with a CallbackContainer?
       if (cC instanceof CallbackContainer) {
         // just invoke the callback
@@ -111,12 +107,11 @@ export default class Runtime {
       }
     });
 
-    if (this.instance().config.logJobs && componentsToUpdate.size > 0)
-      console.log(`Rendered Components`, componentsToUpdate);
+    if (this.instance().config.logJobs && componentsToUpdate.size > 0) console.log(`Rendered Components`, componentsToUpdate);
 
     this.complete = [];
     // run any tasks for next runtime
-    this.tasksOnceComplete.forEach(task => typeof task === 'function' && task());
+    this.tasksOnceComplete.forEach((task) => typeof task === 'function' && task());
     this.tasksOnceComplete = [];
   }
 
@@ -133,7 +128,7 @@ export default class Runtime {
 
   static assembleUpdatedValues(cC: SubscriptionContainer) {
     let returnObj: any = {};
-    cC.keysChanged.forEach(changedKey => {
+    cC.keysChanged.forEach((changedKey) => {
       // extract the value from State for changed keys
       returnObj[changedKey] = cC.mappedStates[changedKey].value;
     });
