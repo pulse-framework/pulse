@@ -44,26 +44,18 @@ export class State<ValueType = any> {
    * Directly set state to a new value, if nothing is passed in State.nextState will be used as the next value
    * @param newState - The new value for this state
    */
-  public set(
-    newState?: ValueType | SetFunc<ValueType>,
-    options: { background?: boolean } = {}
-  ): this {
+  public set(newState?: ValueType | SetFunc<ValueType>, options: { background?: boolean } = {}): this {
     // if newState not provided, just ingest update with existing value
     if (newState === undefined) {
       this.instance().runtime.ingest(this, undefined);
       return this;
     }
     // if newState is a function, run that function and supply existing value as first param
-    if (typeof newState === 'function')
-      newState = (newState as SetFunc<ValueType>)(this._masterValue);
+    if (typeof newState === 'function') newState = (newState as SetFunc<ValueType>)(this._masterValue);
 
     // check type if set and correct otherwise exit
     if (this.valueType && !this.isCorrectType(newState)) {
-      console.warn(
-        `Pulse: Error setting state: Incorrect type (${typeof newState}) was provided. Type fixed to ${
-          this.valueType
-        }`
-      );
+      console.warn(`Pulse: Error setting state: Incorrect type (${typeof newState}) was provided. Type fixed to ${this.valueType}`);
       return this;
     }
 
@@ -87,10 +79,7 @@ export class State<ValueType = any> {
   public patch(targetWithChange, config: { deep?: boolean } = {}): this {
     if (!(typeof this._masterValue === 'object')) return this;
 
-    this.nextState =
-      config.deep === false
-        ? shallowmerge(this.nextState, targetWithChange)
-        : deepmerge(this.nextState, targetWithChange);
+    this.nextState = config.deep === false ? shallowmerge(this.nextState, targetWithChange) : deepmerge(this.nextState, targetWithChange);
 
     this.set();
     return this;
@@ -194,7 +183,7 @@ export class State<ValueType = any> {
   public relate(state: State | Array<State>) {
     if (!Array.isArray(state)) state = [state];
     // add this to foriegn dep
-    state.forEach(state => state && state.dep.depend(this));
+    state.forEach((state) => state && state.dep.depend(this));
     // refrence foriegn dep locally for cleanup
     this.dep.dynamic.add(this);
   }

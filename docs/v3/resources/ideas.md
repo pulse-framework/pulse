@@ -4,7 +4,7 @@ title: Ideas
 
 # Ideas
 
-This is just a dump for things we could impliment next
+This is a dump for things we could implement in the future
 
 ## Status
 

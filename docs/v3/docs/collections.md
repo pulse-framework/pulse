@@ -14,11 +14,11 @@ Pulse provides _Collections_ as a way to predictably save external data. Collect
 - [Groups](#Groups) are unique arrays of primary keys that cache real Collection data as an _output_.
 - [Selectors](#Selectors) allow you to reference a single cached item from a Collection
 - Collections include database-like methods to manipulate data.
-- Each item collected is its own [State](/docs/state) instance.
+- Each item collected is its own [State](state.html) instance.
 
 \*The beauty of Collections is that data can only be **collected once**, meaning if you need to modify it, there's one place to do so, and everything using that data will update accordingly. Collecting the same data again will overwrite the old data.
 
-## Setup
+## Setup 
 
 ```js
 const MyCollection = App.Collection()();
@@ -64,12 +64,12 @@ Collections will infer the types for groups and selectors automatically from the
 
 **All config parameters** _(All params are optional)_
 
-- `primaryKey` [String]() - Define which property on collected items should be used for indexing.
+- [primaryKey (String)]() - Define which property on collected items should be used for indexing.
 
-- `indexAll` [Boolean]() - Create a default Group that catches all collected items.
-- `groups` [Object]() - Define [Group](#groups) instances on this Collection.
-- `selectors` [Object]() - Define [Selector](#selectors) instances on this Collection.
-- `name` [string]() - Create a default Group that catches all collected items.
+- [indexAll (Boolean)]() - Create a default Group that catches all collected items.
+- [groups (Object)]() - Define [Group](#groups) instances on this Collection.
+- [selectors (Object)]() - Define [Selector](#selectors) instances on this Collection.
+- [name (string)]() - Create a default Group that catches all collected items.
 
 ## Groups
 
@@ -88,7 +88,7 @@ const MyCollection = App.Collection<DataType>()(Collection => ({
 Groups are dependent on a Collection instance, thus the config function returns the Collection instance.
 ::: tip Groups extend the State class
 
-Groups have all the methods and functionality State does (See [State methods]()), plus additional methods listed below. The `value` of the State is the Group's index, and the additional `output` property is the cached collection data.
+Groups have all the methods and functionality State does (See [State methods](state.html)), plus additional methods listed below. The `value` of the State is the Group's index, and the additional `output` property is the cached collection data.
 
 :::
 
@@ -159,8 +159,8 @@ The Collect method allows you to _collect_ data and add it to a collection (sing
 
 ### Parameters
 
-- `data` [Object]()
-- `groupNames` [string | string[]]() - optional
+- [data (Object)]()
+- [groupNames (string | string[])]() - optional
 
 ::: tip Collect can only accept objects
 The Collect function can **only** accept an object or an array of objects. If you try to pass any other primitive data type it will not work.
@@ -178,8 +178,8 @@ The update method _updates_ data in a collection given an id. The first paramete
 
 ### Parameters
 
-- `primaryKeys` [string | number | string[] | number[]]()
-- `newData` [Object]()
+- [primaryKeys (string | number | string[] | number[])]()
+- [newData (Object)]()
 
 ```js
 MyCollection.update(32, data);
@@ -191,9 +191,9 @@ The put method allows you to _put_ data from one group into another! A great exa
 
 ### Parameters
 
-- `primaryKeys` [string | number | string[] | number[]]()
-- `groupNames` [string | string[]]()
-- `options` [Object]() _optional_
+- [primaryKeys (string | number | string[] | number[])]()
+- [groupNames (string | string[])]()
+- [options (Object)]() _optional_
 
 ```js
 MyCollection.put([22, 34, 75], 'MyGroupName');
@@ -205,7 +205,7 @@ Delete data from your collection
 
 ### Parameters
 
-- `primaryKeys` [string | number | string[] | number[]]()
+- [primaryKeys (string | number | string[] | number[])]()
 
 ```js
 MyCollection.deleteData(21);
@@ -240,11 +240,11 @@ Given a group name, this function returns a group object.
 
 ### Parameters
 
-- `groupName` [string | string[]]()
+- [groupName (string | string[])]()
 
 ### Returns
 
-- `Group` [Group](#groups)
+- [Group (Group)](#groups)
 
 ```js
 // Expected to return a group matching the name 'MyGroupName'
@@ -257,11 +257,11 @@ Fetch data using the primary key/id!
 
 ### Parameters
 
-- `primaryKey` [string | number]()
+- [primaryKey (string | number)]()
 
 ### Returns
 
-- `data` [object]()
+- [data (Object)]()
 
 ```js
 MyCollection.findById(33);
@@ -273,7 +273,7 @@ Given an id/key, this function returns the computed value of the data, using the
 
 ### Parameters
 
-- `primaryKey` [string | number]()
+- [primaryKey (string | number)]()
 
 ```js
 // will return the computed value of that data
@@ -286,7 +286,7 @@ Remove is an alias function that takes the primary key(s) given, returns functio
 
 ### Parameters
 
-- `primaryKeys` [string | number | string[] | number[]]()
+- [primaryKeys (string | number | string[] | number[])]()
 
 ### Returns
 
@@ -304,8 +304,8 @@ This method allows you to easily change the key of any piece of data in your col
 
 ### Parameters
 
-- `oldKey` [string | number | string[] | number[]]() -
-- `newKey` [string | number | string[] | number[]]() -
+- [oldKey (string | number | string[] | number[])]() -
+- [newKey (string | number | string[] | number[])]() -
 
 ```js
 // the data at key 1 will now have a key of 4550
@@ -316,4 +316,4 @@ MyCollection.updateDataKey(1, 4550);
 
 ### Parameters
 
-- `PrimaryKey` [string | number]()
+- [PrimaryKey (string | number)]()
