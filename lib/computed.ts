@@ -25,26 +25,31 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     // const output = this.computeValue();
     // this.set(output);
   }
+
   public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {
     if (this.deps) return this.func();
     this.instance().runtime.trackState = true;
     const computed = this.func();
     let dependents = this.instance().runtime.getFoundState();
-    dependents.forEach((state) => state.dep.depend(this));
+    dependents.forEach(state => state.dep.depend(this));
     return computed;
   }
+
   public recompute(): void {
     this.set(this.computeValue());
   }
+
   public reset() {
     reset(this);
     this.recompute();
     return this;
   }
+
   public patch() {
     throw 'Error, can not use patch method on Computed since the value is dynamic.';
     return this;
   }
+
   public persist(key?: string): this {
     console.error('Computed state can not be persisted, remove call to .persist()', key);
     return this;

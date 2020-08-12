@@ -77,7 +77,7 @@ export default class Pulse {
     this.ready = true;
 
     // run all computed functions
-    extractAll(Computed, this.core).forEach((instance) => instance.recompute());
+    extractAll(Computed, this.core).forEach(instance => instance.recompute());
   }
 
   public API = (config: apiConfig) => new API(config);
@@ -139,7 +139,7 @@ export default class Pulse {
     const persistedState = this.storage.persistedState;
     this.storage = new Storage(() => this, storageConfig);
     this.storage.persistedState = persistedState;
-    this.storage.persistedState.forEach((state) => state.persist(state.name));
+    this.storage.persistedState.forEach(state => state.persist(state.name));
   }
   public Storage(storageConfig: StorageMethods): void {
     return this.setStorage(storageConfig);
@@ -159,5 +159,5 @@ export default class Pulse {
 
 // Handy utils
 export function persist(items: Array<State>): void {
-  items.forEach((item) => item.persist(item.name));
+  items.forEach(item => item.persist(item.name));
 }
