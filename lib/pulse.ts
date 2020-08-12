@@ -66,7 +66,10 @@ export default class Pulse {
   public Core = <CoreType>(core?: CoreType): CoreType => {
     if (!this.ready) this.onInstanceReady();
     // set the core
-    if (core) for (let p in core) this.core[p] = core[p];
+    if (core) {
+      this.core = {};
+      for (let p in core) this.core[p] = core[p];
+    }
     return this.core as CoreType;
   };
 

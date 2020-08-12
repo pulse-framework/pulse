@@ -17,11 +17,11 @@ export interface ControllerConfig<S, C, A, H, R> {
 export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj> {
   public name?: string;
 
-  public state: this['config']['state'] & StateObj;
+  public state: this['config']['state'];
   public collection: this['config']['collection'];
-  public actions: this['config']['actions'] & FuncObj;
-  public helpers: this['config']['helpers'] & FuncObj;
-  public routes: this['config']['routes'] & FuncObj;
+  public actions: this['config']['actions'];
+  public helpers: this['config']['helpers'];
+  public routes: this['config']['routes'];
 
   public config: ControllerConfig<S, C, A, H, R>;
 
@@ -37,6 +37,10 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
     this.applyKeys();
   }
   private applyKeys() {
-    for (const name in this.state as StateObj) if (name && this.state[name] instanceof State) this.state[name].key(name);
+    for (const name in this.state)
+      if (name && this.state[name] instanceof State) {
+        const state: any = this.state[name];
+        state.key(name);
+      }
   }
 }

@@ -14,7 +14,6 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     super(instance, instance().config.computedDefault || null);
 
     if (deps) deps.forEach((state) => state.dep.depend(this));
-    const output = this.computeValue();
 
     // const output = this.computeValue();
     // this.set(output);
