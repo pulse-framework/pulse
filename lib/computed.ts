@@ -20,6 +20,9 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     super(instance, instance().config.computedDefault || null);
 
     if (deps) deps.forEach(state => state.dep.depend(this));
+
+    // if Core will not be used, compute immediately
+    if(instance().config.noCore === true) this.recompute()
   }
 
   public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {
