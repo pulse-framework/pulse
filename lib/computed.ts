@@ -7,6 +7,11 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
   public set value(val: ComputedValueType) {
     console.error('Error: Can not mutate Computed value, please use recompute()');
   }
+
+  public get value(): ComputedValueType {
+    return super.value
+  }
+
   public set bind(val: ComputedValueType) {
     console.error('Error: Can not bind Computed value');
   }
@@ -16,6 +21,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     if (deps) deps.forEach((state) => state.dep.depend(this));
     const output = this.computeValue();
 
+    this.recompute();
     // const output = this.computeValue();
     // this.set(output);
   }
