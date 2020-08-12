@@ -64,6 +64,7 @@ export function getInstance(state: State): Pulse {
     else return globalThis.__pulse;
   } catch (e) {}
 }
+
 export function normalizeDeps(deps: Array<State> | State) {
   return Array.isArray(deps) ? (deps as Array<State>) : [deps as State];
 }
