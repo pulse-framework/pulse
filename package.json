@@ -12,7 +12,7 @@
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
     "now-build": "yarn run docs:build",
-    "postinstall": "tsc --noEmit"
+    "postinstall": "tsc"
   },
   "types": "./dist/index.d.ts",
   "author": "Jamie Pine",
