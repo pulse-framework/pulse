@@ -212,8 +212,8 @@ Pulse is flexible, so you are free to do you own thing, but you must ensure that
 ├── .**app.ts** _Create Pulse instance_
 │ ├── `controllers`
 │ │ └── **accounts**
-│ │ │ ├── **index.ts** _Export controller_
-│ │ │ ├── **controller.ts** _Define all State, Computed State & a Collection_
+│ │ │ ├── **index.ts** _Create and export controller_
+│ │ │ ├── **state.ts** _Define all State, Computed State & a Collection_
 │ │ │ ├── **actions.ts** _All account actions as exported function_
 │ │ │ ├── **interfaces.ts** _Typescript interfaces for accounts_
 │ │ │ ├── **routes.ts** _api/socket endpoints for accounts_
