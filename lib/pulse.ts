@@ -36,7 +36,7 @@ export default class Pulse {
 
   public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
   public integration: Integration = null;
-  public core: any;
+  public core: any = {};
   public ready: boolean = false;
   constructor(public config: PulseConfig = {}) {
     this.subController = new SubController();
@@ -67,7 +67,7 @@ export default class Pulse {
     if (!this.ready) this.onInstanceReady();
     // set the core
     if (core) {
-      this.core = {};
+      // avoid replacing object refrence to this.core, just inject properties
       for (let p in core) this.core[p] = core[p];
     }
     return this.core as CoreType;

@@ -9,7 +9,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
   }
 
   public get value(): ComputedValueType {
-    return super.value
+    return super.value;
   }
 
   public set bind(val: ComputedValueType) {
@@ -20,10 +20,6 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     super(instance, instance().config.computedDefault || null);
 
     if (deps) deps.forEach(state => state.dep.depend(this));
-
-    this.recompute();
-    // const output = this.computeValue();
-    // this.set(output);
   }
 
   public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {

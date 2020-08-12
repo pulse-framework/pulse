@@ -4,16 +4,13 @@ import { ICore } from "../core";
 const core = App.Core<ICore>(); // works
 
 export function Test() {
-	console.log(core.accounts);
 	core.accounts.lol();
 }
 
 export const test = App.Controller({
 	state: {
-		// noworks: App.State(core.accounts), // compile error
 		works: App.Computed(() => {
-			// no complile error
-			core.accounts;
+			// return core.accounts.state.LAST_ACCOUNT_ID.value;
 		}),
 	},
 	actions: {
