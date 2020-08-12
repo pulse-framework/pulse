@@ -83,7 +83,7 @@ export default class API {
 		config.options.method = method;
 
 		if (!config.options.headers) config.options.headers = {};
-		let originalType = config.options.headers['content-type'];
+		let originalType = config.options.headers['content-type'] || config.options.headers['Content-Type'];
 
 		if (payload && payload._parts && payload.getParts) {
 			// inject body if not get method
