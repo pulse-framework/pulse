@@ -20,6 +20,13 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     super(instance, instance().config.computedDefault || null);
 
     if (deps) deps.forEach(state => state.dep.depend(this));
+<<<<<<< HEAD
+=======
+
+    // this.recompute();
+    // const output = this.computeValue();
+    // this.set(output);
+>>>>>>> af30f97e6320c30729da1f90c1f7b43fbde861be
   }
 
   public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {

@@ -56,13 +56,7 @@ export default class Pulse {
   ): Controller<S, C, A, H, R> => {
     return new Controller<S, C, A, H, R>(config, spreadToRoot);
   };
-  /**
-   * Create Pulse API
-   * @param config Object
-   * @param config.options Object - Typescript default: RequestInit (headers, credentials, mode, etc...)
-   * @param config.baseURL String - Url to prepend to endpoints (without trailing slash)
-   * @param config.timeout Number - Time to wait for request before throwing error
-   */
+
   public Core = <CoreType>(core?: CoreType): CoreType => {
     if (!this.ready) this.onInstanceReady();
     // set the core
@@ -77,11 +71,16 @@ export default class Pulse {
     this.ready = true;
 
     // run all computed functions
-    setTimeout(() => {
-      extractAll(Computed, this.core).forEach(instance => instance.recompute());
-    });
+    for (const instance of extractAll(Computed, this.core)) instance.recompute();
   }
 
+  /**
+   * Create Pulse API
+   * @param config Object
+   * @param config.options Object - Typescript default: RequestInit (headers, credentials, mode, etc...)
+   * @param config.baseURL String - Url to prepend to endpoints (without trailing slash)
+   * @param config.timeout Number - Time to wait for request before throwing error
+   */
   public API = (config: apiConfig) => new API(config);
   /**
    * Create Pulse state
