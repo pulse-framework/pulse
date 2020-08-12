@@ -12,18 +12,22 @@ import Data from './collection/data';
 import { extractAll } from './utils';
 
 export interface PulseConfig {
-  storagePrefix?: string;
   computedDefault?: any;
   waitForMount?: boolean;
   framework?: any;
   frameworkConstructor?: any;
   storage?: StorageMethods;
+  storagePrefix?: string;
   logJobs?: boolean;
   /**
    * Typically, Pulse waits for a Core to be initialized before running any Computed functions.
    * Set this `true` to bypass that functionality, and always do an initial computation.
    */
   noCore?: boolean;
+}
+
+export const defaultConfig: PulseConfig = {
+  noCore: false
 }
 
 interface ErrorObject {
@@ -46,7 +50,7 @@ export default class Pulse {
   private computed: Set<Computed> = new Set();
   private core: { [key: string]: any } = {};
 
-  constructor(public config: PulseConfig = {}) {
+  constructor(public config: PulseConfig = defaultConfig) {
     this.subController = new SubController();
     this.runtime = new Runtime(() => this);
     this.storage = new Storage(() => this, config.storage || {});
@@ -68,7 +72,6 @@ export default class Pulse {
 
   public Core = <CoreType>(core?: CoreType): CoreType => {
     if (!this.ready && core) this.onInstanceReady(core);
-
     return this.core as CoreType;
   };
 
