@@ -77,7 +77,9 @@ export default class Pulse {
     this.ready = true;
 
     // run all computed functions
-    extractAll(Computed, this.core).forEach(instance => instance.recompute());
+    setTimeout(() => {
+      extractAll(Computed, this.core).forEach(instance => instance.recompute());
+    });
   }
 
   public API = (config: apiConfig) => new API(config);

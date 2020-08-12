@@ -13,7 +13,6 @@ const core = App.Core<ICore>();
 // Login function, all errors will be processed by the configurable Pulse error handler
 export async function Login() {
 	try {
-		console.log(core.test.state.jeff.value);
 		const creds = state.CREDENTIALS.value;
 		// Make API request
 		const account = (await routes.Login(creds)).account;
