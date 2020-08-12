@@ -19,6 +19,7 @@ export const test = App.Controller({
 	},
 	actions: {
 		Test,
-		// jeff: App.Jeff(() => core)
+		// jeff: App.Jeff(() => core),
+		jeff2: () => core,
 	},
 });
