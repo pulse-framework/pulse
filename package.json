@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "test": "mocha --exit",
-    "test-debug": "mocha --inspect-brk",
+    "test": "mocha -r ts-node/register --exit test/**/*.spec.ts",
+    "test-debug": "mocha -r ts-node/register --inspect-brk test/**/*.spec.ts",
     "build": "tsc",
     "dev": "tsc-watch",
     "docs:dev": "vuepress dev docs",
@@ -26,15 +26,17 @@
     "@babel/core": "^7.11.0",
     "@babel/plugin-transform-runtime": "^7.11.0",
     "@babel/preset-env": "^7.11.0",
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^8.0.2",
     "babel-eslint": "^10.0.1",
     "chai": "^4.2.0",
     "eslint-config-prettier": "^6.11.0",
-    "jest": "^26.2.2",
-    "mocha": "^8.1.0",
+    "mocha": "^8.1.1",
     "prettier": "2.0.5",
+    "ts-node": "^8.10.2",
     "tsc-watch": "^4.1.0",
     "tslib": "^2.0.0",
-    "typescript": "^3.5.3",
+    "typescript": "^3.9.7",
     "vuepress": "^1.0.2"
   }
 }
