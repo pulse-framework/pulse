@@ -19,6 +19,11 @@ export interface PulseConfig {
   frameworkConstructor?: any;
   storage?: StorageMethods;
   logJobs?: boolean;
+  /**
+   * Typically, Pulse waits for a Core to be initialized before running any Computed functions.
+   * Set this `true` to bypass that functionality, and always do an initial computation.
+   */
+  noCore?: boolean;
 }
 
 interface ErrorObject {
@@ -39,7 +44,7 @@ export default class Pulse {
 
   // Context reference
   private computed: Set<Computed> = new Set();
-  private core: any = {};
+  private core: { [key: string]: any } = {};
 
   constructor(public config: PulseConfig = {}) {
     this.subController = new SubController();
@@ -47,6 +52,7 @@ export default class Pulse {
     this.storage = new Storage(() => this, config.storage || {});
     if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
+    if (this.config.noCore === true) this.onInstanceReady();
   }
 
   public initFrameworkIntegration(frameworkConstructor) {
@@ -66,11 +72,12 @@ export default class Pulse {
     return this.core as CoreType;
   };
 
-  private onInstanceReady(core: any) {
+  private onInstanceReady(core?: { [key: string]: any }) {
     this.ready = true;
 
-    // Copy core object structure without destorying this.core object reference
-    for (let p in core) this.core[p] = core[p];
+    if (core)
+      // Copy core object structure without destorying this.core object reference
+      for (let p in core) this.core[p] = core[p];
 
     this.computed.forEach(instance => instance.recompute());
   }
@@ -107,12 +114,7 @@ export default class Pulse {
   public Jeff = (func: () => any) => {
     // return func;
   };
-  /**
-   * Create a Pulse collection
-   * @param config object
-   * @param config.primaryKey The primary key for the collection.
-   * @param config.groups Define groups for this collection.
-   */
+
   public onError(handler: (error: ErrorObject) => void) {}
   public Error(error: any, code?: string) {}
 
