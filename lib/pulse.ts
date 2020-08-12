@@ -107,12 +107,7 @@ export default class Pulse {
   public Jeff = (func: () => any) => {
     // return func;
   };
-  /**
-   * Create a Pulse collection
-   * @param config object
-   * @param config.primaryKey The primary key for the collection.
-   * @param config.groups Define groups for this collection.
-   */
+  
   public onError(handler: (error: ErrorObject) => void) {}
   public Error(error: any, code?: string) {}
 
