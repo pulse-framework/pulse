@@ -5,8 +5,8 @@ export function preserveServerState(
   nextProps: { [key: string]: any },
   core: { [key: string]: any }
 ) {
-  const collections = extractAll<Collection>(core, Collection);
-  const state = extractAll<State>(core, State);
+  const collections = extractAll(Collection, core);
+  const state = extractAll(State, core);
 
   const PULSE_DATA = {
     collections: [],
@@ -40,8 +40,8 @@ export function loadServerState(core: { [key: string]: any }) {
   if (globalThis?.__NEXT_DATA__?.props?.pageProps?.PULSE_DATA) {
     const pulseData = globalThis.__NEXT_DATA__.props.pageProps.PULSE_DATA
 
-    const state = extractAll<State>(core, State);
-  const collections = extractAll<Collection>(core, Collection);
+    const state = extractAll(State, core);
+    const collections = extractAll(Collection, core);
 
     state.forEach(item => {
       if (item.name && pulseData.state[item.name]) 

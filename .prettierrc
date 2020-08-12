@@ -7,5 +7,7 @@
   "jsxBracketSameLine": false,
   "noSemi": false,
   "rcVerbose": true,
-  "ignoreChainWithDepth": 10
+  "ignoreChainWithDepth": 10,
+  "arrowParens": "avoid",
+  "semi": true
 }
