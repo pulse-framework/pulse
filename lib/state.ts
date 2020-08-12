@@ -37,7 +37,6 @@ export class State<ValueType = any> {
   constructor(public instance: () => Pulse, public initalState, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
     this.privateWrite(initalState);
-    this.nextState = copy(initalState);
   }
 
   /**
