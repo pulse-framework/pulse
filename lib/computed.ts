@@ -28,6 +28,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     const computed = this.func();
     let dependents = this.instance().runtime.getFoundState();
     dependents.forEach(state => state.dep.depend(this));
+    console.log('COMPUTED VALUE', computed);
     return computed;
   }
 

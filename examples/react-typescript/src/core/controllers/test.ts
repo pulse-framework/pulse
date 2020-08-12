@@ -7,13 +7,18 @@ export function Test() {
 	core.accounts.lol();
 }
 
+App.Jeff(() => core);
+
 export const test = App.Controller({
 	state: {
 		works: App.Computed(() => {
-			// return core.accounts.state.LAST_ACCOUNT_ID.value;
+			if (core.accounts.state.LAST_ACCOUNT_ID.value) {
+				// return core
+			}
 		}),
 	},
 	actions: {
 		Test,
+		// jeff: App.Jeff(() => core)
 	},
 });

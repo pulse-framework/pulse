@@ -29,15 +29,18 @@ interface ErrorObject {
 }
 
 export default class Pulse {
+  public ready: boolean = false;
   public runtime: Runtime;
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
-
   public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
   public integration: Integration = null;
-  public core: any = {};
-  public ready: boolean = false;
+
+  // Context reference
+  private computed: Set<Computed> = new Set();
+  private core: any = {};
+
   constructor(public config: PulseConfig = {}) {
     this.subController = new SubController();
     this.runtime = new Runtime(() => this);
@@ -58,20 +61,18 @@ export default class Pulse {
   };
 
   public Core = <CoreType>(core?: CoreType): CoreType => {
-    if (!this.ready) this.onInstanceReady();
-    // set the core
-    if (core) {
-      // avoid replacing object refrence to this.core, just inject properties
-      for (let p in core) this.core[p] = core[p];
-    }
+    if (!this.ready && core) this.onInstanceReady(core);
+
     return this.core as CoreType;
   };
 
-  private onInstanceReady() {
+  private onInstanceReady(core: any) {
     this.ready = true;
 
-    // run all computed functions
-    for (const instance of extractAll(Computed, this.core)) instance.recompute();
+    // Copy core object structure without destorying this.core object reference
+    for (let p in core) this.core[p] = core[p];
+
+    this.computed.forEach(instance => instance.recompute());
   }
 
   /**
@@ -97,7 +98,15 @@ export default class Pulse {
    * @param deps Array - An array of state items to depend on
    * @param func Function - A function where the return value is the state, ran every time a dep changes
    */
-  public Computed = <T = any>(func: () => T, deps?: Array<any>) => new Computed<T>(() => this, func, deps);
+  public Computed = <T = any>(func: () => any, deps?: Array<any>) => {
+    const computed = new Computed<T>(() => this, func, deps);
+    this.computed.add(computed);
+    return computed;
+  };
+
+  public Jeff = (func: () => any) => {
+    // return func;
+  };
   /**
    * Create a Pulse collection
    * @param config object

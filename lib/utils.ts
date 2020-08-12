@@ -13,7 +13,7 @@ export function cleanState<T>(state: State<T>): object {
 }
 
 export function resetState(items: Iterable<State | Collection | any>) {
-  for(const item of items) {
+  for (const item of items) {
     if (item instanceof Collection) item.reset();
     if (item instanceof State) return item.reset();
     const stateSet = extractAll(State, item);
@@ -47,14 +47,13 @@ export function extractAll<I extends new (...args: any) => any, O>(findClass: I,
         // check if instance type of class
         if (o[property] instanceof findClass) found.add(typelessObject[property]);
         // otherwise if object, store child object for next loop
-        else if (isWatchableObject(o[property])) next.push(typelessObject[property]);
+        else if (isWatchableObject(o[property]) && !(typelessObject[property] instanceof Pulse)) next.push(typelessObject[property]);
       }
     });
     // if next state has items, loop function
     if (next.length > 0) look();
   }
   look();
-  console.log('found', found);
   return found;
 }
 
