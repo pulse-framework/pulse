@@ -15,11 +15,11 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
   public set bind(val: ComputedValueType) {
     console.error('Error: Can not bind Computed value');
   }
-  constructor(public instance: () => Pulse, public func: Function, public deps?: Array<State>) {
+
+  constructor(public instance: () => Pulse, public func: () => ComputedValueType, public deps?: Array<State>) {
     super(instance, instance().config.computedDefault || null);
 
-    if (deps) deps.forEach((state) => state.dep.depend(this));
-    const output = this.computeValue();
+    if (deps) deps.forEach(state => state.dep.depend(this));
 
     this.recompute();
     // const output = this.computeValue();

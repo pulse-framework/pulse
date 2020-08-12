@@ -42,7 +42,7 @@ export class State<ValueType = any> {
 
   /**
    * Directly set state to a new value, if nothing is passed in State.nextState will be used as the next value
-   * @param {Object} newState - The new value for this state
+   * @param newState - The new value for this state
    */
   public set(
     newState?: ValueType | SetFunc<ValueType>,
