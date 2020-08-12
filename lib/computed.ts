@@ -21,7 +21,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
 
     if (deps) deps.forEach(state => state.dep.depend(this));
 
-    this.recompute();
+    // this.recompute();
     // const output = this.computeValue();
     // this.set(output);
   }
