@@ -2,8 +2,10 @@ import 'mocha'
 import { expect } from 'chai'
 import Pulse, { Computed, State } from '../../lib/index'
 
+const App = new Pulse({
+    noCore: true
+})
 
-const App = new Pulse({ })
 const state = {
     string: App.State('initial value'),
     boolean: App.State(false),
