@@ -13,11 +13,11 @@ export function cleanState<T>(state: State<T>): object {
 }
 
 export function resetState(items: Array<State | Collection | any>) {
-  items.forEach((item) => {
+  items.forEach(item => {
     if (item instanceof Collection) item.reset();
     if (item instanceof State) return item.reset();
     const stateSet = extractAll(State, item);
-    stateSet.forEach((state) => state.reset());
+    stateSet.forEach(state => state.reset());
   });
 }
 
@@ -40,7 +40,7 @@ export function extractAll<I extends new (...args: any) => any, O>(findClass: I,
   function look() {
     let _next = [...next]; // copy last state
     next = []; // reset the original state
-    _next.forEach((o) => {
+    _next.forEach(o => {
       const typelessObject: any = o;
       // look at every property in object
       for (let property in o) {
@@ -54,6 +54,7 @@ export function extractAll<I extends new (...args: any) => any, O>(findClass: I,
     if (next.length > 0) look();
   }
   look();
+  console.log('found', found);
   return found;
 }
 
@@ -67,30 +68,7 @@ export function normalizeDeps(deps: Array<State> | State) {
   return Array.isArray(deps) ? (deps as Array<State>) : [deps as State];
 }
 
-export const collectionFunctions = [
-  'collect',
-  'collectByKeys',
-  'replaceIndex',
-  'getGroup',
-  'newGroup',
-  'deleteGroup',
-  'removeFromGroup',
-  'update',
-  'increment',
-  'decrement',
-  'delete',
-  'purge',
-  'findById',
-  'put',
-  'move',
-  'watchData',
-  'cleanse',
-  // 'unsubscribe',
-  // deprecated
-  'remove'
-];
-
-export const copy = (val) => {
+export const copy = val => {
   if (isWatchableObject(val)) val = { ...val };
   else if (Array.isArray(val)) val = [...val];
 
@@ -109,7 +87,7 @@ export function normalizeGroups(groupsAsArray: any = []) {
 
 export function shallowmerge(source, changes) {
   let keys = Object.keys(changes);
-  keys.forEach((property) => {
+  keys.forEach(property => {
     source[property] = changes[property];
   });
 
@@ -137,10 +115,8 @@ export function isWatchableObject(value) {
 }
 
 export function normalizeMap(map) {
-  return Array.isArray(map) ? map.map((key) => ({ key, val: key })) : Object.keys(map).map((key) => ({ key, val: map[key] }));
+  return Array.isArray(map) ? map.map(key => ({ key, val: key })) : Object.keys(map).map(key => ({ key, val: map[key] }));
 }
-
-export const arrayFunctions = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
 
 export function cleanse(object: any) {
   if (!isWatchableObject(object)) return object;
