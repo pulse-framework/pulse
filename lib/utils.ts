@@ -1,7 +1,7 @@
 import Pulse, { Collection } from '.';
 import State from './state';
 
-export function cleanState(state: State): any {
+export function cleanState<T>(state: State<T>): object {
   return {
     value: state.value,
     previousState: state.previousState,
@@ -21,20 +21,22 @@ export function resetState(items: Array<State | Collection | any>) {
   });
 }
 
-// A helper function to extract all instances of a target instance from an object
-// This function will always fail silently, so it can be safely used without much knowledge of the obj
-export function extractAll<I extends new (...args: any) => any, O>(testClass: I, fromObj: O): Set<InstanceType<I>> {
-  // strip type from testClass for instanceOf compatibility
-  const typelessClass: any = testClass;
+/**
+ * A helper function to extract all instances of a target instance from an object
+ * If this function fails, it will do so silently, so it can be safely used without much knowledge of `inObj`.
+ * @param findClass Class to extract instances of
+ * @param inObj Object to find all instances of `findType` within
+ */
+export function extractAll<I extends new (...args: any) => any, O>(findClass: I, inObj: O): Set<InstanceType<I>> {
   // safety net: object passed is not an obj, but rather an instance of the testClass in question, return that
-  if (fromObj instanceof typelessClass) return new Set([typelessClass]) as Set<InstanceType<I>>;
-  // safty net: if type passed is not iterable, return empty set
-  if (typeof fromObj !== 'object') return new Set<InstanceType<I>>();
+  if (inObj instanceof findClass) return new Set([findClass]) as Set<InstanceType<I>>;
+  // safety net: if type passed is not iterable, return empty set
+  if (typeof inObj !== 'object') return new Set<InstanceType<I>>();
 
   // define return Set with typeof testClass
   const found: Set<InstanceType<I>> = new Set();
   // storage for the look function's state
-  let next = [fromObj];
+  let next = [inObj];
   function look() {
     let _next = [...next]; // copy last state
     next = []; // reset the original state
@@ -43,7 +45,7 @@ export function extractAll<I extends new (...args: any) => any, O>(testClass: I,
       // look at every property in object
       for (let property in o) {
         // check if instance type of class
-        if (o[property] instanceof typelessClass) found.add(typelessObject[property]);
+        if (o[property] instanceof findClass) found.add(typelessObject[property]);
         // otherwise if object, store child object for next loop
         else if (isWatchableObject(o[property])) next.push(typelessObject[property]);
       }
