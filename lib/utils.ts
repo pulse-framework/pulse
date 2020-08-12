@@ -12,13 +12,13 @@ export function cleanState<T>(state: State<T>): object {
   };
 }
 
-export function resetState(items: Array<State | Collection | any>) {
-  items.forEach(item => {
+export function resetState(items: Iterable<State | Collection | any>) {
+  for(const item of items) {
     if (item instanceof Collection) item.reset();
     if (item instanceof State) return item.reset();
     const stateSet = extractAll(State, item);
     stateSet.forEach(state => state.reset());
-  });
+  }
 }
 
 /**
