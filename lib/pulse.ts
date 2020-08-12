@@ -66,7 +66,7 @@ export default class Pulse {
     return this.core as CoreType;
   };
 
-  private onInstanceReady(core: any) {
+  private onInstanceReady(core: { [key: string]: any }) {
     this.ready = true;
 
     // Copy core object structure without destorying this.core object reference
@@ -107,7 +107,7 @@ export default class Pulse {
   public Jeff = (func: () => any) => {
     // return func;
   };
-  
+
   public onError(handler: (error: ErrorObject) => void) {}
   public Error(error: any, code?: string) {}
 
