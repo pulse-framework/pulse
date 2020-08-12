@@ -11,6 +11,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
   public get value(): ComputedValueType {
     return super.value;
   }
+  s;
 
   public set bind(val: ComputedValueType) {
     console.error('Error: Can not bind Computed value');
@@ -20,7 +21,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     super(instance, instance().config.computedDefault || null);
 
     if (deps) deps.forEach(state => state.dep.depend(this));
-    }
+  }
 
   public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {
     if (this.deps) return this.func();

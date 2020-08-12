@@ -1,7 +1,7 @@
 import { App } from "../app";
-import { ICore } from "../core";
 
-const core = App.Core<ICore>(); // works
+import { ICore } from "../core";
+const core = App.Core<ICore>();
 
 export function Test() {
 	core.accounts.lol();
