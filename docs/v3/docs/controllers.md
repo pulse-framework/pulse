@@ -106,11 +106,11 @@ The order of imports above is important, state/collections must be imported firs
 ```ts
 import App from '../../app';
 
-export const collection = App.Collection()(Collection => {
+export const collection = App.Collection()(Collection => ({
     groups: {
         MY_GROUP: Collection.Group()
     }
-})
+}))
 
 export const state {
     MY_STATE: App.State('hello')

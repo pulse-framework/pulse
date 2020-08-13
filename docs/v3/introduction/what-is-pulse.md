@@ -77,11 +77,11 @@ AccountCollection.collect(data);
 Groups handy to provide arrays of collection data and can be used independently in your components. When the index of a group is modified, it will "rebuild" the `output` with actual collection data.
 
 ```ts
-const AccountCollection = App.Collection<DataType>()((Collection) => {
+const AccountCollection = App.Collection<DataType>()((collection) => ({
   groups: {
-    AUTHED: Collection.Group();
+    AUTHED: collection.Group();
   }
-});
+}));
 
 AccountCollection.groups.AUTHED.output; // cached data
 ```

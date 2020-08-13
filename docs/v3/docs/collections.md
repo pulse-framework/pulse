@@ -54,7 +54,7 @@ The DataType is passed in as a generic type parameter to the first set of parent
 Configuration is optional, but recommended. The second pair of parentheses is where the config object is passed in.
 
 ```js
-const MyCollection = App.Collection<DataType>()(Collection => ({
+const MyCollection = App.Collection<DataType>()(collection => ({
   primaryKey: 'id', // default
   indexAll: true // default false
   groups: {},
@@ -82,9 +82,9 @@ Groups are arrays of primary keys referencing data inside a Collection, we call 
 Groups provide a cached array of actual collection data mirroring the index. When the index is modified, the `output` will rebuild with actual collection data.
 
 ```js
-const MyCollection = App.Collection<DataType>()(Collection => ({
+const MyCollection = App.Collection<DataType>()(collection => ({
   groups: {
-    MY_GROUP: Collection.Group()
+    MY_GROUP: collection.Group()
   }
 }))
 ```
@@ -138,9 +138,9 @@ MyCollection.groups.MY_GROUP.build(); // void
 Selectors allow you to _select_ a data item from a Collection. Components that need one piece of data such as a "current account" or maybe "current viewing post" would benifit from using Selectors.
 
 ```js
-const MyCollection = App.Collection<DataType>()(Collection => ({
+const MyCollection = App.Collection<DataType>()(collection => ({
   selectors: {
-    MY_SELECTOR: Collection.Selector(0)
+    MY_SELECTOR: collection.Selector(0)
   }
 }))
 ```
