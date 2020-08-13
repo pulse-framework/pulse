@@ -163,7 +163,7 @@ MyCollection.selectors.MY_SELECTOR.select(1); // select a new primary key
 
 The Collect method allows you to _collect_ data and add it to a collection (single object or an array of objects). The second parameter is the group you would like the data to be collected into and is optional.
 
-### Parameters
+**Parameters**
 
 - [data (Object)]()
 - [groupNames (string | string[])]() - optional
@@ -182,7 +182,7 @@ MyCollection.collect(data, 'myGroupName');
 
 The update method _updates_ data in a collection given an id. The first parameter is the id/key of the data you would like to update. The second parameter is an object with the updated values
 
-### Parameters
+**Parameters**
 
 - [primaryKeys (string | number | string[] | number[])]()
 - [newData (Object)]()
@@ -195,7 +195,7 @@ MyCollection.update(32, data);
 
 The put method allows you to _put_ data from one group into another! A great example would be moving a new user from unverified to verified.
 
-### Parameters
+**Parameters**
 
 - [primaryKeys (string | number | string[] | number[])]()
 - [groupNames (string | string[])]()
@@ -209,7 +209,7 @@ MyCollection.put([22, 34, 75], 'MyGroupName');
 
 Delete data from your collection
 
-### Parameters
+**Parameters**
 
 - [primaryKeys (string | number | string[] | number[])]()
 
@@ -227,10 +227,9 @@ MyCollection.reset();
 
 ### `.compute()`
 
-This is a function that is used when you would like a computed value based on your data. This is only really used by the [getValueById()](#getvaluebyid) function.
+This is a function that is used when you would like a computed value based on your data.
 
-### Parameters
-
+**Parameters**
 - computeFunction [Function]()
 
 ```js
@@ -244,12 +243,11 @@ MyCollection.compute((data) => {
 
 Given a group name, this function returns a group object.
 
-### Parameters
+**Parameters**
 
 - [groupName (string | string[])]()
 
-### Returns
-
+**Returns**
 - [Group (Group)](#groups)
 
 ```js
@@ -261,40 +259,38 @@ MyCollection.getGroup('MyGroupName');
 
 Fetch data using the primary key/id!
 
-### Parameters
-
+**Parameters**
 - [primaryKey (string | number)]()
 
-### Returns
+**Returns**
 
 - [data (Object)]()
 
 ```js
-MyCollection.findById(33);
+MyCollection.findById(23);
 ```
 
 ### `.getValueById()`
 
-Given an id/key, this function returns the computed value of the data, using the [compute](#compute) function.
+Given an id/key, this function returns the raw data from this collection for the provided id.
 
-### Parameters
-
+**Parameters**
 - [primaryKey (string | number)]()
 
 ```js
 // will return the computed value of that data
-MyCollection.getValueById(21);
+MyCollection.getValueById(23);
 ```
 
 ### `.remove()`
 
 Remove is an alias function that takes the primary key(s) given, returns functions for the different delete options, and passes the primary keys to the sub-function you call. It returns:
 
-### Parameters
+**Parameters**
 
 - [primaryKeys (string | number | string[] | number[])]()
 
-### Returns
+**Returns**
 
 - `remove.fromGroups(groupNames)` [Function]() - Removes the data from the group(s) specified
 - `remove.everywhere` [Function]() - Removes the data from all groups
@@ -308,7 +304,7 @@ MyCollection.remove(2).fromGroups('MyGroupName');
 
 This method allows you to easily change the key of any piece of data in your collection
 
-### Parameters
+**Parameters**
 
 - [oldKey (string | number | string[] | number[])]() -
 - [newKey (string | number | string[] | number[])]() -
@@ -320,6 +316,6 @@ MyCollection.updateDataKey(1, 4550);
 
 ### `.rebuildGroupsThatInclude()`
 
-### Parameters
+**Parameters**
 
 - [PrimaryKey (string | number)]()
