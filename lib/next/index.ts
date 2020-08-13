@@ -1,5 +1,6 @@
 import { extractAll } from '../utils';
 import { Collection, State } from '..';
+import Computed from '../computed';
 
 export function preserveServerState(nextProps: { [key: string]: any }, core: { [key: string]: any }) {
   const collections = extractAll(Collection, core);
@@ -11,7 +12,7 @@ export function preserveServerState(nextProps: { [key: string]: any }, core: { [
   };
 
   state.forEach(stateItem => {
-    if (stateItem.name && stateItem.isSet) PULSE_DATA.state[stateItem.name] = stateItem._masterValue;
+    if (stateItem.name && stateItem.isSet && !(stateItem instanceof Computed)) PULSE_DATA.state[stateItem.name] = stateItem._masterValue;
   });
 
   collections.forEach(collection => {
@@ -37,7 +38,7 @@ export function loadServerState(core: { [key: string]: any }) {
     const collections = extractAll(Collection, core);
 
     state.forEach(item => {
-      if (item.name && pulseData.state[item.name]) item.set(pulseData.state[item.name]);
+      if (item.name && pulseData.state[item.name] && !(item instanceof Computed)) item.set(pulseData.state[item.name]);
     });
   }
 }

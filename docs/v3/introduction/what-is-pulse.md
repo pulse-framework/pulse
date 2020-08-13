@@ -34,7 +34,7 @@ Pulse provides a clean-cut toolset to build a Javascript application quickly and
 
 ### Typescript
 
-Pulse is written in Typescript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code.
+Pulse is written in Typescript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code, however Pulse can still be used without Typescript.
 
 ## Quick Walk-Through
 
@@ -43,7 +43,7 @@ Pulse is written in Typescript and is designed to support it heavily. Everything
 A handy container to store, manipulate and relate data.
 
 ```ts
-const MY_STATE = App.State<boolean>(true);
+const MY_STATE = App.State(true);
 ```
 
 ...with a range of chainable methods.
@@ -57,7 +57,7 @@ MY_STATE.toggle().persist().set().type().watch().reset().undo(); // etc...
 A function in which the return value is cached inside an extended State instance. Will magically recompute when it's dependencies change. Can track dependencies automatically or manually.
 
 ```ts
-const MY_COMPUTED = App.Computed<boolean>(() => MY_STATE.toggle());
+const MY_COMPUTED = App.Computed<boolean>(() => !!MY_STATE.value);
 ```
 
 ### :sparkles: Collections — [App.Collection()]()

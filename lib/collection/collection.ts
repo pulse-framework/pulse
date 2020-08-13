@@ -97,7 +97,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
 
   // create a group instance on this collection
   public createGroup(groupName: GroupName, initialIndex?: Array<PrimaryKey>): Group<DataType> {
-    if (this.groups.hasOwnProperty(groupName)) console.error(`Pulse Collection: Group ${groupName} already exists`);
+    if (this.groups.hasOwnProperty(groupName)) return this.groups[groupName];
 
     let group = new Group<DataType>(() => this, initialIndex);
     group.name = groupName as string;
