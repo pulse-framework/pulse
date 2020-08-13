@@ -41,9 +41,7 @@ export default function use(plugin: any, pulseInstance: Pulse) {
   // if the integration is ready, call bind otherwise warn user
   if (integration.ready) integration.bind(pulseInstance);
   else {
-    console.error(
-      `Pulse: Failed to integrate with framework! It's possible you didn't call Pulse.use() before new Pulse.`
-    );
+    console.error(`Pulse: Failed to integrate with framework! It's possible you didn't call Pulse.use() before new Pulse.`);
     // TODO: in some cases one might want to use Pulse without a framework so consider making this warning only show in dev, and making a config option to hide it entirely.
   }
 }
@@ -74,7 +72,7 @@ function getFrameworkName(frameworkConstructor): string {
   if (!frameworkConstructor) return name;
 
   // ATTEMPT CHECK FOR REACT
-  if (frameworkConstructor.hasOwnProperty('__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'))
+  if (frameworkConstructor.name === 'React' || frameworkConstructor.hasOwnProperty('__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'))
     return 'react';
 
   // ATTEMPT CHECK FOR VUE

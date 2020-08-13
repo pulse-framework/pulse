@@ -12,13 +12,22 @@ import Data from './collection/data';
 import { extractAll } from './utils';
 
 export interface PulseConfig {
-  storagePrefix?: string;
   computedDefault?: any;
   waitForMount?: boolean;
   framework?: any;
   frameworkConstructor?: any;
   storage?: StorageMethods;
+  storagePrefix?: string;
   logJobs?: boolean;
+  /**
+   * Typically, Pulse waits for a Core to be initialized before running any Computed functions.
+   * Set this `true` to bypass that functionality, and always do an initial computation.
+   */
+  noCore?: boolean;
+}
+
+export const defaultConfig: PulseConfig = {
+  noCore: false
 }
 
 interface ErrorObject {
@@ -29,21 +38,25 @@ interface ErrorObject {
 }
 
 export default class Pulse {
+  public ready: boolean = false;
   public runtime: Runtime;
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
-
   public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
   public integration: Integration = null;
-  public core: any;
-  public ready: boolean = false;
-  constructor(public config: PulseConfig = {}) {
+
+  // Context reference
+  private computed: Set<Computed> = new Set();
+  private core: { [key: string]: any } = {};
+
+  constructor(public config: PulseConfig = defaultConfig) {
     this.subController = new SubController();
     this.runtime = new Runtime(() => this);
     this.storage = new Storage(() => this, config.storage || {});
     if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
+    if (this.config.noCore === true) this.onInstanceReady();
   }
 
   public initFrameworkIntegration(frameworkConstructor) {
@@ -56,6 +69,22 @@ export default class Pulse {
   ): Controller<S, C, A, H, R> => {
     return new Controller<S, C, A, H, R>(config, spreadToRoot);
   };
+
+  public Core = <CoreType>(core?: CoreType): CoreType => {
+    if (!this.ready && core) this.onInstanceReady(core);
+    return this.core as CoreType;
+  };
+
+  private onInstanceReady(core?: { [key: string]: any }) {
+    this.ready = true;
+
+    if (core)
+      // Copy core object structure without destorying this.core object reference
+      for (let p in core) this.core[p] = core[p];
+
+    this.computed.forEach(instance => instance.recompute());
+  }
+
   /**
    * Create Pulse API
    * @param config Object
@@ -63,23 +92,6 @@ export default class Pulse {
    * @param config.baseURL String - Url to prepend to endpoints (without trailing slash)
    * @param config.timeout Number - Time to wait for request before throwing error
    */
-  public Core = <CoreType>(core?: CoreType): CoreType => {
-    if (!this.ready) this.onInstanceReady();
-    // set the core
-    if (core) {
-      this.core = {};
-      for (let p in core) this.core[p] = core[p];
-    }
-    return this.core as CoreType;
-  };
-
-  private onInstanceReady() {
-    this.ready = true;
-
-    // run all computed functions
-    extractAll(Computed, this.core).forEach(instance => instance.recompute());
-  }
-
   public API = (config: apiConfig) => new API(config);
   /**
    * Create Pulse state
@@ -96,13 +108,12 @@ export default class Pulse {
    * @param deps Array - An array of state items to depend on
    * @param func Function - A function where the return value is the state, ran every time a dep changes
    */
-  public Computed = <T>(func: () => T, deps?: Array<any>) => new Computed<T>(() => this, func, deps);
-  /**
-   * Create a Pulse collection
-   * @param config object
-   * @param config.primaryKey The primary key for the collection.
-   * @param config.groups Define groups for this collection.
-   */
+  public Computed = <T = any>(func: () => any, deps?: Array<any>) => {
+    const computed = new Computed<T>(() => this, func, deps);
+    this.computed.add(computed);
+    return computed;
+  };
+
   public onError(handler: (error: ErrorObject) => void) {}
   public Error(error: any, code?: string) {}
 

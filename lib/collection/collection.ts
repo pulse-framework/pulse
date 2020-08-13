@@ -77,7 +77,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
 
     const keys = Object.keys(this.config[subInstanceType]);
 
-    for (const subInstanceName in keys) {
+    for (const subInstanceName of keys) {
       // create the sub instance
       subInstanceObj[subInstanceName] = this[subInstanceTypeGeneratorName]();
       // assign sub instance to instance and inject key of the sub instance name
@@ -137,19 +137,19 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     groups = normalizeArray(groups);
 
     // if any of the groups don't already exist, create them
-    groups.forEach((groupName) => !this.groups[groupName] && this.createGroup(groupName));
+    groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
 
     _items.forEach((item, index) => {
       let key = this.saveData(item);
       if (config.forEachItem) config.forEachItem(item, key, index);
       if (key === null) return;
-      (groups as Array<string>).forEach((groupName) => {
+      (groups as Array<string>).forEach(groupName => {
         let group = this.groups[groupName];
         if (!group.nextState.includes(key)) group.nextState[config.method || 'push'](key);
       });
     });
 
-    groups.forEach((groupName) => this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState));
+    groups.forEach(groupName => this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState));
   }
   /**
    * Return an item from this collection by primaryKey as Data instance (extends State)
@@ -233,10 +233,10 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     primaryKeys = normalizeArray(primaryKeys);
     groupNames = normalizeArray(groupNames);
 
-    groupNames.forEach((groupName) => {
+    groupNames.forEach(groupName => {
       if (!this.groups.hasOwnProperty(groupName)) return;
 
-      (primaryKeys as Array<PrimaryKey>).forEach((key) => {
+      (primaryKeys as Array<PrimaryKey>).forEach(key => {
         this.groups[groupName].add(key, options);
       });
     });
@@ -256,8 +256,8 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
   public removeFromGroups(primaryKeys: PrimaryKey | Array<PrimaryKey>, groups: GroupName | Array<GroupName>): boolean {
     primaryKeys = normalizeArray(primaryKeys);
     groups = normalizeArray(groups);
-    groups.forEach((groupName) => {
-      (primaryKeys as Array<PrimaryKey>).forEach((primaryKey) => {
+    groups.forEach(groupName => {
+      (primaryKeys as Array<PrimaryKey>).forEach(primaryKey => {
         if (!this.groups[groupName]) return;
         let group = this.getGroup(groupName);
         group.remove(primaryKey);
@@ -270,14 +270,14 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     primaryKeys = normalizeArray(primaryKeys);
     groups = normalizeArray(groups);
 
-    primaryKeys.forEach((key) => {
+    primaryKeys.forEach(key => {
       delete this.data[key];
-      (groups as Array<GroupName>).forEach((groupName) => {
-        this.groups[groupName].nextState = this.groups[groupName].nextState.filter((id) => id !== key);
+      (groups as Array<GroupName>).forEach(groupName => {
+        this.groups[groupName].nextState = this.groups[groupName].nextState.filter(id => id !== key);
       });
     });
 
-    groups.forEach((groupName) => this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState));
+    groups.forEach(groupName => this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState));
 
     return true;
   }
@@ -320,7 +320,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     this.data = {};
     this.size = 0;
     const groups = Object.keys(this.groups);
-    groups.forEach((groupName) => this.groups[groupName].reset());
+    groups.forEach(groupName => this.groups[groupName].reset());
   }
 }
 
