@@ -11,7 +11,7 @@ export interface AccountBody {
 }
 // Define an object of state instances with chained modifiers
 export const AccountState = {
-	LAST_ACCOUNT_ID: App.State<number>(0).persist(),
+	LAST_ACCOUNT_ID: App.State<number>(0).persist("LAST_ACCOUNT_ID"),
 	CREDENTIALS: App.State<AuthCreds>({}).persist(),
 };
 // Define a Pulse Collection to store theoretical authenticated accounts
@@ -23,7 +23,7 @@ export const AccountCollection = App.Collection<AccountBody>()(Collection => ({
 	},
 	selectors: {
 		// NEW: Introducing Selectors for Collections
-		CURRENT: Collection.Selector(), // cached refrence to the current account within this collection
+		CURRENT: Collection.Selector().persist("CURRENT_CHANNEL"), // cached refrence to the current account within this collection
 	},
 }));
 

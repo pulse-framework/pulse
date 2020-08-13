@@ -68,9 +68,9 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
   private initSubInstances(subInstanceType: 'groups' | 'selectors') {
     const subInstanceObj: any = {};
     // transform "groups" into "Group" so we can use Collection.Group, and same with selectors.
-    const subInstanceTypeGeneratorName = subInstanceType.charAt(0).toUpperCase() + subInstanceType.slice(1, -1);
 
-    // get keys from object, or array- depending on what the developer supplied
+    // You'll need the below code when you add support for arrays of group names ;)
+    // const subInstanceTypeGeneratorName = subInstanceType.charAt(0).toUpperCase() + subInstanceType.slice(1, -1);
     // const keys: Array<string> = Array.isArray(this.config[subInstanceType])
     //   ? (this.config[subInstanceType] as Array<string>)
     //   : Object.keys(this.config[subInstanceType]);
@@ -78,8 +78,9 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     const keys = Object.keys(this.config[subInstanceType]);
 
     for (const subInstanceName of keys) {
+      let value = this.config[subInstanceType][subInstanceName];
       // create the sub instance
-      subInstanceObj[subInstanceName] = this[subInstanceTypeGeneratorName]();
+      subInstanceObj[subInstanceName] = value;
       // assign sub instance to instance and inject key of the sub instance name
       subInstanceObj[subInstanceName].key(subInstanceName);
     }

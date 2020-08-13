@@ -93,25 +93,7 @@ export class State<ValueType = any> {
 
   public persist(key?: string): this {
     this.persistState = true;
-    if (!key && this.name) {
-      key = this.name;
-    } else if (!key) {
-      console.warn('Pulse Persist Error: No key provided');
-    } else {
-      this.name = key;
-    }
-    const storage = this.instance().storage;
-    storage.persistedState.add(this);
-    if (storage.isPromise) {
-      storage.get(this.name).then((val: ValueType) => {
-        if (val === null) storage.set(this.name, this.value);
-        this.instance().runtime.ingest(this, val);
-      });
-    } else {
-      let value = storage.get(this.name);
-      if (value === null) storage.set(this.name, this.value);
-      else this.instance().runtime.ingest(this, value);
-    }
+    persistValue.bind(this)(key, this.value);
     return this;
   }
 
@@ -182,7 +164,7 @@ export class State<ValueType = any> {
   public relate(state: State | Array<State>) {
     if (!Array.isArray(state)) state = [state];
     // add this to foriegn dep
-    state.forEach((state) => state && state.dep.depend(this));
+    state.forEach(state => state && state.dep.depend(this));
     // refrence foriegn dep locally for cleanup
     this.dep.dynamic.add(this);
   }
@@ -228,3 +210,26 @@ export function reset(instance: State) {
 }
 
 export type SetFunc<ValueType> = (state: ValueType) => ValueType;
+
+// this function exists outside the state class so it can be imported into other classes such as selector for custom persist logic
+export function persistValue<ValueType>(key: string, currentValue: ValueType) {
+  if (!key && this.name) {
+    key = this.name;
+  } else if (!key) {
+    console.warn('Pulse Persist Error: No key provided');
+  } else {
+    this.name = key;
+  }
+  const storage = this.instance().storage;
+  storage.persistedState.add(this);
+  if (storage.isPromise) {
+    storage.get(this.name).then((val: ValueType) => {
+      if (val === null) storage.set(this.name, currentValue);
+      this.instance().runtime.ingest(this, val);
+    });
+  } else {
+    let value = storage.get(this.name);
+    if (value === null) storage.set(this.name, value);
+    else this.instance().runtime.ingest(this, currentValue);
+  }
+}

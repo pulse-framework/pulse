@@ -3,6 +3,8 @@ import State from '../state';
 import { PrimaryKey } from './group';
 import Computed from '../computed';
 import Pulse from '../pulse';
+import { persistValue } from '../state';
+import Data from './data';
 
 export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = SelectorObj> extends Computed<DataType> {
   private collection: () => Collection<DataType, G, S>;
@@ -17,10 +19,10 @@ export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = Sele
   constructor(collection: () => Collection<DataType, G, S>, key: PrimaryKey) {
     if (!key) key = 0;
     // initialize computed constructor with initial compute state
-    super(collection().instance, () => collection().findById(key).value);
+    super(collection().instance, () => findData<DataType, G, S>(collection(), key));
 
     // computed function that returns a given item from collection
-    this.func = () => collection().findById(this._masterSelected).value;
+    this.func = () => findData<DataType, G, S>(collection(), this._masterSelected);
 
     // alias collection function
     this.collection = collection;
@@ -32,4 +34,21 @@ export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = Sele
   public select(key: PrimaryKey) {
     this.id = key;
   }
+  public persist(key?: string) {
+    if (!this.name && key) this.name = key;
+    this.persistState = true;
+    persistValue.bind(this)(key, this.id);
+    return this;
+  }
+}
+
+function findData<DataType, G, S>(collection: Collection<DataType, G, S>, key: PrimaryKey) {
+  let data = collection.findById(key).value;
+  // if data is not found, create placeholder data, so that when real data is collected it maintains connection
+  if (!data) {
+    // this could be improved by storing temp refrences outside data object in collection
+    collection.data[key] = new Data<DataType>(() => collection, { id: key } as any);
+    data = collection.findById(key).value;
+  }
+  return data;
 }
