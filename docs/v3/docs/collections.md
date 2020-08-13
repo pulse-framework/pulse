@@ -10,9 +10,10 @@ Pulse provides _Collections_ as a way to predictably save external data. Collect
 
 ### **Think of a Collection like a database table.**
 
-- Data is stored and indexed by primary key, as a single source of truth\*
-- [Groups](#Groups) are unique arrays of primary keys that cache real Collection data as an _output_.
-- [Selectors](#Selectors) allow you to reference a single cached item from a Collection
+- Data is stored and indexed by primary key, as a single source of truth\*.
+- [Groups](#Groups) are arrays of unique primary keys that construct arrays of actual Collection data.
+- [Selectors](#Selectors) selects a single item from a Collection by primary key.
+- Groups and Selectors cache their `output`, and can be used reactively by components.
 - Collections include database-like methods to manipulate data.
 - Each item collected is its own [State](state.html) instance.
 
@@ -27,7 +28,10 @@ const MyCollection = App.Collection()();
 This will create a Collection instance, but without any Groups, Selectors or configuration.
 
 ::: tip Collections use a double parentheses syntax.
-This is to compensate for a Typescript caveat with partially inferred generics. [Learn More]()
+This is to compensate for a Typescript caveat with partially inferred generics. The first parentheses allow the generic `DataType` to be passed explicitly, while the second infers types from the config function. [Learn More]()
+```ts
+const MyCollection = App.Collection<DataType>()();
+```
 :::
 
 ### With a Typescript interface
@@ -153,7 +157,9 @@ MyCollection.selectors.MY_SELECTOR.value; // cached selected Collection data
 MyCollection.selectors.MY_SELECTOR.select(1); // select a new primary key
 ```
 
-## `collect()`
+## Methods
+
+### `.collect()`
 
 The Collect method allows you to _collect_ data and add it to a collection (single object or an array of objects). The second parameter is the group you would like the data to be collected into and is optional.
 
@@ -172,7 +178,7 @@ MyCollection.collect(data);
 MyCollection.collect(data, 'myGroupName');
 ```
 
-## `update()`
+### `.update()`
 
 The update method _updates_ data in a collection given an id. The first parameter is the id/key of the data you would like to update. The second parameter is an object with the updated values
 
@@ -185,7 +191,7 @@ The update method _updates_ data in a collection given an id. The first paramete
 MyCollection.update(32, data);
 ```
 
-## `put()`
+### `.put()`
 
 The put method allows you to _put_ data from one group into another! A great example would be moving a new user from unverified to verified.
 
@@ -199,7 +205,7 @@ The put method allows you to _put_ data from one group into another! A great exa
 MyCollection.put([22, 34, 75], 'MyGroupName');
 ```
 
-## `deleteData()`
+### `.deleteData()`
 
 Delete data from your collection
 
@@ -211,7 +217,7 @@ Delete data from your collection
 MyCollection.deleteData(21);
 ```
 
-## `reset()`
+### `.reset()`
 
 Reset allows you to easily clear the collection of all data (keeping group structure but removing the data from the groups)
 
@@ -219,7 +225,7 @@ Reset allows you to easily clear the collection of all data (keeping group struc
 MyCollection.reset();
 ```
 
-## `compute()`
+### `.compute()`
 
 This is a function that is used when you would like a computed value based on your data. This is only really used by the [getValueById()](#getvaluebyid) function.
 
@@ -234,7 +240,7 @@ MyCollection.compute((data) => {
 });
 ```
 
-## `getGroup()`
+### `.getGroup()`
 
 Given a group name, this function returns a group object.
 
@@ -251,7 +257,7 @@ Given a group name, this function returns a group object.
 MyCollection.getGroup('MyGroupName');
 ```
 
-## `findById()`
+### `.findById()`
 
 Fetch data using the primary key/id!
 
@@ -267,7 +273,7 @@ Fetch data using the primary key/id!
 MyCollection.findById(33);
 ```
 
-## `getValueById()`
+### `.getValueById()`
 
 Given an id/key, this function returns the computed value of the data, using the [compute](#compute) function.
 
@@ -280,7 +286,7 @@ Given an id/key, this function returns the computed value of the data, using the
 MyCollection.getValueById(21);
 ```
 
-## `remove()`
+### `.remove()`
 
 Remove is an alias function that takes the primary key(s) given, returns functions for the different delete options, and passes the primary keys to the sub-function you call. It returns:
 
@@ -298,7 +304,7 @@ Remove is an alias function that takes the primary key(s) given, returns functio
 MyCollection.remove(2).fromGroups('MyGroupName');
 ```
 
-## `updateDataKey()`
+### `.updateDataKey()`
 
 This method allows you to easily change the key of any piece of data in your collection
 
@@ -312,7 +318,7 @@ This method allows you to easily change the key of any piece of data in your col
 MyCollection.updateDataKey(1, 4550);
 ```
 
-## `rebuildGroupsThatInclude()`
+### `.rebuildGroupsThatInclude()`
 
 ### Parameters
 

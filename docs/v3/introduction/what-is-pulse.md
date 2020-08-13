@@ -67,8 +67,7 @@ A DB/ORM-like class for front-end data collection.
 Collections are designed for arrays of data following the same structure, usually returned from an API. They have handy features to work with that data and act as a single source of truth.
 
 ```ts
-type DataType = { id: number }; // Object with primary Key
-const AccountCollection = App.Collection<DataType>()();
+const AccountCollection = App.Collection()();
 
 AccountCollection.collect(data);
 ```

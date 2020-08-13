@@ -27,10 +27,17 @@ export const AccountCollection = App.Collection<AccountBody>()(Collection => ({
 	},
 }));
 
+const AccountComputed = {
+	TEST: App.Computed(() => {
+		console.log("running accounts computed test");
+		return true;
+	}),
+};
+
 // Define controller and pass in imports
 const controller = App.Controller(
 	{
-		state: AccountState,
+		state: { ...AccountState, ...AccountComputed },
 		collection: AccountCollection,
 		routes,
 	},

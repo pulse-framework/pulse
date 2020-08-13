@@ -12,18 +12,24 @@ State also has the ability to track its dependents and issue "reactive" side eff
 
 ### Basic Usage
 
-```typescript
+```js
 const App = new Pulse();
 
-const MY_STATE = App.State<Boolean>(true);
+const MY_STATE = App.State(true);
 ```
 
 - State accepts an optional generic type for type safety, if none is supplied the type will be inferred from the initial value provided.
 - The only parameter of State is the initial value.
 - Methods to modify, mutate and access the State value are chainable.
 
-```typescript
+```js
 MY_STATE.persist().type(Boolean).toggle(); // false
+```
+
+## Explicit Types
+
+```ts
+const MY_STATE = App.State<boolean>(true);
 ```
 
 ## Methods
