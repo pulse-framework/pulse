@@ -114,10 +114,6 @@ export default class Pulse {
     return computed;
   };
 
-  public Jeff = (func: () => any) => {
-    // return func;
-  };
-
   public onError(handler: (error: ErrorObject) => void) {}
   public Error(error: any, code?: string) {}
 

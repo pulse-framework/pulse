@@ -7,8 +7,6 @@ export function Test() {
 	core.accounts.lol();
 }
 
-App.Jeff(() => core);
-
 export const test = App.Controller({
 	state: {
 		works: App.Computed(() => {
@@ -19,7 +17,5 @@ export const test = App.Controller({
 	},
 	actions: {
 		Test,
-		// jeff: App.Jeff(() => core),
-		jeff2: () => core,
 	},
 });
