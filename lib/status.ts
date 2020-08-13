@@ -1,7 +1,6 @@
 import Pulse from './pulse';
 import Collection from './collection';
 import State from './state';
-import { StateGroupType } from '.';
 import { copy } from './utils';
 
 // TODO: niceify the typings of this. i am going to hell for committing this. necessary sacrifices
