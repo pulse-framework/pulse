@@ -93,7 +93,7 @@ export class State<ValueType = any> {
 
   public persist(key?: string): this {
     this.persistState = true;
-    persistValue.bind(this)(key, this.value);
+    persistValue.bind(this)(key);
     return this;
   }
 
@@ -174,7 +174,7 @@ export class State<ValueType = any> {
     this._masterValue = copy(value);
     this.nextState = copy(value);
 
-    if (this.persistState) this.instance().storage.set(this.name, value);
+    if (this.persistState) this.instance().storage.set(this.name, this.getPersistableValue());
   }
 
   private isCorrectType(value): boolean {
@@ -186,6 +186,10 @@ export class State<ValueType = any> {
   public destroy(): void {
     this.dep.deps.clear();
     this.dep.subs.clear();
+  }
+
+  protected getPersistableValue(): any {
+    return this.value;
   }
 }
 
@@ -212,7 +216,7 @@ export function reset(instance: State) {
 export type SetFunc<ValueType> = (state: ValueType) => ValueType;
 
 // this function exists outside the state class so it can be imported into other classes such as selector for custom persist logic
-export function persistValue<ValueType>(key: string, currentValue: ValueType) {
+export function persistValue<ValueType>(key: string) {
   if (!key && this.name) {
     key = this.name;
   } else if (!key) {
@@ -224,12 +228,12 @@ export function persistValue<ValueType>(key: string, currentValue: ValueType) {
   storage.persistedState.add(this);
   if (storage.isPromise) {
     storage.get(this.name).then((val: ValueType) => {
-      if (val === null) storage.set(this.name, currentValue);
+      if (val === null) storage.set(this.name, this.getPersistableValue());
       this.instance().runtime.ingest(this, val);
     });
   } else {
     let value = storage.get(this.name);
     if (value === null) storage.set(this.name, value);
-    else this.instance().runtime.ingest(this, currentValue);
+    else this.instance().runtime.ingest(this, this.getPersistableValue());
   }
 }

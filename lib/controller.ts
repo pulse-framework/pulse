@@ -40,7 +40,7 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
     for (const name in this.state)
       if (name && this.state[name] instanceof State) {
         const state: any = this.state[name];
-        state.key(name);
+        if (!state.name) state.key(name);
       }
   }
 }

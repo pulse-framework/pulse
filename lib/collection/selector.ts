@@ -37,8 +37,11 @@ export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = Sele
   public persist(key?: string) {
     if (!this.name && key) this.name = key;
     this.persistState = true;
-    persistValue.bind(this)(key, this.id);
+    persistValue.bind(this)(key);
     return this;
+  }
+  protected getPersistableValue() {
+    return this.id;
   }
 }
 

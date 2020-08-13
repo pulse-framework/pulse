@@ -82,7 +82,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
       // create the sub instance
       subInstanceObj[subInstanceName] = value;
       // assign sub instance to instance and inject key of the sub instance name
-      subInstanceObj[subInstanceName].key(subInstanceName);
+      if (!subInstanceObj[subInstanceName].name) subInstanceObj[subInstanceName].key(subInstanceName);
     }
     this[subInstanceType] = subInstanceObj;
   }
