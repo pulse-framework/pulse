@@ -4,6 +4,8 @@ import State from './state';
 import { StateGroupType } from '.';
 import { copy } from './utils';
 
+// TODO: niceify the typings of this. i am going to hell for committing this. necessary sacrifices
+
 interface StatusObjectData {
   message: string | null;
   status: 'invalid' | 'success' | 'error' | null;
@@ -15,70 +17,64 @@ const initialData: StatusObjectData = {
 };
 
 export default class StatusTracker {
-  private stateGroup: StateGroupType<StatusObjectData> = this.instance().StateGroup({});
+  public state: State<{ [key: string]: StatusObjectData }> = this.instance().State({});
 
-  public get all(): {} {
-    const output: object = {};
-
-    for (const stateName in this.stateGroup) {
-      const value = this.stateGroup[stateName].value;
-      output[stateName] = value;
-    }
-
-    return output;
+  public get all(): { [key: string]: StatusObjectData } {
+    return this.state.value;
   }
 
   constructor(private instance: () => Pulse) {}
 
   public get(key: string): StatusObjectData {
-    if (!this.stateGroup[key]) return;
-
-    return this.stateGroup[key].value;
+    return this?.state?.value[key];
   }
 
   public set(key: string): StatusObject {
-    if (!this.stateGroup[key]) {
-      this.stateGroup[key] = this.instance().State(initialData);
+    if (!this.state.value[key]) {
+      this.state.set(Object.assign(copy(this.state.value), { [key]: initialData }));
     }
 
-    return new StatusObject(this.stateGroup[key]);
+    return new StatusObject(this.state, key);
   }
 
-  public remove(key: string): any {
-    if (!this.stateGroup[key]) return;
-    const val = copy(this.stateGroup[key].value);
+  public remove(key: string): void {
+    if (!this.state.value[key]) return;
 
-    this.stateGroup[key].destroy();
-    this.stateGroup[key] = null;
-    delete this.stateGroup[key];
+    const copiedState: { [key: string]: StatusObjectData } = copy(this.state.value);
 
-    return val;
+    copiedState[key] = undefined;
+    delete copiedState[key];
+
+    this.state.set(copiedState);
   }
 
   public clear(key?: string): void {
+    // clearing a specific value
     if (key) {
-      if (!this.stateGroup[key]) return;
-      const val = copy(this.stateGroup[key].value);
+      if (!this.state.value[key]) return;
 
-      this.stateGroup[key].reset();
-      return val;
+      const copiedState: { [key: string]: StatusObjectData } = copy(this.state.value);
+
+      copiedState[key] = initialData;
+
+      this.state.set(copiedState);
+
+      return;
     }
 
-    for (const stateName in this.stateGroup) {
-      this.stateGroup[stateName].reset();
-    }
+    this.state.reset();
   }
 }
 
 export class StatusObject {
-  constructor(private state: State<StatusObjectData>) {}
+  constructor(private state: State<{ [key: string]: StatusObjectData }>, private key: string) {}
 
   public status(newStatus: 'invalid' | 'success' | 'error' | 'none'): StatusObject {
-    this.state.set(Object.assign(this.state.value, { status: newStatus === 'none' ? null : newStatus }));
+    this.state.set(Object.assign(copy(this.state.value), { [this.key]: { status: newStatus === 'none' ? null : newStatus } }));
     return this;
   }
   public message(messageText: string): StatusObject {
-    this.state.set(Object.assign(this.state.value, { message: messageText }));
+    this.state.set(Object.assign(copy(this.state.value), { [this.key]: { message: messageText } }));
     return this;
   }
 }
