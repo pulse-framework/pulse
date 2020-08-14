@@ -20,7 +20,7 @@ core.accounts.myAction();
 
 ## Creating a Controller
 
-The first parameter of the of the Controller function is `ControllerConfig`
+The first parameter of the Controller function is `ControllerConfig`
 
 ```js
 const App = new Pulse();
@@ -80,11 +80,11 @@ export const accounts = controller as typeof controller & typeof actions;
 ```
 
 ## Structure
-This is how a controller folder should be organised. 
 
-
+This is how a controller folder should be organised.
 
 ### `index.ts`
+
 ```ts
 // import instance
 import App from '../../app';
@@ -103,6 +103,7 @@ export default controller as typeof controller & typeof actions;
 The order of imports above is important, state/collections must be imported first to also allow them to be imported into `actions.ts` without creating a cyclic import. Sometimes this can cause `import * as ...` to return an empty object at runtime, following this structure will avoid that.
 
 ### `state.ts`
+
 ```ts
 import App from '../../app';
 
@@ -126,13 +127,15 @@ export const computed {
 ```
 
 ### `actions.ts`
+
 ```ts
 import App from '../../app';
 // import state
 import { state, computed, collection } from './state';
 
-export async function MyAction (newVal: string) {
-    state.MY_STATE.set(newVal)
+export async function MyAction(newVal: string) {
+  state.MY_STATE.set(newVal);
 }
 ```
+
 Actions get exported individually for convenience. The same applies for helpers and routes
