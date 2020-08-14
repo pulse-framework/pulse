@@ -113,12 +113,12 @@ export const collection = App.Collection()(Collection => ({
     }
 }))
 
-export const state {
+export const state = {
     MY_STATE: App.State('hello')
     // etc...
 }
 
-export const computed {
+export const computed = {
     MY_COMPUTED: App.Computed(() => {
         return 1 + 2
     })
