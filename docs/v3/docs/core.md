@@ -191,7 +191,7 @@ export type ICore = typeof core;
 
 Everything comes together in `core.ts`, it handles importing the Pulse instance, followed by your controllers.
 
-`App.Core()` declares the final core structure and saves it to the instance so that susequent calls.
+`App.Core()` declares the final core structure and saves it to the instance so that subsequent calls.
 
 Finally the core is registered and exported and `ICore` is exported as a type declaration.
 
