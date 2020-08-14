@@ -28,7 +28,7 @@ const App = new Pulse();
 const config = {
     collection: App.Collection()(),
     state: {
-        MY_STATE: App.State(boolean)
+        MY_STATE: App.State(boolean),
         MY_COMPUTED_STATE: App.Computed<boolean>(() => true)
     }
 }
