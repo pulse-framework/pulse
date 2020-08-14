@@ -94,7 +94,7 @@ import { state, computed, collection } from './state';
 import * as actions from './actions';
 
 // init controller, merge state and computed state
-const controller App.Controller({ state: { ...state, ...computed }, collection }, actions);
+const controller = App.Controller({ state: { ...state, ...computed }, collection }, actions);
 
 // export with typesaftey
 export default controller as typeof controller & typeof actions;
