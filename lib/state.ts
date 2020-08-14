@@ -216,7 +216,8 @@ export function reset(instance: State) {
 export type SetFunc<ValueType> = (state: ValueType) => ValueType;
 
 // this function exists outside the state class so it can be imported into other classes such as selector for custom persist logic
-export function persistValue<ValueType>(key: string) {
+export function persistValue(key: string) {
+  // validation
   if (!key && this.name) {
     key = this.name;
   } else if (!key) {
@@ -225,15 +226,16 @@ export function persistValue<ValueType>(key: string) {
     this.name = key;
   }
   const storage = this.instance().storage;
+  // add ref to this instance inside storage
   storage.persistedState.add(this);
-  if (storage.isPromise) {
-    storage.get(this.name).then((val: ValueType) => {
-      if (val === null) storage.set(this.name, this.getPersistableValue());
-      this.instance().runtime.ingest(this, val);
-    });
-  } else {
-    let value = storage.get(this.name);
-    if (value === null) storage.set(this.name, value);
-    else this.instance().runtime.ingest(this, this.getPersistableValue());
-  }
+
+  // handle the value
+  const handle = (storageVal: any) => {
+    if (storageVal === null) storage.set(this.name, this.getPersistableValue());
+    else if (typeof this.select === 'function') this.select(storageVal);
+    else this.instance().runtime.ingest(this, storageVal);
+  };
+  // Check if promise, then handle value
+  if (storage.isPromise) storage.get(this.name).then(handle);
+  else handle(storage.get(this.name));
 }
