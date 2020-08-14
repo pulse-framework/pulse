@@ -51,7 +51,7 @@ interface ControllerConfig {
 }
 ```
 
-These are the only available properties for the `ControllerConfig`, any aditional will be ignored. However it is possible to add custom root properties ([See Below]()).
+These are the only available properties for the `ControllerConfig`, any aditional will be ignored. However it is possible to add custom root properties ([See Below](#custom-root-properties)).
 
 ::: tip Type Safety
 For Typescript users, the inferred types of the object you pass in will be preserved, but only for the properties shown on the above object.
