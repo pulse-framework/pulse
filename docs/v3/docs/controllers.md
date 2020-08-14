@@ -26,7 +26,7 @@ The first parameter of the Controller function is `ControllerConfig`
 const App = new Pulse();
 
 const config = {
-    collection: App.Collection()();
+    collection: App.Collection()(),
     state: {
         MY_STATE: App.State(boolean)
         MY_COMPUTED_STATE: App.Computed<boolean>(() => true)
