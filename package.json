@@ -4,6 +4,11 @@
   "description": "Global state and logic framework for reactive Javascript applications.",
   "main": "dist/index.js",
   "module": "dist/index.js",
+  "files": [
+    "dist",
+    "package.json",
+    "LICENCE"
+  ],
   "scripts": {
     "test": "mocha -r ts-node/register --exit test/**/*.spec.ts",
     "test-debug": "mocha -r ts-node/register --inspect-brk test/**/*.spec.ts",
@@ -12,8 +17,7 @@
     "dev": "tsc-watch",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
-    "now-build": "yarn run docs:build",
-    "postinstall": "tsc"
+    "now-build": "yarn run docs:build"
   },
   "types": "./dist/index.d.ts",
   "author": "Jamie Pine",

@@ -2,12 +2,12 @@
   "compilerOptions": {
     "rootDir": "lib",
     "declaration": true,
-    "target": "ES2015",
+    "target": "ES2016",
     "module": "commonjs",
     "noImplicitAny": false,
     "moduleResolution": "node",
     "outDir": "./dist",
-    "skipLibCheck": true,
+    "skipLibCheck": true
     // Old config, some of this might be needed?
     // "jsx": "preserve",
     // "esModuleInterop": true,
