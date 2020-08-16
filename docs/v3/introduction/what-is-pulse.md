@@ -23,7 +23,7 @@ Created by [@jamiepine]() | Sponsored and maintained by the [Notify Team]()
 ```ts
 const App = new Pulse();
 
-const Hello = App.State<string>('the sound of music');
+const Hello = App.State('the sound of music');
 ```
 
 Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to creare a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
@@ -57,7 +57,7 @@ MY_STATE.toggle().persist().set().type().watch().reset().undo(); // etc...
 A function in which the return value is cached inside an extended State instance. Will magically recompute when it's dependencies change. Can track dependencies automatically or manually.
 
 ```ts
-const MY_COMPUTED = App.Computed<boolean>(() => !!MY_STATE.value);
+const MY_COMPUTED = App.Computed(() => !!MY_STATE.value);
 ```
 
 ### :sparkles: Collections — [App.Collection()]()
@@ -77,7 +77,7 @@ AccountCollection.collect(data);
 Groups handy to provide arrays of collection data and can be used independently in your components. When the index of a group is modified, it will "rebuild" the `output` with actual collection data.
 
 ```ts
-const AccountCollection = App.Collection<DataType>()((collection) => ({
+const AccountCollection = App.Collection()(collection => ({
   groups: {
     AUTHED: collection.Group();
   }
