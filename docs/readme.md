@@ -1,17 +1,21 @@
 ---
 home: true
 # actionText: Documentation →
-# actionLink: /v2/
+# actionLink: /v3/
+
 footer: MIT Licensed | Copyright © 2020 - Jamie Pine
 ---
 
 <center>
 
-### :tada: Pulse 3 is coming! [See whats new...](https://next.pulsejs.org/v3/introduction/changelog.html)
+### **Pulse `3.0` is here! [Walk me through...](/v3/introduction/what-is-pulse.html)**
 
-Pulse is a global state and logic framework for reactive Javascript applications. Supporting frameworks like VueJS, React and React Native. Lightweight, modular and powerful, but most importantly friendly to beginners.
+Pulse is a global state and logic framework for reactive Typescript & Javascript applications.
+
+With support for React, React Native, VueJS and an API to support more.
+
 <div style="word-spacing: 1em; margin-top:20px">
-<a href="/v2/introduction/what-is-pulse.html">Documentation</a> <a href="/v2/introduction/changelog.html">Changelog</a>
+<a href="/v3/introduction/what-is-pulse.html">Documentation</a> <a href="/v3/introduction/changelog.html">Changelog</a>
 </div>
 </center>
 <br />
