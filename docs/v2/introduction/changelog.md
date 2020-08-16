@@ -42,7 +42,7 @@ Pulse 2.1 is everything that should have been part of 2.0. There have been a lar
 
 ### The biggest change
 
-TLDR: The base collection (or now "Module") has changed from `pulse.base.someData` to simply `pulse.someData` HOWEVER can still be baqckwards compatible with the `baseModuleAlias` config option.
+TLDR: The base collection (or now "Module") has changed from `pulse.base.someData` to simply `pulse.someData` HOWEVER can still be backwards compatible with the `baseModuleAlias` config option.
 
 ### New features
 
