@@ -10,6 +10,7 @@ import use, { Integration } from './integrations/use';
 import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
 import Data from './collection/data';
 import { extractAll } from './utils';
+import StatusTracker from './status';
 
 export interface PulseConfig {
   computedDefault?: any;
@@ -28,7 +29,7 @@ export interface PulseConfig {
 
 export const defaultConfig: PulseConfig = {
   noCore: false
-}
+};
 
 interface ErrorObject {
   code: number; // if the error was because of a request, this will be the request error code
@@ -40,6 +41,7 @@ interface ErrorObject {
 export default class Pulse {
   public ready: boolean = false;
   public runtime: Runtime;
+  public status: StatusTracker;
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
@@ -52,6 +54,7 @@ export default class Pulse {
 
   constructor(public config: PulseConfig = defaultConfig) {
     this.subController = new SubController();
+    this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(() => this);
     this.storage = new Storage(() => this, config.storage || {});
     if (config.framework) this.initFrameworkIntegration(config.framework);
