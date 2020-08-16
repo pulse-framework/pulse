@@ -2,7 +2,7 @@
 
 _Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
 
-Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to creare a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
+Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to create a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
 
 Created by [@jamiepine]() | Sponsored and maintained by the [Notify Team]()
 

@@ -26,7 +26,7 @@ const App = new Pulse();
 const Hello = App.State<string>('the sound of music');
 ```
 
-Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to creare a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
+Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to create a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
 
 ## Why Pulse?
 
