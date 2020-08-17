@@ -108,11 +108,13 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
   }
 
   // save data directly into collection storage
-  public saveData(data: DataType): PrimaryKey | null {
+  public saveData(data: DataType, patch?: boolean): PrimaryKey | null {
     let key = this.config.primaryKey;
     if (!data || !data.hasOwnProperty(key)) return null;
-    // if the data already exists, merge data
-    if (this.data[data[key]]) this.data[data[key]].patch(data, { deep: false });
+    // if the data already exists and config is to patch, patch data
+    if (this.data[data[key]] && patch) this.data[data[key]].patch(data, { deep: false });
+    // if already exists and no config, overwite data
+    else if (this.data[data[key]]) this.data[data[key]].set(data);
     // otherwise create new data instance
     else this.data[data[key]] = new Data<DataType>(() => this, data);
     this.size++;
@@ -129,6 +131,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     items: DataType | Array<DataType>,
     groups?: GroupName | Array<GroupName>,
     config: {
+      patch?: boolean;
       method?: 'push' | 'unshift';
       forEachItem?: (item: DataType, key: PrimaryKey, index: number) => void;
     } = {}
@@ -141,7 +144,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
 
     _items.forEach((item, index) => {
-      let key = this.saveData(item);
+      let key = this.saveData(item, config.patch);
       if (config.forEachItem) config.forEachItem(item, key, index);
       if (key === null) return;
       (groups as Array<string>).forEach(groupName => {
