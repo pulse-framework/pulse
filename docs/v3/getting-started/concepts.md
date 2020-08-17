@@ -20,5 +20,5 @@ In these docs we will refer to our classes with a capital first letter. When you
 - **The Core**: You library of State, Collections and Controllers in a single object.
 - **Reactivity**: The concept of state mutations causing component re-renders automatically.
 - **Declaration**: Refers to logic as it is declared in the code, the opposite of this would be runtime.
-- **Runtime**: When Pulse is fully initialized and the core is ready, runtime begins. Runtime handles queuing state changes. 
-
+- **Runtime**: When Pulse is fully initialized and the core is ready, runtime begins. Runtime handles queuing state changes.
+- **Primary Key**: Refers to the identifier used to index data items within a Collection, a `string` or `number`. Also known as "pk" or "id".

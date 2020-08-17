@@ -36,7 +36,7 @@ const MY_STATE = App.State<boolean>(true);
 
 _Refer to Typescript / Intellisense for detailed param descriptions_
 
-### `.set()`
+# `.set()`
 
 _Allows you to mutate a value_
 
@@ -46,7 +46,7 @@ const MY_STATE = App.State(true);
 MY_STATE.set(false); // the value is now reactively set to false
 ```
 
-### `.value`
+# `.value`
 
 _Provides the current value (read-only)_
 
@@ -56,7 +56,7 @@ const MY_STATE = App.State('hello');
 MY_STATE.value; // Expected Output: "hello"
 ```
 
-### `.bind`
+# `.bind`
 
 _Provides the current value (reactive, can be written to, automatically invokes `set()`)_
 
@@ -66,7 +66,7 @@ const MY_STATE = App.State('hello');
 MY_STATE.bind = 'bye';
 ```
 
-### `.undo()`
+# `.undo()`
 
 _Revert to previous state_
 
@@ -80,7 +80,7 @@ MY_STATE.undo();
 MY_STATE.value; // Expected Output: "hello"
 ```
 
-### `.previousState`
+# `.previousState`
 
 _Returns the previous state_
 
@@ -90,7 +90,7 @@ MY_STATE.set('bye');
 MY_STATE.previousState; // hello
 ```
 
-### `.type()`
+# `.type()`
 
 Force State to only allow mutations of provided type.
 
@@ -98,7 +98,7 @@ Force State to only allow mutations of provided type.
 MY_STATE.type(Boolean);
 ```
 
-### `.key()`
+# `.key()`
 
 Provide a name (or key) to identify the state, required for SSR and persisting
 
@@ -108,7 +108,7 @@ Not required if using [Controllers]() as the key will be set automatically based
 MY_STATE.key('MY_STATE');
 ```
 
-### `.name`
+# `.name`
 
 _The name of the state, can be set directly or using above `key()`_
 
@@ -116,27 +116,27 @@ _The name of the state, can be set directly or using above `key()`_
 MY_STATE.name; // MY_STATE
 ```
 
-### `.persist()`
+# `.persist()`
 
 _Will preserve state in the appropriate local storage for the environment (web / mobile)_
 
-### `.exists`
+# `.exists`
 
 _Returns truthiness of the current value_
 
-### `.is()`
+# `.is()`
 
 _Equivalent to `===`_
 
-### `.isNot()`
+# `.isNot()`
 
 _Equivalent to `!==`_
 
-### `.initialState`
+# `.initialState`
 
 _The starting value as established in code_
 
-### `.onNext()`
+# `.onNext()`
 
 _A callback that fires on the next mutation, then destroys itself._
 
@@ -149,30 +149,30 @@ const MY_STATE = App.State(true).onNext(() => {
 });
 ```
 
-### `.patch()`
+# `.patch()`
 
 _A function to edit ("patch") deep properties of an object, provided the State value is an object_
 
-### `.watch()`
+# `.watch()`
 
 _A keyed callback that will fire every mutation, provides current value in as first param in callback_
 
-### `.removeWatcher()`
+# `.removeWatcher()`
 
 _Remove a watcher by key_
 
-### `.relate()`
+# `.relate()`
 
 _[WIP] Associate two State instances, used for Group, Data and Computed_
 
-### `.reset()`
+# `.reset()`
 
 _Reset state to initial value_
 
-### `.toggle()`
+# `.toggle()`
 
 _If current value is a boolean, this will invert it._
 
-### `.interval()`
+# `.interval()`
 
 _A mutation callback fired on a self contained interval_

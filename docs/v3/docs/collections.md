@@ -40,12 +40,11 @@ const MyCollection = App.Collection<DataType>()();
 
 ```ts
 // This interface describes an arbitary data item
-
 interface DataType {
   id: number;
   message: string;
 }
-// Create the Collection and pass in the datatype
+// Create the Collection and pass in the datatype as a generic
 const MyCollection = App.Collection<DataType>()();
 ```
 
@@ -64,18 +63,19 @@ const MyCollection = App.Collection<DataType>()(collection => ({
 }))
 ```
 
-::: tip Type Safety
-Collections will infer the types for groups and selectors automatically from the config object. Meaning you do not need to write custom interfaces to have type Safety and Intellisense when using your Collection instance.
-:::
-
 **All config parameters** _(All params are optional)_
 
-- [primaryKey (String)]() - Define which property on collected items should be used for indexing.
+| property      | type                   | description                                                                                          | default |
+| ------------- | ---------------------- | ---------------------------------------------------------------------------------------------------- | ------- |
+| `primaryKey?` | `string`               | Define which property on collected items should be used for indexing.                                | `id`    |
+| `name?`       | `string`               | The name of this collection, if used within controllers Collection will inherit the controller name. | N/A     |
+| `indexAll?`   | `Boolean`              | Create an internal Group that catches all collected items.                                           | `false` |
+| `groups?`     | `Object` of `Group`    |                                                                                                      | N/A     |
+| `selectors?`  | `Object` of `Selector` |                                                                                                      | N/A     |
 
-- [indexAll (Boolean)]() - Create a default Group that catches all collected items.
-- [groups (Object)]() - Define [Group](#groups) instances on this Collection.
-- [selectors (Object)]() - Define [Selector](#selectors) instances on this Collection.
-- [name (string)]() - Create a default Group that catches all collected items.
+::: tip Typescript: Groups and Selectors infer types from config
+Collections will infer the types for groups and selectors automatically from the config object. Meaning you do not need to write custom interfaces to have type safety and Intellisense when using your Collection instance.
+:::
 
 ## Groups
 
@@ -103,15 +103,19 @@ MyCollection.groups.MY_GROUP.output; // Actual data
 MyCollection.groups.MY_GROUP.index; // Array of primary keys
 ```
 
-### Group methods
+## Group Methods
 
-> `Group.has()` [Function]() - Check if a Group has a primary key
+### `.has()`
+
+Check if a Group has a primary key
 
 ```js
 MyCollection.groups.MY_GROUP.has(23); // boolean
 ```
 
-> `Group.add()` [Function]() - Add a key to a Group. Takes an options object as the second parameter.
+### `.add()`
+
+Add a key to a Group. Takes an options object as the second parameter.
 
 ```js
 MyCollection.groups.MY_GROUP.add(23, {}); // returns Group instance
@@ -123,13 +127,17 @@ interface Options {
 }
 ```
 
-> `Group.remove()` [Function]() - Remove primary key from Group
+### `.remove()`
+
+Remove primary key from Group
 
 ```js
 MyCollection.groups.MY_GROUP.remove(23); // returns Group instance
 ```
 
-> `Group.build()` [Function]() - Force rebuild the group output, though you should never need to use this method as Collections take care of rebuilding groups automatically.
+### `.build()`
+
+Force rebuild the group output, though you should never need to use this method as Collections take care of rebuilding groups automatically.
 
 ```js
 MyCollection.groups.MY_GROUP.build(); // void
@@ -151,7 +159,6 @@ The default value of a selector can be any primary key.
 ::: tip Selectors extend the Computed class (which extends State)
 
 Selectors store the selected primary key under `Selector.id`, the Collection data matching the selected primary key is cached under `Selector.value`. To understand how Computed works see [Computed]()
-
 :::
 
 ```js
@@ -161,20 +168,29 @@ MyCollection.selectors.MY_SELECTOR.select(1); // select a new primary key
 
 Selectors are smart, if you select a primary key that doesn't exist in your Collection yet, the Selector will return an empty object. However once the data is collected under that primary key, the Selector will update seemlessly.
 
-## Methods
+## Selector Methods
 
-### `.collect()`
+### `.select()`
+
+Select a data item by primary key
+
+```js
+MyCollection.selectors.MY_SELECTOR.select(23);
+```
+
+### `.persist()`
+
+Persist selected key in local storage
+
+```js
+MyCollection.selectors.MY_SELECTOR.persist('SELECTOR_KEY');
+```
+
+## Collection Methods
+
+# `.collect()`
 
 The Collect method allows you to _collect_ data and add it to a collection (single object or an array of objects). The second parameter is the group you would like the data to be collected into and is optional.
-
-**Parameters**
-
-- [data (Object)]()
-- [groupNames (string | string[])]() - optional
-
-::: tip Collect can only accept objects
-The Collect function can **only** accept an object or an array of objects. If you try to pass any other primitive data type it will not work.
-:::
 
 ```js
 MyCollection.collect(data);
@@ -182,20 +198,62 @@ MyCollection.collect(data);
 MyCollection.collect(data, 'myGroupName');
 ```
 
-### `.update()`
+Collecting will overwrite data by default if it already exists in collection.
 
-The update method _updates_ data in a collection given an id. The first parameter is the id/key of the data you would like to update. The second parameter is an object with the updated values
+| parameter | type                   | description                                           |
+| --------- | ---------------------- | ----------------------------------------------------- |
+| `items`   | `Object` or `Object[]` | An array of data objects, must contain a primary key. |
+| `groups?` | `string` or `string[]` | Group name or array of group names to add data to.    |
+| `config?` | `ConfigObject`         | (See below)                                           |
 
-**Parameters**
+`ConfigObject`
+| property | type | description | default |
+| ------------- | -------------------- | ---------------------------------- |---------------------------------- |
+| `patch?` | `boolean` | Patch existing collection data instead of overwriting. See [State.patch()](). | `false` |
+| `method?` | `"push"` or `"unshift"` | How data should be added to groups. | `"unshift"` |
+| `forEachItem?` | `(data) => newData` | An interceptor function to mutate each data item before collection. | N/A
 
-- [primaryKeys (string | number | string[] | number[])]()
-- [newData (Object)]()
+# `.update()`
+
+The update method updates data in a collection by primary key.
 
 ```js
-MyCollection.update(32, data);
+MyCollection.update(32, { username: 'jeff' });
 ```
 
-### `.put()`
+| parameter     | type                    | description                    |
+| ------------- | ----------------------- | ------------------------------ |
+| `primaryKeys` | `PrimaryKey` or `State` | The Primary Key to update      |
+| `changes`     | `Object`                | Object with changed properties |
+| `config?`     | `ConfigObject`          | (See below)                    |
+
+> PrimaryKey is of type `string` | `number`
+
+`ConfigObject`
+| property | type | description | default |
+| ------------- | ----------- | ---------------------------------- | ------ |
+| `deep` | boolean | Deep merge or shallow merge? Shallow will merge just root level properties while deep merge will merge all child objects. | false |
+
+::: details What is deep merging?
+Deep merging allows you to target deep properties on an object without affecting the properties around it.
+
+```ts
+// Shallow merge
+let data = { shallowProperty: { everythingInHereIsNew: true } };
+MyCollection.update(32, data);
+
+MyCollection.getValueById(32).shallowProperty; // { everythingInHereIsNew: true }
+
+// Deep merge
+let data = { shallowProperty: { deepProperty: true } };
+MyCollection.update(32, data, { deep: true });
+
+MyCollection.getValueById(32).shallowProperty; //  { iWasUntouched: true, deepProperty: true }
+```
+
+:::
+
+# `.put()`
 
 The put method allows you to _put_ data from one group into another! A great example would be moving a new user from unverified to verified.
 
@@ -209,7 +267,7 @@ The put method allows you to _put_ data from one group into another! A great exa
 MyCollection.put([22, 34, 75], 'MyGroupName');
 ```
 
-### `.deleteData()`
+# `.deleteData()`
 
 Delete data from your collection
 
@@ -221,7 +279,7 @@ Delete data from your collection
 MyCollection.deleteData(21);
 ```
 
-### `.reset()`
+# `.reset()`
 
 Reset allows you to easily clear the collection of all data (keeping group structure but removing the data from the groups)
 
@@ -229,7 +287,7 @@ Reset allows you to easily clear the collection of all data (keeping group struc
 MyCollection.reset();
 ```
 
-### `.compute()`
+# `.compute()`
 
 This is a function that is used when you would like a computed value based on your data.
 
@@ -244,7 +302,7 @@ MyCollection.compute(data => {
 });
 ```
 
-### `.getGroup()`
+# `.getGroup()`
 
 Given a group name, this function returns a group object.
 
@@ -261,7 +319,7 @@ Given a group name, this function returns a group object.
 MyCollection.getGroup('MyGroupName');
 ```
 
-### `.findById()`
+# `.findById()`
 
 Fetch data using the primary key/id!
 
@@ -277,7 +335,7 @@ Fetch data using the primary key/id!
 MyCollection.findById(23);
 ```
 
-### `.getValueById()`
+# `.getValueById()`
 
 Given an id/key, this function returns the raw data from this collection for the provided id.
 
@@ -290,7 +348,7 @@ Given an id/key, this function returns the raw data from this collection for the
 MyCollection.getValueById(23);
 ```
 
-### `.remove()`
+# `.remove()`
 
 Remove is an alias function that takes the primary key(s) given, returns functions for the different delete options, and passes the primary keys to the sub-function you call. It returns:
 
@@ -308,9 +366,9 @@ Remove is an alias function that takes the primary key(s) given, returns functio
 MyCollection.remove(2).fromGroups('MyGroupName');
 ```
 
-### `.updateDataKey()`
+# `.updateDataKey()`
 
-This method allows you to easily change the key of any piece of data in your collection
+This method allows you to change the primary key of a data item in your collection
 
 **Parameters**
 
@@ -322,7 +380,7 @@ This method allows you to easily change the key of any piece of data in your col
 MyCollection.updateDataKey(1, 4550);
 ```
 
-### `.rebuildGroupsThatInclude()`
+# `.rebuildGroupsThatInclude()`
 
 **Parameters**
 
