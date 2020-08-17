@@ -36,7 +36,10 @@ export class CallbackContainer extends ComponentContainer {
 export default class SubController {
 	public pulseInstance;
 
+	// Component based Subscription
 	public components: Set<ComponentContainer> = new Set();
+
+	// Callback based Subscription
 	public callbacks: Set<CallbackContainer> = new Set();
 
 	constructor(pulseInstance: Pulse) {

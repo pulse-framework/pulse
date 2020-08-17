@@ -57,7 +57,7 @@ export function extractAll<I extends new (...args: any) => any, O>(findClass: I,
   return found;
 }
 
-export function getInstance(state: State): Pulse {
+export function getPulseInstance(state: State): Pulse {
   try {
     if (state.instance) return state.instance();
     else return globalThis.__pulse;
