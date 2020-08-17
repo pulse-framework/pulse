@@ -19,7 +19,7 @@ Pulse provides _Collections_ as a way to predictably save external data. Collect
 
 \*The beauty of Collections is that data can only be **collected once**, meaning if you need to modify it, there's one place to do so, and everything using that data will update accordingly. Collecting the same data again will overwrite the old data.
 
-## Setup 
+## Setup
 
 ```js
 const MyCollection = App.Collection()();
@@ -29,9 +29,11 @@ This will create a Collection instance, but without any Groups, Selectors or con
 
 ::: tip Collections use a double parentheses syntax.
 This is to compensate for a Typescript caveat with partially inferred generics. The first parentheses allow the generic `DataType` to be passed explicitly, while the second infers types from the config function. [Learn More]()
+
 ```ts
 const MyCollection = App.Collection<DataType>()();
 ```
+
 :::
 
 ### With a Typescript interface
@@ -157,6 +159,8 @@ MyCollection.selectors.MY_SELECTOR.value; // cached selected Collection data
 MyCollection.selectors.MY_SELECTOR.select(1); // select a new primary key
 ```
 
+Selectors are smart, if you select a primary key that doesn't exist in your Collection yet, the Selector will return an empty object. However once the data is collected under that primary key, the Selector will update seemlessly.
+
 ## Methods
 
 ### `.collect()`
@@ -230,10 +234,11 @@ MyCollection.reset();
 This is a function that is used when you would like a computed value based on your data.
 
 **Parameters**
+
 - computeFunction [Function]()
 
 ```js
-MyCollection.compute((data) => {
+MyCollection.compute(data => {
   // do things then return a value
   return value;
 });
@@ -248,6 +253,7 @@ Given a group name, this function returns a group object.
 - [groupName (string | string[])]()
 
 **Returns**
+
 - [Group (Group)](#groups)
 
 ```js
@@ -260,6 +266,7 @@ MyCollection.getGroup('MyGroupName');
 Fetch data using the primary key/id!
 
 **Parameters**
+
 - [primaryKey (string | number)]()
 
 **Returns**
@@ -275,6 +282,7 @@ MyCollection.findById(23);
 Given an id/key, this function returns the raw data from this collection for the provided id.
 
 **Parameters**
+
 - [primaryKey (string | number)]()
 
 ```js
