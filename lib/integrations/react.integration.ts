@@ -61,7 +61,7 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
 	}
 
 	return class extends React.Component {
-		public pulseComponentContainer: SubscriptionContainer | null = null; // Will be set in registerComponent
+		public componentContainer: SubscriptionContainer | null = null; // Will be set in registerComponent
 
 		public updatedProps = this.props;
 
@@ -70,7 +70,7 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
 
 			// Create HOC based Subscription with Array (Rerenders will here be caused via force Update)
 			if (depsArray)
-				pulseInstance?.subController.subscribe(this, depsArray);
+				pulseInstance?.subController.subscribeWithSubsArray(this, depsArray);
 
 			// Create HOC based Subscription with Object
 			if (depsObject) {
@@ -124,7 +124,7 @@ export function usePulse(deps: Array<State | keyedState> | State, pulseInstance 
 
 	React.useEffect(function () {
 		// create a callback based subscription, callback invokes re-render trigger
-		const cC = pulseInstance.subController.subscribe(() => {
+		const cC = pulseInstance.subController.subscribeWithSubsArray(() => {
 			set_({});
 		}, depsArray);
 		// unsubscribe on unmount

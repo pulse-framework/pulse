@@ -91,9 +91,9 @@ export default class Runtime {
         if (cC.passProps) {
           let localKey: string;
           // find the local key for this update by comparing the State instance from this job to the state instances in the mappedStates object
-          for (let key in cC.mappedStates) if (cC.mappedStates[key] === job.state) localKey = key;
+          for (let key in cC.propStates) if (cC.propStates[key] === job.state) localKey = key;
           // once a matching key is found push it into the SubscriptionContainer
-          if (localKey) cC.keysChanged.push(localKey);
+          if (localKey) cC.propKeysChanged.push(localKey);
         }
         componentsToUpdate.add(cC);
       })
@@ -133,9 +133,9 @@ export default class Runtime {
 
   static assembleUpdatedValues(cC: SubscriptionContainer) {
     let returnObj: any = {};
-    cC.keysChanged.forEach((changedKey) => {
+    cC.propKeysChanged.forEach((changedKey) => {
       // extract the value from State for changed keys
-      returnObj[changedKey] = cC.mappedStates[changedKey].value;
+      returnObj[changedKey] = cC.propStates[changedKey].value;
     });
     return returnObj;
   }
