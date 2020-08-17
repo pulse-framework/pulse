@@ -53,7 +53,7 @@ export default class Pulse {
   private core: { [key: string]: any } = {};
 
   constructor(public config: PulseConfig = defaultConfig) {
-    this.subController = new SubController();
+    this.subController = new SubController(this);
     this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(() => this);
     this.storage = new Storage(() => this, config.storage || {});

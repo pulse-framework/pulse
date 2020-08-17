@@ -1,14 +1,10 @@
 import Pulse from '..';
 import State from '../state';
-import {
-	ComponentContainer,
-	SubscriptionContainer
-} from '../sub';
+import {SubscriptionContainer} from '../sub';
 import {
 	normalizeDeps,
 	getInstance
 } from '../utils';
-import Group from '../collection/group';
 
 type NamedStateObject = {
 	[key: string]: State
@@ -17,44 +13,98 @@ type keyedState = {
 	[key: string]: State
 };
 
-export function PulseHOC(ReactComponent: any, deps ? : Array < State > | { [key: string]: State}, pulseInstance ? : Pulse) {
-	if (!pulseInstance) pulseInstance = getInstance(deps[0]);
-	let React = pulseInstance.config.frameworkConstructor;
-	return class extends React.Component {
-		public pulseComponentContainer: SubscriptionContainer;
-		constructor(public props: any) {
-			super(props);
-			// is array of deps
-			if (Array.isArray(deps)) {
-				pulseInstance.subController.subscribe(this, deps);
-				// keyed object of deps, map to props
-			} else if (typeof deps === 'object') {
-				// keyed object of deps, map to props
-				const x = pulseInstance.subController.mapToProps(this, deps);
-				props = {
-					...props,
-					...x.props
-				};
-				this.pulseComponentContainer = x.cC;
+export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: string]: State } | State, pulseInstance?: Pulse) {
+	let depsArray: Array<State>;
+	let depsObject: { [key: string]: State };
+
+	if (deps instanceof State || Array.isArray(deps)) {
+		// Normalize Dependencies
+		depsArray = normalizeDeps(deps || []);
+
+		// Get Pulse Instance
+		if (!pulseInstance) {
+			if (depsArray.length > 0) {
+				const tempPulseInstance = getInstance(depsArray[0]);
+				pulseInstance = tempPulseInstance || undefined;
+			} else {
+				console.error("Pulse: Please don't pass an empty array!");
 			}
 		}
+	} else if (typeof deps === "object") {
+		depsObject = deps;
+
+		if (!pulseInstance) {
+			const objectKeys = Object.keys(depsObject);
+			if (objectKeys.length > 0) {
+				const tempPulseInstance = getInstance(depsObject[objectKeys[0]]);
+				pulseInstance = tempPulseInstance || undefined;
+			} else {
+				console.error("Pulse: Please don't pass an empty object!");
+			}
+		}
+	} else {
+		console.error("Pulse: No Valid PulseHOC properties");
+		return ReactComponent;
+	}
+
+	// Check if pulse Instance exists
+	if (!pulseInstance) {
+		console.error("Pulse: Failed to get Pulse Instance");
+		return ReactComponent;
+	}
+
+	// Get React constructor
+	const React = pulseInstance.integration?.frameworkConstructor;
+	if (!React) {
+		console.error("Pulse: Failed to get Framework Constructor");
+		return ReactComponent;
+	}
+
+	return class extends React.Component {
+		public pulseComponentContainer: SubscriptionContainer | null = null; // Will be set in registerComponent
+
+		public updatedProps = this.props;
+
+		constructor(props: any) {
+			super(props);
+
+			// Create HOC based Subscription with Array (Rerenders will here be caused via force Update)
+			if (depsArray)
+				pulseInstance?.subController.subscribe(this, depsArray);
+
+			// Create HOC based Subscription with Object
+			if (depsObject) {
+				const response = pulseInstance?.subController.subscribeWithSubsObject(this, depsObject);
+				this.updatedProps = {
+					...props,
+					...response?.props
+				}
+
+				// Defines State for causing rerender (will be called in updateMethod)
+				this.state = depsObject;
+			}
+		}
+
 		componentDidMount() {
-			if (pulseInstance.config.waitForMount) pulseInstance.subController.mount(this);
+			if (pulseInstance?.config.waitForMount)
+				pulseInstance?.subController.mount(this);
 		}
+
 		componentWillUnmount() {
-			pulseInstance.subController.unsubscribe(this);
+			pulseInstance?.subController.unsubscribe(this);
 		}
+
 		render() {
-			return React.createElement(ReactComponent, this.props);
+			return React.createElement(ReactComponent, this.updatedProps);
 		}
 	};
 }
 
-export function usePulse(deps: Array < State | keyedState > | State, pulseInstance ? : Pulse) {
-	let depsArray = normalizeDeps(deps as Array < State > );
+export function usePulse(deps: Array<State | keyedState> | State, pulseInstance ?: Pulse) {
+	let depsArray = normalizeDeps(deps as Array<State>);
 	if (!pulseInstance) pulseInstance = getInstance(depsArray[0]);
 
-	let depsArrayFinal: Array < State > = [];
+	let depsArrayFinal: Array<State> = [];
 
 	// this allows you to pass in a keyed object of States and subscribe to all  State within the first level of the object. Useful if you wish to subscribe a component to several State instances at the same time.
 	depsArray.forEach(dep => {
@@ -97,14 +147,20 @@ export default {
 		// pulseInstance.usePulse = (deps: Array<State>) => usePulse(deps, pulseInstance);
 	},
 	updateMethod(componentInstance: any, updatedData: Object) {
-		if (updatedData) {
+		// UpdatedData will be empty if the PulseHOC doesn't get an object as deps
+
+		if (Object.keys(updatedData).length !== 0) {
+			// Update Props
+			componentInstance.updatedProps = {...componentInstance.updatedProps, ...updatedData};
+
+			// Set State
 			componentInstance.setState(updatedData);
 		} else {
 			componentInstance.forceUpdate();
 		}
 	},
 	onReady(pulseInstance: any | Pulse) {
-		//
-		pulseInstance.usePulse = (deps: Array < State > | State) => usePulse(deps, pulseInstance);
+		// TODO is the onReady really necessary.. because I can't find a position where it get called
+		// pulseInstance.usePulse = (deps: Array<State> | State) => usePulse(deps, pulseInstance);
 	}
 };
