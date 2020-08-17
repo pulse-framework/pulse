@@ -38,7 +38,7 @@ export default class Runtime {
   private perform(job: Job): void {
     // debugger;
     this.current = job;
-    job.state.previousState = copy(job.state._masterValue);
+    job.state.previousState = copy(job.state._value);
 
     // write new value as result of mutation
     job.state.privateWrite(job.newState);
@@ -66,10 +66,10 @@ export default class Runtime {
     let dep = state.dep;
 
     // cleanup dynamic deps
-    dep.dynamic.forEach((state) => {
-      state.dep.deps.delete(dep);
-    });
-    dep.dynamic = new Set();
+    // dep.dynamic.forEach(state => {
+    //   state.dep.deps.delete(dep);
+    // });
+    // dep.dynamic = new Set();
 
     // this should not be used on root state class as it would be overwritten by extentions
     // this is used mainly to cause group to generate its output after changing
@@ -80,13 +80,13 @@ export default class Runtime {
     }
 
     // ingest dependents
-    dep.deps.forEach((state) => this.ingest(state, undefined, false));
+    dep.deps.forEach(state => this.ingest(state, undefined, false));
   }
 
   private updateSubscribers(): void {
     let componentsToUpdate: Set<SubscriptionContainer> = new Set();
-    this.complete.forEach((job) =>
-      job.state.dep.subs.forEach((cC) => {
+    this.complete.forEach(job =>
+      job.state.dep.subs.forEach(cC => {
         // for containers that require props to be passed
         if (cC.passProps) {
           let localKey: string;
@@ -100,7 +100,7 @@ export default class Runtime {
     );
 
     // perform component or callback updates
-    componentsToUpdate.forEach((cC) => {
+    componentsToUpdate.forEach(cC => {
       // are we dealing with a CallbackContainer?
       if (cC instanceof CallbackContainer) {
         // just invoke the callback
@@ -116,7 +116,7 @@ export default class Runtime {
 
     this.complete = [];
     // run any tasks for next runtime
-    this.tasksOnceComplete.forEach((task) => typeof task === 'function' && task());
+    this.tasksOnceComplete.forEach(task => typeof task === 'function' && task());
     this.tasksOnceComplete = [];
   }
 
@@ -133,7 +133,7 @@ export default class Runtime {
 
   static assembleUpdatedValues(cC: SubscriptionContainer) {
     let returnObj: any = {};
-    cC.keysChanged.forEach((changedKey) => {
+    cC.keysChanged.forEach(changedKey => {
       // extract the value from State for changed keys
       returnObj[changedKey] = cC.mappedStates[changedKey].value;
     });

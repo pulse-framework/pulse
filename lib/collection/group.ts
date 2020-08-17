@@ -40,9 +40,9 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   }
   public build() {
     this.missingPrimaryKeys = [];
-    if (!Array.isArray(this._masterValue)) return [];
-    let group = this._masterValue
-      .map((primaryKey) => {
+    if (!Array.isArray(this._value)) return [];
+    let group = this._value
+      .map(primaryKey => {
         let data = this.collection().data[primaryKey];
         if (!data) {
           this.missingPrimaryKeys.push(primaryKey);
@@ -60,9 +60,9 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
         return data.getPublicValue();
       })
-      .filter((item) => item !== undefined);
+      .filter(item => item !== undefined);
 
-    this.dep.dynamic.forEach((state) => state.dep.depend(this));
+    // this.dep.dynamic.forEach(state => state.dep.depend(this));
     //@ts-ignore
     this._masterOutput = group;
   }
@@ -85,7 +85,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     const useIndex = options.atIndex !== undefined;
     const exists = this.nextState.includes(primaryKey);
 
-    if (options.overwrite) this.nextState = this.nextState.filter((i) => i !== primaryKey);
+    if (options.overwrite) this.nextState = this.nextState.filter(i => i !== primaryKey);
     // if we do not want to overwrite and key already exists in group, exit
     else if (exists) return this;
 
@@ -103,7 +103,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   }
 
   public remove(primaryKey: PrimaryKey): this {
-    this.nextState = this.nextState.filter((i) => i !== primaryKey);
+    this.nextState = this.nextState.filter(i => i !== primaryKey);
     this.set();
     return this;
   }
