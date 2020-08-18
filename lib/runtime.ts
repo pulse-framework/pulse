@@ -33,7 +33,10 @@ export default class Runtime {
 	 * @internal
 	 * Creates a Job out of the State and the new Value and add it to a queue
 	 */
-	public ingest(state: State, newStateValue?: any, options: JobConfigInterface = {perform: true}): void {
+	public ingest(state: State, newStateValue?: any, options: JobConfigInterface = {
+		perform: true,
+		background: false
+	}): void {
 		const job: JobInterface = {
 			state: state,
 			newStateValue: newStateValue,
