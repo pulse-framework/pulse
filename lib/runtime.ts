@@ -16,9 +16,9 @@ export interface JobConfigInterface {
 export default class Runtime {
 	public puleInstance: Pulse;
 
-	private current: JobInterface | null = null;
-	private queue: Array<JobInterface> = [];
-	private completed: Array<JobInterface> = [];
+	private currentJob: JobInterface | null = null;
+	private jobsQueue: Array<JobInterface> = [];
+	private jobsToRerender: Array<JobInterface> = [];
 
 	private tasksOnceComplete: Array<() => any> = [];
 
@@ -31,12 +31,13 @@ export default class Runtime {
 
 	/**
 	 * @internal
-	 * Creates a Job out of the State and the new Value and add it to a queue
+	 * Creates a Job out of State and new Value and than add it to a job queue
 	 */
 	public ingest(state: State, newStateValue?: any, options: JobConfigInterface = {
 		perform: true,
 		background: false
 	}): void {
+		// Create Job
 		const job: JobInterface = {
 			state: state,
 			newStateValue: newStateValue,
@@ -53,12 +54,12 @@ export default class Runtime {
 					job.state.nextState;
 		}
 
-		// Push the Job to the Queue (the queue is then processed)
-		this.queue.push(job);
+		// Push the Job to the Queue (the queue will then processed)
+		this.jobsQueue.push(job);
 
 		// Perform the Job
 		if (options?.perform) {
-			const performJob = this.queue.shift();
+			const performJob = this.jobsQueue.shift();
 			if (performJob)
 				this.perform(performJob);
 			else
@@ -72,7 +73,7 @@ export default class Runtime {
 	 */
 	private perform(job: JobInterface): void {
 		// Set Job to current
-		this.current = job;
+		this.currentJob = job;
 
 		// Set Previous State
 		job.state.previousState = copy(job.state._masterValue);
@@ -85,18 +86,18 @@ export default class Runtime {
 
 		// Set Job as completed (The deps and subs of completed jobs will be updated)
 		if (!job.background)
-			this.completed.push(job);
+			this.jobsToRerender.push(job);
 
 		// Reset Current Job
-		this.current = null;
+		this.currentJob = null;
 
 		// Logging
 		if (this.puleInstance.config.logJobs)
 			console.log(`Pulse: Completed Job(${job.state.name})`, job);
 
 		// Continue the Loop and perform the next job.. if no job is left update the Subscribers for each completed job
-		if (this.queue.length > 0) {
-			const performJob = this.queue.shift();
+		if (this.jobsQueue.length > 0) {
+			const performJob = this.jobsQueue.shift();
 			if (performJob)
 				this.perform(performJob);
 			else
@@ -145,37 +146,43 @@ export default class Runtime {
 		// Check if Pulse has an integration because its useless to go trough this process without framework
 		// It won't happen anything because the state has no subs.. but this check here will maybe improve the performance
 		if (!this.puleInstance.integration) {
-			this.completed = [];
+			this.jobsToRerender = [];
 			// TODO maybe a warning but if you want to use PulseJS without framework this might get annoying
 			return;
 		}
 
-		// Components that has to be updated
-		const componentsToUpdate: Set<SubscriptionContainer> = new Set<SubscriptionContainer>();
+		// Subscriptions that has to be updated
+		const subscriptionsToUpdate: Set<SubscriptionContainer> = new Set<SubscriptionContainer>();
 
-		// Map through completed Jobs
-		this.completed.forEach((job) =>
+		// Map through Jobs to Rerender
+		this.jobsToRerender.forEach((job) =>
 			// Map through subs of the current Job State
 			job.state.dep.subs.forEach((subscriptionContainer) => {
+				// Check if subscriptionContainer is ready
+				if (!subscriptionContainer.ready)
+					console.warn("Pulse: SubscriptionContainer isn't ready yet ", subscriptionContainer);
+
 				// For a Container that require props to be passed
 				if (subscriptionContainer.passProps) {
 					let localKey: string | null = null;
 
-					// Find the local Key for this update by comparing the State instance from this Job to the State instances in the mappedStates object
+					// Find the local Key for this update by comparing the State instance from this Job to the State instances in the propStates object
 					for (let key in subscriptionContainer.propStates)
 						if (subscriptionContainer.propStates[key] === job.state)
 							localKey = key;
 
-					// If matching key is found push it into the SubscriptionContainer
+					// If matching key is found push it into the SubscriptionContainer propKeysChanged where it later will be build to an changed prop object
 					if (localKey)
 						subscriptionContainer.propKeysChanged.push(localKey);
 				}
-				componentsToUpdate.add(subscriptionContainer);
+				// Add sub to subscriptions to Update
+				subscriptionsToUpdate.add(subscriptionContainer);
 			})
 		);
 
 		// Perform Component or Callback updates
-		componentsToUpdate.forEach((subscriptionContainer) => {
+		// TODO maybe add a unique key to a component and if its the same don't cause a rerender for both -> performance optimization
+		subscriptionsToUpdate.forEach((subscriptionContainer) => {
 			// If Callback based subscription call the Callback Function
 			if (subscriptionContainer instanceof CallbackContainer) {
 				subscriptionContainer.callback();
@@ -190,11 +197,11 @@ export default class Runtime {
 		});
 
 		// Log Job
-		if (this.puleInstance.config.logJobs && componentsToUpdate.size > 0)
-			console.log("Pulse: Rerendered Components ", componentsToUpdate);
+		if (this.puleInstance.config.logJobs && subscriptionsToUpdate.size > 0)
+			console.log("Pulse: Rerendered Components ", subscriptionsToUpdate);
 
-		// Reset completed Jobs
-		this.completed = [];
+		// Reset Jobs to Rerender
+		this.jobsToRerender = [];
 
 		// Run any tasks for next runtime
 		this.tasksOnceComplete.forEach((task) => typeof task === 'function' && task());

@@ -9,13 +9,13 @@ export type SubscriptionContainer = ComponentContainer | CallbackContainer;
 export class ComponentContainer {
 	public component: any;
 
-	// Only needed subscribing with object
+	// Only needed object orientated subscriptions
 	public passProps: boolean = false;
-	public propStates?: { [key: string]: State };
-	public propKeysChanged: Array<string> = []; // used to preserve local keys to update before update is performed, cleared every update
+	public propStates?: { [key: string]: State }; // States which will than be returned as prop object by the integration
+	public propKeysChanged: Array<string> = []; // needed to build updatedData for the integration updateMethod.. it temporary saves changed state keys to build later with it the prop object
 
 	public ready: boolean = false;
-	public subs: Set<State> = new Set<State>([]);
+	public subs: Set<State> = new Set<State>([]); // States that are subscribed by this component
 
 	constructor(component: any, subs?: Set<State>) {
 		this.component = component
@@ -47,10 +47,9 @@ export default class SubController {
 	}
 
 	/**
-	 * Subscribe to Pulse State with a returned array of props this props can than passed trough the component (See react-integration)
+	 * Subscribe to Pulse State with a returned object of props this props can than be returned by the component (See react-integration)
 	 */
 	public subscribeWithSubsObject(subscriptionInstance: any, subs: { [key: string]: State } = {}): { subscriptionContainer: SubscriptionContainer, props: { [key: string]: State['value'] } } {
-		// Register Component
 		const subscriptionContainer = this.registerSubscription(subscriptionInstance);
 
 		const props: { [key: string]: State } = {};
@@ -65,10 +64,10 @@ export default class SubController {
 			// Add State to SubscriptionContainer Subs
 			subscriptionContainer.subs.add(state);
 
-			// Add SubscriptionContainer to State Dependencies Subs
+			// Add SubscriptionContainer to State Subs
 			state.dep.subs.add(subscriptionContainer);
 
-			// Add state to prop
+			// Add state to props
 			props[key] = state.value;
 		});
 
@@ -84,9 +83,11 @@ export default class SubController {
 	public subscribeWithSubsArray(subscriptionInstance: any, subs: Array<State> = []): SubscriptionContainer {
 		const subscriptionContainer = this.registerSubscription(subscriptionInstance, subs);
 
-		// Add subs to State Subs
 		subs.forEach(state => {
+			// Add State to SubscriptionContainer Subs
 			subscriptionContainer.subs.add(state);
+
+			// Add SubscriptionContainer to State Subs
 			state.dep.subs.add(subscriptionContainer);
 		});
 
@@ -94,7 +95,7 @@ export default class SubController {
 	}
 
 	/**
-	 * Registers the Component/Callback and returns a SubscriptionContainer
+	 * Registers the Component/Callback Subscription and returns a SubscriptionContainer
 	 */
 	public registerSubscription(integrationInstance: any, subs: Array<State> = []): SubscriptionContainer {
 		// - Callback based Subscription
@@ -129,7 +130,6 @@ export default class SubController {
 
 	/**
 	 * Unsubscribe a component or callback
-	 * @param subscriptionInstance - SubscriptionContainer
 	 */
 	public unsubscribe(subscriptionInstance: any) {
 		const unsub = (subscriptionContainer: CallbackContainer | ComponentContainer) => {

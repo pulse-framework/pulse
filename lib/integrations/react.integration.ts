@@ -20,19 +20,20 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
 				const tempPulseInstance = getPulseInstance(depsArray[0]);
 				pulseInstance = tempPulseInstance || undefined;
 			} else {
-				console.error("Pulse: Please don't pass an empty array!");
+				console.warn("Pulse: Please don't pass an empty array!");
 			}
 		}
 	} else if (typeof deps === "object") {
 		depsObject = deps;
 
+		// Get Pulse Instance
 		if (!pulseInstance) {
 			const objectKeys = Object.keys(depsObject);
 			if (objectKeys.length > 0) {
 				const tempPulseInstance = getPulseInstance(depsObject[objectKeys[0]]);
 				pulseInstance = tempPulseInstance || undefined;
 			} else {
-				console.error("Pulse: Please don't pass an empty object!");
+				console.warn("Pulse: Please don't pass an empty object!");
 			}
 		}
 	} else {
@@ -54,7 +55,7 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
 	}
 
 	return class extends React.Component {
-		public componentContainer: SubscriptionContainer | null = null; // Will be set in registerComponent
+		public componentContainer: SubscriptionContainer | null = null; // Will be set in registerSubscription (sub.ts)
 
 		public updatedProps = this.props;
 
@@ -93,7 +94,7 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
 	};
 }
 
-export function usePulse(deps: Array<State> | State, pulseInstance ?: Pulse) {
+export function usePulse(deps: Array<State> | State, pulseInstance?: Pulse) {
 	// Normalize Dependencies
 	let depsArray = normalizeDeps(deps);
 
