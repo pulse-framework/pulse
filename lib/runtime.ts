@@ -1,142 +1,227 @@
-import Pulse, { State, Computed } from './';
-import { copy } from './utils';
-import { CallbackContainer, ComponentContainer, SubscriptionContainer } from './sub';
-import Group from './collection/group';
+import Pulse, {State, Computed} from './';
+import {copy} from './utils';
+import {CallbackContainer, SubscriptionContainer} from './sub';
 
-export interface Job {
-  state: State;
-  newState?: any;
+export interface JobInterface {
+	state: State
+	newStateValue?: any
+	background?: boolean
 }
+
+export interface JobConfigInterface {
+	perform?: boolean
+	background?: boolean
+}
+
 export default class Runtime {
-  private current: Job = null;
-  private queue: Array<Job> = [];
-  private complete: Array<Job> = [];
-  private tasksOnceComplete: Array<() => any> = [];
+	public puleInstance: Pulse;
 
-  public trackState: boolean = false;
-  public foundState: Set<State> = new Set();
-  constructor(private instance: () => Pulse) {}
+	private current: JobInterface | null = null;
+	private queue: Array<JobInterface> = [];
+	private completed: Array<JobInterface> = [];
 
-  public ingest(state: State, newState?: any, perform: boolean = true): void {
-    let job: Job = { state, newState };
-    // grab nextState if newState not passed, compute if needed
-    if (newState === undefined) {
-      job.newState =
-        job.state instanceof Computed
-          ? // if computed, recompute value
-            job.state.computeValue()
-          : // otherwise, default to nextState
-            job.state.nextState;
-    }
+	private tasksOnceComplete: Array<() => any> = [];
 
-    this.queue.push(job);
+	public trackState: boolean = false;
+	public foundState: Set<State> = new Set();
 
-    // if no current job, begin the next!
-    if (perform) this.perform(this.queue.shift());
-  }
+	constructor(pulseInstance: Pulse) {
+		this.puleInstance = pulseInstance;
+	}
 
-  private perform(job: Job): void {
-    // debugger;
-    this.current = job;
-    job.state.previousState = copy(job.state._masterValue);
+	/**
+	 * @internal
+	 * Creates a Job out of the State and the new Value and add it to a queue
+	 */
+	public ingest(state: State, newStateValue?: any, options: JobConfigInterface = {}): void {
+		const job: JobInterface = {
+			state: state,
+			newStateValue: newStateValue,
+			background: options?.background
+		};
 
-    // write new value as result of mutation
-    job.state.privateWrite(job.newState);
 
-    // perform side effects
-    this.sideEffects(job.state);
+		// grab nextState if newState not passed, compute if needed
+		if (newStateValue === undefined) {
+			job.newStateValue =
+				job.state instanceof Computed
+					? // if computed, recompute value
+					job.state.computeValue()
+					: // otherwise, default to nextState
+					job.state.nextState;
+		}
 
-    // declare completed
-    this.complete.push(job);
+		this.queue.push(job);
 
-    this.current = null;
+		// Perform the Job
+		if (options?.perform) {
+			const performJob = this.queue.shift();
+			if (performJob)
+				this.perform(performJob);
+			else
+				console.warn("Pulse: Failed to perform Job ", job)
+		}
+	}
 
-    if (this.instance().config.logJobs) console.log(`Completed Job: Name:${job.state.name}`, job);
+	/**
+	 * @internal
+	 * Perform a State Update
+	 */
+	private perform(job: JobInterface): void {
+		// Set Job to current
+		this.current = job;
 
-    // continue the loop and perform the next job or update subscribers
-    if (this.queue.length > 0) this.perform(this.queue.shift());
-    else {
-      setTimeout(() => {
-        this.updateSubscribers();
-      });
-    }
-  }
+		// Set Previous State
+		job.state.previousState = copy(job.state._masterValue);
 
-  private sideEffects(state: State) {
-    let dep = state.dep;
+		// Write new value into the State
+		job.state.privateWrite(job.newStateValue);
 
-    // cleanup dynamic deps
-    dep.dynamic.forEach((state) => {
-      state.dep.deps.delete(dep);
-    });
-    dep.dynamic = new Set();
+		// Perform SideEffects like watcher functions
+		this.sideEffects(job.state);
 
-    // this should not be used on root state class as it would be overwritten by extentions
-    // this is used mainly to cause group to generate its output after changing
-    if (typeof state.sideEffects === 'function') state.sideEffects();
+		// Set Job as completed (The deps and subs of completed jobs will be updated)
+		if (!job.background)
+			this.completed.push(job);
 
-    for (let watcher in state.watchers) {
-      if (typeof state.watchers[watcher] === 'function') state.watchers[watcher](state.getPublicValue());
-    }
+		// Reset Current Job
+		this.current = null;
 
-    // ingest dependents
-    dep.deps.forEach((state) => this.ingest(state, undefined, false));
-  }
+		// Logging
+		if (this.puleInstance.config.logJobs)
+			console.log(`Pulse: Completed Job(${job.state.name})`, job);
 
-  private updateSubscribers(): void {
-    let componentsToUpdate: Set<SubscriptionContainer> = new Set();
-    this.complete.forEach((job) =>
-      job.state.dep.subs.forEach((cC) => {
-        // for containers that require props to be passed
-        if (cC.passProps) {
-          let localKey: string;
-          // find the local key for this update by comparing the State instance from this job to the state instances in the mappedStates object
-          for (let key in cC.propStates) if (cC.propStates[key] === job.state) localKey = key;
-          // once a matching key is found push it into the SubscriptionContainer
-          if (localKey) cC.propKeysChanged.push(localKey);
-        }
-        componentsToUpdate.add(cC);
-      })
-    );
+		// Continue the Loop and perform the next job.. if no job is left update the Subscribers for each completed job
+		if (this.queue.length > 0) {
+			const performJob = this.queue.shift();
+			if (performJob)
+				this.perform(performJob);
+			else
+				console.warn("Pulse: Failed to perform Job ", job);
+		} else {
+			// https://stackoverflow.com/questions/9083594/call-settimeout-without-delay
+			setTimeout(() => {
+				// Cause rerender on Subscribers
+				this.updateSubscribers();
+			})
+		}
+	}
 
-    // perform component or callback updates
-    componentsToUpdate.forEach((cC) => {
-      // are we dealing with a CallbackContainer?
-      if (cC instanceof CallbackContainer) {
-        // just invoke the callback
-        (cC as CallbackContainer).callback();
-        // is this a ComponentContainer
-      } else if (cC instanceof ComponentContainer) {
-        // call the current integration's update method
-        this.instance().integration.updateMethod(cC.instance, Runtime.assembleUpdatedValues(cC));
-      }
-    });
+	/**
+	 * @internal
+	 * SideEffects are sideEffects of the perform function.. for instance the watchers
+	 */
+	private sideEffects(state: State) {
+		let dep = state.dep;
 
-    if (this.instance().config.logJobs && componentsToUpdate.size > 0) console.log(`Rendered Components`, componentsToUpdate);
+		// cleanup dynamic deps
+		dep.dynamic.forEach((state) => {
+			state.dep.deps.delete(dep);
+		});
+		dep.dynamic = new Set();
 
-    this.complete = [];
-    // run any tasks for next runtime
-    this.tasksOnceComplete.forEach((task) => typeof task === 'function' && task());
-    this.tasksOnceComplete = [];
-  }
+		// this should not be used on root state class as it would be overwritten by extentions
+		// this is used mainly to cause group to generate its output after changing
+		if (typeof state.sideEffects === 'function')
+			state.sideEffects();
 
-  public getFoundState() {
-    this.trackState = false;
-    const ret = this.foundState;
-    this.foundState = new Set();
-    return ret;
-  }
+		// Call Watchers
+		for (let watcher in state.watchers)
+			if (typeof state.watchers[watcher] === 'function')
+				state.watchers[watcher](state.getPublicValue());
 
-  public nextPulse(callback: () => any) {
-    this.tasksOnceComplete.push(callback);
-  }
+		// Ingest dependents (Perform is false because it will be performed anyway after this sideEffect)
+		dep.deps.forEach((state) => this.ingest(state, undefined, {perform: false}));
+	}
 
-  static assembleUpdatedValues(cC: SubscriptionContainer) {
-    let returnObj: any = {};
-    cC.propKeysChanged.forEach((changedKey) => {
-      // extract the value from State for changed keys
-      returnObj[changedKey] = cC.propStates[changedKey].value;
-    });
-    return returnObj;
-  }
+	/**
+	 * @internal
+	 * This will be update all Subscribers of complete jobs
+	 */
+	private updateSubscribers(): void {
+		// Check if Pulse has an integration because its useless to go trough this process without framework
+		// It won't happen anything because the state has no subs.. but this check here will maybe improve the performance
+		if (!this.puleInstance.integration) {
+			this.completed = [];
+			// TODO maybe a warning but if you want to use PulseJS without framework this might get annoying
+			return;
+		}
+
+		// Components that has to be updated
+		const componentsToUpdate: Set<SubscriptionContainer> = new Set<SubscriptionContainer>();
+
+		// Map through completed Jobs
+		this.completed.forEach((job) =>
+			// Map through subs of the current Job State
+			job.state.dep.subs.forEach((subscriptionContainer) => {
+				// For a Container that require props to be passed
+				if (subscriptionContainer.passProps) {
+					let localKey: string | null = null;
+
+					// Find the local Key for this update by comparing the State instance from this Job to the State instances in the mappedStates object
+					for (let key in subscriptionContainer.propStates)
+						if (subscriptionContainer.propStates[key] === job.state)
+							localKey = key;
+
+					// If matching key is found push it into the SubscriptionContainer
+					if (localKey)
+						subscriptionContainer.propKeysChanged.push(localKey);
+				}
+				componentsToUpdate.add(subscriptionContainer);
+			})
+		);
+
+		// Perform Component or Callback updates
+		componentsToUpdate.forEach((subscriptionContainer) => {
+			// If Callback based subscription call the Callback Function
+			if (subscriptionContainer instanceof CallbackContainer) {
+				subscriptionContainer.callback();
+				return;
+			}
+
+			// If Component based subscription call the updateMethod which every framework has to define
+			if (this.puleInstance.integration?.updateMethod)
+				this.puleInstance.integration?.updateMethod(subscriptionContainer.component, this.formatChangedPropKeys(subscriptionContainer));
+			else
+				console.warn("Pulse: The framework which you are using doesn't provide an updateMethod so it might be possible that no rerender will be triggered");
+		});
+
+		// Log Job
+		if (this.puleInstance.config.logJobs && componentsToUpdate.size > 0)
+			console.log("Pulse: Rerendered Components ", componentsToUpdate);
+
+		// Reset completed Jobs
+		this.completed = [];
+
+		// Run any tasks for next runtime
+		this.tasksOnceComplete.forEach((task) => typeof task === 'function' && task());
+		this.tasksOnceComplete = [];
+	}
+
+	/**
+	 * @internal
+	 * Builds an object out of propKeysChanged in the SubscriptionContainer
+	 */
+	public formatChangedPropKeys(subscriptionContainer: SubscriptionContainer): { [key: string]: any } {
+		const finalObject: { [key: string]: any } = {};
+
+		// Build Object
+		subscriptionContainer.propKeysChanged.forEach(changedKey => {
+			if (subscriptionContainer.propStates)
+				finalObject[changedKey] = subscriptionContainer.propStates[changedKey].value;
+		});
+
+		return finalObject;
+	}
+
+	public getFoundState() {
+		this.trackState = false;
+		const ret = this.foundState;
+		this.foundState = new Set();
+		return ret;
+	}
+
+	public nextPulse(callback: () => any) {
+		this.tasksOnceComplete.push(callback);
+	}
 }
