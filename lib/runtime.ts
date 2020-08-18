@@ -33,13 +33,12 @@ export default class Runtime {
 	 * @internal
 	 * Creates a Job out of the State and the new Value and add it to a queue
 	 */
-	public ingest(state: State, newStateValue?: any, options: JobConfigInterface = {}): void {
+	public ingest(state: State, newStateValue?: any, options: JobConfigInterface = {perform: true}): void {
 		const job: JobInterface = {
 			state: state,
 			newStateValue: newStateValue,
 			background: options?.background
 		};
-
 
 		// grab nextState if newState not passed, compute if needed
 		if (newStateValue === undefined) {
@@ -51,6 +50,7 @@ export default class Runtime {
 					job.state.nextState;
 		}
 
+		// Push the Job to the Queue (the queue is then processed)
 		this.queue.push(job);
 
 		// Perform the Job
