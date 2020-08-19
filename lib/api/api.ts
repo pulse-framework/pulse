@@ -98,7 +98,7 @@ export default class API {
     // construct endpoint
     let path = this.config.path ? '/' + this.config.path : '';
     if (endpoint.startsWith('http')) fullUrl = endpoint;
-    else fullUrl = `${this.config.baseURL}${path}/${endpoint}`;
+    else fullUrl = `${this.config.baseURL?this.config.baseURL:''}${path}/${endpoint}`;
 
     if (config.requestIntercept) config.requestIntercept({ ...config.options, endpoint: fullUrl });
 
