@@ -1,7 +1,6 @@
 module.exports = {
-  title: 'PulseJS',
-  description:
-    'A global state and logic framework for reactive Javascript applications.',
+  title: 'Pulse Framework',
+  description: 'A global state and logic framework for reactive Javascript applications.',
   dest: 'dist',
   serviceWorker: true,
   base: '/',
@@ -10,8 +9,8 @@ module.exports = {
     logo: '/logo.svg',
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Documentation', link: '/v2/' },
-      { text: 'Changelog', link: '/v2/introduction/changelog' }
+      { text: 'Documentation', link: '/v3/introduction/what-is-pulse' },
+      { text: 'Changelog', link: '/v3/introduction/changelog' }
     ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
@@ -83,10 +82,7 @@ module.exports = {
         {
           title: 'Quick Start',
           collapsable: false,
-          children: [
-            'getting-started/setup-with-react',
-            'getting-started/setup-with-vue'
-          ]
+          children: ['getting-started/setup-with-react', 'getting-started/setup-with-vue']
         },
         {
           title: 'Documentation',
@@ -115,7 +111,72 @@ module.exports = {
           collapsable: false,
           children: ['under-the-hood/runtime']
         }
+      ],
+      '/v3/': [
+        {
+          title: 'Introduction',
+          collapsable: false,
+          children: ['introduction/what-is-pulse', 'introduction/changelog']
+        },
+        {
+          title: 'Getting Started',
+          collapsable: false,
+          children: ['getting-started/setup-with-react', 'getting-started/concepts']
+        },
+        {
+          title: 'Documentation',
+          collapsable: false,
+          children: [
+            'docs/pulse-instance',
+            'docs/state',
+            'docs/computed',
+            'docs/collections',
+            'docs/actions',
+            'docs/controllers',
+            'docs/core',
+            'docs/api'
+          ]
+        },
+        {
+          title: 'Resources',
+          collapsable: false,
+          children: ['resources/snippets', 'getting-started/style-guide', 'resources/ideas']
+        }
       ]
     }
-  }
+  },
+  plugins: [
+    ['@vuepress/back-to-top', true],
+    [
+      '@vuepress/pwa',
+      {
+        serviceWorker: true,
+        updatePopup: true
+      }
+    ],
+    ['@vuepress/medium-zoom', true],
+    [
+      '@vuepress/google-analytics',
+      {
+        ga: 'UA-128189152-1'
+      }
+    ],
+    [
+      'container',
+      {
+        type: 'vue',
+        before: '<pre class="vue-container"><code>',
+        after: '</code></pre>'
+      }
+    ],
+    [
+      'container',
+      {
+        type: 'upgrade',
+        before: (info) => `<UpgradePath title="${info}">`,
+        after: '</UpgradePath>'
+      }
+    ],
+    ['flowchart']
+  ]
 };

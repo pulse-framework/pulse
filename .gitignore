@@ -1,5 +1,5 @@
 .DS_Store
-node_modules
+node_modules/
 out
 dist
 
@@ -24,3 +24,7 @@ sync.js
 
 # Generated docs assets
 docs/dist/
+
+# Generated files from build
+lib/*.js
+lib/*.js.map
