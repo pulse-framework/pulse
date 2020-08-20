@@ -1,7 +1,7 @@
 import Pulse from '..';
 import State from '../state';
 import {ComponentContainer, SubscriptionContainer} from '../sub';
-import {normalizeDeps, getInstance} from '../utils';
+import {normalizeDeps, getPulseInstance} from '../utils';
 import Group from '../collection/group';
 
 type keyedState = {
@@ -24,9 +24,9 @@ export default {
 					if (pulseConstructor.Collection) this.Collection = pulseConstructor.Collection;
 					if (pulseConstructor.API) this.API = pulseConstructor.API;
 					if (pulseConstructor.Computed) this.Computed = pulseConstructor.Computed;
-					
+
 					if (usePulse) this.usePulse = usePulse.bind(pulseConstructor._SSOT);
-					
+
 					Object.keys(options).forEach((key, i) => {
 						this['$'+key] = pulseConstructor._SSOT['$'+key];
 					})
@@ -55,7 +55,7 @@ export default {
 };
 
 /**
- * 
+ *
  * @param deps Can either be a string or an array of strings set equal to the same of the pulse objects defined in Vue.use()
  * @param pulseInstance The pulse container to look at if you want to use a different SSOT
  */
@@ -67,14 +67,14 @@ export function usePulse(deps: Array<string|State|keyedState> | string | State, 
 		'KEYED'
 	}
 	console.log(this);
-	
+
 	let depsArray: (string | State | keyedState)[];
 	let depsArrayFinal: (State|keyedState)[] = [];
 	let depsObjFinal: any = {};
 
 	if (!Array.isArray(deps)) depsArray = [deps]
 	else depsArray = deps
-	
+
 	let type: ReturnType;
 	depsArray.forEach(dep => {
 		if (typeof dep === 'string'){
@@ -92,14 +92,14 @@ export function usePulse(deps: Array<string|State|keyedState> | string | State, 
 			}
 			if(!type) type=ReturnType.KEYED;
 		}
-		
+
 	})
-	
+
 	// let depsArray = normalizeDeps(deps as Array<State>);
 	// if (!pulseInstance) pulseInstance = getInstance(depsArray[0]);
 
-	// // The final list of states and dependancies 
-	
+	// // The final list of states and dependancies
+
 
 	// // this allows you to pass in a keyed object of States and subscribe to all  State within the first level of the object. Useful if you wish to subscribe a component to several State instances at the same time.
 	// depsArray.forEach(dep => {
@@ -115,7 +115,7 @@ export function usePulse(deps: Array<string|State|keyedState> | string | State, 
 		const Vue = pulseInstance.integration.frameworkConstructor;
 		if (!Vue) return;
 	}
-	
+
 
 	// return depsArray.map(dep => {
 	// 	if (dep instanceof State) return dep.getPublicValue();
@@ -130,14 +130,14 @@ export function usePulse(deps: Array<string|State|keyedState> | string | State, 
 	else if (type === ReturnType.KEYED) {
 		return depsArrayFinal;
 	}
-	
+
 }
 // export function usePulse(deps: Array<State | keyedState> | State, pulseInstance?: Pulse) {
 // 	console.log(this);
 // 	let depsArray = normalizeDeps(deps as Array<State>);
 // 	if (!pulseInstance) pulseInstance = getInstance(depsArray[0]);
 
-// 	// The final list of states and dependancies 
+// 	// The final list of states and dependancies
 // 	let depsArrayFinal: Array<State> = [];
 
 // 	// this allows you to pass in a keyed object of States and subscribe to all  State within the first level of the object. Useful if you wish to subscribe a component to several State instances at the same time.
