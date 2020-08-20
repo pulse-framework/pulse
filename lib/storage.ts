@@ -2,8 +2,8 @@ import Pulse, { State } from './';
 import { defineConfig } from './utils';
 
 export interface StorageConfig {
-  type?: 'custom' | 'localStorage';
-  prefix?: string;
+  type: 'custom' | 'localStorage';
+  prefix: string;
   async?: boolean;
   get?: any;
   set?: any;
@@ -11,44 +11,42 @@ export interface StorageConfig {
 }
 
 export default class Storage {
-  public isPromise: boolean = false;
-  private storageReady: boolean = false;
-  private storageType: 'localStorage' | 'custom' = 'localStorage';
-  public persistedState: Set<State> = new Set();
   public storageConfig: StorageConfig;
-  constructor(private instance: () => Pulse, storageConfig: StorageConfig = {}) {
+  private storageReady: boolean = false;
+  public persistedState: Set<State> = new Set();
+  constructor(private instance: () => Pulse, storageConfig: StorageConfig) {
     this.storageConfig = defineConfig(storageConfig, {
-      prefix: 'pulse'
+      prefix: 'pulse',
+      type: 'localStorage'
     });
 
-    if (storageConfig.async) this.isPromise = true;
+    console.log(this.storageConfig);
 
     // assume if user provided get, set or remove methods that the storage type is custom
     if (storageConfig.get || storageConfig.set || storageConfig.remove) {
-      this.storageType = 'custom';
+      this.storageConfig.type = 'custom';
     }
 
-    if (this.localStorageAvailable() && this.storageType === 'localStorage') {
+    if (this.localStorageAvailable() && this.storageConfig.type === 'localStorage') {
+      this.storageConfig.get = localStorage.getItem.bind(localStorage);
+      this.storageConfig.set = localStorage.setItem.bind(localStorage);
+      this.storageConfig.remove = localStorage.removeItem.bind(localStorage);
       this.storageReady = true;
-      storageConfig.get = localStorage.getItem.bind(localStorage);
-      storageConfig.set = localStorage.setItem.bind(localStorage);
-      storageConfig.remove = localStorage.removeItem.bind(localStorage);
     } else {
-      this.storageType = 'custom';
-
+      // fallback
+      this.storageConfig.type = 'custom';
       if (this.check(storageConfig.get) && this.check(storageConfig.set) && this.check(storageConfig.remove)) {
         this.storageReady = true;
       } else {
         this.storageReady = false;
-        // bad
       }
     }
   }
 
-  public get(key) {
+  public get(key: string) {
     if (!this.storageReady) return;
 
-    if (this.isPromise) {
+    if (this.storageConfig.async) {
       return new Promise((resolve, reject) => {
         this.storageConfig
           .get(this.getKey(key))
@@ -61,10 +59,7 @@ export default class Storage {
           .catch(reject);
       });
     } else {
-      /**
-       * @itsRems - 3/23/20
-       * Added a try catch to avoid an "unexpected error" when used outside of a Promise - There might be a better way to do this but it fixes the problem for now
-       */
+      // Added a try catch to avoid an "unexpected error" when used outside of a Promise - There might be a better way to do this but it fixes the problem for now - Rems
       try {
         return JSON.parse(this.storageConfig.get(this.getKey(key)));
       } catch (error) {
@@ -73,21 +68,21 @@ export default class Storage {
     }
   }
 
-  public set(key, value) {
+  public set(key: string, value: any) {
     if (!this.storageReady) return;
     this.storageConfig.set(this.getKey(key), JSON.stringify(value));
   }
 
-  public remove(key) {
+  public remove(key: string) {
     if (!this.storageReady) return;
     this.storageConfig.remove(this.getKey(key));
   }
 
-  private getKey(key) {
+  private getKey(key: string) {
     return `_${this.storageConfig.prefix}_${key}`;
   }
 
-  private check(func) {
+  private check(func: () => any) {
     return typeof func === 'function';
   }
 
