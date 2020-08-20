@@ -27,7 +27,9 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
 
   public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {
     if (this.deps) return this.func();
+
     this.instance().runtime.trackState = true;
+
     const computed = this.func();
     let dependents = this.instance().runtime.getFoundState();
     dependents.forEach(state => state.dep.depend(this));

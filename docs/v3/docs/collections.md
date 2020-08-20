@@ -79,7 +79,7 @@ Collections will infer the types for groups and selectors automatically from the
 
 ## Groups
 
-Groups are arrays of primary keys referencing data inside a Collection, we call this the `index`.
+Groups are arrays of primary keys referencing data inside a Collection, we call this an `index`.
 
 Groups provide a cached array of actual collection data mirroring the index. When the index is modified, the `output` will rebuild with actual collection data.
 
@@ -91,7 +91,8 @@ const MyCollection = App.Collection<DataType>()(collection => ({
 }))
 ```
 
-Groups are dependent on a Collection instance, thus the config function returns the Collection instance.
+Groups are dependent on a Collection instance, and so the config function provides the Collection instance as the first and only parameter.
+
 ::: tip Groups extend the State class
 
 Groups have all the methods and functionality State does (See [State methods](state.html)), plus additional methods listed below. The `value` of the State is the Group's index, and the additional `output` property is the cached collection data.

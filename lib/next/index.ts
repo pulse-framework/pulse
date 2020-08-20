@@ -12,15 +12,15 @@ export function preserveServerState(nextProps: { [key: string]: any }, core: { [
   };
 
   state.forEach(stateItem => {
-    if (stateItem.name && stateItem.isSet && !(stateItem instanceof Computed)) PULSE_DATA.state[stateItem.name] = stateItem._masterValue;
+    if (stateItem.name && stateItem.isSet && !(stateItem instanceof Computed)) PULSE_DATA.state[stateItem.name] = stateItem._value;
   });
 
   collections.forEach(collection => {
     const collectionData = { data: {}, groups: {} };
 
-    for (let key in collection.data) if (collection.data[key].isSet) collectionData.data[key] = collection.data[key]._masterValue;
+    for (let key in collection.data) if (collection.data[key].isSet) collectionData.data[key] = collection.data[key]._value;
 
-    for (let key in collection.groups as any) if (collection.groups[key].isSet) collectionData.groups[key] = collection.groups[key]._masterValue;
+    for (let key in collection.groups as any) if (collection.groups[key].isSet) collectionData.groups[key] = collection.groups[key]._value;
 
     PULSE_DATA.collections.push(collectionData);
   });
