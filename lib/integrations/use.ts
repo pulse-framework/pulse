@@ -80,7 +80,7 @@ function getFrameworkName(frameworkConstructor): string {
   if (frameworkConstructor.name === 'Vue') return 'vue';
 
   if (typeof frameworkConstructor === 'function') {
-    return 'vue'; // more performant than below since it's kinda annoying to contruct an instance of Vue just to check if it is Vue, but it shouldn't hurt until we add support for more frameworks.
+    return 'vue'; // more performant than below since it's kinda annoying to construct an instance of Vue just to check if it is Vue, but it shouldn't hurt until we add support for more frameworks.
     let maybeVue = new frameworkConstructor();
     if (maybeVue._isVue) return 'vue';
   }
