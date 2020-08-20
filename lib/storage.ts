@@ -20,8 +20,6 @@ export default class Storage {
       type: 'localStorage'
     });
 
-    console.log(this.storageConfig);
-
     // assume if user provided get, set or remove methods that the storage type is custom
     if (storageConfig.get || storageConfig.set || storageConfig.remove) {
       this.storageConfig.type = 'custom';
