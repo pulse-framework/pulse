@@ -55,7 +55,7 @@ export default class Pulse {
   constructor(public config: PulseConfig = defaultConfig) {
     this.subController = new SubController(this);
     this.status = new StatusTracker(() => this);
-    this.runtime = new Runtime(() => this);
+    this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, config.storage || {});
     if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
