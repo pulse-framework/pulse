@@ -1,7 +1,9 @@
 import Pulse, { State } from './';
+import { defineConfig } from './utils';
 
-export interface StorageMethods {
+export interface StorageConfig {
   type?: 'custom' | 'localStorage';
+  prefix?: string;
   async?: boolean;
   get?: any;
   set?: any;
@@ -12,32 +14,29 @@ export default class Storage {
   public isPromise: boolean = false;
   private storageReady: boolean = false;
   private storageType: 'localStorage' | 'custom' = 'localStorage';
-  private storagePrefix: string = 'pulse';
   public persistedState: Set<State> = new Set();
-  constructor(private instance: () => Pulse, private storageMethods: StorageMethods = {}) {
-    if (this.instance().config.storagePrefix)
-      this.storagePrefix = this.instance().config.storagePrefix;
+  public storageConfig: StorageConfig;
+  constructor(private instance: () => Pulse, storageConfig: StorageConfig = {}) {
+    this.storageConfig = defineConfig(storageConfig, {
+      prefix: 'pulse'
+    });
 
-    if (storageMethods.async) this.isPromise = true;
+    if (storageConfig.async) this.isPromise = true;
 
     // assume if user provided get, set or remove methods that the storage type is custom
-    if (storageMethods.get || storageMethods.set || storageMethods.remove) {
+    if (storageConfig.get || storageConfig.set || storageConfig.remove) {
       this.storageType = 'custom';
     }
 
     if (this.localStorageAvailable() && this.storageType === 'localStorage') {
       this.storageReady = true;
-      storageMethods.get = localStorage.getItem.bind(localStorage);
-      storageMethods.set = localStorage.setItem.bind(localStorage);
-      storageMethods.remove = localStorage.removeItem.bind(localStorage);
+      storageConfig.get = localStorage.getItem.bind(localStorage);
+      storageConfig.set = localStorage.setItem.bind(localStorage);
+      storageConfig.remove = localStorage.removeItem.bind(localStorage);
     } else {
       this.storageType = 'custom';
 
-      if (
-        this.check(storageMethods.get) &&
-        this.check(storageMethods.set) &&
-        this.check(storageMethods.remove)
-      ) {
+      if (this.check(storageConfig.get) && this.check(storageConfig.set) && this.check(storageConfig.remove)) {
         this.storageReady = true;
       } else {
         this.storageReady = false;
@@ -51,7 +50,7 @@ export default class Storage {
 
     if (this.isPromise) {
       return new Promise((resolve, reject) => {
-        this.storageMethods
+        this.storageConfig
           .get(this.getKey(key))
           .then(res => {
             // if result is not JSON for some reason, return it.
@@ -64,10 +63,10 @@ export default class Storage {
     } else {
       /**
        * @itsRems - 3/23/20
-       * Added a trycatch to avoid an "unexpected error" when used outside of a Promise - There might be a better way to do this but it fixes the problem for now
+       * Added a try catch to avoid an "unexpected error" when used outside of a Promise - There might be a better way to do this but it fixes the problem for now
        */
       try {
-        return JSON.parse(this.storageMethods.get(this.getKey(key)));
+        return JSON.parse(this.storageConfig.get(this.getKey(key)));
       } catch (error) {
         return undefined;
       }
@@ -76,16 +75,16 @@ export default class Storage {
 
   public set(key, value) {
     if (!this.storageReady) return;
-    this.storageMethods.set(this.getKey(key), JSON.stringify(value));
+    this.storageConfig.set(this.getKey(key), JSON.stringify(value));
   }
 
   public remove(key) {
     if (!this.storageReady) return;
-    this.storageMethods.remove(this.getKey(key));
+    this.storageConfig.remove(this.getKey(key));
   }
 
   private getKey(key) {
-    return `_${this.storagePrefix}_${key}`;
+    return `_${this.storageConfig.prefix}_${key}`;
   }
 
   private check(func) {
