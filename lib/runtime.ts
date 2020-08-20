@@ -82,7 +82,7 @@ export default class Runtime {
     // Write new value into the State
     job.state.privateWrite(job.newStateValue);
 
-    // Perform SideEffects like watcher functions
+    // Perform SideEffects such as watcher functions
     this.sideEffects(job.state);
 
     // Set Job as completed (The deps and subs of completed jobs will be updated)
@@ -95,11 +95,8 @@ export default class Runtime {
     if (this.instance().config.logJobs) console.log(`Pulse: Completed Job(${job.state.name})`, job);
 
     // Continue the Loop and perform the next job.. if no job is left update the Subscribers for each completed job
-    if (this.jobsQueue.length > 0) {
-      const performJob = this.jobsQueue.shift();
-      if (performJob) this.perform(performJob);
-      else console.warn('Pulse: Failed to perform Job ', job);
-    } else {
+    if (this.jobsQueue.length > 0) this.perform(this.jobsQueue.shift());
+    else {
       setTimeout(() => {
         // Cause rerender on Subscribers
         this.updateSubscribers();

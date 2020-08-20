@@ -1,5 +1,5 @@
 import Pulse, { State } from './';
-import { defineConfig } from './utils';
+import { defineConfig, isFunction, isAsync } from './utils';
 
 export interface StorageConfig {
   type: 'custom' | 'localStorage';
@@ -14,6 +14,7 @@ export default class Storage {
   public storageConfig: StorageConfig;
   private storageReady: boolean = false;
   public persistedState: Set<State> = new Set();
+
   constructor(private instance: () => Pulse, storageConfig: StorageConfig) {
     this.storageConfig = defineConfig(storageConfig, {
       prefix: 'pulse',
@@ -31,11 +32,14 @@ export default class Storage {
       this.storageConfig.remove = localStorage.removeItem.bind(localStorage);
       this.storageReady = true;
     } else {
-      // fallback
+      // Local storage not available, fallback to custom.
       this.storageConfig.type = 'custom';
-      if (this.check(storageConfig.get) && this.check(storageConfig.set) && this.check(storageConfig.remove)) {
+      // ensuring all required storage properties are set
+      if (isFunction(storageConfig.get) && isFunction(storageConfig.set) && isFunction(storageConfig.remove)) {
+        if (this.storageConfig.async === undefined && isAsync(storageConfig.get)) this.storageConfig.async = true;
         this.storageReady = true;
       } else {
+        console.warn('Pulse Error: Persistent storage not configured, check get, set and remove methods', storageConfig);
         this.storageReady = false;
       }
     }
@@ -78,10 +82,6 @@ export default class Storage {
 
   private getKey(key: string) {
     return `_${this.storageConfig.prefix}_${key}`;
-  }
-
-  private check(func: () => any) {
-    return typeof func === 'function';
   }
 
   private localStorageAvailable() {

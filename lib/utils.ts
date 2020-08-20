@@ -102,6 +102,14 @@ export function genId(): string {
   return Math.random().toString().split('.')[1] + Date.now();
 }
 
+export function isFunction(func: () => any) {
+  return typeof func === 'function';
+}
+
+export function isAsync(func: () => any) {
+  return func.constructor.name === 'AsyncFunction';
+}
+
 export function isWatchableObject(value) {
   function isHTMLElement(obj) {
     try {
