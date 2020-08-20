@@ -14,19 +14,18 @@ export interface JobConfigInterface {
 }
 
 export default class Runtime {
-  public puleInstance: Pulse;
-
+  public instance: () => Pulse;
+  // queue system
   public currentJob: JobInterface | null = null;
   private jobsQueue: Array<JobInterface> = [];
   private jobsToRerender: Array<JobInterface> = [];
-
   private tasksOnceComplete: Array<() => any> = [];
-
+  // used for tracking computed dependencies
   public trackState: boolean = false;
   public foundState: Set<State> = new Set();
 
   constructor(pulseInstance: Pulse) {
-    this.puleInstance = pulseInstance;
+    this.instance = () => pulseInstance;
   }
 
   /**
@@ -83,7 +82,7 @@ export default class Runtime {
     // Write new value into the State
     job.state.privateWrite(job.newStateValue);
 
-    // Perform SideEffects like watcher functions
+    // Perform SideEffects such as watcher functions
     this.sideEffects(job.state);
 
     // Set Job as completed (The deps and subs of completed jobs will be updated)
@@ -93,15 +92,11 @@ export default class Runtime {
     this.currentJob = null;
 
     // Logging
-    if (this.puleInstance.config.logJobs) console.log(`Pulse: Completed Job(${job.state.name})`, job);
+    if (this.instance().config.logJobs) console.log(`Pulse: Completed Job(${job.state.name})`, job);
 
     // Continue the Loop and perform the next job.. if no job is left update the Subscribers for each completed job
-    if (this.jobsQueue.length > 0) {
-      const performJob = this.jobsQueue.shift();
-      if (performJob) this.perform(performJob);
-      else console.warn('Pulse: Failed to perform Job ', job);
-    } else {
-      // https://stackoverflow.com/questions/9083594/call-settimeout-without-delay
+    if (this.jobsQueue.length > 0) this.perform(this.jobsQueue.shift());
+    else {
       setTimeout(() => {
         // Cause rerender on Subscribers
         this.updateSubscribers();
@@ -115,13 +110,6 @@ export default class Runtime {
    */
   private sideEffects(state: State) {
     let dep = state.dep;
-
-    // // cleanup dynamic deps
-    // dep.dynamic.forEach(state => {
-    //   state.dep.deps.delete(dep);
-    // });
-    // dep.dynamic = new Set();
-
     // this should not be used on root state class as it would be overwritten by extensions
     // this is used mainly to cause group to generate its output after changing
     if (typeof state.sideEffects === 'function') state.sideEffects();
@@ -140,7 +128,7 @@ export default class Runtime {
   private updateSubscribers(): void {
     // Check if Pulse has an integration because its useless to go trough this process without framework
     // It won't happen anything because the state has no subs.. but this check here will maybe improve the performance
-    if (!this.puleInstance.integration) {
+    if (!this.instance().integration) {
       this.jobsToRerender = [];
       // TODO maybe a warning but if you want to use PulseJS without framework this might get annoying
       return;
@@ -181,8 +169,8 @@ export default class Runtime {
       }
 
       // If Component based subscription call the updateMethod which every framework has to define
-      if (this.puleInstance.integration?.updateMethod)
-        this.puleInstance.integration?.updateMethod(subscriptionContainer.component, this.formatChangedPropKeys(subscriptionContainer));
+      if (this.instance().integration?.updateMethod)
+        this.instance().integration?.updateMethod(subscriptionContainer.component, this.formatChangedPropKeys(subscriptionContainer));
       else
         console.warn(
           "Pulse: The framework which you are using doesn't provide an updateMethod so it might be possible that no rerender will be triggered"
@@ -190,7 +178,7 @@ export default class Runtime {
     });
 
     // Log Job
-    if (this.puleInstance.config.logJobs && subscriptionsToUpdate.size > 0) console.log('Pulse: Rerendered Components ', subscriptionsToUpdate);
+    if (this.instance().config.logJobs && subscriptionsToUpdate.size > 0) console.log('Pulse: Rerendered Components ', subscriptionsToUpdate);
 
     // Reset Jobs to Rerender
     this.jobsToRerender = [];
