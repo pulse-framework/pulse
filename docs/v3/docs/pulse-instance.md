@@ -39,7 +39,7 @@ const App = new Pulse({
 
 ```ts
 interface PulseConfig {
-  storage?: StorageMethods;
+  storage?: StorageConfig;
   computedDefault?: any;
   waitForMount?: boolean;
   framework?: any;
@@ -54,7 +54,7 @@ interface PulseConfig {
 This option is for state persistence with local storage or a custom storage API such as React Native's AsyncStorage
 
 ```ts
-interface StorageMethods {
+interface StorageConfig {
   get: () => any;
   set: (key: string) => any;
   remove: (key: string) => any;

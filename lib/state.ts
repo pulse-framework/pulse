@@ -4,23 +4,23 @@ import { copy, shallowmerge } from './utils';
 import { deepmerge } from './helpers/deepmerge';
 
 export class State<ValueType = any> {
-  public _masterValue: ValueType = null;
+  public _value: ValueType = null;
   public set value(val: ValueType) {
-    this._masterValue = val;
+    this._value = val;
   }
   public get value(): ValueType {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
-    return this._masterValue;
+    return this._value;
   }
-  public output?: any;
-  public watchers: { [key: string]: any } = {};
-  public previousState: ValueType = null;
   public dep: Dep = null;
+  public output?: any;
+  public watchers?: { [key: string]: any };
+  public previousState: ValueType = null;
   public nextState: ValueType = null;
   public isSet: boolean = false; // has been changed from inital value
-  public persistState: boolean = false;
+  public persistState: boolean;
   public name?: string;
-  public valueType?: string;
+  public typeOfVal?: string;
   // sideEffects can be set by extended classes, such as Groups to build their output.
   public sideEffects?: Function;
 
@@ -28,7 +28,7 @@ export class State<ValueType = any> {
     this.set(value);
   }
   public get bind(): ValueType {
-    return this._masterValue;
+    return this._value;
   }
   public get exists(): boolean {
     return !!this.value; // is value truthey or falsey
@@ -50,11 +50,11 @@ export class State<ValueType = any> {
       return this;
     }
     // if newState is a function, run that function and supply existing value as first param
-    if (typeof newState === 'function') newState = (newState as SetFunc<ValueType>)(this._masterValue);
+    if (typeof newState === 'function') newState = (newState as SetFunc<ValueType>)(this._value);
 
     // check type if set and correct otherwise exit
-    if (this.valueType && !this.isCorrectType(newState)) {
-      console.warn(`Pulse: Error setting state: Incorrect type (${typeof newState}) was provided. Type fixed to ${this.valueType}`);
+    if (this.typeOfVal && !this.isCorrectType(newState)) {
+      console.warn(`Pulse: Error setting state: Incorrect type (${typeof newState}) was provided. Type fixed to ${this.typeOfVal}`);
       return this;
     }
 
@@ -72,11 +72,11 @@ export class State<ValueType = any> {
 
   public getPublicValue(): ValueType {
     if (this.output !== undefined) return this.output;
-    return this._masterValue;
+    return this._value;
   }
 
   public patch(targetWithChange, config: { deep?: boolean } = {}): this {
-    if (!(typeof this._masterValue === 'object')) return this;
+    if (!(typeof this._value === 'object')) return this;
 
     this.nextState = config.deep === false ? shallowmerge(this.nextState, targetWithChange) : deepmerge(this.nextState, targetWithChange);
 
@@ -99,6 +99,7 @@ export class State<ValueType = any> {
 
   // this creates a watcher that will fire a callback then destroy itself after invoking
   public onNext(callback: (value: ValueType) => void) {
+    if (!this.watchers) this.watchers = {};
     this.watchers['_on_next_'] = () => {
       callback(this.getPublicValue());
       delete this.watchers['_on_next_'];
@@ -113,12 +114,14 @@ export class State<ValueType = any> {
   public type(type: any): this {
     const supportedConstructors = ['String', 'Boolean', 'Array', 'Object', 'Number'];
     if (typeof type === 'function' && supportedConstructors.includes(type.name)) {
-      this.valueType = type.name.toLowerCase();
+      this.typeOfVal = type.name.toLowerCase();
     }
     return this;
   }
 
   public watch(key: number | string, callback: (value: any) => void): this {
+    if (!this.watchers) this.watchers = {};
+
     if (typeof key !== 'string' || typeof key !== 'number' || typeof callback !== 'function') {
       // console.error('Pulse watch, missing key or function');
     }
@@ -136,9 +139,9 @@ export class State<ValueType = any> {
   }
 
   public toggle(): this {
-    if (typeof this._masterValue === 'boolean') {
+    if (typeof this._value === 'boolean') {
       // @ts-ignore
-      this.set(!this._masterValue);
+      this.set(!this._value);
     }
     return this;
   }
@@ -161,17 +164,17 @@ export class State<ValueType = any> {
     return this.value !== x;
   }
 
-  public relate(state: State | Array<State>) {
-    if (!Array.isArray(state)) state = [state];
-    // add this to foriegn dep
-    state.forEach(state => state && state.dep.depend(this));
-    // refrence foriegn dep locally for cleanup
-    this.dep.dynamic.add(this);
-  }
+  // public relate(state: State | Array<State>) {
+  //   if (!Array.isArray(state)) state = [state];
+  //   // add this to foriegn dep
+  //   state.forEach(state => state && state.dep.depend(this));
+  //   // refrence foriegn dep locally for cleanup
+  //   this.dep.dynamic.add(this);
+  // }
 
   // INTERNAL
   public privateWrite(value: any) {
-    this._masterValue = copy(value);
+    this._value = copy(value);
     this.nextState = copy(value);
 
     if (this.persistState) this.instance().storage.set(this.name, this.getPersistableValue());
@@ -180,7 +183,7 @@ export class State<ValueType = any> {
   private isCorrectType(value): boolean {
     let type: string = typeof value;
     if (type === 'object' && Array.isArray(value)) type = 'array';
-    return type === this.valueType;
+    return type === this.typeOfVal;
   }
 
   public destroy(): void {

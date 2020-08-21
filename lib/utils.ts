@@ -57,7 +57,7 @@ export function extractAll<I extends new (...args: any) => any, O>(findClass: I,
   return found;
 }
 
-export function getInstance(state: State): Pulse {
+export function getPulseInstance(state: State): Pulse {
   try {
     if (state.instance) return state.instance();
     else return globalThis.__pulse;
@@ -100,6 +100,14 @@ export function defineConfig<C>(config: C, defaults): C {
 
 export function genId(): string {
   return Math.random().toString().split('.')[1] + Date.now();
+}
+
+export function isFunction(func: () => any) {
+  return typeof func === 'function';
+}
+
+export function isAsync(func: () => any) {
+  return func.constructor.name === 'AsyncFunction';
 }
 
 export function isWatchableObject(value) {

@@ -305,7 +305,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     for (let groupName in this.groups) {
       const group = this.getGroup(groupName);
       // if group does not contain oldKey, continue.
-      if (!group._masterValue.includes(oldKey)) continue;
+      if (!group._value.includes(oldKey)) continue;
       // replace the primaryKey at current index
       group.nextState.splice(group.nextState.indexOf(oldKey), 1, newKey);
       // ingest the group

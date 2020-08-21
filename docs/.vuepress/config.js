@@ -134,7 +134,9 @@ module.exports = {
             'docs/actions',
             'docs/controllers',
             'docs/core',
-            'docs/api'
+            'docs/api',
+            'docs/persisting-data',
+            'docs/ssr'
           ]
         },
         {
@@ -173,7 +175,7 @@ module.exports = {
       'container',
       {
         type: 'upgrade',
-        before: (info) => `<UpgradePath title="${info}">`,
+        before: info => `<UpgradePath title="${info}">`,
         after: '</UpgradePath>'
       }
     ],

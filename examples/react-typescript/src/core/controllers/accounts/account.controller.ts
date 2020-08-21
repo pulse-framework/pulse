@@ -13,6 +13,7 @@ export interface AccountBody {
 export const AccountState = {
 	LAST_ACCOUNT_ID: App.State<number>(0).persist("LAST_ACCOUNT_ID"),
 	CREDENTIALS: App.State<AuthCreds>({}).persist(),
+	JEFF: App.State<AuthCreds>({}),
 };
 // Define a Pulse Collection to store theoretical authenticated accounts
 // Pass in AccountBody type as generic "DataType"

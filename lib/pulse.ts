@@ -1,15 +1,14 @@
 import State, { StateGroup } from './state';
 import Computed from './computed';
-import Collection, { GroupObj, DefaultDataItem, SelectorObj, CollectionConfig, Config } from './collection/collection';
+import Collection, { GroupObj, DefaultDataItem, SelectorObj, Config } from './collection/collection';
 import SubController from './sub';
 import Runtime from './runtime';
-import Storage, { StorageMethods } from './storage';
+import Storage, { StorageConfig } from './storage';
 import API, { apiConfig } from './api/api';
-import Group, { GroupName, PrimaryKey } from './collection/group';
+import Group from './collection/group';
 import use, { Integration } from './integrations/use';
 import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
-import Data from './collection/data';
-import { extractAll } from './utils';
+
 import StatusTracker from './status';
 
 export interface PulseConfig {
@@ -17,8 +16,7 @@ export interface PulseConfig {
   waitForMount?: boolean;
   framework?: any;
   frameworkConstructor?: any;
-  storage?: StorageMethods;
-  storagePrefix?: string;
+  storage?: StorageConfig;
   logJobs?: boolean;
   /**
    * Typically, Pulse waits for a Core to be initialized before running any Computed functions.
@@ -55,7 +53,7 @@ export default class Pulse {
   constructor(public config: PulseConfig = defaultConfig) {
     this.subController = new SubController(this);
     this.status = new StatusTracker(() => this);
-    this.runtime = new Runtime(() => this);
+    this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, config.storage || {});
     if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
@@ -141,7 +139,7 @@ export default class Pulse {
   };
   /**
    * Reset to initial state.
-   * - Supports: State, Collections and Groupss
+   * - Supports: State, Collections and Groups
    * - Removes persisted state from storage.
    * @param Items Array of items to reset
    */
@@ -149,13 +147,13 @@ export default class Pulse {
   public nextPulse(callback: () => any): void {
     this.runtime.nextPulse(callback);
   }
-  public setStorage(storageConfig: StorageMethods): void {
+  public setStorage(storageConfig: StorageConfig): void {
     const persistedState = this.storage.persistedState;
     this.storage = new Storage(() => this, storageConfig);
     this.storage.persistedState = persistedState;
     this.storage.persistedState.forEach(state => state.persist(state.name));
   }
-  public Storage(storageConfig: StorageMethods): void {
+  public Storage(storageConfig: StorageConfig): void {
     return this.setStorage(storageConfig);
   }
 
