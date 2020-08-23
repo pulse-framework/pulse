@@ -3,7 +3,7 @@ node_modules/
 out
 dist
 
-# here you can store for example private examples
+# private stuff which shouldn't get on git (for instance examples, ..)
 private/
 
 # local env files
