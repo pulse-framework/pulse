@@ -3,6 +3,9 @@ node_modules/
 out
 dist
 
+# here you can store for example private examples
+private/
+
 # local env files
 .env.local
 .env.*.local
