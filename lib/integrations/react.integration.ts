@@ -94,28 +94,30 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
 	};
 }
 
-export function usePulse(deps: Array<State> | State, pulseInstance?: Pulse) {
-	// Normalize Dependencies
-	let depsArray = normalizeDeps(deps);
+type PulseHookArray<X> = { [K in keyof X]: X[K] extends State<infer U> ? U : never };
 
-	// Get Pulse Instance
-	if (!pulseInstance) {
-		const tempPulseInstance = getPulseInstance(depsArray[0]);
-		if (!tempPulseInstance) {
-			console.error("Pulse: Failed to get Pulse Instance");
-			return undefined;
-		}
-		pulseInstance = tempPulseInstance;
-	}
+export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, pulseInstance?: Pulse): PulseHookArray<X> {
+  // Normalize Dependencies
+  let depsArray = normalizeDeps(deps) as PulseHookArray<X>;
 
-	// Get React constructor
-	const React = pulseInstance.integration?.frameworkConstructor;
-	if (!React) {
-		console.error("Pulse: Failed to get Framework Constructor");
-		return undefined;
-	}
+  // Get Pulse Instance
+  if (!pulseInstance) {
+    const tempPulseInstance = getPulseInstance(depsArray[0]);
+    if (!tempPulseInstance) {
+      console.error('Pulse: Failed to get Pulse Instance');
+      return undefined;
+    }
+    pulseInstance = tempPulseInstance;
+  }
 
-	/* TODO depsArrayFinal doesn't get used so idk if its necessary
+  // Get React constructor
+  const React = pulseInstance.integration?.frameworkConstructor;
+  if (!React) {
+    console.error('Pulse: Failed to get Framework Constructor');
+    return undefined;
+  }
+
+  /* TODO: depsArrayFinal doesn't get used so idk if its necessary
 	let depsArrayFinal: Array<State> = [];
 	// this allows you to pass in a keyed object of States and subscribe to all  State within the first level of the object. Useful if you wish to subscribe a component to several State instances at the same time.
 	depsArray.forEach(dep => {
@@ -127,30 +129,26 @@ export function usePulse(deps: Array<State> | State, pulseInstance?: Pulse) {
 	});
 	 */
 
-	// this is a trigger state used to force the component to re-render
-	const [_, set_] = React.useState({});
+  // this is a trigger state used to force the component to re-render
+  const [_, set_] = React.useState({});
 
-	React.useEffect(function () {
-		// Create a callback base subscription, Callback invokes re-render Trigger
-		const subscriptionContainer = pulseInstance?.subController.subscribeWithSubsArray(
-			() => {
-				set_({});
-			},
-			depsArray
-		);
+  React.useEffect(function () {
+    // Create a callback base subscription, Callback invokes re-render Trigger
+    const subscriptionContainer = pulseInstance?.subController.subscribeWithSubsArray(() => {
+      set_({});
+    }, depsArray);
 
-		// Unsubscribe on Unmount
-		return () => pulseInstance?.subController.unsubscribe(subscriptionContainer);
-	}, []);
+    // Unsubscribe on Unmount
+    return () => pulseInstance?.subController.unsubscribe(subscriptionContainer);
+  }, []);
 
-	// Return Public Value of State
-	if (!Array.isArray(deps) && depsArray.length === 1)
-		return depsArray[0].getPublicValue();
+  // Return Public Value of State
+  if (!Array.isArray(deps) && depsArray.length === 1) return depsArray[0].getPublicValue();
 
-	// Return Public Value of State in Array
-	return depsArray.map(dep => {
-		return dep.getPublicValue();
-	});
+  // Return Public Value of State in Array
+  return depsArray.map(dep => {
+    return dep.getPublicValue();
+  }) as PulseHookArray<X>;
 }
 
 export default {
