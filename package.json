@@ -1,7 +1,7 @@
 {
   "name": "pulse-framework",
   "version": "3.0.0",
-  "description": "Global state and logic framework for reactive Javascript applications.",
+  "description": "Global state and logic framework for reactive JavaScript applications.",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "files": [
