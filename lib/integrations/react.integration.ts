@@ -89,9 +89,15 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
   };
 }
 
-type PulseHookArray<X> = { [K in keyof X]: X[K] extends State<infer U> ? U : never };
+type PulseHookArray<T> = { [K in keyof T]: T[K] extends State<infer U> ? U : never };
+type PulseHookResult<T> = T extends State<infer U> ? U : never;
 
-export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, pulseInstance?: Pulse): PulseHookArray<X> {
+// single-argument syntax
+export function usePulse<X extends State<any>>(deps: X, pulseInstance?: Pulse): PulseHookResult<X>;
+// array-argument syntax
+export function usePulse<X extends Array<State<any>>>(deps: X | [], pulseInstance?: Pulse): PulseHookArray<X>;
+// messy full syntax
+export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, pulseInstance?: Pulse): PulseHookArray<X> | PulseHookResult<X> {
   // Normalize Dependencies
   let depsArray = normalizeDeps(deps) as PulseHookArray<X>;
 
