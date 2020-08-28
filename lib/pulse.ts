@@ -54,7 +54,7 @@ export default class Pulse {
     this.subController = new SubController(this);
     this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
-    this.storage = new Storage(() => this, config.storage || {});
+    this.storage = new Storage(() => this, config.storage);
     if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
     if (this.config.noCore === true) this.onInstanceReady();

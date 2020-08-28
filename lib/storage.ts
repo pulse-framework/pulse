@@ -2,8 +2,8 @@ import Pulse, { State } from './';
 import { defineConfig, isFunction, isAsync } from './utils';
 
 export interface StorageConfig {
-  type: 'custom' | 'localStorage';
-  prefix: string;
+  type?: 'custom' | 'localStorage';
+  prefix?: string;
   async?: boolean;
   get?: any;
   set?: any;
@@ -15,7 +15,7 @@ export default class Storage {
   private storageReady: boolean = false;
   public persistedState: Set<State> = new Set();
 
-  constructor(private instance: () => Pulse, storageConfig: StorageConfig) {
+  constructor(private instance: () => Pulse, storageConfig: StorageConfig = {}) {
     this.storageConfig = defineConfig(storageConfig, {
       prefix: 'pulse',
       type: 'localStorage'
