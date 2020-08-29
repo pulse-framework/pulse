@@ -1,7 +1,6 @@
 module.exports = {
-  title: 'PulseJS',
-  description:
-    'A global state and logic framework for reactive Javascript applications.',
+  title: 'Pulse Framework',
+  description: 'A global state and logic framework for reactive Javascript applications.',
   dest: 'dist',
   serviceWorker: true,
   base: '/',
@@ -83,10 +82,7 @@ module.exports = {
         {
           title: 'Quick Start',
           collapsable: false,
-          children: [
-            'getting-started/setup-with-react',
-            'getting-started/setup-with-vue'
-          ]
+          children: ['getting-started/setup-with-react', 'getting-started/setup-with-vue']
         },
         {
           title: 'Documentation',
@@ -125,12 +121,28 @@ module.exports = {
         {
           title: 'Getting Started',
           collapsable: false,
-          children: ['getting-started/style-guide']
+          children: ['getting-started/setup-with-react', 'getting-started/concepts']
+        },
+        {
+          title: 'Documentation',
+          collapsable: false,
+          children: [
+            'docs/pulse-instance',
+            'docs/state',
+            'docs/computed',
+            'docs/collections',
+            'docs/actions',
+            'docs/controllers',
+            'docs/core',
+            'docs/api',
+            'docs/persisting-data',
+            'docs/ssr'
+          ]
         },
         {
           title: 'Resources',
           collapsable: false,
-          children: ['resources/snippets']
+          children: ['resources/snippets', 'getting-started/style-guide', 'resources/ideas']
         }
       ]
     }

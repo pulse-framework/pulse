@@ -6,9 +6,7 @@ function isSpecial(value) {
   var stringValue = Object.prototype.toString.call(value);
 
   return (
-    stringValue === '[object RegExp]' ||
-    stringValue === '[object Date]' ||
-    isReactElement(value)
+    stringValue === '[object RegExp]' || stringValue === '[object Date]' || isReactElement(value)
   );
 }
 
@@ -72,8 +70,7 @@ function propertyIsUnsafe(target, key) {
   return (
     propertyIsOnObject(target, key) && // Properties are safe to merge if they don't exist in the target yet,
     !(
-      Object.hasOwnProperty.call(target, key) && // unsafe if they exist up the prototype chain,
-      Object.propertyIsEnumerable.call(target, key)
+      Object.hasOwnProperty.call(target, key) && Object.propertyIsEnumerable.call(target, key) // unsafe if they exist up the prototype chain,
     )
   ); // and also unsafe if they're nonenumerable.
 }
@@ -90,15 +87,8 @@ function mergeObject(target, source, options) {
       return;
     }
 
-    if (
-      propertyIsOnObject(target, key) &&
-      options.isMergeableObject(source[key])
-    ) {
-      destination[key] = getMergeFunction(key, options)(
-        target[key],
-        source[key],
-        options
-      );
+    if (propertyIsOnObject(target, key) && options.isMergeableObject(source[key])) {
+      destination[key] = getMergeFunction(key, options)(target[key], source[key], options);
     } else {
       destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
     }
@@ -109,8 +99,7 @@ function mergeObject(target, source, options) {
 export function deepmerge(target, source, options?) {
   options = options || {};
   options.arrayMerge = options.arrayMerge || defaultArrayMerge;
-  options.isMergeableObject =
-    options.isMergeableObject || defaultIsMergeableObject;
+  options.isMergeableObject = options.isMergeableObject || defaultIsMergeableObject;
   // cloneUnlessOtherwiseSpecified is added to `options` so that custom arrayMerge()
   // implementations can use it. The caller may not replace it.
   options.cloneUnlessOtherwiseSpecified = cloneUnlessOtherwiseSpecified;

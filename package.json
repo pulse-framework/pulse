@@ -3,14 +3,21 @@
   "version": "3.0.0",
   "description": "Global state and logic framework for reactive Javascript applications.",
   "main": "dist/index.js",
-  "module": "dist/index.esm.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist",
+    "package.json",
+    "LICENCE"
+  ],
   "scripts": {
-    "test": "mocha --exit",
-    "test-debug": "mocha --inspect-brk",
+    "test": "mocha -r ts-node/register --exit test/**/*.spec.ts",
+    "test-debug": "mocha -r ts-node/register --inspect-brk test/**/*.spec.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
     "dev": "tsc-watch",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
-    "now-build": "npm run docs:build"
+    "now-build": "yarn run docs:build"
   },
   "types": "./dist/index.d.ts",
   "author": "Jamie Pine",
@@ -21,19 +28,20 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.4",
-    "@babel/plugin-transform-runtime": "^7.4.4",
-    "@babel/preset-env": "^7.3.4",
+    "@babel/core": "^7.11.0",
+    "@babel/plugin-transform-runtime": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^8.0.2",
     "babel-eslint": "^10.0.1",
     "chai": "^4.2.0",
-    "deepmerge": "^4.2.2",
-    "eslint-config-prettier": "^4.0.0",
-    "jest": "^24.7.1",
-    "mocha": "^6.2.0",
-    "prettier": "1.16.3",
+    "eslint-config-prettier": "^6.11.0",
+    "mocha": "^8.1.1",
+    "prettier": "2.0.5",
+    "ts-node": "^8.10.2",
     "tsc-watch": "^4.1.0",
-    "tslib": "^1.10.0",
-    "typescript": "^3.5.3",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.7",
     "vuepress": "^1.0.2"
   }
 }

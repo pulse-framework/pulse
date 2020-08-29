@@ -1,38 +1,91 @@
 import State, { StateGroup } from './state';
-import deepmerge from 'deepmerge';
 import Computed from './computed';
-import Collection from './collection/collection';
+import Collection, { GroupObj, DefaultDataItem, SelectorObj, Config } from './collection/collection';
 import SubController from './sub';
 import Runtime from './runtime';
-import Storage from './storage';
+import Storage, { StorageConfig } from './storage';
 import API, { apiConfig } from './api/api';
 import Group from './collection/group';
-import use, { Intergration } from './intergrations/use';
+import use, { Integration } from './integrations/use';
+import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
+
+import StatusTracker from './status';
+
 export interface PulseConfig {
-  storagePrefix?: string;
   computedDefault?: any;
   waitForMount?: boolean;
   framework?: any;
   frameworkConstructor?: any;
-  storage?: {};
+  storage?: StorageConfig;
+  logJobs?: boolean;
+  /**
+   * Typically, Pulse waits for a Core to be initialized before running any Computed functions.
+   * Set this `true` to bypass that functionality, and always do an initial computation.
+   */
+  noCore?: boolean;
+}
+
+export const defaultConfig: PulseConfig = {
+  noCore: false
+};
+
+interface ErrorObject {
+  code: number; // if the error was because of a request, this will be the request error code
+  message: string;
+  action: Function; // reference to action in which the error occurred
+  raw: any; // The raw error
 }
 
 export default class Pulse {
+  public ready: boolean = false;
   public runtime: Runtime;
+  public status: StatusTracker;
   public storage: Storage;
+  public controllers: { [key: string]: any } = {};
   public subController: SubController;
-  public intergration: Intergration = null;
-  constructor(public config: PulseConfig) {
+  public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
+  public integration: Integration = null;
+
+  // Context reference
+  private computed: Set<Computed> = new Set();
+  private core: { [key: string]: any } = {};
+
+  constructor(public config: PulseConfig = defaultConfig) {
     this.subController = new SubController(this);
+    this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
-    this.storage = new Storage(this, config.storage || {});
-    this.initFrameworkIntergration(config.framework);
+    this.storage = new Storage(() => this, config.storage || {});
+    if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
-    deepmerge({}, {});
+    if (this.config.noCore === true) this.onInstanceReady();
   }
-  public initFrameworkIntergration(frameworkConstructor) {
+
+  public initFrameworkIntegration(frameworkConstructor) {
     use(frameworkConstructor, this);
   }
+
+  public Controller = <S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj>(
+    config: Partial<ControllerConfig<S, C, A, H, R>>,
+    spreadToRoot?: any
+  ): Controller<S, C, A, H, R> => {
+    return new Controller<S, C, A, H, R>(config, spreadToRoot);
+  };
+
+  public Core = <CoreType>(core?: CoreType): CoreType => {
+    if (!this.ready && core) this.onInstanceReady(core);
+    return this.core as CoreType;
+  };
+
+  private onInstanceReady(core?: { [key: string]: any }) {
+    this.ready = true;
+
+    if (core)
+      // Copy core object structure without destorying this.core object reference
+      for (let p in core) this.core[p] = core[p];
+
+    this.computed.forEach(instance => instance.recompute());
+  }
+
   /**
    * Create Pulse API
    * @param config Object
@@ -45,7 +98,7 @@ export default class Pulse {
    * Create Pulse state
    * @param initialState Any - the value to initialze a State instance with
    */
-  public State = (initialState: any) => new State(() => this, initialState);
+  public State = <T>(initial: T) => new State<T>(() => this, initial);
   /**
    * Create many Pulse states at the same time
    * @param stateGroup Object with keys as state name and values as initial state
@@ -56,15 +109,34 @@ export default class Pulse {
    * @param deps Array - An array of state items to depend on
    * @param func Function - A function where the return value is the state, ran every time a dep changes
    */
-  public Computed = (func: Function, deps?: Array<any>) =>
-    new Computed(() => this, func, deps);
+  public Computed = <T = any>(func: () => any, deps?: Array<any>) => {
+    const computed = new Computed<T>(() => this, func, deps);
+    this.computed.add(computed);
+    return computed;
+  };
+
+  public onError(handler: (error: ErrorObject) => void) {}
+  public Error(error: any, code?: string) {}
+
+  public Action(func: Function) {
+    return () => {
+      const returnValue = func();
+
+      return returnValue;
+    };
+  }
+
   /**
-   * Create a Pulse collection
-   * @param config object
-   * @param config.primaryKey The primary key for the collection.
-   * @param config.groups Define groups for this collection.
+   * Create a Pulse collection with automatic type inferring
+   * @param config object | function returning object
+   * @param config.primaryKey string - The primary key for the collection.
+   * @param config.groups object - Define groups for this collection.
    */
-  public Collection = (config: any) => new Collection(() => this, config);
+  public Collection = <DataType = DefaultDataItem>() => {
+    return <G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) => {
+      return new Collection<DataType, G, S>(() => this, config);
+    };
+  };
   /**
    * Reset to initial state.
    * - Supports: State, Collections and Groups
@@ -72,6 +144,18 @@ export default class Pulse {
    * @param Items Array of items to reset
    */
   public reset(items: Array<State | Group | Collection>): void {}
+  public nextPulse(callback: () => any): void {
+    this.runtime.nextPulse(callback);
+  }
+  public setStorage(storageConfig: StorageConfig): void {
+    const persistedState = this.storage.persistedState;
+    this.storage = new Storage(() => this, storageConfig);
+    this.storage.persistedState = persistedState;
+    this.storage.persistedState.forEach(state => state.persist(state.name));
+  }
+  public Storage(storageConfig: StorageConfig): void {
+    return this.setStorage(storageConfig);
+  }
 
   /**
    * Global refrence to the first pulse instance created this runtime
@@ -87,20 +171,5 @@ export default class Pulse {
 
 // Handy utils
 export function persist(items: Array<State>): void {
-  items.forEach(item => item.persist(item.storageKey));
+  items.forEach(item => item.persist(item.name));
 }
-
-type Ojb = { [key: string]: any };
-
-export function SSR(instance: () => Pulse, tree: Ojb): Ojb {
-  let pulse = instance();
-
-  return;
-}
-
-// SSR
-//  1. Detect if Node & Next
-//  2. Save each State to globalThis.__NEXT_DATA__.__PULSE_DATA__
-//  3. Increment globalThis.__NEXT_DATA__.__PULSE_DATA__.stateKey
-
-// 3. If not NODE load state

@@ -1,13 +1,32 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "jsx": "preserve",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "target": "es5",
+    "rootDir": "lib",
     "declaration": true,
-    "outDir": "./dist"
+    "target": "ES2016",
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "skipLibCheck": true
+    // Old config, some of this might be needed?
+    // "jsx": "preserve",
+    // "esModuleInterop": true,
+    // "sourceMap": true,
+    // //lol
+    // "allowUnreachableCode": false,
+    // "noFallthroughCasesInSwitch": true,
+    // "allowSyntheticDefaultImports": true,
+    // "downlevelIteration": true,
+    // "forceConsistentCasingInFileNames": true,
+    // "noImplicitReturns": true,
+    // "noImplicitThis": true,
+    // "noUnusedLocals": false,
+    // "skipLibCheck": true, // IMPORTANT (true)
+    // "strictNullChecks": false,
+    // "strict": true,
+    // "pretty": true,
+    // "suppressImplicitAnyIndexErrors": true
   },
-  "include": ["./lib/**/*"]
+  "include": ["./lib/**/*", "next"],
+  "exclude": ["dist", "node_modules"]
 }

@@ -1,30 +1,59 @@
-import Pulse from './';
-import { State } from './';
+import State, { reset, SetFunc } from './state';
+import Pulse from './pulse';
+import Dep from './dep';
 
-export class Computed extends State {
-  private func: Function;
-  private cleanup: Set<State> = new Set();
-  constructor(instance: () => Pulse, func: Function, deps?: Array<State>) {
+export class Computed<ComputedValueType = any> extends State<ComputedValueType> {
+  // private cleanup: Set<State> = new Set();
+  public set value(val: ComputedValueType) {
+    console.error('Error: Can not mutate Computed value, please use recompute()');
+  }
+
+  public get value(): ComputedValueType {
+    return super.value;
+  }
+
+  public set bind(val: ComputedValueType) {
+    console.error('Error: Can not bind Computed value');
+  }
+
+  constructor(public instance: () => Pulse, public func: () => ComputedValueType, public deps?: Array<State>) {
     super(instance, instance().config.computedDefault || null);
 
-    this.func = func;
+    if (deps) deps.forEach(state => state.dep.depend(this));
 
-    if (deps) deps.forEach(state => state.dep.deps.add(this));
+    // if Core will not be used, compute immediately
+    if (instance().config.noCore === true) this.recompute();
+  }
 
-    this.mutation = () => {
-      if (deps) return this.func();
-      else {
-        this.instance().runtime.trackState = true;
-        let result = this.func();
-        let found = this.instance().runtime.getFoundState();
-        found.forEach(state => state.dep.deps.add(this));
-        return result;
-      }
-    };
+  public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {
+    if (this.deps) return this.func();
 
-    // initial
-    const output = this.mutation();
-    this.set(output);
+    this.instance().runtime.trackState = true;
+
+    const computed = this.func();
+    let dependents = this.instance().runtime.getFoundState();
+    dependents.forEach(state => state.dep.depend(this));
+    return computed;
+  }
+
+  public recompute(): void {
+    this.set(this.computeValue());
+  }
+
+  public reset() {
+    reset(this);
+    this.recompute();
+    return this;
+  }
+
+  public patch() {
+    throw 'Error, can not use patch method on Computed since the value is dynamic.';
+    return this;
+  }
+
+  public persist(key?: string): this {
+    console.error('Computed state can not be persisted, remove call to .persist()', key);
+    return this;
   }
 }
 

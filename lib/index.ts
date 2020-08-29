@@ -1,12 +1,17 @@
+import Pulse from './pulse';
+
 export * from './state';
 export * from './computed';
 export * from './collection/collection';
+export * from './collection/group';
 export * from './pulse';
+export { Controller } from './controller';
 
-export { usePulse } from './intergrations/react.intergration';
+export type PrimaryKey = string | number;
 
-export { cleanState, resetState } from './utils';
-
-import Pulse from './pulse';
+export { usePulse } from './integrations/react.integration';
+export { PulseResponse } from './api/api';
+export { PulseHOC } from './integrations/react.integration';
+export { cleanState, resetState, extractAll } from './utils';
 
 export default Pulse;
