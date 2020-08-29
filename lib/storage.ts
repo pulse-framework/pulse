@@ -48,25 +48,25 @@ export default class Storage {
 
   public get(key: string) {
     if (!this.storageReady) return;
-    try {
-      if (this.storageConfig.async) {
-        return new Promise((resolve, reject) => {
-          this.storageConfig
-            .get(this.getKey(key))
-            .then(res => {
-              // if result is not JSON for some reason, return it.
-              if (typeof res !== 'string') return resolve(res);
+    if (this.storageConfig.async) {
+      return new Promise((resolve, reject) => {
+        this.storageConfig
+          .get(this.getKey(key))
+          .then(res => {
+            // if result is not JSON for some reason, return it.
+            if (typeof res !== 'string') return resolve(res);
 
-              resolve(JSON.parse(res));
-            })
-            .catch(reject);
-        });
-      } else {
+            resolve(JSON.parse(res));
+          })
+          .catch(reject);
+      });
+    } else {
+      try {
         return JSON.parse(this.storageConfig.get(this.getKey(key)));
+      } catch (error) {
+        console.warn('Pulse: Failed to get local storage value', error);
+        return undefined;
       }
-    } catch (error) {
-      console.warn('Pulse: Failed to get local storage value', error);
-      return undefined;
     }
   }
 
