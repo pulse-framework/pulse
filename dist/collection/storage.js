@@ -20,9 +20,10 @@ class CollectionStorage {
             prefix: 'pulseDB',
             type: 'indexedDB'
         });
-        this.execute(() => {
-            this.storageReady = true;
-        });
+        if (window && typeof window !== undefined)
+            this.execute(() => {
+                this.storageReady = true;
+            });
     }
     getAll(collection) {
         return __awaiter(this, void 0, void 0, function* () {

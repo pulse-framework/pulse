@@ -75,6 +75,7 @@ class Pulse {
         this.subController = new sub_1.default(this);
         this.status = new status_1.default(() => this);
         this.runtime = new runtime_1.default(this);
+        //@ts-ignore
         this.storage = new storage_1.default(() => this, config.storage || {});
         this.collectionStorage = new storage_2.default(config.collectionStorage);
         if (config.framework)
