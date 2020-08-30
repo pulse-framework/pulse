@@ -23,7 +23,7 @@ export default class CollectionStorage {
       prefix: 'pulseDB',
       type: 'indexedDB'
     });
-    this.execute(() => {
+    if (window && typeof window !== undefined) this.execute(() => {
       this.storageReady = true;
     });
   }
