@@ -53,7 +53,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
 		// Check if _value is an array if not something went wrong because a group is always an array
 		if (!Array.isArray(this._value)) {
-			console.error("Agile: A group state has to be an array!");
+			console.error("Pulse: A group state has to be an array!");
 			return;
 		}
 
@@ -81,7 +81,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
 		// Log not found primaryKeys
 		if (this.notFoundPrimaryKeys.length > 0 && this.instance().config.logJobs)
-			console.warn(`Agile: Couldn't find states with the primary keys in group '${this.key}'`, this.notFoundPrimaryKeys);
+			console.warn(`Pulse: Couldn't find states with the primary keys in group '${this.key}'`, this.notFoundPrimaryKeys);
 
 		// @ts-ignore
 		this._states = finalStates;

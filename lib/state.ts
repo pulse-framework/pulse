@@ -78,7 +78,7 @@ export class State<ValueType = any> {
   public patch(targetWithChange, config: { deep?: boolean } = {}): this {
 		// Check if state is object.. because only objects can use the patch method
 		if (!isWatchableObject(this.nextState)) {
-			console.error("Agile: You can't use the patch method an a non object state!");
+			console.error("Pulse: You can't use the patch method an a non object state!");
 			return this;
 		}
 
