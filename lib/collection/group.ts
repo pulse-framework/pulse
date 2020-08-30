@@ -1,8 +1,6 @@
-import Dep from '../dep';
 import Pulse from '../pulse';
 import State from '../state';
-import Collection, { DefaultDataItem, GroupObj } from './collection';
-import Computed from '../computed';
+import Collection, { DefaultDataItem } from './collection';
 import { defineConfig } from '../utils';
 
 export type PrimaryKey = string | number;
@@ -11,17 +9,29 @@ export type Index = Array<PrimaryKey>;
 export type InstanceContext = (() => Collection) | (() => Pulse);
 
 export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> {
-  _masterOutput: Array<DataType> = [];
-  missingPrimaryKeys: Array<PrimaryKey> = [];
+	_output: Array<DataType> = [];
+	_states: Array<State<DataType>> = []; // States of the Group
+	notFoundPrimaryKeys: Array<PrimaryKey> = [];
   computedFunc?: (data: DataType) => DataType;
   collection: () => Collection<DataType>;
   public get index(): Array<PrimaryKey> {
     return this.value;
   }
-  public get output(): Array<DataType> {
-    if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
-    return this._masterOutput;
-  }
+	public get output(): Array<DataType> {
+		// Add state(group) to foundState (for auto tracking used states in computed functions)
+		if (this.instance().runtime.trackState)
+			this.instance().runtime.foundStates.add(this);
+
+		return this._output;
+	}
+
+	public get states(): Array<State<DataType>> {
+		// Add state(group) to foundState (for auto tracking used states in computed functions)
+		if (this.instance().runtime.trackState)
+			this.instance().runtime.foundStates.add(this);
+
+		return this._states;
+	}
 
   constructor(context: InstanceContext, initialIndex?: Array<PrimaryKey>, config: { name?: string } = {}) {
     // This invokes the parent class with either the collection or the Pulse instance as context
@@ -39,32 +49,43 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     this.build();
   }
   public build() {
-    this.missingPrimaryKeys = [];
-    if (!Array.isArray(this._value)) return [];
-    let group = this._value
-      .map(primaryKey => {
-        let data = this.collection().data[primaryKey];
-        if (!data) {
-          this.missingPrimaryKeys.push(primaryKey);
-          return undefined;
-        }
-        // on each data item in this group, run compute
-        if (this.computedFunc) {
-          let dataComputed = this.computedFunc(data.copy());
-          return dataComputed;
-          // use collection level computed func if local does not exist
-        } else if (this.collection().computedFunc) {
-          let dataComputed = this.collection().computedFunc(data.copy());
-          return dataComputed;
-        }
+		this.notFoundPrimaryKeys = [];
 
-        return data.getPublicValue();
-      })
-      .filter(item => item !== undefined);
+		// Check if _value is an array if not something went wrong because a group is always an array
+		if (!Array.isArray(this._value)) {
+			console.error("Agile: A group state has to be an array!");
+			return;
+		}
 
-    // this.dep.dynamic.forEach(state => state.dep.depend(this));
-    //@ts-ignore
-    this._masterOutput = group;
+		// Map though group _value (collectionKey array) and get their state from collection
+		const finalStates = this._value
+			.map((primaryKey) => {
+				// Get collection data at the primaryKey position
+				let data = this.collection().data[primaryKey];
+
+				// If no data found add this key to missing PrimaryKeys
+				if (!data) {
+					this.notFoundPrimaryKeys.push(primaryKey);
+					return;
+				}
+
+				return data as State<DataType>;
+			}).filter(item => item !== undefined);
+
+		// Map though found States and return their publicValue
+		const finalOutput = finalStates
+			.map((state) => {
+				// @ts-ignore
+				return state.getPublicValue();
+			});
+
+		// Log not found primaryKeys
+		if (this.notFoundPrimaryKeys.length > 0 && this.instance().config.logJobs)
+			console.warn(`Agile: Couldn't find states with the primary keys in group '${this.key}'`, this.notFoundPrimaryKeys);
+
+		// @ts-ignore
+		this._states = finalStates;
+		this._output = finalOutput;
   }
 
   public has(primaryKey: PrimaryKey) {
