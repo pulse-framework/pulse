@@ -1,6 +1,6 @@
 import Dep from './dep';
 import Pulse from './pulse';
-import { copy, shallowmerge } from './utils';
+import { copy, isWatchableObject, shallowmerge } from './utils';
 import { deepmerge } from './helpers/deepmerge';
 
 export class State<ValueType = any> {
@@ -9,7 +9,7 @@ export class State<ValueType = any> {
     this._value = val;
   }
   public get value(): ValueType {
-    if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
+    if (this.instance().runtime.trackState) this.instance().runtime.foundStates.add(this);
     return this._value;
   }
   public dep: Dep = null;
@@ -76,11 +76,21 @@ export class State<ValueType = any> {
   }
 
   public patch(targetWithChange, config: { deep?: boolean } = {}): this {
-    if (!(typeof this._value === 'object')) return this;
+		// Check if state is object.. because only objects can use the patch method
+		if (!isWatchableObject(this.nextState)) {
+			console.error("Agile: You can't use the patch method an a non object state!");
+			return this;
+		}
 
     this.nextState = config.deep === false ? shallowmerge(this.nextState, targetWithChange) : deepmerge(this.nextState, targetWithChange);
 
+		// Check if something has changed
+		if (this.value === this.nextState)
+			return this;
+
+		// Set State to nextState
     this.set();
+
     return this;
   }
 
