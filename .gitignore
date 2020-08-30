@@ -25,7 +25,6 @@ private/
 *.sw*
 
 # Generated files from build
-dist/
 docs/dist/
 
 # Just in case (things we probably don't need here anymore)

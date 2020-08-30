@@ -17,8 +17,7 @@
     "dev": "tsc-watch",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
-    "now-build": "yarn run docs:build",
-    "postinstall": "tsc"
+    "now-build": "yarn run docs:build"
   },
   "types": "./dist/index.d.ts",
   "author": "Jamie Pine",
