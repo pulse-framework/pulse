@@ -22,7 +22,7 @@ export default class Runtime {
   private tasksOnceComplete: Array<() => any> = [];
   // used for tracking computed dependencies
   public trackState: boolean = false;
-  public foundState: Set<State> = new Set();
+  public foundStates: Set<State> = new Set();
 
   constructor(pulseInstance: Pulse) {
     this.instance = () => pulseInstance;
@@ -205,8 +205,8 @@ export default class Runtime {
 
   public getFoundState() {
     this.trackState = false;
-    const ret = this.foundState;
-    this.foundState = new Set();
+    const ret = this.foundStates;
+    this.foundStates = new Set();
     return ret;
   }
 
