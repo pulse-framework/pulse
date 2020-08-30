@@ -141,6 +141,10 @@ export default class Runtime {
     this.jobsToRerender.forEach(job =>
       // Map through subs of the current Job State
       job.state.dep.subs.forEach(subscriptionContainer => {
+        const instance = this.instance();
+        instance.collectionStorage.collections.forEach((collection) => {
+          instance.collectionStorage.storeAll(collection);
+        })
         // Check if subscriptionContainer is ready
         if (!subscriptionContainer.ready) console.warn("Pulse: SubscriptionContainer isn't ready yet ", subscriptionContainer);
 

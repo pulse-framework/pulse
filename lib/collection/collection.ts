@@ -27,6 +27,7 @@ export interface CollectionConfig<G, S> {
   name?: string;
   primaryKey?: string | number;
   indexAll?: boolean;
+  persistData?: boolean;
 }
 
 // An optional type defining config as either an object, or an objext that returns a function
@@ -325,6 +326,17 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     this.size = 0;
     const groups = Object.keys(this.groups);
     groups.forEach(groupName => this.groups[groupName].reset());
+  }
+
+  /**
+   * Persist
+   * @param name The internal name of your collection - must be unique.
+   */
+  public persist(name: string) {
+    this.config.name = name;
+    this.config.persistData = true;
+    this.instance().collectionStorage.collections.push(this);
+    this.instance().collectionStorage.getAll(this);
   }
 }
 

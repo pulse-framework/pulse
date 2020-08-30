@@ -10,6 +10,7 @@ import use, { Integration } from './integrations/use';
 import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
 
 import StatusTracker from './status';
+import CollectionStorage, { CollectionStorageConfig } from './collection/storage';
 
 export interface PulseConfig {
   computedDefault?: any;
@@ -17,6 +18,7 @@ export interface PulseConfig {
   framework?: any;
   frameworkConstructor?: any;
   storage?: StorageConfig;
+  collectionStorage?: CollectionStorageConfig;
   logJobs?: boolean;
   /**
    * Typically, Pulse waits for a Core to be initialized before running any Computed functions.
@@ -41,6 +43,7 @@ export default class Pulse {
   public runtime: Runtime;
   public status: StatusTracker;
   public storage: Storage;
+  public collectionStorage: CollectionStorage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
   public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
@@ -55,6 +58,7 @@ export default class Pulse {
     this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, config.storage || {});
+    this.collectionStorage = new CollectionStorage(config.collectionStorage);
     if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
     if (this.config.noCore === true) this.onInstanceReady();
