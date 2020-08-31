@@ -41,7 +41,7 @@ export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = Sele
     persistValue(this, key);
     return this;
   }
-  protected getPersistableValue() {
+  public getPersistableValue() {
     return this.id;
   }
 }
@@ -50,7 +50,7 @@ function findData<DataType, G, S>(collection: Collection<DataType, G, S>, key: P
   let data = collection.getValueById(key);
   // if data is not found, create placeholder data, so that when real data is collected it maintains connection
   if (!data) {
-    // this could be improved by storing temp refrences outside data object in collection
+    // this could be improved by storing temp references outside data object in collection
     collection.data[key] = new Data<DataType>(() => collection, { id: key } as any);
     data = collection.getValueById(key);
   }

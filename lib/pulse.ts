@@ -54,7 +54,7 @@ export default class Pulse {
     this.subController = new SubController(this);
     this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
-    this.storage = new Storage(() => this, config.storage || {});
+    this.storage = new Storage(() => this, config.storage);
     if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
     if (this.config.noCore === true) this.onInstanceReady();
@@ -80,7 +80,7 @@ export default class Pulse {
     this.ready = true;
 
     if (core)
-      // Copy core object structure without destorying this.core object reference
+      // Copy core object structure without destroying this.core object reference
       for (let p in core) this.core[p] = core[p];
 
     this.computed.forEach(instance => instance.recompute());
@@ -96,7 +96,7 @@ export default class Pulse {
   public API = (config: apiConfig) => new API(config);
   /**
    * Create Pulse state
-   * @param initialState Any - the value to initialze a State instance with
+   * @param initialState Any - the value to initialize a State instance with
    */
   public State = <T>(initial: T) => new State<T>(() => this, initial);
   /**
@@ -158,7 +158,7 @@ export default class Pulse {
   }
 
   /**
-   * Global refrence to the first pulse instance created this runtime
+   * Global reference to the first pulse instance created this runtime
    */
   private globalBind() {
     try {
