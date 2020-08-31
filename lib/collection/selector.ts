@@ -52,6 +52,9 @@ function findData<DataType, G, S>(collection: Collection<DataType, G, S>, key: P
     // this could be improved by storing temp refrences outside data object in collection
     collection.data[key] = new Data<DataType>(() => collection, { id: key } as any);
     data = collection.findById(key).value;
+  } else {
+    // If we have a computed function, run it before returning the data.
+    data = collection.computedFunc ? collection.computedFunc(data) : data;
   }
   return data;
 }
