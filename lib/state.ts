@@ -2,6 +2,7 @@ import Dep from './dep';
 import Pulse from './pulse';
 import { copy, shallowmerge } from './utils';
 import { deepmerge } from './helpers/deepmerge';
+import { persistValue } from './storage';
 
 export class State<ValueType = any> {
   public _value: ValueType = null;
@@ -17,7 +18,7 @@ export class State<ValueType = any> {
   public watchers?: { [key: string]: any };
   public previousState: ValueType = null;
   public nextState: ValueType = null;
-  public isSet: boolean = false; // has been changed from inital value
+  public isSet: boolean = false; // has been changed from initial value
   public persistState: boolean;
   public name?: string;
   public typeOfVal?: string;
@@ -34,9 +35,9 @@ export class State<ValueType = any> {
     return !!this.value; // is value truthey or falsey
   }
 
-  constructor(public instance: () => Pulse, public initalState, deps: Array<Dep> = []) {
+  constructor(public instance: () => Pulse, public initialState, deps: Array<Dep> = []) {
     this.dep = new Dep(deps);
-    this.privateWrite(initalState);
+    this.privateWrite(initialState);
   }
 
   /**
@@ -93,7 +94,7 @@ export class State<ValueType = any> {
 
   public persist(key?: string): this {
     this.persistState = true;
-    persistValue.bind(this)(key);
+    persistValue(this, key);
     return this;
   }
 
@@ -164,14 +165,6 @@ export class State<ValueType = any> {
     return this.value !== x;
   }
 
-  // public relate(state: State | Array<State>) {
-  //   if (!Array.isArray(state)) state = [state];
-  //   // add this to foriegn dep
-  //   state.forEach(state => state && state.dep.depend(this));
-  //   // refrence foriegn dep locally for cleanup
-  //   this.dep.dynamic.add(this);
-  // }
-
   // INTERNAL
   public privateWrite(value: any) {
     this._value = copy(value);
@@ -191,7 +184,7 @@ export class State<ValueType = any> {
     this.dep.subs.clear();
   }
 
-  protected getPersistableValue(): any {
+  public getPersistableValue(): any {
     return this.value;
   }
 }
@@ -199,6 +192,7 @@ export class State<ValueType = any> {
 export type StateGroupDefault = {
   [key: string]: State | any;
 };
+
 export const StateGroup = (instance: () => Pulse, stateGroup: Object): any => {
   let group: any = {};
   for (let name in stateGroup) {
@@ -212,33 +206,8 @@ export default State;
 export function reset(instance: State) {
   instance.isSet = false;
   instance.previousState = null;
-  instance.privateWrite(instance.initalState);
+  instance.privateWrite(instance.initialState);
   if (instance.persistState) instance.instance().storage.remove(instance.name);
 }
 
 export type SetFunc<ValueType> = (state: ValueType) => ValueType;
-
-// this function exists outside the state class so it can be imported into other classes such as selector for custom persist logic
-export function persistValue(key: string) {
-  // validation
-  if (!key && this.name) {
-    key = this.name;
-  } else if (!key) {
-    console.warn('Pulse Persist Error: No key provided');
-  } else {
-    this.name = key;
-  }
-  const storage = this.instance().storage;
-  // add ref to this instance inside storage
-  storage.persistedState.add(this);
-
-  // handle the value
-  const handle = (storageVal: any) => {
-    if (storageVal === null) storage.set(this.name, this.getPersistableValue());
-    else if (typeof this.select === 'function') this.select(storageVal);
-    else this.instance().runtime.ingest(this, storageVal);
-  };
-  // Check if promise, then handle value
-  if (storage.isPromise) storage.get(this.name).then(handle);
-  else handle(storage.get(this.name));
-}

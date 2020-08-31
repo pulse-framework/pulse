@@ -147,14 +147,14 @@ export default class Pulse {
   public nextPulse(callback: () => any): void {
     this.runtime.nextPulse(callback);
   }
-  public setStorage(storageConfig: StorageConfig): void {
+  public setStorage(config: StorageConfig): void {
     const persistedState = this.storage.persistedState;
-    this.storage = new Storage(() => this, storageConfig);
+    this.storage = new Storage(() => this, config);
     this.storage.persistedState = persistedState;
     this.storage.persistedState.forEach(state => state.persist(state.name));
   }
-  public Storage(storageConfig: StorageConfig): void {
-    return this.setStorage(storageConfig);
+  public Storage(config: StorageConfig): void {
+    return this.setStorage(config);
   }
 
   /**

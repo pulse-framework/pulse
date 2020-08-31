@@ -3,7 +3,7 @@ import State from '../state';
 import { PrimaryKey } from './group';
 import Computed from '../computed';
 import Pulse from '../pulse';
-import { persistValue } from '../state';
+import { persistValue } from '../storage';
 import Data from './data';
 
 export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = SelectorObj> extends Computed<DataType> {
@@ -34,10 +34,11 @@ export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = Sele
   public select(key: PrimaryKey) {
     this.id = key;
   }
+  // custom override for the State persist function
   public persist(key?: string) {
     if (!this.name && key) this.name = key;
     this.persistState = true;
-    persistValue.bind(this)(key);
+    persistValue(this, key);
     return this;
   }
   protected getPersistableValue() {
