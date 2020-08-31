@@ -22,7 +22,7 @@ export default class Storage {
     });
 
     // assume if user provided get, set or remove methods that the storage type is custom
-    if (config.get || config.set || config.remove) {
+    if (this.config.get || this.config.set || this.config.remove) {
       this.config.type = 'custom';
     }
 
@@ -35,12 +35,12 @@ export default class Storage {
       // Local storage not available, fallback to custom.
       this.config.type = 'custom';
       // ensuring all required storage properties are set
-      if (isFunction(config.get) && isFunction(config.set) && isFunction(config.remove)) {
+      if (isFunction(this.config.get) && isFunction(this.config.set) && isFunction(this.config.remove)) {
         // if asynchronous and developer did not explicitly define so, check
-        if (this.config.async === undefined && isAsync(config.get)) this.config.async = true;
+        if (this.config.async === undefined && isAsync(this.config.get)) this.config.async = true;
         this.storageReady = true;
       } else {
-        console.warn('Pulse Error: Persistent storage not configured, check get, set and remove methods', config);
+        console.warn('Pulse Error: Persistent storage not configured, check get, set and remove methods', this.config);
         this.storageReady = false;
       }
     }
