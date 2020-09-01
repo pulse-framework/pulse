@@ -46,12 +46,15 @@ export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = Sele
 }
 
 function findData<DataType, G, S>(collection: Collection<DataType, G, S>, key: PrimaryKey) {
-  let data = collection.getValueById(key);
+  let data = collection.findById(key).value;
   // if data is not found, create placeholder data, so that when real data is collected it maintains connection
   if (!data) {
-    // this could be improved by storing temp refrences outside data object in collection
+    // this could be improved by storing temp references outside data object in collection
     collection.data[key] = new Data<DataType>(() => collection, { id: key } as any);
-    data = collection.getValueById(key);
+    data = collection.findById(key).value;
+  } else {
+    // If we have a computed function, run it before returning the data.
+    data = collection.computedFunc ? collection.computedFunc(data) : data;
   }
   return data;
 }
