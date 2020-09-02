@@ -153,8 +153,8 @@ export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, puls
   }) as PulseHookArray<X>;
 }
 
-/// useEvent helper for using Events inside React components as hooks
-export function useEvent(event: Event, callback: EventCallbackFunc, pulseInstance?: Pulse) {
+// useEvent helper for using Events inside React components as hooks
+export function useEvent<E extends Event>(event: E, callback: EventCallbackFunc<E['config']['payload']>, pulseInstance?: Pulse) {
   // get the instance of Pulse
   if (!pulseInstance) pulseInstance = event.instance();
   // get React integration

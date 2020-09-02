@@ -138,14 +138,14 @@ export default class Pulse {
   /**
    * Create a Pulse Event
    */
-  public Event<P = EventPayload>(config: EventConfig<P>) {
+  public Event<P = EventPayload>(config?: EventConfig<P>) {
     return new Event(() => this, config);
   }
 
   /**
    * Create multiple Pulse Events simultaneously while maintaining type safety
    */
-  public EventGroup<E extends EventsObjFunc>(eventsFunc: E): ReturnType<E> {
+  public EventGroup<E extends EventsObjFunc>(eventsFunc?: E): ReturnType<E> {
     // invoke the EventsObjFunc and pass in the CreateEventFunc
     const eventObj = eventsFunc(config => new Event(() => this, config));
     // assign name from key if undefined in EventConfig
