@@ -14,7 +14,7 @@ export interface EventConfig<P = EventPayload> {
   payload?: P;
   name?: string;
   maxSubs?: number;
-  destroyAfterUses?: number;
+  disableAfterUses?: number;
   enabled?: boolean;
 }
 // Event class
@@ -26,7 +26,7 @@ export class Event<P = EventPayload> {
 
   constructor(public instance: () => Pulse, public config: EventConfig<P>) {
     // initiate uses state if applicable
-    if (config.destroyAfterUses) this.uses = 0;
+    if (config.disableAfterUses) this.uses = 0;
   }
   // register subscribers
   public on(callback: EventCallbackFunc<P>): () => void {
@@ -37,8 +37,8 @@ export class Event<P = EventPayload> {
     if (this.config.maxSubs !== undefined && this.callbacks.size <= this.config.maxSubs) return cleanupFunc;
 
     // if destroy after uses is truthy and the uses is less than or equal the destroy amount
-    if (this.config.destroyAfterUses && this.uses > this.config.destroyAfterUses) {
-      this.destroy();
+    if (this.config.disableAfterUses && this.uses > this.config.disableAfterUses) {
+      this.disable();
       return cleanupFunc;
     }
     // add the callback to Event callback set and return cleanup function
@@ -57,5 +57,7 @@ export class Event<P = EventPayload> {
   public unsub(callback: EventCallbackFunc<P>) {
     this.callbacks.delete(callback);
   }
-  public destroy() {}
+  public disable() {
+    this.config.enabled = false;
+  }
 }
