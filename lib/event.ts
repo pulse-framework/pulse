@@ -2,11 +2,11 @@ import Pulse from './pulse';
 
 // default event payload
 export type EventPayload = { [key: string]: any };
-// type for the callback an event should receive
+// type of the callback an event should receive
 export type EventCallbackFunc<P = EventPayload> = (payload: P) => void;
 // type of the function used as an alias to create an event instance, with a generic for the payload type
 export type CreateEventFunc = <P = EventPayload>(config?: EventConfig<P>) => Event<P>;
-// type of the function expected to init an Event many events
+// type of the function expected to init many events
 export type EventsObjFunc = (createEventFunc: CreateEventFunc) => { [key: string]: Event };
 
 // Configuration for event constructor
@@ -59,25 +59,3 @@ export class Event<P = EventPayload> {
   }
   public destroy() {}
 }
-
-// USAGE EXAMPLES
-// // Create many Events at once with EventGroup
-// const events = EventGroup(Event => ({
-//   POST_MODAL_OPEN: Event<{ param: string }>({ maxSubs: 20 }),
-//   NO_PAYLOAD: Event({})
-// }));
-
-// events.POST_MODAL_OPEN.emit({ param: 'jeff' });
-// events.POST_MODAL_OPEN.emit();
-
-// // payload defaults are type inferred
-// Event<{ hello: 'world' }>({ name: 'POST_MODAL_OPEN' });
-
-// // Call an event
-// events.POST_MODAL_OPEN.emit({ param: 'jeff' });
-
-// // subscribe to event in component
-// useEvent(events.POST_MODAL_OPEN, () => {});
-
-// // subscribe to event in the core
-// events.POST_MODAL_OPEN.on(() => {});
