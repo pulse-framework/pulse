@@ -136,6 +136,7 @@ module.exports = {
             'docs/core',
             'docs/api',
             'docs/persisting-data',
+            'docs/events',
             'docs/ssr'
           ]
         },

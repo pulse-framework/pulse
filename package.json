@@ -14,6 +14,7 @@
     "test-debug": "mocha -r ts-node/register --inspect-brk test/**/*.spec.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
+    "minify": "uglifyjs --compress --mangle --output ./pulse.min.js -- ./dist/index.js",
     "dev": "tsc-watch",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
@@ -46,6 +47,7 @@
     "tsc-watch": "^4.1.0",
     "tslib": "^2.0.0",
     "typescript": "^3.9.7",
+    "uglify-js": "^3.10.3",
     "vuepress": "^1.0.2"
   }
 }

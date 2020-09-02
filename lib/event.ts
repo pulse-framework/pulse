@@ -11,22 +11,29 @@ export type EventsObjFunc = (createEventFunc: CreateEventFunc) => { [key: string
 
 // Configuration for event constructor
 export interface EventConfig<P = EventPayload> {
-  payload?: P;
   name?: string;
   maxSubs?: number;
-  disableAfterUses?: number;
   enabled?: boolean;
+  disableAfterUses?: number;
+  throttle?: number;
+  queue?: boolean;
 }
 // Event class
 export class Event<P = EventPayload> {
   // store the callbacks as a set of functions
-  private callbacks: Set<EventCallbackFunc<P>>;
+  private callbacks: Set<EventCallbackFunc<P>> = new Set();
   // store the amount of uses for this event, undefined by default unless set in config
   private uses: number;
+  private currentTimeout: any | number;
+  //
+  private queue: Array<P>;
+  // should never be defined, but holds reference to the Payload type for useEvent to read
+  public payload: P;
 
-  constructor(public instance: () => Pulse, public config: EventConfig<P>) {
+  constructor(public instance: () => Pulse, public config: EventConfig<P> = {}) {
     // initiate uses state if applicable
     if (config.disableAfterUses) this.uses = 0;
+    if (config.queue) this.queue = [];
   }
   // register subscribers
   public on(callback: EventCallbackFunc<P>): () => void {
@@ -46,18 +53,52 @@ export class Event<P = EventPayload> {
     return cleanupFunc;
   }
   // run all the callbacks in this event and pass the payload
-  public emit(payload?: P) {
+  public emit(payload?: P): void {
     // if Event is disabled block emitting
     if (this.config.enabled !== undefined && !this.config.enabled) return;
+
+    if (this.config.throttle) {
+      this.handleThrottle(payload);
+    } else {
+      this.emitter(payload);
+    }
+  }
+  public disable(): void {
+    this.config.enabled = false;
+  }
+  // Private functions
+  private emitter(payload: P) {
     // foreach callback, invoke the saved function
     this.callbacks.forEach(callback => callback(payload));
     // increment the uses if
     if (this.uses !== undefined) this.uses++;
   }
-  public unsub(callback: EventCallbackFunc<P>) {
+  private unsub(callback: EventCallbackFunc<P>): void {
     this.callbacks.delete(callback);
   }
-  public disable() {
-    this.config.enabled = false;
+  private handleThrottle(payload: P): void {
+    const throttling = this.currentTimeout !== undefined;
+    // throttling with a queue? push to queue and reset timeout
+    if (throttling && this.queue) {
+      this.queue.push(payload);
+      clearTimeout(this.currentTimeout);
+      this.currentTimeout = undefined;
+    }
+    // throttling without a queue? exit
+    else if (throttling) return;
+    // throttle is not running, begin timeout chain
+    else {
+      const looper = (payload: P) => {
+        this.currentTimeout = setTimeout(() => {
+          this.currentTimeout = undefined;
+          // emit the event with passed in payload
+          this.emitter(payload);
+          // if using the queue grab the next payload from the queue and loop back with a new timer
+          if (this.queue && this.queue.length > 0) looper(this.queue.shift());
+        }, this.config.throttle);
+      };
+      looper(payload);
+    }
+    return;
   }
 }
