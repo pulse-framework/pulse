@@ -2,6 +2,7 @@ import Pulse from '..';
 import State from '../state';
 import { SubscriptionContainer } from '../sub';
 import { normalizeDeps, getPulseInstance } from '../utils';
+import { Event, EventPayload, EventConfig, EventCallbackFunc } from '../event';
 
 export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: string]: State } | State, pulseInstance?: Pulse) {
   let depsArray: Array<State>;
@@ -150,6 +151,16 @@ export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, puls
   return depsArray.map(dep => {
     return dep.getPublicValue();
   }) as PulseHookArray<X>;
+}
+
+/// useEvent helper for using Events inside React components as hooks
+export function useEvent(event: Event, callback: EventCallbackFunc, pulseInstance?: Pulse) {
+  if (!pulseInstance) pulseInstance = event.instance();
+  const React = pulseInstance.integration?.frameworkConstructor;
+  React.useEffect(() => {
+    const unsub = event.on(callback);
+    return () => unsub();
+  });
 }
 
 export default {

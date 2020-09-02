@@ -2,8 +2,8 @@ import Pulse, { State } from './';
 import { defineConfig, isFunction, isAsync } from './utils';
 
 export interface StorageConfig {
-  type: 'custom' | 'localStorage';
-  prefix: string;
+  type?: 'custom' | 'localStorage';
+  prefix?: string;
   async?: boolean;
   get?: any;
   set?: any;
@@ -27,9 +27,9 @@ export default class Storage {
     }
 
     if (this.localStorageAvailable() && this.config.type === 'localStorage') {
-      this.config.get = localStorage.getItem.bind(localStorage);
-      this.config.set = localStorage.setItem.bind(localStorage);
-      this.config.remove = localStorage.removeItem.bind(localStorage);
+      this.config.get = window.localStorage.getItem.bind(window.localStorage);
+      this.config.set = window.localStorage.setItem.bind(window.localStorage);
+      this.config.remove = window.localStorage.removeItem.bind(window.localStorage);
       this.storageReady = true;
     } else {
       // Local storage not available, fallback to custom.
@@ -85,8 +85,8 @@ export default class Storage {
 
   private localStorageAvailable() {
     try {
-      localStorage.setItem('_', '_');
-      localStorage.removeItem('_');
+      window.localStorage.setItem('_', '_');
+      window.localStorage.removeItem('_');
       return true;
     } catch (e) {
       return false;

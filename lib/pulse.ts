@@ -10,6 +10,7 @@ import use, { Integration } from './integrations/use';
 import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
 
 import StatusTracker from './status';
+import { Event, EventPayload, EventConfig, EventsObjFunc } from './event';
 
 export interface PulseConfig {
   computedDefault?: any;
@@ -60,20 +61,16 @@ export default class Pulse {
     if (this.config.noCore === true) this.onInstanceReady();
   }
 
-  public initFrameworkIntegration(frameworkConstructor) {
-    use(frameworkConstructor, this);
-  }
+  public Core = <CoreType>(core?: CoreType): CoreType => {
+    if (!this.ready && core) this.onInstanceReady(core);
+    return this.core as CoreType;
+  };
 
   public Controller = <S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj>(
     config: Partial<ControllerConfig<S, C, A, H, R>>,
     spreadToRoot?: any
   ): Controller<S, C, A, H, R> => {
     return new Controller<S, C, A, H, R>(config, spreadToRoot);
-  };
-
-  public Core = <CoreType>(core?: CoreType): CoreType => {
-    if (!this.ready && core) this.onInstanceReady(core);
-    return this.core as CoreType;
   };
 
   private onInstanceReady(core?: { [key: string]: any }) {
@@ -137,6 +134,23 @@ export default class Pulse {
       return new Collection<DataType, G, S>(() => this, config);
     };
   };
+
+  public Event<P = EventPayload>(config: EventConfig<P>) {
+    return new Event(() => this, config);
+  }
+
+  // Event grouping function to create many events simultaneously while maintaining type safety.
+  public EventGroup<E extends EventsObjFunc>(eventsFunc: E): ReturnType<E> {
+    // invoke the EventsObjFunc and pass in the CreateEventFunc
+    const eventObj = eventsFunc(config => new Event(() => this, config));
+    // return the object and cast return value
+    return eventObj as ReturnType<E>;
+  }
+
+  public Storage(config: StorageConfig): void {
+    return this.setStorage(config);
+  }
+
   /**
    * Reset to initial state.
    * - Supports: State, Collections and Groups
@@ -147,16 +161,17 @@ export default class Pulse {
   public nextPulse(callback: () => any): void {
     this.runtime.nextPulse(callback);
   }
+
+  // INTERNAL FUNCTIONS
+  public initFrameworkIntegration(frameworkConstructor) {
+    use(frameworkConstructor, this);
+  }
   public setStorage(config: StorageConfig): void {
     const persistedState = this.storage.persistedState;
     this.storage = new Storage(() => this, config);
     this.storage.persistedState = persistedState;
     this.storage.persistedState.forEach(state => state.persist(state.name));
   }
-  public Storage(config: StorageConfig): void {
-    return this.setStorage(config);
-  }
-
   /**
    * Global reference to the first pulse instance created this runtime
    */
