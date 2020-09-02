@@ -27,9 +27,11 @@ export default class Storage {
     }
 
     if (this.localStorageAvailable() && this.config.type === 'localStorage') {
+
       this.config.get = window.localStorage.getItem.bind(window.localStorage);
       this.config.set = window.localStorage.setItem.bind(window.localStorage);
       this.config.remove = window.localStorage.removeItem.bind(window.localStorage);
+
       this.storageReady = true;
     } else {
       // Local storage not available, fallback to custom.
@@ -40,7 +42,7 @@ export default class Storage {
         if (this.config.async === undefined && isAsync(this.config.get)) this.config.async = true;
         this.storageReady = true;
       } else {
-        console.warn('Pulse Error: Persistent storage not configured, check get, set and remove methods', this.config);
+        // console.warn('Pulse Error: Persistent storage not configured, check get, set and remove methods', this.config);
         this.storageReady = false;
       }
     }

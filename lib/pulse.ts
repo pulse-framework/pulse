@@ -193,12 +193,14 @@ export default class Pulse {
   public initFrameworkIntegration(frameworkConstructor) {
     use(frameworkConstructor, this);
   }
+
   public setStorage(config: StorageConfig): void {
     const persistedState = this.storage.persistedState;
     this.storage = new Storage(() => this, config);
     this.storage.persistedState = persistedState;
     this.storage.persistedState.forEach(state => state.persist(state.name));
   }
+
   /**
    * Global reference to the first pulse instance created this runtime
    */
