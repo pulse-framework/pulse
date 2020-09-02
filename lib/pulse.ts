@@ -143,6 +143,8 @@ export default class Pulse {
   public EventGroup<E extends EventsObjFunc>(eventsFunc: E): ReturnType<E> {
     // invoke the EventsObjFunc and pass in the CreateEventFunc
     const eventObj = eventsFunc(config => new Event(() => this, config));
+    // assign name from key if undefined in EventConfig
+    for (const eventName in eventObj) if (!eventObj[eventName].config.name) eventObj[eventName].config.name = eventName;
     // return the object and cast return value
     return eventObj as ReturnType<E>;
   }

@@ -6,7 +6,7 @@ export type EventPayload = { [key: string]: any };
 export type EventCallbackFunc<P = EventPayload> = (payload: P) => void;
 // type of the function used as an alias to create an event instance, with a generic for the payload type
 export type CreateEventFunc = <P = EventPayload>(config: EventConfig<P>) => Event<P>;
-// type of the function expected used to init an Event
+// type of the function expected to init an Event many events
 export type EventsObjFunc = (createEventFunc: CreateEventFunc) => { [key: string]: Event };
 
 // Configuration for event constructor
