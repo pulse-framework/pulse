@@ -135,11 +135,16 @@ export default class Pulse {
     };
   };
 
+  /**
+   * Create a Pulse Event
+   */
   public Event<P = EventPayload>(config: EventConfig<P>) {
     return new Event(() => this, config);
   }
 
-  // Event grouping function to create many events simultaneously while maintaining type safety.
+  /**
+   * Create multiple Pulse Events simultaneously while maintaining type safety
+   */
   public EventGroup<E extends EventsObjFunc>(eventsFunc: E): ReturnType<E> {
     // invoke the EventsObjFunc and pass in the CreateEventFunc
     const eventObj = eventsFunc(config => new Event(() => this, config));
