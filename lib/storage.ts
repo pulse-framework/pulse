@@ -27,9 +27,11 @@ export default class Storage {
     }
 
     if (this.localStorageAvailable() && this.config.type === 'localStorage') {
-      this.config.get = localStorage.getItem.bind(localStorage);
-      this.config.set = localStorage.setItem.bind(localStorage);
-      this.config.remove = localStorage.removeItem.bind(localStorage);
+
+      this.config.get = window.localStorage.getItem.bind(window.localStorage);
+      this.config.set = window.localStorage.setItem.bind(window.localStorage);
+      this.config.remove = window.localStorage.removeItem.bind(window.localStorage);
+
       this.storageReady = true;
     } else {
       // Local storage not available, fallback to custom.
@@ -63,8 +65,7 @@ export default class Storage {
     } else {
       try {
         return JSON.parse(this.config.get(this.getKey(key)));
-      } catch (error) {
-        console.warn('Pulse: Failed to get local storage value', error);
+      } catch (e) {
         return undefined;
       }
     }
@@ -86,11 +87,40 @@ export default class Storage {
 
   private localStorageAvailable() {
     try {
-      localStorage.setItem('_', '_');
-      localStorage.removeItem('_');
+      window.localStorage.setItem('_', '_');
+      window.localStorage.removeItem('_');
       return true;
     } catch (e) {
       return false;
     }
   }
+}
+
+// used by State and Selector to persist value inside storage
+export function persistValue(state: State, key: string) {
+  const storage = state.instance().storage;
+  // validation
+  if (!key && state.name) {
+    key = state.name;
+  } else if (!key) {
+    console.warn('Pulse Persist Error: No key provided');
+  } else {
+    state.name = key;
+  }
+  // add ref to state instance inside storage
+  storage.persistedState.add(state);
+
+  // handle the value
+  const handle = (storageVal: any) => {
+    // if no storage value found, set current value in storage
+    if (storageVal === null) storage.set(state.name, state.getPersistableValue());
+    // if Selector, select current storage value
+    else if (typeof state['select'] === 'function' && (typeof storageVal === 'string' || typeof storageVal === 'number')) state['select'](storageVal);
+    // otherwise just ingest the storage value so that the State updates
+    else state.instance().runtime.ingest(state, storageVal);
+  };
+  // Check if promise, then handle value
+  if (storage.config.async) storage.get(state.name).then((value: any) => handle(value));
+  // non promise
+  else handle(storage.get(state.name));
 }
