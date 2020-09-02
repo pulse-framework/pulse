@@ -54,7 +54,7 @@ export default class Pulse {
     this.subController = new SubController(this);
     this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
-    this.storage = new Storage(() => this, config.storage || {});
+    this.storage = new Storage(() => this, config.storage);
     if (config.framework) this.initFrameworkIntegration(config.framework);
     this.globalBind();
     if (this.config.noCore === true) this.onInstanceReady();
@@ -80,7 +80,7 @@ export default class Pulse {
     this.ready = true;
 
     if (core)
-      // Copy core object structure without destorying this.core object reference
+      // Copy core object structure without destroying this.core object reference
       for (let p in core) this.core[p] = core[p];
 
     this.computed.forEach(instance => instance.recompute());
@@ -147,14 +147,14 @@ export default class Pulse {
   public nextPulse(callback: () => any): void {
     this.runtime.nextPulse(callback);
   }
-  public setStorage(storageConfig: StorageConfig): void {
+  public setStorage(config: StorageConfig): void {
     const persistedState = this.storage.persistedState;
-    this.storage = new Storage(() => this, storageConfig);
+    this.storage = new Storage(() => this, config);
     this.storage.persistedState = persistedState;
     this.storage.persistedState.forEach(state => state.persist(state.name));
   }
-  public Storage(storageConfig: StorageConfig): void {
-    return this.setStorage(storageConfig);
+  public Storage(config: StorageConfig): void {
+    return this.setStorage(config);
   }
 
   /**
