@@ -36,7 +36,7 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
 
     this.applyKeys();
   }
-  private applyKeys() {
+  private applyKeys(): void {
     for (const name in this.state)
       if (name && this.state[name] instanceof State) {
         const state: any = this.state[name];

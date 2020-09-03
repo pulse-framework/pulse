@@ -20,18 +20,13 @@ export default class Storage {
       prefix: 'pulse',
       type: 'localStorage'
     });
-
     // assume if user provided get, set or remove methods that the storage type is custom
-    if (this.config.get || this.config.set || this.config.remove) {
-      this.config.type = 'custom';
-    }
+    if (this.config.get || this.config.set || this.config.remove) this.config.type = 'custom';
 
-    if (this.localStorageAvailable() && this.config.type === 'localStorage') {
-
-      this.config.get = window.localStorage.getItem.bind(window.localStorage);
-      this.config.set = window.localStorage.setItem.bind(window.localStorage);
-      this.config.remove = window.localStorage.removeItem.bind(window.localStorage);
-
+    const ls = this.getLocalStorage();
+    if (this.config.type === 'localStorage' && ls) {
+      // assign localStorage crud functions to config object
+      ['get', 'set', 'remove'].forEach(type => (this.config[type] = ls[`${type}Item`].bind(ls)));
       this.storageReady = true;
     } else {
       // Local storage not available, fallback to custom.
@@ -57,7 +52,6 @@ export default class Storage {
           .then(res => {
             // if result is not JSON for some reason, return it.
             if (typeof res !== 'string') return resolve(res);
-
             resolve(JSON.parse(res));
           })
           .catch(reject);
@@ -85,12 +79,13 @@ export default class Storage {
     return `_${this.config.prefix}_${key}`;
   }
 
-  private localStorageAvailable() {
+  private getLocalStorage() {
     try {
-      window.localStorage.setItem('_', '_');
-      window.localStorage.removeItem('_');
-      return true;
+      const ls = window?.localStorage ? window.localStorage : localStorage;
+      if (typeof ls.getItem !== 'function') return false;
+      return ls;
     } catch (e) {
+      console.log(e);
       return false;
     }
   }
@@ -103,7 +98,8 @@ export function persistValue(state: State, key: string) {
   if (!key && state.name) {
     key = state.name;
   } else if (!key) {
-    console.warn('Pulse Persist Error: No key provided');
+    return;
+    // console.warn('Pulse Persist Error: No key provided');
   } else {
     state.name = key;
   }

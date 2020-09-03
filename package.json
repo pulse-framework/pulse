@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "test": "mocha -r ts-node/register --require jsdom-global/register --exit test/**/*.spec.ts",
-    "test-debug": "mocha -r ts-node/register --inspect-brk test/**/*.spec.ts",
+    "test-debug": "mocha -r ts-node/register --require jsdom-global/register --inspect-brk test/**/*.spec.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "minify": "uglifyjs --compress --mangle --output ./pulse.min.js -- ./dist/index.js",

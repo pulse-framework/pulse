@@ -36,7 +36,6 @@ export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = Sele
   }
   // custom override for the State persist function
   public persist(key?: string) {
-    if (!this.name && key) this.name = key;
     this.persistState = true;
     persistValue(this, key);
     return this;

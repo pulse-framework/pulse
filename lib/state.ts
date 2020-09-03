@@ -108,6 +108,8 @@ export class State<ValueType = any> {
   }
 
   public key(key: string): this {
+    // if persist was attempted before, but no key was provided retry persist function
+    if (!this.name && this.persistState) this.persist(key);
     this.name = key;
     return this;
   }
