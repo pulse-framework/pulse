@@ -1,6 +1,5 @@
-import Pulse, { State, Computed } from './';
+import { Pulse, State, Computed, CallbackContainer, SubscriptionContainer } from './internal';
 import { copy } from './utils';
-import { CallbackContainer, SubscriptionContainer } from './sub';
 
 export interface JobInterface {
   state: State;
@@ -13,7 +12,7 @@ export interface JobConfigInterface {
   background?: boolean;
 }
 
-export default class Runtime {
+export class Runtime {
   public instance: () => Pulse;
   // queue system
   public currentJob: JobInterface | null = null;
@@ -214,3 +213,5 @@ export default class Runtime {
     this.tasksOnceComplete.push(callback);
   }
 }
+
+export default Runtime;

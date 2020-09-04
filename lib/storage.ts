@@ -1,5 +1,5 @@
-import Pulse, { State } from './';
-import { defineConfig, isFunction, isAsync } from './utils';
+import { Pulse, State } from './internal';
+import { defineConfig, isAsync } from './utils';
 
 export interface StorageConfig {
   type?: 'custom' | 'localStorage';
@@ -10,7 +10,7 @@ export interface StorageConfig {
   remove?: any;
 }
 
-export default class Storage {
+export class Storage {
   public config: StorageConfig;
   private storageReady: boolean = false;
   public persistedState: Set<State> = new Set();
@@ -78,6 +78,37 @@ export default class Storage {
   private getKey(key: string) {
     return `_${this.config.prefix}_${key}`;
   }
+  // used by State and Selector to persist value inside storage
+
+  public handleStatePersist(state: State, key: string) {
+    const storage = this;
+    // validation
+    if (!key && state.name) {
+      key = state.name;
+    } else if (!key) {
+      return;
+      // console.warn('Pulse Persist Error: No key provided');
+    } else {
+      state.name = key;
+    }
+    // add ref to state instance inside storage
+    storage.persistedState.add(state);
+
+    // handle the value
+    const handle = (storageVal: any) => {
+      // if no storage value found, set current value in storage
+      if (storageVal === null) storage.set(state.name, state.getPersistableValue());
+      // if Selector, select current storage value
+      else if (typeof state['select'] === 'function' && (typeof storageVal === 'string' || typeof storageVal === 'number'))
+        state['select'](storageVal);
+      // otherwise just ingest the storage value so that the State updates
+      else state.instance().runtime.ingest(state, storageVal);
+    };
+    // Check if promise, then handle value
+    if (storage.config.async) storage.get(state.name).then((value: any) => handle(value));
+    // non promise
+    else handle(storage.get(state.name));
+  }
 
   private getLocalStorage() {
     try {
@@ -85,38 +116,13 @@ export default class Storage {
       if (typeof ls.getItem !== 'function') return false;
       return ls;
     } catch (e) {
-      console.log(e);
       return false;
     }
   }
 }
 
-// used by State and Selector to persist value inside storage
-export function persistValue(state: State, key: string) {
-  const storage = state.instance().storage;
-  // validation
-  if (!key && state.name) {
-    key = state.name;
-  } else if (!key) {
-    return;
-    // console.warn('Pulse Persist Error: No key provided');
-  } else {
-    state.name = key;
-  }
-  // add ref to state instance inside storage
-  storage.persistedState.add(state);
-
-  // handle the value
-  const handle = (storageVal: any) => {
-    // if no storage value found, set current value in storage
-    if (storageVal === null) storage.set(state.name, state.getPersistableValue());
-    // if Selector, select current storage value
-    else if (typeof state['select'] === 'function' && (typeof storageVal === 'string' || typeof storageVal === 'number')) state['select'](storageVal);
-    // otherwise just ingest the storage value so that the State updates
-    else state.instance().runtime.ingest(state, storageVal);
-  };
-  // Check if promise, then handle value
-  if (storage.config.async) storage.get(state.name).then((value: any) => handle(value));
-  // non promise
-  else handle(storage.get(state.name));
+function isFunction(func: () => any) {
+  return typeof func === 'function';
 }
+
+export default Storage;

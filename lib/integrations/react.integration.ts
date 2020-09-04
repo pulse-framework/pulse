@@ -1,8 +1,5 @@
-import Pulse from '..';
-import State from '../state';
-import { SubscriptionContainer } from '../sub';
+import { Pulse, State, Event, EventCallbackFunc, SubscriptionContainer } from '../internal';
 import { normalizeDeps, getPulseInstance } from '../utils';
-import { Event, EventPayload, EventConfig, EventCallbackFunc } from '../event';
 
 export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: string]: State } | State, pulseInstance?: Pulse) {
   let depsArray: Array<State>;

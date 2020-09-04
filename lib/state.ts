@@ -1,8 +1,6 @@
-import Dep from './dep';
-import Pulse from './pulse';
+import { Pulse, Dep } from './internal';
 import { copy, shallowmerge } from './utils';
 import { deepmerge } from './helpers/deepmerge';
-import { persistValue } from './storage';
 
 export class State<ValueType = any> {
   public _value: ValueType = null;
@@ -94,7 +92,7 @@ export class State<ValueType = any> {
 
   public persist(key?: string): this {
     this.persistState = true;
-    persistValue(this, key);
+    this.instance().storage.handleStatePersist(this, key);
     return this;
   }
 
@@ -203,6 +201,7 @@ export const StateGroup = (instance: () => Pulse, stateGroup: Object): any => {
   }
   return group;
 };
+
 export default State;
 
 export function reset(instance: State) {

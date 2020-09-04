@@ -1,6 +1,4 @@
-import { State } from './state';
-import Collection from './collection';
-import Computed from './computed';
+import { Collection, State, Computed, Event } from './internal';
 
 export type StateObj = { [key: string]: State | Computed };
 export type FuncObj = { [key: string]: () => any };
@@ -19,6 +17,8 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
 
   public state: this['config']['state'];
   public collection: this['config']['collection'];
+  // public groups: this['config']['collection']['groups'];
+  // public selectors: this['config']['collection']['selectors'];
   public actions: this['config']['actions'];
   public helpers: this['config']['helpers'];
   public routes: this['config']['routes'];
@@ -34,6 +34,11 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
       this[sectionName] = this.config[sectionName];
     }
 
+    // if (this.config.collection instanceof Collection) {
+    //   this.groups = this.config.collection.groups;
+    //   this.selectors = this.config.collection.selectors;
+    // }
+
     this.applyKeys();
   }
   private applyKeys(): void {
@@ -41,6 +46,9 @@ export class Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, 
       if (name && this.state[name] instanceof State) {
         const state: any = this.state[name];
         if (!state.name) state.key(name);
+      } else if (name && this.state[name] instanceof Event) {
+        const event: any = this.state[name];
+        if (!event.config.name) event.config.name = name;
       }
   }
 }

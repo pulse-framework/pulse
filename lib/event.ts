@@ -1,4 +1,4 @@
-import Pulse from './pulse';
+import { Pulse } from './internal';
 
 // default event payload
 export type EventPayload = { [key: string]: any };
@@ -18,6 +18,7 @@ export interface EventConfig<P = EventPayload> {
   throttle?: number;
   queue?: boolean;
 }
+
 // Event class
 export class Event<P = EventPayload> {
   // store the callbacks as a set of functions
@@ -35,6 +36,7 @@ export class Event<P = EventPayload> {
     if (config.disableAfterUses) this.uses = 0;
     if (config.queue) this.queue = [];
   }
+
   // register subscribers
   public on(callback: EventCallbackFunc<P>): () => void {
     // on returns a clean up function, defined here for multiple return points
@@ -48,10 +50,12 @@ export class Event<P = EventPayload> {
       this.disable();
       return cleanupFunc;
     }
+
     // add the callback to Event callback set and return cleanup function
     this.callbacks.add(callback);
     return cleanupFunc;
   }
+
   // run all the callbacks in this event and pass the payload
   public emit(payload?: P): void {
     // if Event is disabled block emitting
@@ -63,9 +67,11 @@ export class Event<P = EventPayload> {
       this.emitter(payload);
     }
   }
+
   public disable(): void {
     this.config.enabled = false;
   }
+
   // Private functions
   private emitter(payload: P) {
     // foreach callback, invoke the saved function
@@ -73,9 +79,11 @@ export class Event<P = EventPayload> {
     // increment the uses if
     if (this.uses !== undefined) this.uses++;
   }
+
   private unsub(callback: EventCallbackFunc<P>): void {
     this.callbacks.delete(callback);
   }
+
   private handleThrottle(payload: P): void {
     const throttling = this.currentTimeout !== undefined;
     // throttling with a queue? push to queue and reset timeout
@@ -84,6 +92,7 @@ export class Event<P = EventPayload> {
       clearTimeout(this.currentTimeout);
       this.currentTimeout = undefined;
     }
+
     // throttling without a queue? exit
     else if (throttling) return;
     // throttle is not running, begin timeout chain
@@ -99,6 +108,7 @@ export class Event<P = EventPayload> {
       };
       looper(payload);
     }
+    //
     return;
   }
 }

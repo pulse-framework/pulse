@@ -66,6 +66,9 @@ cleanup();
 ```
 This syntax is bulky considering you must invoke the cleanup function on component unmount, so with React the `useEvent()` hook will cleanup for you!
 ```ts
+import React from 'react';
+import { useEvent } from 'pulse-framework';
+
 export function MyComponent() {
 	useEvent(ALERT, payload => {
 		// do anything

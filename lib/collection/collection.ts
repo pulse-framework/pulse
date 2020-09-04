@@ -1,11 +1,7 @@
-import Pulse from '../';
-import State from '../state';
-import Group, { PrimaryKey, GroupName, GroupAddOptions } from './group';
-import { defineConfig, normalizeGroups, shallowmerge } from '../utils';
+import { Pulse, State, Group, PrimaryKey, GroupName, GroupAddOptions, Selector, Data } from '../internal';
+import { defineConfig, shallowmerge } from '../utils';
 import { deepmerge } from '../helpers/deepmerge';
 import { normalizeArray } from '../helpers/handy';
-import Selector from '../collection/selector';
-import Data from './data';
 
 // Shorthand for an expandable object
 type Expandable = { [key: string]: any };
@@ -29,7 +25,7 @@ export interface CollectionConfig<G, S> {
   indexAll?: boolean;
 }
 
-// An optional type defining config as either an object, or an objext that returns a function
+// An optional type defining config as either an object, or an object that returns a function
 export type Config<DataType = DefaultDataItem, G = GroupObj, S = SelectorObj> =
   | CollectionConfig<G, S>
   | ((collection: Collection<DataType>) => CollectionConfig<G, S>);
@@ -113,7 +109,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     if (!data || !data.hasOwnProperty(key)) return null;
     // if the data already exists and config is to patch, patch data
     if (this.data[data[key]] && patch) this.data[data[key]].patch(data, { deep: false });
-    // if already exists and no config, overwite data
+    // if already exists and no config, overwrite data
     else if (this.data[data[key]]) this.data[data[key]].set(data);
     // otherwise create new data instance
     else this.data[data[key]] = new Data<DataType>(() => this, data);

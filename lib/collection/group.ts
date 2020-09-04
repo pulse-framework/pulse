@@ -1,8 +1,4 @@
-import Dep from '../dep';
-import Pulse from '../pulse';
-import State from '../state';
-import Collection, { DefaultDataItem, GroupObj } from './collection';
-import Computed from '../computed';
+import { Pulse, State, Collection, DefaultDataItem } from '../internal';
 import { defineConfig } from '../utils';
 
 export type PrimaryKey = string | number;
@@ -25,7 +21,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
   constructor(context: InstanceContext, initialIndex?: Array<PrimaryKey>, config: { name?: string } = {}) {
     // This invokes the parent class with either the collection or the Pulse instance as context
-    // This means groups can be created before (or during) a Collection instantization
+    // This means groups can be created before (or during) a Collection instantiation
     super((context() instanceof Pulse ? context : (context() as Collection<DataType>).instance) as () => Pulse, initialIndex || []);
     if (context() instanceof Collection) this.collection = context as () => Collection<DataType>;
 

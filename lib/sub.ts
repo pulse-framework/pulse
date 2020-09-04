@@ -1,8 +1,6 @@
 // Global Subscription Controller
 // This class handles external components subscribing to Pulse.
-
-import Pulse from '.';
-import { State } from './';
+import { Pulse, State } from './internal';
 
 export type SubscriptionContainer = ComponentContainer | CallbackContainer;
 
@@ -32,7 +30,7 @@ export class CallbackContainer extends ComponentContainer {
   }
 }
 
-export default class SubController {
+export class SubController {
   public pulseInstance;
 
   // Component based Subscription
@@ -145,3 +143,5 @@ export default class SubController {
     else if (subscriptionInstance.componentContainer) unsub(subscriptionInstance.componentContainer);
   }
 }
+
+export default SubController;

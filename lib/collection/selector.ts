@@ -1,12 +1,6 @@
-import Collection, { DefaultDataItem, GroupObj, SelectorObj } from './collection';
-import State from '../state';
-import { PrimaryKey } from './group';
-import Computed from '../computed';
-import Pulse from '../pulse';
-import { persistValue } from '../storage';
-import Data from './data';
+import { Computed, Collection, DefaultDataItem, Data, GroupObj, SelectorObj, PrimaryKey } from '../internal';
 
-export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = SelectorObj> extends Computed<DataType> {
+export class Selector<DataType = DefaultDataItem, G = GroupObj, S = SelectorObj> extends Computed<DataType> {
   private collection: () => Collection<DataType, G, S>;
   private _masterSelected: PrimaryKey;
   public set id(val: PrimaryKey) {
@@ -37,13 +31,15 @@ export default class Selector<DataType = DefaultDataItem, G = GroupObj, S = Sele
   // custom override for the State persist function
   public persist(key?: string) {
     this.persistState = true;
-    persistValue(this, key);
+    this.instance().storage.handleStatePersist(this, key);
     return this;
   }
   public getPersistableValue() {
     return this.id;
   }
 }
+
+export default Selector;
 
 function findData<DataType, G, S>(collection: Collection<DataType, G, S>, key: PrimaryKey) {
   let data = collection.getValueById(key);

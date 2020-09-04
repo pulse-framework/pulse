@@ -1,16 +1,5 @@
-import State, { StateGroup } from './state';
-import Computed from './computed';
-import Collection, { GroupObj, DefaultDataItem, SelectorObj, Config } from './collection/collection';
-import SubController from './sub';
-import Runtime from './runtime';
-import Storage, { StorageConfig } from './storage';
-import API, { apiConfig } from './api/api';
-import Group from './collection/group';
-import use, { Integration } from './integrations/use';
-import { Controller, ControllerConfig, FuncObj, StateObj } from './controller';
-
-import StatusTracker from './status';
-import { Event, EventPayload, EventConfig, EventsObjFunc } from './event';
+// prettier-ignore
+import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, use, Integration } from './internal';
 
 export interface PulseConfig {
   computedDefault?: any;
@@ -19,10 +8,6 @@ export interface PulseConfig {
   frameworkConstructor?: any;
   storage?: StorageConfig;
   logJobs?: boolean;
-  /**
-   * Typically, Pulse waits for a Core to be initialized before running any Computed functions.
-   * Set this `true` to bypass that functionality, and always do an initial computation.
-   */
   noCore?: boolean;
 }
 
@@ -37,7 +22,7 @@ interface ErrorObject {
   raw: any; // The raw error
 }
 
-export default class Pulse {
+export class Pulse {
   public ready: boolean = false;
   public runtime: Runtime;
   public status: StatusTracker;
@@ -120,7 +105,7 @@ export default class Pulse {
    * @param config.baseURL String - Url to prepend to endpoints (without trailing slash)
    * @param config.timeout Number - Time to wait for request before throwing error
    */
-  public API(config: apiConfig) {
+  public API(config: APIConfig) {
     return new API(config);
   }
 
@@ -217,3 +202,5 @@ export default class Pulse {
 export function persist(items: Array<State>): void {
   items.forEach(item => item.persist(item.name));
 }
+
+export default Pulse;

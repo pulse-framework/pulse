@@ -30,7 +30,7 @@ Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and r
 
 ## Why Pulse?
 
-Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourges developers to construct a core library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
+Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourages developers to construct a core library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
 
 ### Typescript
 
@@ -120,14 +120,15 @@ MY_STATE.undo();
 MY_STATE.value; // Expected Output: "hello"
 ```
 
-### :bus: Event bus — [App.on()]()
+### :bus: Events — [App.Event()]()
 
 ```ts
-App.on('EVENT_NAME', (payload) => {
-  // do something
-});
+const ALERT = App.Event();
 
-App.emit('EVENT_NAME', payload);
+ALERT.emit({ message: 'notify events best events!' });
+const cleanup = ALERT.on(renderAlert);
+
+useEvent(ALERT, renderAlert); // React Hook with auto cleanup!
 ```
 
 ### :hourglass_flowing_sand: [WIP] CRON Jobs — [App.Job()]()

@@ -1,5 +1,6 @@
-import Pulse, { Collection } from '.';
+import Pulse from './pulse';
 import State from './state';
+import Collection from './collection/collection';
 
 export function cleanState<T>(state: State<T>): object {
   return {
