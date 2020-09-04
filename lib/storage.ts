@@ -126,3 +126,8 @@ function isFunction(func: () => any) {
 }
 
 export default Storage;
+
+// Handy utils
+export function persist(items: Array<State>): void {
+  items.forEach(item => item.persist(item.name));
+}

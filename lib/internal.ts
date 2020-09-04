@@ -4,7 +4,7 @@
 export { Pulse } from './pulse';
 
 // State
-export { State, StateGroup, reset } from './state';
+export { State, StateGroup } from './state';
 export { Computed } from './computed';
 
 // Collections
@@ -38,6 +38,7 @@ export { use } from './integrations/use';
 export { usePulse, useEvent } from './integrations/react.integration';
 export { PulseHOC } from './integrations/react.integration';
 export { cleanState, resetState, extractAll } from './utils';
+export { persist } from './storage';
 
 // Types
 export { SetFunc } from './state';

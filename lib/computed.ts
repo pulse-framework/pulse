@@ -1,4 +1,4 @@
-import { Pulse, State, reset, SetFunc } from './internal';
+import { Pulse, State, SetFunc } from './internal';
 
 export class Computed<ComputedValueType = any> extends State<ComputedValueType> {
   // private cleanup: Set<State> = new Set();
@@ -38,14 +38,14 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
     this.set(this.computeValue());
   }
 
-  public reset() {
-    reset(this);
+  public reset(): this {
+    super.reset();
     this.recompute();
     return this;
   }
 
   public patch() {
-    throw 'Error, can not use patch method on Computed since the value is dynamic.';
+    console.error('Error, can not use patch method on Computed since the value is dynamic.');
     return this;
   }
 

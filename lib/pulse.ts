@@ -198,9 +198,4 @@ export class Pulse {
   }
 }
 
-// Handy utils
-export function persist(items: Array<State>): void {
-  items.forEach(item => item.persist(item.name));
-}
-
 export default Pulse;

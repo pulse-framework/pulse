@@ -14,11 +14,13 @@ export interface JobConfigInterface {
 
 export class Runtime {
   public instance: () => Pulse;
+
   // queue system
   public currentJob: JobInterface | null = null;
   private jobsQueue: Array<JobInterface> = [];
   private jobsToRerender: Array<JobInterface> = [];
   private tasksOnceComplete: Array<() => any> = [];
+
   // used for tracking computed dependencies
   public trackState: boolean = false;
   public foundState: Set<State> = new Set();
@@ -31,20 +33,9 @@ export class Runtime {
    * @internal
    * Creates a Job out of State and new Value and than add it to a job queue
    */
-  public ingest(
-    state: State,
-    newStateValue?: any,
-    options: JobConfigInterface = {
-      perform: true,
-      background: false
-    }
-  ): void {
+  public ingest(state: State, newStateValue?: any, options: JobConfigInterface = { perform: true, background: false }): void {
     // Create Job
-    const job: JobInterface = {
-      state: state,
-      newStateValue: newStateValue,
-      background: options?.background
-    };
+    const job: JobInterface = { state: state, newStateValue: newStateValue, background: options?.background };
 
     // grab nextState if newState not passed, compute if needed
     if (newStateValue === undefined) {
@@ -104,7 +95,6 @@ export class Runtime {
   }
 
   /**
-   * @internal
    * SideEffects are sideEffects of the perform function.. for instance the watchers
    */
   private sideEffects(state: State) {

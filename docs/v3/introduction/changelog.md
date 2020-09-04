@@ -9,7 +9,8 @@ Bug fixes and some cool new features.
 - Added typesafety for [usePulse()]() React hook.
 - Added [Status]() tracker class.
 - Fixed Controller key assignment for persisted State.
-- Refactored persistent storage class.
+- Fixed cyclic imports with `internal.ts`
+- Refactored `storage.ts`.
 - More unit tests.
 - More docs!
 - Removed Herobrine.
