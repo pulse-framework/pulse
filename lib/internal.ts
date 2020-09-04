@@ -1,7 +1,10 @@
+// This file exposes Pulse functions and types to the outside world.
+// It also serves as a cyclic dependency workaround.
+// All internal Pulse modules must import from here.
 export { Pulse } from './pulse';
 
 // State
-export { State, StateGroup } from './state';
+export { State, StateGroup, reset } from './state';
 export { Computed } from './computed';
 
 // Collections
@@ -26,7 +29,7 @@ export { API } from './api/api';
 export { Runtime } from './runtime';
 export { Storage } from './storage';
 export { Dep } from './dep';
-export { SubController, ComponentContainer, CallbackContainer, SubscriptionContainer } from './sub';
+export { SubController, ComponentContainer, CallbackContainer } from './sub';
 
 // Integration
 export { use } from './integrations/use';
@@ -37,7 +40,8 @@ export { PulseHOC } from './integrations/react.integration';
 export { cleanState, resetState, extractAll } from './utils';
 
 // Types
-export { SetFunc, reset } from './state';
+export { SetFunc } from './state';
+export { SubscriptionContainer } from './sub';
 export { PulseResponse } from './api/api';
 export { PrimaryKey, GroupName, GroupAddOptions } from './collection/group';
 export { ControllerConfig, FuncObj, StateObj } from './controller';

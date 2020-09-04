@@ -3,38 +3,50 @@ import { copy, shallowmerge } from './utils';
 import { deepmerge } from './helpers/deepmerge';
 
 export class State<ValueType = any> {
+  // a unique key for this State
+  public name?: string;
+  // internal storage for the current value
   public _value: ValueType = null;
-  public set value(val: ValueType) {
-    this._value = val;
-  }
+  // getter for the current value
   public get value(): ValueType {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this._value;
   }
-  public dep: Dep = null;
-  public output?: any;
-  public watchers?: { [key: string]: any };
-  public previousState: ValueType = null;
-  public nextState: ValueType = null;
-  public isSet: boolean = false; // has been changed from initial value
-  public persistState: boolean;
-  public name?: string;
-  public typeOfVal?: string;
-  // sideEffects can be set by extended classes, such as Groups to build their output.
-  public sideEffects?: Function;
+  // dependency manager class
+  public dep: Dep;
 
+  // watchers
+  public watchers?: { [key: string]: any };
+  // the previous value of this State
+  public previousState: ValueType = null;
+  // a copy of the current value that will be used if no param is passed on State.set()
+  public nextState: ValueType = null;
+  // if the value has been changed from initial value
+  public isSet: boolean = false;
+  // should Pulse attempt to persist this State value
+  public persistState: boolean;
+  // if this State locked to a particular type
+  public typeOfVal?: string;
+  // for extended classes to perform actions upon state change
+  public sideEffects?: Function;
+  // for extended classes to store a derived value, such as Group
+  public output?: any;
+  // getter and setter for the State value, best for I/O binding
   public set bind(value: ValueType) {
     this.set(value);
   }
   public get bind(): ValueType {
     return this._value;
   }
+  // is value truthey or falsey
   public get exists(): boolean {
-    return !!this.value; // is value truthey or falsey
+    return !!this.value;
   }
 
   constructor(public instance: () => Pulse, public initialState, deps: Array<Dep> = []) {
+    // initialize the dependency manager
     this.dep = new Dep(deps);
+    // write the initial value to this State
     this.privateWrite(initialState);
   }
 
@@ -169,7 +181,6 @@ export class State<ValueType = any> {
   public privateWrite(value: any) {
     this._value = copy(value);
     this.nextState = copy(value);
-
     if (this.persistState) this.instance().storage.set(this.name, this.getPersistableValue());
   }
 

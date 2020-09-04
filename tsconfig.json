@@ -12,7 +12,6 @@
     // "jsx": "preserve",
     // "esModuleInterop": true,
     // "sourceMap": true,
-    // //lol
     // "allowUnreachableCode": false,
     // "noFallthroughCasesInSwitch": true,
     // "allowSyntheticDefaultImports": true,

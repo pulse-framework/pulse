@@ -170,10 +170,6 @@ export class Runtime {
       // If Component based subscription call the updateMethod which every framework has to define
       if (this.instance().integration?.updateMethod)
         this.instance().integration?.updateMethod(subscriptionContainer.component, this.formatChangedPropKeys(subscriptionContainer));
-      else
-        console.warn(
-          "Pulse: The framework which you are using doesn't provide an updateMethod so it might be possible that no rerender will be triggered"
-        );
     });
 
     // Log Job

@@ -1,7 +1,7 @@
 import { Pulse, State, Group, PrimaryKey, GroupName, GroupAddOptions, Selector, Data } from '../internal';
 import { defineConfig, shallowmerge } from '../utils';
 import { deepmerge } from '../helpers/deepmerge';
-import { normalizeArray } from '../helpers/handy';
+import { normalizeArray } from '../utils';
 
 // Shorthand for an expandable object
 type Expandable = { [key: string]: any };
