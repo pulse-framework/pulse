@@ -2,6 +2,7 @@ import { Collection, State, Computed, Event } from './internal';
 
 export type StateObj = { [key: string]: State | Computed };
 export type FuncObj = { [key: string]: (...args: any) => any };
+export type EventObj = { [key: string]: Event };
 export type AnyObj = { [key: string]: any };
 
 //
@@ -11,6 +12,7 @@ export interface ControllerConfig {
   state: StateObj;
   collection: Collection<any>;
   collections: { [key: string]: Collection<any> };
+  events: EventObj;
   actions: FuncObj;
   helpers: FuncObj;
   routes: FuncObj;
@@ -28,6 +30,8 @@ export class Controller<O extends Partial<ControllerConfig>> {
   // alias groups and selectors for primary collection
   public groups: this['config']['collection']['groups'];
   public selectors: this['config']['collection']['selectors'];
+  // events object
+  public events: this['config']['events'];
 
   // actions, helpers and routes simply containers for functions
   public actions: this['config']['actions'];

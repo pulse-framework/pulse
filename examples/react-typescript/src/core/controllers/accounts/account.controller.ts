@@ -24,13 +24,12 @@ export const AccountCollection = App.Collection<AccountBody>()(Collection => ({
 	},
 	selectors: {
 		// NEW: Introducing Selectors for Collections
-		CURRENT: Collection.Selector().persist("CURRENT_CHANNEL"), // cached refrence to the current account within this collection
+		CURRENT: Collection.Selector().persist("CURRENT_CHANNEL"), // cached reference to the current account within this collection
 	},
 }));
 
 const AccountComputed = {
 	TEST: App.Computed(() => {
-		console.log("running accounts computed test");
 		return true;
 	}),
 };

@@ -38,12 +38,12 @@ export class Pulse {
 
   constructor(public config: PulseConfig = defaultConfig) {
     this.subController = new SubController(this);
-    this.status = new StatusTracker(() => this);
+    // this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, config.storage);
     if (config.framework) this.initFrameworkIntegration(config.framework);
-    this.globalBind();
     if (this.config.noCore === true) this.onInstanceReady();
+    this.globalBind();
   }
 
   public Core<CoreType>(core?: CoreType): CoreType {
@@ -166,9 +166,8 @@ export class Pulse {
   private onInstanceReady(core?: { [key: string]: any }) {
     this.ready = true;
 
-    if (core)
-      // Copy core object structure without destroying this.core object reference
-      for (let p in core) this.core[p] = core[p];
+    // Copy core object structure without destroying this.core object reference
+    if (core) for (let p in core) this.core[p] = core[p];
 
     this.computed.forEach(instance => instance.recompute());
   }

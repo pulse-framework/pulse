@@ -48,7 +48,7 @@ Each of the below properties passed into the config will be made available on th
 | `routes?`      | `Object` of `Function`   |                                                                                       |
 | `helpers?`     | `Object` of `Function`   |                                                                                       |
 
-These are the only available properties for the `ControllerConfig`, any aditional will be ignored. However it is possible to add custom root properties ([See Below](#custom-root-properties)).
+These are the only available properties for the `ControllerConfig`, any additional will be ignored. However it is possible to add custom root properties ([See .root()](#methods)).
 
 ::: tip Type Safety
 For Typescript users, the inferred types of the object you pass in will be preserved, but only for the properties shown on the above object.
@@ -56,11 +56,7 @@ For Typescript users, the inferred types of the object you pass in will be prese
 
 ## Methods
 
-# `.reset()`
-
 # `.root()`
-
-## Custom Root Properties
 
 In some cases you will prefer to use more than the default Controller categories, you might want to spread actions to the root of the controller instance so they can be access like the following.
 
@@ -68,12 +64,16 @@ In some cases you will prefer to use more than the default Controller categories
 accounts.myAction();
 ```
 
-### `.root()`
+The `Controller.root()` method will return the Controller instance with the properties of the object supplied infused into the Controller at root level.
 
-This function will return the controller instance with the properties of the object supplied injected into the instance at root level.
+```ts
+const state = { MY_STATE: App.State() };
+const actions = { myAction: App.Action() };
 
-```js
 const controller = App.Controller({ state }).root(actions);
+
+controller.state.MY_STATE;
+controller.myAction();
 ```
 
 ## Structure

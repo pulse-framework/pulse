@@ -22,7 +22,7 @@ export interface CollectionConfig<G, S> {
   selectors?: S;
   name?: string;
   primaryKey?: string | number;
-  indexAll?: boolean;
+  defaultGroup?: boolean;
 }
 
 // An optional type defining config as either an object, or an object that returns a function
@@ -57,8 +57,13 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     }) as Required<typeof config>;
 
     // create groups
-    if (config.groups) this.initSubInstances('groups');
-    if (config.selectors) this.initSubInstances('selectors');
+    if (this.config.groups) this.initSubInstances('groups');
+    if (this.config.selectors) this.initSubInstances('selectors');
+
+    if (this.config.defaultGroup || !this.config.groups) {
+      if (!this.groups) this.groups = {} as any;
+      this.createGroup('default');
+    }
   }
 
   private initSubInstances(subInstanceType: 'groups' | 'selectors') {
