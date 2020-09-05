@@ -2,8 +2,8 @@
   "compilerOptions": {
     "rootDir": "lib",
     "declaration": true,
-    "outDir": "build",
-    "declarationDir": "build",
+    "outDir": "build", // webpack overrides this
+    "declarationDir": "declarations",
     "target": "ES2016",
     "lib": ["es5", "es6", "dom"],
     "module": "CommonJS",
@@ -12,6 +12,6 @@
     "skipLibCheck": true,
     "sourceMap": true
   },
-  "include": ["./lib/**/*", "next"],
+  "include": ["./lib/**/*"],
   "exclude": ["dist", "node_modules"]
 }

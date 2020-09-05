@@ -1,17 +1,18 @@
 const path = require('path');
 const dts = require('dts-bundle-webpack');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
   entry: {
-    main: './lib/index.ts'
+    index: './lib/index.ts',
+    next: './lib/next'
   },
   output: {
     path: path.resolve(__dirname, './dist'),
     library: 'pulse-framework',
-    libraryTarget: 'umd',
-    filename: 'index.js' // <--- Will be compiled to this single file
+    libraryTarget: 'umd'
   },
   resolve: {
     extensions: ['.ts', '.js']
@@ -27,8 +28,15 @@ module.exports = {
   plugins: [
     new dts({
       name: 'pulse-framework',
-      main: 'build/index.d.ts',
+      main: 'declarations/index.d.ts',
       out: '../dist/index.d.ts'
-    })
+    }),
+    new dts({
+      name: 'pulse-framework/next',
+      main: 'declarations/next/index.d.ts',
+      out: '../../dist/next.d.ts'
+    }),
+    // tell webpack to ignore pulse-framework imports
+    new webpack.IgnorePlugin(/pulse-framework/)
   ]
 };

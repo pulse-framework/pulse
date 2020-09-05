@@ -37,8 +37,10 @@ export { use } from './integrations/use';
 // Helper functions
 export { usePulse, useEvent } from './integrations/react.integration';
 export { PulseHOC } from './integrations/react.integration';
-export { cleanState, resetState, extractAll } from './utils';
+export { cleanState, resetState } from './utils';
 export { persist } from './storage';
+export { extractAll } from './helpers/extractAll';
+export { isWatchableObject } from './helpers/isWatchableObj';
 
 // Types
 export { SetFunc } from './state';
