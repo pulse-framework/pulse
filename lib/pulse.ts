@@ -51,11 +51,8 @@ export class Pulse {
     return this.core as CoreType;
   }
 
-  public Controller<S = StateObj, C = Collection, A = FuncObj, H = FuncObj, R = FuncObj>(
-    config: Partial<ControllerConfig<S, C, A, H, R>>,
-    spreadToRoot?: any
-  ): Controller<S, C, A, H, R> {
-    return new Controller<S, C, A, H, R>(config, spreadToRoot);
+  public Controller<O extends Partial<ControllerConfig>>(config: Partial<O>): Controller<O> {
+    return new Controller<O>(config);
   }
 
   /**

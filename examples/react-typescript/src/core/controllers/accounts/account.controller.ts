@@ -36,13 +36,8 @@ const AccountComputed = {
 };
 
 // Define controller and pass in imports
-const controller = App.Controller(
-	{
-		state: { ...AccountState, ...AccountComputed },
-		collection: AccountCollection,
-		routes,
-	},
-	actions
-);
-
-export const accounts = controller as typeof controller & typeof actions;
+export const accounts = App.Controller({
+	state: { ...AccountState, ...AccountComputed },
+	collection: AccountCollection,
+	routes,
+}).root(actions);

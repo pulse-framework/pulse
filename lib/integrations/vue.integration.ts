@@ -9,10 +9,13 @@ export default {
   bind(pulseConstructor) {
     pulseConstructor.install = (Vue, options: any) => {
       const pulse = globalThis.__pulse;
+
       pulseConstructor._SSOT = {};
+
       Object.keys(options).forEach((key, i) => {
         pulseConstructor._SSOT['$' + key] = options[key];
       });
+
       Vue.mixin({
         beforeCreate() {
           // bind root properties
