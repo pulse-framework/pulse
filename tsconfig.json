@@ -2,29 +2,15 @@
   "compilerOptions": {
     "rootDir": "lib",
     "declaration": true,
+    "outDir": "build",
+    "declarationDir": "build",
     "target": "ES2016",
-    "module": "commonjs",
+    "lib": ["es5", "es6", "dom"],
+    "module": "CommonJS",
     "noImplicitAny": false,
     "moduleResolution": "node",
-    "outDir": "./dist",
-    "skipLibCheck": true
-    // Old config, some of this might be needed?
-    // "jsx": "preserve",
-    // "esModuleInterop": true,
-    // "sourceMap": true,
-    // "allowUnreachableCode": false,
-    // "noFallthroughCasesInSwitch": true,
-    // "allowSyntheticDefaultImports": true,
-    // "downlevelIteration": true,
-    // "forceConsistentCasingInFileNames": true,
-    // "noImplicitReturns": true,
-    // "noImplicitThis": true,
-    // "noUnusedLocals": false,
-    // "skipLibCheck": true, // IMPORTANT (true)
-    // "strictNullChecks": false,
-    // "strict": true,
-    // "pretty": true,
-    // "suppressImplicitAnyIndexErrors": true
+    "skipLibCheck": true,
+    "sourceMap": true
   },
   "include": ["./lib/**/*", "next"],
   "exclude": ["dist", "node_modules"]

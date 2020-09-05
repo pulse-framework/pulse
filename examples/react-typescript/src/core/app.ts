@@ -1,5 +1,7 @@
 import React from "react";
-import Pulse from "pulse-framework";
+import Pulse, { usePulse } from "pulse-framework";
+
+console.log(Pulse, usePulse);
 
 export const App = new Pulse({
 	framework: React,
