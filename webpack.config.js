@@ -35,8 +35,6 @@ module.exports = {
       name: 'pulse-framework/next',
       main: 'declarations/next/index.d.ts',
       out: '../../dist/next.d.ts'
-    }),
-    // tell webpack to ignore pulse-framework imports
-    new webpack.IgnorePlugin(/pulse-framework/)
+    })
   ]
 };

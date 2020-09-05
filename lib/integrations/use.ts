@@ -1,6 +1,6 @@
 import { Pulse } from '../internal';
 import reactIntegration from './react.integration';
-import vueIntegration from './vue.integration';
+import vueIntegration from './vue.integration.ts.d';
 
 export interface Integration {
   ready?: boolean;
