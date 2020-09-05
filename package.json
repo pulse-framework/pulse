@@ -2,8 +2,8 @@
   "name": "pulse-framework",
   "version": "3.0.1",
   "description": "Global state and logic framework for reactive Javascript applications.",
-  "main": "./index",
-  "types": "./index",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "test": "mocha -r ts-node/register --require jsdom-global/register --exit test/**/*.spec.ts",
     "test-debug": "mocha -r ts-node/register --require jsdom-global/register --inspect-brk test/**/*.spec.ts",
