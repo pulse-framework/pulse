@@ -1,14 +1,7 @@
 const path = require('path');
 const dts = require('dts-bundle-webpack');
-const webpack = require('webpack');
 
-module.exports = {
-  mode: 'development',
-  devtool: 'inline-source-map',
-  entry: {
-    index: './lib/index.ts',
-    next: './lib/next'
-  },
+const baseConfig = {
   output: {
     path: path.resolve(__dirname, './dist'),
     library: 'pulse-framework',
@@ -21,9 +14,24 @@ module.exports = {
     rules: [
       {
         test: /\.ts?$/,
-        loader: 'ts-loader'
+        loader: 'ts-loader',
+        options: {
+          configFile: './config/tsconfig.prod.json'
+        }
       }
     ]
+  }
+};
+
+// uses master ts config
+const buildConfig = {
+  ...baseConfig,
+  name: 'build',
+  mode: 'production',
+  devtool: 'inline-source-map',
+  entry: {
+    index: './lib/index.ts',
+    next: './lib/next'
   },
   plugins: [
     new dts({
@@ -38,3 +46,20 @@ module.exports = {
     })
   ]
 };
+
+// this will use a custom tsconfig
+const devConfig = {
+  ...baseConfig,
+  name: 'dev',
+  mode: 'development',
+  devtool: 'inline-source-map',
+  entry: {
+    index: './lib/index.ts',
+    next: './lib/next'
+  },
+  plugins: []
+};
+// custom ts config location
+devConfig.module.rules[0].options.configFile = './config/tsconfig.dev.json';
+
+module.exports = [buildConfig, devConfig];
