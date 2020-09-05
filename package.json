@@ -12,8 +12,8 @@
   },
   "scripts": {
     "build": "tsc --emitDeclarationOnly && webpack --config-name build && rm -rf ./declarations",
-    "prepare": "yarn build && cp package.json README.md .gitignore ./dist",
-    "prepare:publish": "yarn prepare && yarn publish ./dist",
+    "prep": "yarn build && cp package.json README.md .gitignore ./dist",
+    "prep:publish": "yarn prep && yarn publish ./dist",
     "dev": "rm -rf ./dist && webpack --config-name dev",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
