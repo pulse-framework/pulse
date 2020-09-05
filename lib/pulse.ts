@@ -172,8 +172,12 @@ export class Pulse {
 
     this.computed.forEach(instance => instance.recompute());
   }
-  public initFrameworkIntegration(frameworkConstructor) {
+  public initFrameworkIntegration(frameworkConstructor: any) {
     use(frameworkConstructor, this);
+  }
+  public with(frameworkConstructor: any): this {
+    this.initFrameworkIntegration(frameworkConstructor);
+    return this;
   }
 
   public setStorage(config: StorageConfig): void {
