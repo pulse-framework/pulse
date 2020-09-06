@@ -5,7 +5,6 @@ module.exports = {
   ...base('prod'),
   name: 'build',
   mode: 'production',
-  devtool: 'inline-source-map',
   entry: {
     index: './lib/index.ts',
     next: './lib/next'
