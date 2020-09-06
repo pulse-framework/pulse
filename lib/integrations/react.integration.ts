@@ -1,5 +1,6 @@
 import { Pulse, State, Event, EventCallbackFunc, SubscriptionContainer } from '../internal';
 import { normalizeDeps, getPulseInstance } from '../utils';
+import Group from '../collection/group';
 
 export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: string]: State } | State, pulseInstance?: Pulse) {
   let depsArray: Array<State>;
@@ -87,24 +88,41 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
   };
 }
 
-type PulseHookArray<T> = { [K in keyof T]: T[K] extends State<infer U> ? U : never };
-type PulseHookResult<T> = T extends State<infer U> ? U : never;
+// Array Type
+type PulseHookArrayType<T> = {
+  [K in keyof T]: T[K] extends Group<infer U> ? U[] : T[K] extends State<infer U> ? U : never;
+};
 
-// array-argument syntax
-export function usePulse<X extends State<any>[]>(deps: X | [], pulseInstance?: Pulse): PulseHookArray<X>;
-// single-argument syntax
-export function usePulse<X extends State<any>>(deps: X, pulseInstance?: Pulse): PulseHookResult<X>;
+// No Array Type
+type PulseHookType<T> = T extends Group<infer U> ? U[] : T extends State<infer U> ? U : never;
 
-export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, pulseInstance?: Pulse): PulseHookArray<X> | PulseHookResult<X> {
+// Array
+export function usePulse<X extends Array<State>>(deps: X | [], pulseInstance?: Pulse): PulseHookArrayType<X>;
+
+// No Array
+export function usePulse<X extends State>(deps: X, pulseInstance?: Pulse): PulseHookType<X>;
+
+export function usePulse<X extends Array<State>, Y extends State>(deps: X | [] | Y, pulseInstance?: Pulse): PulseHookArrayType<X> | PulseHookType<Y> {
   // Normalize Dependencies
-  let depsArray = normalizeDeps(deps) as PulseHookArray<X>;
+  let depsArray = normalizeDeps(deps) as Array<State>;
+
+  // Function which creates the return value
+  const getReturnValue = (depsArray: State[]): PulseHookArrayType<X> | PulseHookType<Y> => {
+    // Return Public Value of State
+    if (depsArray.length === 1 && !Array.isArray(deps)) return depsArray[0]?.getPublicValue() as PulseHookType<Y>;
+
+    // Return Public Value of State in Array
+    return depsArray.map(dep => {
+      return dep.getPublicValue();
+    }) as PulseHookArrayType<X>;
+  };
 
   // Get Pulse Instance
   if (!pulseInstance) {
     const tempPulseInstance = getPulseInstance(depsArray[0]);
     if (!tempPulseInstance) {
       console.error('Pulse: Failed to get Pulse Instance');
-      return undefined;
+      return getReturnValue(depsArray);
     }
     pulseInstance = tempPulseInstance;
   }
@@ -113,22 +131,10 @@ export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, puls
   const React = pulseInstance.integration?.frameworkConstructor;
   if (!React) {
     console.error('Pulse: Failed to get Framework Constructor');
-    return undefined;
+    return getReturnValue(depsArray);
   }
 
-  /* TODO: depsArrayFinal doesn't get used so idk if its necessary
-	let depsArrayFinal: Array<State> = [];
-	// this allows you to pass in a keyed object of States and subscribe to all  State within the first level of the object. Useful if you wish to subscribe a component to several State instances at the same time.
-	depsArray.forEach(dep => {
-		if (dep instanceof State) depsArrayFinal.push(dep);
-		else if (typeof dep === 'object')
-			for (let d in dep as keyedState) {
-				if ((dep[d] as any) instanceof State) depsArrayFinal.push(dep[d]);
-			}
-	});
-	 */
-
-  // this is a trigger state used to force the component to re-render
+  // This is a trigger state used to force the component to re-render
   const [_, set_] = React.useState({});
 
   React.useEffect(function () {
@@ -141,13 +147,7 @@ export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, puls
     return () => pulseInstance?.subController.unsubscribe(subscriptionContainer);
   }, []);
 
-  // Return Public Value of State
-  if (!Array.isArray(deps) && depsArray.length === 1) return depsArray[0].getPublicValue();
-
-  // Return Public Value of State in Array
-  return depsArray.map(dep => {
-    return dep.getPublicValue();
-  }) as PulseHookArray<X>;
+  return getReturnValue(depsArray);
 }
 
 // useEvent helper for using Events inside React components as hooks
