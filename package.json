@@ -4,6 +4,7 @@
   "description": "Global state and logic framework for reactive JavaScript & TypeScript applications.",
   "main": "./index.js",
   "types": "./index.d.ts",
+  "module": "pulse-framework",
   "author": "Jamie Pine",
   "license": "MIT",
   "syncDir": "dist",
