@@ -5,6 +5,7 @@ module.exports = {
   name: 'dev',
   mode: 'development',
   devtool: 'inline-source-map',
+  watch: true,
   entry: {
     index: './lib/index.ts',
     next: './lib/next'
