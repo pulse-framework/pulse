@@ -39,9 +39,11 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
   // collection data is stored here
   public data: { [key: string]: Data<DataType> } = {};
 
-  //
   public groups: this['config']['groups'];
   public selectors: this['config']['selectors'];
+
+  private _groups: Set<Group<DataType>> = new Set();
+  private _selectors: Set<Selector<DataType>> = new Set();
 
   public computedFunc: (data: DataType) => DataType;
 
@@ -68,8 +70,6 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
 
   private initSubInstances(subInstanceType: 'groups' | 'selectors') {
     const subInstanceObj: any = {};
-    // transform "groups" into "Group" so we can use Collection.Group, and same with selectors.
-
     // You'll need the below code when you add support for arrays of group names ;)
     // const subInstanceTypeGeneratorName = subInstanceType.charAt(0).toUpperCase() + subInstanceType.slice(1, -1);
     // const keys: Array<string> = Array.isArray(this.config[subInstanceType])
@@ -88,24 +88,38 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     this[subInstanceType] = subInstanceObj;
   }
 
-  // create a group instance under this collection
+  /**
+   * Create a group associated with this collection
+   * @param initialIndex - An optional array of primary keys to initialize this groups with.
+   */
   public Group(initialIndex?: Array<PrimaryKey>): Group<DataType> {
-    return new Group<DataType>(() => this, initialIndex);
+    const group = new Group<DataType>(() => this, initialIndex);
+    this._groups.add(group);
+    return group;
   }
   // create a selector instance under this collection
   public Selector(initialSelection?: string | number): Selector<DataType> {
-    return new Selector<DataType>(() => this, initialSelection);
+    const selector = new Selector<DataType>(() => this, initialSelection);
+    this._selectors.add(selector);
+    return selector;
   }
 
-  // create a group instance on this collection
+  /**
+   * Create a group associated with this collection
+   * @param initialIndex - An optional array of primary keys to initialize this groups with.
+   */
   public createGroup(groupName: GroupName, initialIndex?: Array<PrimaryKey>): Group<DataType> {
-    if (this.groups.hasOwnProperty(groupName)) return this.groups[groupName];
-
-    let group = new Group<DataType>(() => this, initialIndex);
-    group.name = groupName as string;
+    if (this.groups[groupName]) return this.groups[groupName];
+    const group = this.Group(initialIndex).key(groupName as string);
     this.groups[groupName] = group;
-
     return group;
+  }
+  // create a selector instance on this collection
+  public createSelector(selectorName: string | number, initialSelected?: PrimaryKey): Selector<DataType> {
+    if (this.selectors[selectorName]) return this.selectors[selectorName];
+    const selector = this.Selector(initialSelected).key(selectorName as string);
+    this.selectors[selectorName] = selector;
+    return selector;
   }
 
   // save data directly into collection storage
@@ -200,7 +214,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
 
     // if the primary key is changed, this will be true
     let updateDataKey: boolean = false,
-      // define alisas
+      // define aliases
       data = this.data[updateKey],
       primary = this.config.primaryKey;
 
@@ -287,17 +301,10 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     return true;
   }
 
-  // public findGroupsToUpdate(primaryKeysChanged: Array<PrimaryKey>) {
-  //   let groupsToRegen
-  //   for (let groupName in this.groups) {
-
-  //   }
-  // }
-
   private updateDataKey(oldKey: PrimaryKey, newKey: PrimaryKey): void {
     // create copy of data
     const dataCopy = this.data[oldKey];
-    // delete old refrence
+    // delete old reference
     delete this.data[oldKey];
     // apply the data in storage
     this.data[newKey] = dataCopy;
@@ -314,11 +321,8 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
     }
   }
 
-  public rebuildGroupsThatInclude(primarykey: PrimaryKey): void {
-    for (let groupName in this.groups) {
-      const group = this.getGroup(groupName);
-      if (group.has(primarykey)) this.instance().runtime.ingest(group);
-    }
+  public rebuildGroupsThatInclude(primaryKey: PrimaryKey): void {
+    this._groups.forEach(group => group.has(primaryKey) && this.instance().runtime.ingest(group));
   }
 
   public reset() {
