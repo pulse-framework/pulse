@@ -12,7 +12,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './dist'),
     library: 'pulse-framework',
-    libraryTarget: 'umd'
+    libraryTarget: 'commonjs'
   },
   resolve: {
     extensions: ['.ts', '.js']
