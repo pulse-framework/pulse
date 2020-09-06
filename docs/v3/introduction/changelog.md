@@ -2,6 +2,25 @@
 title: Changelog
 ---
 
+## 3.1 - The one with Events
+
+Bug fixes and some cool new features.
+
+- Added [Events](), a clean and simple event system.
+- Added [useEvent()]() React hook.
+- Added typesafety for [usePulse()]() React hook.
+- Added [Status]() tracker class.
+- Added [Pulse.with()]() as an alternate way to init the chosen framework.
+- Added [Controller.root()]() to bind root properties to Controller with typesafety.
+- Added Controller alias for primary Collection groups and selectors.
+- Fixed Controller key assignment for persisted State.
+- Fixed cyclic imports with `internal.ts`
+- Refactored `storage.ts`.
+- Added webpack to output single file for dist.
+- More unit tests.
+- More docs!
+- Removed Herobrine.
+
 ## 3.0
 
 ### **Welcome to Pulse `3.0`** :grin:
@@ -34,8 +53,8 @@ See full [documentation]() for everything new!
 > The mechanics are simpler, yet the function is stronger.
 
 - Employing Typescript from the start has lead to stabler, testable code.
-- Architectual changes have allowed for a huge code reduction.
-- The State class is the foundation for everthing and the only class the Pulse Runtime will handle.
+- Architectural changes have allowed for a huge code reduction.
+- The State class is the foundation for everything and the only class the Pulse Runtime will handle.
 - Groups, Computed, Selectors and Collection Data all extend the State class.
 - Code written with Pulse now looks clean at scale, and works better at scale.
 - **Finally, SSR!**

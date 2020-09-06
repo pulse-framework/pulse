@@ -1,6 +1,6 @@
+import { Pulse } from '../internal';
 import reactIntegration from './react.integration';
 import vueIntegration from './vue.integration';
-import Pulse from '../pulse';
 
 export interface Integration {
   ready?: boolean;
@@ -17,7 +17,7 @@ const integration: Integration = {
   ready: false
 };
 
-export default function use(plugin: any, pulseInstance: Pulse) {
+export function use(plugin: any, pulseInstance: Pulse) {
   const frameworkName = getFrameworkName(plugin);
 
   switch (frameworkName) {
@@ -45,6 +45,8 @@ export default function use(plugin: any, pulseInstance: Pulse) {
     // TODO: in some cases one might want to use Pulse without a framework so consider making this warning only show in dev, and making a config option to hide it entirely.
   }
 }
+
+export default use;
 
 //******** HELPERS BELOW *******
 

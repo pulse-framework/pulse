@@ -10,7 +10,7 @@ export interface PulseResponse<DataType = any> {
   type?: string;
 }
 
-export interface apiConfig {
+export interface APIConfig {
   options: RequestInit;
   baseURL?: string;
   path?: string;
@@ -27,8 +27,8 @@ const ensureProperHeaders = headers => {
   return obj;
 };
 
-export default class API {
-  constructor(public config: apiConfig = { options: {} }) {
+export class API {
+  constructor(public config: APIConfig = { options: {} }) {
     if (config.options && config.options.headers) {
       config.options.headers = ensureProperHeaders(config.options.headers);
     }
@@ -40,7 +40,7 @@ export default class API {
    * Override API config and request options. Returns a modified instance this API with overrides applied.
    * @param config - O
    */
-  public with(config: apiConfig): API {
+  public with(config: APIConfig): API {
     let _this = Object.assign(Object.create(Object.getPrototypeOf(this)), this);
 
     if (config.options && config.options.headers) {
@@ -77,7 +77,7 @@ export default class API {
     let fullUrl: string,
       data: any,
       response: PulseResponse | unknown,
-      config: apiConfig = { ...this.config };
+      config: APIConfig = { ...this.config };
 
     // inject method into request options
     config.options.method = method;
@@ -98,7 +98,7 @@ export default class API {
     // construct endpoint
     let path = this.config.path ? '/' + this.config.path : '';
     if (endpoint.startsWith('http')) fullUrl = endpoint;
-    else fullUrl = `${this.config.baseURL?this.config.baseURL:''}${path}/${endpoint}`;
+    else fullUrl = `${this.config.baseURL ? this.config.baseURL : ''}${path}/${endpoint}`;
 
     if (config.requestIntercept) config.requestIntercept({ ...config.options, endpoint: fullUrl });
 
@@ -149,12 +149,4 @@ export default class API {
   }
 }
 
-const NotifyAPI = new API({
-  timeout: 500,
-  options: {}
-});
-
-export const getChannel = channelId =>
-  NotifyAPI.with({
-    options: { headers: { ['Content-Type']: 'multipart/form-data' } }
-  }).get(`channels/${channelId}`);
+export default API;

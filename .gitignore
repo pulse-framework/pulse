@@ -25,6 +25,8 @@ private/
 *.sw*
 
 # Generated files from build
+build/
+declarations/
 dist/
 docs/dist/
 

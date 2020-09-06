@@ -1,9 +1,5 @@
-import Pulse from './pulse';
-import Collection from './collection';
-import State from './state';
+import { Pulse, State } from './internal';
 import { copy } from './utils';
-
-// TODO: niceify the typings of this. i am going to hell for committing this. necessary sacrifices
 
 interface StatusObjectData {
   message: string | null;
@@ -15,7 +11,7 @@ const initialData: StatusObjectData = {
   status: null
 };
 
-export default class StatusTracker {
+export class StatusTracker {
   public state: State<{ [key: string]: StatusObjectData }> = this.instance().State({});
 
   public get all(): { [key: string]: StatusObjectData } {
@@ -77,3 +73,5 @@ export class StatusObject {
     return this;
   }
 }
+
+export default StatusTracker;

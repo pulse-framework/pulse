@@ -24,25 +24,19 @@ export const AccountCollection = App.Collection<AccountBody>()(Collection => ({
 	},
 	selectors: {
 		// NEW: Introducing Selectors for Collections
-		CURRENT: Collection.Selector().persist("CURRENT_CHANNEL"), // cached refrence to the current account within this collection
+		CURRENT: Collection.Selector().persist("CURRENT_CHANNEL"), // cached reference to the current account within this collection
 	},
 }));
 
 const AccountComputed = {
 	TEST: App.Computed(() => {
-		console.log("running accounts computed test");
 		return true;
 	}),
 };
 
 // Define controller and pass in imports
-const controller = App.Controller(
-	{
-		state: { ...AccountState, ...AccountComputed },
-		collection: AccountCollection,
-		routes,
-	},
-	actions
-);
-
-export const accounts = controller as typeof controller & typeof actions;
+export const accounts = App.Controller({
+	state: { ...AccountState, ...AccountComputed },
+	collection: AccountCollection,
+	routes,
+}).root(actions);

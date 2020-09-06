@@ -1,6 +1,5 @@
-import Pulse, { State, Computed } from './';
+import { Pulse, State, Computed, CallbackContainer, SubscriptionContainer } from './internal';
 import { copy } from './utils';
-import { CallbackContainer, SubscriptionContainer } from './sub';
 
 export interface JobInterface {
   state: State;
@@ -13,13 +12,15 @@ export interface JobConfigInterface {
   background?: boolean;
 }
 
-export default class Runtime {
+export class Runtime {
   public instance: () => Pulse;
+
   // queue system
   public currentJob: JobInterface | null = null;
   private jobsQueue: Array<JobInterface> = [];
   private jobsToRerender: Array<JobInterface> = [];
   private tasksOnceComplete: Array<() => any> = [];
+
   // used for tracking computed dependencies
   public trackState: boolean = false;
   public foundState: Set<State> = new Set();
@@ -32,20 +33,9 @@ export default class Runtime {
    * @internal
    * Creates a Job out of State and new Value and than add it to a job queue
    */
-  public ingest(
-    state: State,
-    newStateValue?: any,
-    options: JobConfigInterface = {
-      perform: true,
-      background: false
-    }
-  ): void {
+  public ingest(state: State, newStateValue?: any, options: JobConfigInterface = { perform: true, background: false }): void {
     // Create Job
-    const job: JobInterface = {
-      state: state,
-      newStateValue: newStateValue,
-      background: options?.background
-    };
+    const job: JobInterface = { state: state, newStateValue: newStateValue, background: options?.background };
 
     // grab nextState if newState not passed, compute if needed
     if (newStateValue === undefined) {
@@ -105,7 +95,6 @@ export default class Runtime {
   }
 
   /**
-   * @internal
    * SideEffects are sideEffects of the perform function.. for instance the watchers
    */
   private sideEffects(state: State) {
@@ -171,10 +160,6 @@ export default class Runtime {
       // If Component based subscription call the updateMethod which every framework has to define
       if (this.instance().integration?.updateMethod)
         this.instance().integration?.updateMethod(subscriptionContainer.component, this.formatChangedPropKeys(subscriptionContainer));
-      else
-        console.warn(
-          "Pulse: The framework which you are using doesn't provide an updateMethod so it might be possible that no rerender will be triggered"
-        );
     });
 
     // Log Job
@@ -214,3 +199,5 @@ export default class Runtime {
     this.tasksOnceComplete.push(callback);
   }
 }
+
+export default Runtime;

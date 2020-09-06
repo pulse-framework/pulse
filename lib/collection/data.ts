@@ -1,7 +1,6 @@
-import { State } from '../state';
-import { Collection, DefaultDataItem } from './collection';
+import { State, Collection, DefaultDataItem } from '../internal';
 
-export default class Data<DataType = DefaultDataItem> extends State<DataType> {
+export class Data<DataType = DefaultDataItem> extends State<DataType> {
   public output: DataType | DefaultDataItem;
   constructor(private collection: () => Collection, data: DataType) {
     super(collection().instance, data);
@@ -9,5 +8,6 @@ export default class Data<DataType = DefaultDataItem> extends State<DataType> {
     // this.name = data && data[collection().config.primaryKey];
   }
 }
+export default Data;
 
 // collection should detect if computed data dependency is own group, if so handle efficiently

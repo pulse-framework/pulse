@@ -121,7 +121,7 @@ module.exports = {
         {
           title: 'Getting Started',
           collapsable: false,
-          children: ['getting-started/setup-with-react', 'getting-started/concepts']
+          children: ['getting-started/setup-with-react', 'getting-started/setup-with-vue', 'getting-started/concepts']
         },
         {
           title: 'Documentation',
@@ -136,6 +136,7 @@ module.exports = {
             'docs/core',
             'docs/api',
             'docs/persisting-data',
+            'docs/events',
             'docs/ssr'
           ]
         },

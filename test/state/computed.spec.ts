@@ -1,12 +1,13 @@
 import 'mocha';
 import { expect } from 'chai';
-import Pulse, { Computed, State } from '../../lib/index';
+import Pulse, { Computed, State } from '../../lib';
 
 const generateState = (App: Pulse) => ({
   string: App.State('initial value'),
   boolean: App.State(false),
   number: App.State(1000)
 });
+
 const generateComputed = (App: Pulse, state) => ({
   STRING: App.Computed(() => state.string.value, [state.string]),
   BOOLEAN: App.Computed(() => state.boolean.value, [state.boolean]),

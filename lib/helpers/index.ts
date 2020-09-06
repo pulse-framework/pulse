@@ -1,8 +1,2 @@
-import * as handy from './handy';
-
-import { deepmerge } from './deepmerge';
-
-export default {
-  deepmerge,
-  ...handy
-};
+export { debounce } from './debounce';
+export { deepmerge } from './deepmerge';
