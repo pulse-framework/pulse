@@ -1,7 +1,7 @@
 {
   "name": "pulse-framework",
   "version": "3.1.0",
-  "description": "Global state and logic framework for reactive Javascript & Typescript applications.",
+  "description": "Global state and logic framework for reactive JavaScript & TypeScript applications.",
   "main": "./index.js",
   "types": "./index.d.ts",
   "module": "pulse-framework",
@@ -13,8 +13,8 @@
     "url": "https://github.com/pulse-framework/pulse"
   },
   "scripts": {
-    "build": "rm -rf ./dist && webpack --config ./config/webpack.config.prod.js && rm -rf ./declarations",
-    "dev": "rm -rf ./dist && webpack --config ./config/webpack.config.dev.js",
+    "build": "node ./cleanup.js && webpack --config ./config/webpack.config.prod.js && node ./cleanup.js --post",
+    "dev": "node ./cleanup.js && webpack --config ./config/webpack.config.dev.js",
     "prep": "yarn build && cp package.json README.md .gitignore ./dist",
     "prep:publish": "yarn prep && yarn publish ./dist",
     "docs:dev": "vuepress dev docs",
