@@ -1,9 +1,15 @@
 const path = require('path');
 const dts = require('dts-bundle-webpack');
 
+const tsConfigPaths = {
+  base: path.resolve(__dirname, 'tsconfig.json'),
+  dev: path.resolve(__dirname, 'config/tsconfig.dev.json'),
+  prod: path.resolve(__dirname, 'config/tsconfig.prod.json')
+};
+
 const baseConfig = {
   output: {
-    path: path.resolve(__dirname, './dist'),
+    path: path.resolve(__dirname, 'dist'),
     library: 'pulse-framework',
     libraryTarget: 'umd'
   },
@@ -13,11 +19,16 @@ const baseConfig = {
   module: {
     rules: [
       {
-        test: /\.ts?$/,
-        loader: 'ts-loader',
-        options: {
-          configFile: './config/tsconfig.prod.json'
-        }
+        test: /\.ts.?$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              context: path.resolve(__dirname, 'config'),
+              configFile: tsConfigPaths.prod
+            }
+          }
+        ]
       }
     ]
   }
@@ -59,7 +70,8 @@ const devConfig = {
   },
   plugins: []
 };
-// custom ts config location
-devConfig.module.rules[0].options.configFile = './config/tsconfig.dev.json';
+
+// tsconfig for development
+devConfig.module.rules[0].use[0].options.configFile = tsConfigPaths.dev;
 
 module.exports = [buildConfig, devConfig];
