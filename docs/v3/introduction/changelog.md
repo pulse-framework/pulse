@@ -24,7 +24,7 @@ Bug fixes and some cool new features.
 - Added typesafety for [usePulse()]() React hook.
 - Added [Status]() tracker class.
 - Added [Pulse.with()]() as an alternate way to init the chosen framework.
-- Added [Controller.root()]() to bind root properties to Controller with typesafety.
+- Added [Controller.root()]() to bind root properties to Controller with typesafety. *BREAKING CHANGE* (removed second param)
 - Added Controller alias for primary Collection groups and selectors.
 - Fixed Controller key assignment for persisted State.
 - Fixed cyclic imports with `internal.ts`
