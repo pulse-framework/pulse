@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "rm -rf ./dist && webpack --config ./config/webpack.config.prod.js && rm -rf ./declarations",
-    "prep": "yarn build && cp package.json README.md .gitignore ./dist",
+    "prep": "yarn build && cp package.json README.md ./dist",
     "prep:publish": "yarn prep && yarn publish ./dist",
     "dev": "rm -rf ./dist && webpack --config ./config/webpack.config.dev.js",
     "docs:dev": "vuepress dev docs",
