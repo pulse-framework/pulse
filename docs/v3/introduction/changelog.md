@@ -2,8 +2,17 @@
 title: Changelog
 ---
 
-## 3.1 - The one with Events
+## 3.2 - The one with NextJS support
+::: warning Work in progress
+This update is currently being worked on, but will be released soon!
+:::
+- Added [NextJS support]() for server-side rendering
+- Added default Group for Collections [More]()
 
+## 3.1 - The one with Events
+::: tip NPM version
+This is the current release build available on NPM
+:::
 Bug fixes and some cool new features.
 
 - Added [Events](), a clean and simple event system.
