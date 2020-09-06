@@ -1,5 +1,4 @@
 const base = require('../webpack.config');
-const path = require('path');
 const dts = require('dts-bundle-webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 

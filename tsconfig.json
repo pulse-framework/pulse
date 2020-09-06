@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
-    "outDir": "build",
     "rootDir": "lib",
     "declaration": true,
-    "declarationDir": "declarations",
     "target": "ES2016",
     "lib": ["es5", "es6", "dom"],
     "module": "CommonJS",
