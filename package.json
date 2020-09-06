@@ -11,7 +11,7 @@
     "url": "https://github.com/pulse-framework/pulse"
   },
   "scripts": {
-    "build": "rm -rf ./dist && tsc -p ./config/tsconfig.prod.json && webpack --config ./config/webpack.config.prod.js && rm -rf ./declarations",
+    "build": "rm -rf ./dist && webpack --config ./config/webpack.config.prod.js && rm -rf ./declarations",
     "prep": "yarn build && cp package.json README.md .gitignore ./dist",
     "prep:publish": "yarn prep && yarn publish ./dist",
     "dev": "rm -rf ./dist && webpack --config ./config/webpack.config.dev.js",
