@@ -1,13 +1,10 @@
 // Account Actions
-import { ICore } from "../../core";
 import { App } from "../../app";
 import * as routes from "./account.routes";
-import {
-	AccountState as state,
-	AccountCollection as collection,
-} from "./account.controller";
+import { state, collection } from "./account.state";
 
-// Grab refrence to all controllers via the Core() function
+// Grab reference to all controllers via the Core() function
+import { ICore } from "../../core";
 const core = App.Core<ICore>();
 
 // Login function, all errors will be processed by the configurable Pulse error handler

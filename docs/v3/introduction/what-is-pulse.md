@@ -54,11 +54,12 @@ MY_STATE.toggle().persist().set().type().watch().reset().undo(); // etc...
 
 ### :robot: Computed State — [App.Computed()]()
 
-A function in which the return value is cached inside an extended State instance. Will magically recompute when its dependencies change. Can track dependencies automatically or manually.
+Computed State is an extension of State. It computes a value from a function that you provide, and caches it to avoid unnecessary recomputation.
 
 ```ts
 const MY_COMPUTED = App.Computed(() => !!MY_STATE.value);
 ```
+It will magically recompute when it's dependencies change and can track dependencies automatically or manually.
 
 ### :sparkles: Collections — [App.Collection()]()
 
@@ -74,20 +75,18 @@ AccountCollection.collect(data);
 
 ### :sparkles: Groups — [Collection.Group()]()
 
-Groups handy to provide arrays of collection data and can be used independently in your components. When the index of a group is modified, it will "rebuild" the `output` with actual collection data.
+Groups handy to provide arrays of collection data and can be used independently in your components. 
 
 ```ts
-const AccountCollection = App.Collection()(collection => ({
-  groups: {
-    AUTHED: collection.Group();
-  }
-}));
+const AUTHED = AccountCollection.Group([1, 2, 3]);
 
-AccountCollection.groups.AUTHED.output; // cached data
+AUTHED.output; // [{ id: 1, ...}...]
 ```
+When the index of a Group is modified, it will "rebuild" the `output` with actual collection data.
 
 ### :telephone_receiver: Promise based HTTP request API — [App.API()]()
 
+Create an API instance to make requests.
 ```ts
 const API = App.API({
   baseURL: 'https://my.api.me',
@@ -95,7 +94,10 @@ const API = App.API({
   options: { credentials: 'include' }
 });
 ```
-
+Create routes for your API as functions.
+```ts
+const GetAccount = async () => (await API.get('/account')).data;
+```
 ### :floppy_disk: Persisted Storage API — [App.Storage()]()
 
 ```ts
@@ -145,18 +147,14 @@ App.Job(60000, () => {
 MY_STATE.watch('name', () => {
   // do something when MY_STATE changes
 });
-
-App.nextPulse(() => {
-  MY_STATE.removeWatcher('name');
-});
 ```
 
 ### :construction: Task queuing for race condition prevention
 
 ### :closed_book: [WIP] Error logging & snapshot bug reporting
 
-### :leaves: Lightweight (only 100KB) with 0 dependencies
+### :leaves: Lightweight (only 37KB) with 0 dependencies
 
-### :fire: Supports Vue, React and React Native `usePulse()`
+### :fire: Supports Vue, React, React Native and NextJS
 
 ### :yellow_heart: Well documented (I'm getting there...)

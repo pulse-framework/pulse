@@ -2,8 +2,21 @@
 title: Changelog
 ---
 
+## 3.2 - The one with NextJS support
+
+::: warning Work in progress
+This update is currently being worked on, but will be released soon!
+:::
+
+- Added [NextJS support]() for server-side rendering
+- Added default Group for Collections [More]()
+- Removed Herobrine.
+
 ## 3.1 - The one with Events
 
+::: tip NPM version
+This is the current release build available on NPM
+:::
 Bug fixes and some cool new features.
 
 - Added [Events](), a clean and simple event system.
@@ -11,7 +24,7 @@ Bug fixes and some cool new features.
 - Added typesafety for [usePulse()]() React hook.
 - Added [Status]() tracker class.
 - Added [Pulse.with()]() as an alternate way to init the chosen framework.
-- Added [Controller.root()]() to bind root properties to Controller with typesafety.
+- Added [Controller.root()]() to bind root properties to Controller with typesafety. *BREAKING CHANGE* (removed second param)
 - Added Controller alias for primary Collection groups and selectors.
 - Fixed Controller key assignment for persisted State.
 - Fixed cyclic imports with `internal.ts`

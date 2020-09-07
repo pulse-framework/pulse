@@ -9,6 +9,7 @@ export function Test() {
 
 export const test = App.Controller({
 	state: {
+		HAHA: App.State(true),
 		works: App.Computed(() => {
 			if (core.accounts.state.LAST_ACCOUNT_ID.value) {
 				// return core
