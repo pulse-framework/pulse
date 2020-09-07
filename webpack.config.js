@@ -13,8 +13,7 @@ const tsConfigPaths = {
 module.exports = tsConfigLocation => ({
   output: {
     path: path.resolve(__dirname, 'dist'),
-    library: 'pulse-framework',
-    libraryTarget: 'commonjs'
+    libraryTarget: 'commonjs-module'
   },
   resolve: {
     extensions: ['.ts', '.js']
