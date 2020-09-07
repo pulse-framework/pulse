@@ -7,7 +7,6 @@ const tsConfigPaths = {
 };
 
 /**
- *
  * @param {keyof typeof tsConfigPaths} tsConfigLocation
  */
 module.exports = tsConfigLocation => ({

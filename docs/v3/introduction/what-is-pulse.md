@@ -53,6 +53,7 @@ MY_STATE.toggle().persist().set().type().watch().reset().undo(); // etc...
 ```
 
 ### :robot: Computed State — [App.Computed()]()
+
 Computed State is an extension of State. It computes a value from a function that you provide, and caches it to avoid unnecessary recomputation.
 
 ```ts
