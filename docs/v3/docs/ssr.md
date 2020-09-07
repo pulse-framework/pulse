@@ -4,6 +4,8 @@ title: NextJS SSR
 
 ## Introduction
 
+NextJS is built on top of React, which means Pulse will work just the same as usual. However if your application needs to make state changes server-side then this add-on for Pulse will help you out!
+
 # NextJS SSR
 
 The basic concept of sever side rendering entails your server rendering the page first, so the client doesn't have to. This means the JS in your app will run once on the server, then once again on the client. Because of this there would be an identical instance of Pulse created on either end.
@@ -45,7 +47,7 @@ There are some rules to remember for preserving State changes on the server...
 - State **must** have a name, you can set this with `.key()` (Controllers do this for you!)
 - State must have been changed from the initial value (`State.isSet` must be `true`)
 
-This function will return the same `data` object passed in, but with `_PULSE_DATA_` injected into `data.props` containing the sterilized Pulse data.
+This function will return the same `data` object passed in, but with `PULSE_DATA` injected into `data.props` containing the sterilized Pulse data.
 
 # `loadServerState()`
 

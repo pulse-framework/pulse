@@ -54,8 +54,7 @@ export class Collection<DataType = DefaultDataItem, G = GroupObj, S = SelectorOb
 
     // assign defaults to config object ensuring type safety
     this.config = defineConfig<typeof config>(config, {
-      primaryKey: 'id',
-      groups: []
+      primaryKey: 'id'
     }) as Required<typeof config>;
 
     // create groups

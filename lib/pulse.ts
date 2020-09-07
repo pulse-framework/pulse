@@ -191,7 +191,8 @@ export class Pulse {
    */
   private globalBind() {
     try {
-      if (!globalThis.__pulse) globalThis.__pulse = this;
+      if (!globalThis.__pulse__) globalThis.__pulse__ = Pulse;
+      if (!globalThis.__pulse__app) globalThis.__pulse__app = this;
     } catch (error) {
       // fail silently
     }

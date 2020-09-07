@@ -7,13 +7,14 @@ const tsConfigPaths = {
 };
 
 /**
- *
  * @param {keyof typeof tsConfigPaths} tsConfigLocation
  */
 module.exports = tsConfigLocation => ({
   output: {
+    // filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'commonjs-module'
+    libraryTarget: 'commonjs2',
+    globalObject: `globalThis`
   },
   resolve: {
     extensions: ['.ts', '.js']

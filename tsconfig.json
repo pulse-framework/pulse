@@ -6,7 +6,7 @@
     "lib": ["es5", "es6", "dom"],
     "module": "CommonJS",
     "noImplicitAny": false,
-    "moduleResolution": "classic",
+    // "moduleResolution": "classic",
     "skipLibCheck": true,
     "sourceMap": true
   },
