@@ -54,7 +54,7 @@ MY_STATE.toggle().persist().set().type().watch().reset().undo(); // etc...
 
 ### :robot: Computed State — [App.Computed()]()
 
-A function in which the return value is cached inside an extended State instance. Will magically recompute when it's dependencies change. Can track dependencies automatically or manually.
+A function in which the return value is cached inside an extended State instance. Will magically recompute when its dependencies change. Can track dependencies automatically or manually.
 
 ```ts
 const MY_COMPUTED = App.Computed(() => !!MY_STATE.value);
