@@ -8,9 +8,9 @@ console.log('Cleaning up...');
 
 const args = process.argv.slice(2);
 const paths = [
-  path.join(__dirname, 'build'),
-  path.join(__dirname, 'declarations'),
-  !args.includes('--post') ? path.join(__dirname, 'dist') : undefined
+  path.join(__dirname, '../build'),
+  path.join(__dirname, '../declarations'),
+  !args.includes('--post') ? path.join(__dirname, '../dist') : undefined
 ];
 
 for (const path of paths) {
