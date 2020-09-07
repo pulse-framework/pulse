@@ -12,18 +12,15 @@ module.exports = {
     next: { import: './lib/next', dependOn: 'index' }
   },
   optimization: {
-    // splitChunks: {
-    //   chunks: 'all'
-    // }
-    // minimize: true,
-    // minimizer: [
-    //   new TerserPlugin({
-    //     terserOptions: {
-    //       keep_classnames: true,
-    //       keep_fnames: true
-    //     }
-    //   })
-    // ]
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          keep_classnames: true,
+          keep_fnames: true
+        }
+      })
+    ]
   },
   plugins: [
     new dts({

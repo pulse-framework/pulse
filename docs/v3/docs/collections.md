@@ -106,7 +106,7 @@ MyCollection.groups.MY_GROUP.index; // Array of primary keys
 
 ### Default Group
 
-Collections can have a _default_ group, in which ALL items collected will be indexed in the this Group by default. In order to create default group you can either not define _any_ groups upon definition, or use the config param: `defaultGroup: boolean`.
+Collections can have a default Group, in which **all** items collected will be included this Group. In order to create default group you can either not define _any_ groups, or use the config param: `defaultGroup: boolean`.
 
 ```ts
 // With no config:

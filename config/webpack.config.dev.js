@@ -7,8 +7,7 @@ module.exports = {
   devtool: 'inline-source-map',
   watch: true,
   entry: {
-    index: './lib/index.ts',
-    next: './lib/next'
-  },
-  plugins: []
+    index: { import: './lib/index' },
+    next: { import: './lib/next', dependOn: 'index' }
+  }
 };

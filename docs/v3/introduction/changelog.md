@@ -6,6 +6,7 @@ title: Changelog
 
 ::: warning Work in progress
 This update is currently being worked on, but will be released soon!
+
 :::
 
 - Added support for VueJS
@@ -14,6 +15,11 @@ This update is currently being worked on, but will be released soon!
 
 ::: tip NPM version
 This is the current release build available on NPM
+
+```
+yarn add pulse-framework
+```
+
 :::
 
 - Added [NextJS support]() for server-side rendering
