@@ -5,22 +5,25 @@ const TerserPlugin = require('terser-webpack-plugin');
 module.exports = {
   ...base('prod'),
   name: 'build',
-  mode: 'production',
+  mode: 'development',
   devtool: 'hidden-source-map',
   entry: {
-    index: './lib/index.ts',
-    next: './lib/next'
+    index: { import: './lib/index' },
+    next: { import: './lib/next', dependOn: 'index' }
   },
   optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-          keep_fnames: true
-        }
-      })
-    ]
+    // splitChunks: {
+    //   chunks: 'all'
+    // }
+    // minimize: true,
+    // minimizer: [
+    //   new TerserPlugin({
+    //     terserOptions: {
+    //       keep_classnames: true,
+    //       keep_fnames: true
+    //     }
+    //   })
+    // ]
   },
   plugins: [
     new dts({

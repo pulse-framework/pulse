@@ -1,6 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import Pulse from '../../lib/index';
+import { Pulse } from '../../lib/internal';
 import 'mock-local-storage';
 import { MockAsyncStorage } from './mockStorage';
 

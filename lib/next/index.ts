@@ -1,6 +1,4 @@
-// Do not import Pulse stuff directly otherwise it will get bundled with this sub module, this way Pulse will be required only when this sub module is used.
-//@ts-ignore
-const { Collection, State, Computed, extractAll } = __non_webpack_require__('pulse-framework');
+import { Collection, State, Computed, extractAll } from '../index';
 
 export function preserveServerState(nextProps: { [key: string]: any }, core: { [key: string]: any }) {
   const collections = extractAll(Collection, core);
