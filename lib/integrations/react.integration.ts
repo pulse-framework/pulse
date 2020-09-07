@@ -89,9 +89,7 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
 }
 
 // Array Type
-type PulseHookArrayType<T> = {
-  [K in keyof T]: T[K] extends Group<infer U> ? U[] : T[K] extends State<infer U> ? U : never;
-};
+type PulseHookArrayType<T> = { [K in keyof T]: T[K] extends Group<infer U> ? U[] : T[K] extends State<infer U> ? U : never };
 
 // No Array Type
 type PulseHookType<T> = T extends Group<infer U> ? U[] : T extends State<infer U> ? U : never;

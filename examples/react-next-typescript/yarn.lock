@@ -3747,6 +3747,11 @@ public-encrypt@^4.0.0:
     randombytes "^2.0.1"
     safe-buffer "^5.1.2"
 
+pulse-framework@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/pulse-framework/-/pulse-framework-3.1.0.tgz#8fdc8279ef8161083c00dabf166807a45ecff6aa"
+  integrity sha512-R6RNxdfcCow9TTEKzbd/CM92sQ8+4CgfcnWi7x0TFO9kmTPQ5H1HlH7ulVx21fl4+OLbCYqEHfWOvbCmNxLjOA==
+
 pump@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/pump/-/pump-2.0.1.tgz#12399add6e4cf7526d973cbc8b5ce2e2908b3909"
