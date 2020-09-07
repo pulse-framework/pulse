@@ -11,7 +11,10 @@ interface Global {
 
 const App = () => {
 	// usePulse to subscribe to Pulse state
-	const [current] = usePulse([core.accounts.collection.selectors.CURRENT]);
+	const [collection, current] = usePulse([
+		core.accounts.collection.groups.default,
+		core.accounts.collection.selectors.CURRENT,
+	]);
 
 	return (
 		<div className="App">
@@ -25,7 +28,7 @@ const App = () => {
 				>
 					Pulse X React
 				</a>
-				<p>{JSON.stringify(current)}</p>
+				<p>{JSON.stringify(collection)}</p>
 				{/* <p className="small-text">{JSON.stringify(duration)}</p> */}
 			</header>
 		</div>

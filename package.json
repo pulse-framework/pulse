@@ -27,16 +27,8 @@
     "test:react": "(cd ./examples/react-typescript && yarn start)"
   },
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.11.0",
-    "@babel/plugin-transform-runtime": "^7.11.0",
-    "@babel/preset-env": "^7.11.0",
-    "@rollup/plugin-commonjs": "^15.0.0",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "@rollup/plugin-typescript": "^5.0.2",
     "@types/chai": "^4.2.12",
     "@types/mocha": "^8.0.2",
-    "babel-eslint": "^10.0.1",
     "chai": "^4.2.0",
     "dts-bundle-webpack": "^1.0.2",
     "eslint-config-prettier": "^6.11.0",
@@ -45,8 +37,6 @@
     "mocha": "^8.1.1",
     "mock-local-storage": "^1.1.15",
     "prettier": "2.0.5",
-    "rollup": "^2.26.10",
-    "rollup-plugin-uglify": "^6.0.4",
     "terser-webpack-plugin": "^4.1.0",
     "ts-loader": "^8.0.3",
     "ts-node": "^8.10.2",
@@ -55,7 +45,10 @@
     "typescript": "^3.9.7",
     "uglify-js": "^3.10.3",
     "vuepress": "^1.5.4",
-    "webpack": "^4.44.1",
+    "webpack": "^5.0.0",
     "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "@types/webpack": "^4.41.22"
   }
 }
