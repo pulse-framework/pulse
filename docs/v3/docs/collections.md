@@ -57,7 +57,7 @@ Configuration is optional, but recommended. The second pair of parentheses is wh
 ```js
 const MyCollection = App.Collection<DataType>()(collection => ({
   primaryKey: 'id', // default
-  indexAll: true // default false
+  defaultGroup: true // default false
   groups: {},
   selectors: {},
 }))
@@ -65,13 +65,13 @@ const MyCollection = App.Collection<DataType>()(collection => ({
 
 **All config parameters** _(All params are optional)_
 
-| property      | type                   | description                                                                                          | default |
-| ------------- | ---------------------- | ---------------------------------------------------------------------------------------------------- | ------- |
-| `primaryKey?` | `string`               | Define which property on collected items should be used for indexing.                                | `id`    |
-| `name?`       | `string`               | The name of this collection, if used within controllers Collection will inherit the controller name. | N/A     |
-| `indexAll?`   | `Boolean`              | Create an internal Group that catches all collected items.                                           | `false` |
-| `groups?`     | `Object` of `Group`    |                                                                                                      | N/A     |
-| `selectors?`  | `Object` of `Selector` |                                                                                                      | N/A     |
+| property        | type                   | description                                                                                          | default |
+| --------------- | ---------------------- | ---------------------------------------------------------------------------------------------------- | ------- |
+| `primaryKey?`   | `string`               | Define which property on collected items should be used for indexing.                                | `id`    |
+| `name?`         | `string`               | The name of this collection, if used within controllers Collection will inherit the controller name. | N/A     |
+| `defaultGroup?` | `Boolean`              | Create a default Group that catches all collected items. [Read More](#groups)                        | `false` |
+| `groups?`       | `Object` of `Group`    |                                                                                                      | N/A     |
+| `selectors?`    | `Object` of `Selector` |                                                                                                      | N/A     |
 
 ::: tip Typescript: Groups and Selectors infer types from config
 Collections will infer the types for groups and selectors automatically from the config object. Meaning you do not need to write custom interfaces to have type safety and Intellisense when using your Collection instance.
@@ -102,6 +102,30 @@ Groups have all the methods and functionality State does (See [State methods](st
 ```js
 MyCollection.groups.MY_GROUP.output; // Actual data
 MyCollection.groups.MY_GROUP.index; // Array of primary keys
+```
+
+### Default Group
+
+Collections can have a _default_ group, in which ALL items collected will be indexed in the this Group by default. In order to create default group you can either not define _any_ groups upon definition, or use the config param: `defaultGroup: boolean`.
+
+```ts
+// With no config:
+const MyCollection = App.Collection()();
+
+// With config & custom groups:
+const MyCollection = App.Collection()(Collection => {
+  defaultGroup: true;
+  groups: { ... } // custom groups go here
+});
+...
+```
+
+_Usage:_
+
+```ts
+MyCollection.collect({ id: 1, jeff: true }); // goes into default group
+
+MyCollection.getGroup('default').output; // { id: 1, jeff: true }
 ```
 
 ## Group Methods
