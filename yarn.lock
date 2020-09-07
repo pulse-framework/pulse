@@ -8894,7 +8894,7 @@ webpack@^4.8.1:
     watchpack "^1.7.4"
     webpack-sources "^1.4.1"
 
-webpack@^5.0.0:
+webpack@^5.0.0-beta.29:
   version "5.0.0-beta.29"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.0.0-beta.29.tgz#73ee7eb4a8603ade49f37c7417a1560871a79c90"
   integrity sha512-uBVX3gDHTN3FnIqlrGmav5FRW7CujSN4aybLbAd8Uc1hTk+zXDmZAFJFa0pCzzWv7FkKyhdv0+q8BRL2OK7+xg==
