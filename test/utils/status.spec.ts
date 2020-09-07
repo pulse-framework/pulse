@@ -1,8 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import StatusTracker from '../../lib/status';
-import { defineConfig } from '../../lib/utils';
-import Pulse from '../../lib';
+import { Pulse, StatusTracker } from '../../lib/internal';
 
 // todo: properly make reusable functions
 // todo: use sub-units (describe->describe->it) for each function
