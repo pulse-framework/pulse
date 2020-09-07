@@ -13,8 +13,8 @@
     "url": "https://github.com/pulse-framework/pulse"
   },
   "scripts": {
-    "build": "node ./cleanup.js && webpack --config ./config/webpack.config.prod.js && node ./cleanup.js --post",
-    "dev": "node ./cleanup.js && webpack --config ./config/webpack.config.dev.js",
+    "build": "node ./scripts/cleanup.js && webpack --config ./config/webpack.config.prod.js && node ./scripts/cleanup.js --post",
+    "dev": "node ./scripts/cleanup.js && webpack --config ./config/webpack.config.dev.js",
     "prep": "yarn build && cp package.json README.md .gitignore ./dist",
     "prep:publish": "yarn prep && yarn publish ./dist",
     "docs:dev": "vuepress dev docs",
