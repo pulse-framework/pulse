@@ -22,6 +22,8 @@ export { Event } from './event';
 // Status
 export { StatusTracker } from './status';
 
+export { Integration, Integrations } from './integrations/integrate';
+
 // API
 export { API } from './api/api';
 
@@ -31,12 +33,9 @@ export { Storage } from './storage';
 export { Dep } from './dep';
 export { SubController, ComponentContainer, CallbackContainer } from './sub';
 
-// Integration
-export { use } from './integrations/use';
-
 // Helper functions
-export { usePulse, useEvent } from './integrations/react.integration';
-export { PulseHOC } from './integrations/react.integration';
+// export { usePulse, useEvent } from './old/react.integration';
+// export { PulseHOC } from './old/react.integration';
 export { cleanState, resetState } from './utils';
 export { persist } from './storage';
 export { extractAll } from './helpers/extractAll';
@@ -52,4 +51,3 @@ export { StorageConfig } from './storage';
 export { EventPayload, EventConfig, EventsObjFunc, EventCallbackFunc } from './event';
 export { APIConfig } from './api/api';
 export { GroupObj, DefaultDataItem, SelectorObj, Config } from './collection/collection';
-export { Integration } from './integrations/use';

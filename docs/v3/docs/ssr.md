@@ -15,7 +15,11 @@ If any changes happen at runtime on the server, these changes must be sent with 
 ## Setup
 
 ```ts
-import { preserveServerState, loadServerState } from 'pulse-framework/next';
+import Pulse from '@pulsejs/core';
+import { React } from '@pulsejs/react';
+import { Next } from '@pulsejs/next';
+
+const App = new Pulse().with(React, Next);
 ```
 
 This code is not bundled with the main Pulse module, so you must import it from `/next`.
@@ -25,20 +29,13 @@ This code is not bundled with the main Pulse module, so you must import it from 
 This function will analyse your core and extract all State and Collections, unpack the important data and sterilize it.
 
 ```ts
-const App = new Pulse().with(React);
-
-// very simple core example
-const core = App.Core({
-  myController: App.Controller({
-    state: { MY_STATE: App.State(1) }
-  })
-});
+import { preserveServerState } from 'pulse-framework/next';
 
 // NextJS getServerSideProps function
 export async function getServerSideProps(context) {
   const data = { props: {} };
 
-  return preserveServerState(data, core);
+  return preserveServerState(data);
 }
 ```
 
@@ -48,15 +45,3 @@ There are some rules to remember for preserving State changes on the server...
 - State must have been changed from the initial value (`State.isSet` must be `true`)
 
 This function will return the same `data` object passed in, but with `PULSE_DATA` injected into `data.props` containing the sterilized Pulse data.
-
-# `loadServerState()`
-
-Now you've preserved the changes to your core, you can run `loadServerState()` right before your app mounts to initialze your core with the correct values from the server.
-
-```ts
-loadServerState(core);
-```
-
-It's that simple!
-
-This function will of course be called on the server too, but will not do anything as it knows if it's being called in a browser environment or not.

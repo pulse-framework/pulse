@@ -117,7 +117,7 @@ export class Runtime {
   private updateSubscribers(): void {
     // Check if Pulse has an integration because its useless to go trough this process without framework
     // It won't happen anything because the state has no subs.. but this check here will maybe improve the performance
-    if (!this.instance().integration) {
+    if (!this.instance().integrations) {
       this.jobsToRerender = [];
       // TODO maybe a warning but if you want to use PulseJS without framework this might get annoying
       return;
@@ -158,8 +158,7 @@ export class Runtime {
       }
 
       // If Component based subscription call the updateMethod which every framework has to define
-      if (this.instance().integration?.updateMethod)
-        this.instance().integration?.updateMethod(subscriptionContainer.component, this.formatChangedPropKeys(subscriptionContainer));
+      this.instance().integrations.update(subscriptionContainer.component, this.formatChangedPropKeys(subscriptionContainer));
     });
 
     // Log Job

@@ -20,6 +20,12 @@ export const App = new Pulse({
     framework: React;
 })
 ```
+OR
+```ts
+import Pulse from 'pulse-framework/react';
+
+export const App = new Pulse();
+```
 
 Follow this [guide]() to learn how to set up your core
 

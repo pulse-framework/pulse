@@ -1,11 +1,9 @@
 // prettier-ignore
-import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, use, Integration } from './internal';
+import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, Integrations } from './internal';
 
 export interface PulseConfig {
   computedDefault?: any;
   waitForMount?: boolean;
-  framework?: any;
-  frameworkConstructor?: any;
   storage?: StorageConfig;
   logJobs?: boolean;
   noCore?: boolean;
@@ -30,18 +28,22 @@ export class Pulse {
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
   public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
-  public integration: Integration = null;
+  public integrations: Integrations;
 
-  // Context reference
-  private computed: Set<Computed> = new Set();
+  // Core reference
   private core: { [key: string]: any } = {};
+  // Context reference
+  private _computed: Set<Computed> = new Set();
+  private _state: Set<State> = new Set();
+  private _collections: Set<Collection> = new Set();
 
   constructor(public config: PulseConfig = defaultConfig) {
+    this.integrations = new Integrations(() => this);
     this.subController = new SubController(this);
     // this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, config.storage);
-    if (config.framework) this.initFrameworkIntegration(config.framework);
+    // if (config.framework) this.initFrameworkIntegration(config.framework);
     if (this.config.noCore === true) this.onInstanceReady();
     this.globalBind();
   }
@@ -60,7 +62,9 @@ export class Pulse {
    * @param initialState Any - the value to initialize a State instance with
    */
   public State<T>(initial: T) {
-    return new State<T>(() => this, initial);
+    const state = new State<T>(() => this, initial);
+    this._state.add(state);
+    return state;
   }
   /**
    * Create a Pulse computed function
@@ -69,7 +73,7 @@ export class Pulse {
    */
   public Computed<T = any>(func: () => any, deps?: Array<any>) {
     const computed = new Computed<T>(() => this, func, deps);
-    this.computed.add(computed);
+    this._computed.add(computed);
     return computed;
   }
 
@@ -81,7 +85,9 @@ export class Pulse {
    */
   public Collection<DataType = DefaultDataItem>() {
     return <G = GroupObj, S = SelectorObj>(config: Config<DataType, G, S>) => {
-      return new Collection<DataType, G, S>(() => this, config);
+      const collection = new Collection<DataType, G, S>(() => this, config);
+      this._collections.add(collection);
+      return collection;
     };
   }
   /**
@@ -169,13 +175,12 @@ export class Pulse {
     // Copy core object structure without destroying this.core object reference
     if (core) for (let p in core) this.core[p] = core[p];
 
-    this.computed.forEach(instance => instance.recompute());
+    this._computed.forEach(instance => instance.recompute());
   }
-  public initFrameworkIntegration(frameworkConstructor: any) {
-    use(frameworkConstructor, this);
-  }
-  public with(frameworkConstructor: any): this {
-    this.initFrameworkIntegration(frameworkConstructor);
+  // public initFrameworkIntegration(frameworkConstructor: any) {
+  //   use(frameworkConstructor, this);
+  // }
+  public use(): this {
     return this;
   }
 
