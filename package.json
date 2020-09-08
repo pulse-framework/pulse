@@ -7,7 +7,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "rimraf": "rimraf packages/**/dist",
-    "build": "tsc -b packages/pulse-core packages/pulse-react",
+    "build": "tsc -b packages/pulse-core",
     "build:integrations": "tsc -b packages/pulse-react",
     "test": "lerna run test"
   },
