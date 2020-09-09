@@ -8,24 +8,27 @@
     "bootstrap": "lerna bootstrap",
     "remove:build": "rimraf packages/**/dist packages/**/tsconfig.tsbuildinfo",
     "build": "tsc -b packages/pulse-core packages/pulse-react",
-    "build:integrations": "tsc -b packages/pulse-react",
-    "test": "lerna run test",
+    "dev": "tsc -b --watch packages/pulse-core packages/pulse-react",
+    "test": "jest packages/**",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
     "now-build": "yarn run docs:build"
-  }, 
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/pulse-framework/pulse"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.13",
     "@types/node": "^8.0.28",
+    "eslint-config-prettier": "^6.11.0",
+    "jest": "^26.4.2",
     "lerna": "^2.9.0",
-    "rimraf": "^2.6.2",
-    "typescript": "^3.9.7",
     "prettier": "2.0.5",
-    "vuepress": "^1.5.4",
-    "eslint-config-prettier": "^6.11.0"
+    "rimraf": "^2.6.2",
+    "ts-jest": "^26.3.0",
+    "typescript": "^3.9.7",
+    "vuepress": "^1.5.4"
   },
   "workspaces": [
     "packages/*"

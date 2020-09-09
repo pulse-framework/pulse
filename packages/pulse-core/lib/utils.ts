@@ -1,5 +1,4 @@
 import { Pulse, State, Collection } from './internal';
-import { extractAll } from './helpers/extractAll';
 import { isWatchableObject } from './helpers/isWatchableObj';
 
 export function cleanState<T>(state: State<T>): object {
@@ -11,15 +10,6 @@ export function cleanState<T>(state: State<T>): object {
     subscribers: state.dep.subs.size,
     name: state.name
   };
-}
-
-export function resetState(items: Iterable<State | Collection | any>) {
-  for (const item of items) {
-    if (item instanceof Collection) item.reset();
-    if (item instanceof State) return item.reset();
-    const stateSet = extractAll(State, item);
-    stateSet.forEach(state => state.reset());
-  }
 }
 
 export function getPulseInstance(state: State): Pulse {
