@@ -16,13 +16,10 @@ If any changes happen at runtime on the server, these changes must be sent with 
 
 ```ts
 import Pulse from '@pulsejs/core';
-import { React } from '@pulsejs/react';
-import { Next } from '@pulsejs/next';
+import PulseNext from '@pulsejs/next';
 
-const App = new Pulse().with(React, Next);
+const App = new Pulse().with(PulseNext);
 ```
-
-This code is not bundled with the main Pulse module, so you must import it from `/next`.
 
 # `preserveServerState()`
 

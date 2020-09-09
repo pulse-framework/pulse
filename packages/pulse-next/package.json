@@ -12,6 +12,7 @@
   },
   "peerDependencies": {
     "@pulsejs/core": "^3.3.0",
+    "@pulsejs/react": "^1.0.0",
     "react": "^16.13.1"
   },
   "devDependencies": {

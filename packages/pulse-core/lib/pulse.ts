@@ -31,11 +31,11 @@ export class Pulse {
   public integrations: Integrations;
 
   // Core reference
-  private core: { [key: string]: any } = {};
+  public core: { [key: string]: any } = {};
   // Context reference
-  private _computed: Set<Computed> = new Set();
-  private _state: Set<State> = new Set();
-  private _collections: Set<Collection> = new Set();
+  public _computed: Set<Computed> = new Set();
+  public _state: Set<State> = new Set();
+  public _collections: Set<Collection> = new Set();
 
   constructor(public config: PulseConfig = defaultConfig) {
     this.integrations = new Integrations(() => this);
