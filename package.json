@@ -7,8 +7,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "remove:build": "rimraf packages/**/dist packages/**/tsconfig.tsbuildinfo",
-    "build": "tsc -b packages/pulse-core packages/pulse-react",
-    "dev": "tsc -b --watch packages/pulse-core packages/pulse-react",
+    "build": "yarn remove:build && tsc -b packages/pulse-core packages/pulse-react",
+    "dev": "yarn remove:build && tsc -b --watch packages/pulse-core packages/pulse-react",
     "test": "jest packages/**",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
