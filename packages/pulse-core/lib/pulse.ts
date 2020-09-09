@@ -44,12 +44,14 @@ export class Pulse {
     this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, config.storage || {});
     // if (config.framework) this.initFrameworkIntegration(config.framework);
-    if (this.config.noCore === true) this.onInstanceReady();
     this.globalBind();
+
+    this.integrations.pulseReady();
+    if (this.config.noCore === true) this.onCoreReady();
   }
 
   public Core<CoreType>(core?: CoreType): CoreType {
-    if (!this.ready && core) this.onInstanceReady(core);
+    if (!this.ready && core) this.onCoreReady(core);
     return this.core as CoreType;
   }
 
@@ -169,13 +171,15 @@ export class Pulse {
   }
 
   // INTERNAL FUNCTIONS
-  private onInstanceReady(core?: { [key: string]: any }) {
+  private onCoreReady(core?: { [key: string]: any }) {
     this.ready = true;
 
     // Copy core object structure without destroying this.core object reference
     if (core) for (let p in core) this.core[p] = core[p];
 
     this._computed.forEach(instance => instance.recompute());
+
+    this.integrations.coreReady();
   }
   // public initFrameworkIntegration(frameworkConstructor: any) {
   //   use(frameworkConstructor, this);
