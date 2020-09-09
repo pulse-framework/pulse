@@ -14,8 +14,7 @@
     "@pulsejs/core": "^3.3.0"
   },
   "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
+    "access": "public"
   },
   "gitHead": "f6f4ab2b310e9cf13d15c3bc0268692296ecb1e8"
 }
