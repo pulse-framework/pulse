@@ -1,9 +1,0 @@
-{
-    "files": [],
-    "references": [
-        { "path": "pulse-core" },
-        { "path": "pulse-react" },
-        { "path": "pulse-vue" },
-        { "path": "pulse-next" },
-    ]
-}

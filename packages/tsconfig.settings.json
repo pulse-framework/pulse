@@ -10,6 +10,6 @@
     "composite": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "esModuleInterop": true,
+    "esModuleInterop": true
   }
 }

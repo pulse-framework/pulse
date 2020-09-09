@@ -1,6 +1,4 @@
-import * as http from 'http';
-
-type Body = { [key: string]: any };
+// type Body = { [key: string]: any };
 
 export interface PulseResponse<DataType = any> {
   data: DataType;
