@@ -43,10 +43,9 @@ export { isWatchableObject } from './helpers/isWatchableObj';
 // Types
 export { SetFunc } from './state';
 export { SubscriptionContainer } from './sub';
-export { PulseResponse } from './api/api';
+export { APIConfig, PulseResponse } from './api';
 export { PrimaryKey, GroupName, GroupAddOptions } from './collection/group';
 export { ControllerConfig, FuncObj, StateObj } from './controller';
 export { StorageConfig } from './storage';
 export { EventPayload, EventConfig, EventsObjFunc, EventCallbackFunc } from './event';
-export { APIConfig } from './api/api';
 export { GroupObj, DefaultDataItem, SelectorObj, Config } from './collection/collection';
