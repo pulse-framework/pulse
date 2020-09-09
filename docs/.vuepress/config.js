@@ -15,7 +15,7 @@ module.exports = {
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
     repo: 'jamiepine/pulse',
-    // Customising the header label
+    // Customizing the header label
     // Defaults to "GitHub"/"GitLab"/"Bitbucket" depending on `themeConfig.repo`
     repoLabel: 'Contribute!',
     // if your docs are not at the root of the repo:
