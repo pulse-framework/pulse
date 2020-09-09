@@ -1,6 +1,6 @@
 {
   "name": "@pulsejs/react",
-  "version": "1.0.0",
+  "version": "3.3.0",
   "author": "Jamie Pine",
   "license": "MIT",
   "description": "React integration for PulseJS",
