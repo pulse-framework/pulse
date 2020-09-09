@@ -8,7 +8,7 @@
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
     "scripts": {
-        "build": "tsc -b"
+        "build": "tsc"
     },
     "dependencies": {
         "@pulsejs/core": "^3.3.0",

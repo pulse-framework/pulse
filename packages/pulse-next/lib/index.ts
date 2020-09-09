@@ -1,4 +1,4 @@
-import { Collection, State, Computed, extractAll } from '../../index';
+import { Collection, State, Computed, extractAll } from '@pulsejs/core';
 
 export function preserveServerState(nextProps: { [key: string]: any }) {
   // const state = new Set<State>();
