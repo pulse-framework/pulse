@@ -25,7 +25,7 @@ export { StatusTracker } from './status';
 export { Integration, Integrations } from './integrate';
 
 // API
-export { API } from './api/api';
+export { API } from './api';
 
 // Internal Classes
 export { Runtime } from './runtime';
