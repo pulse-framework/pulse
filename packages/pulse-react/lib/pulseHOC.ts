@@ -1,4 +1,5 @@
-import { normalizeDeps, getPulseInstance } from '@pulsejs/core';
+import React from 'react';
+import { State, Pulse, normalizeDeps, getPulseInstance, SubscriptionContainer } from '@pulsejs/core';
 
 export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: string]: State } | State, pulseInstance?: Pulse) {
   let depsArray: Array<State>;
@@ -34,23 +35,14 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
     console.error('Pulse: No Valid PulseHOC properties');
     return ReactComponent;
   }
-
   // Check if pulse Instance exists
   if (!pulseInstance) {
     console.error('Pulse: Failed to get Pulse Instance');
     return ReactComponent;
   }
 
-  // Get React constructor
-  const React = pulseInstance.integration?.frameworkConstructor;
-  if (!React) {
-    console.error('Pulse: Failed to get Framework Constructor');
-    return ReactComponent;
-  }
-
   return class extends React.Component {
     public componentContainer: SubscriptionContainer | null = null; // Will be set in registerSubscription (sub.ts)
-
     public updatedProps = this.props;
 
     constructor(props: any) {
@@ -71,15 +63,12 @@ export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: stri
         this.state = depsObject;
       }
     }
-
     componentDidMount() {
       if (pulseInstance?.config.waitForMount) pulseInstance?.subController.mount(this);
     }
-
     componentWillUnmount() {
       pulseInstance?.subController.unsubscribe(this);
     }
-
     render() {
       return React.createElement(ReactComponent, this.updatedProps);
     }

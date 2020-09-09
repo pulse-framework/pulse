@@ -1,20 +1,20 @@
 {
-    "name": "@pulsejs/next",
-    "version": "1.0.0",
-    "author": "Jamie Pine",
-    "license": "MIT",
-    "description": "React integration for PulseJS",
-    "keywords": [],
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc"
-    },
-    "dependencies": {
-        "@pulsejs/core": "^3.3.0",
-        "react": "^16.13.1"
-    },
-    "devDependencies": {
-        "@types/react": "^16.9.49"
-    }
+  "name": "@pulsejs/next",
+  "version": "1.0.0",
+  "author": "Jamie Pine",
+  "license": "MIT",
+  "description": "React integration for PulseJS",
+  "keywords": [],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "@pulsejs/core": "^3.3.0",
+    "react": "^16.13.1"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.49"
+  }
 }

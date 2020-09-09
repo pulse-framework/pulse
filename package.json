@@ -7,6 +7,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "remove:build": "rimraf packages/**/dist packages/**/tsconfig.tsbuildinfo",
+    "remove:install": "lerna clean && rimraf node_modules",
     "build": "yarn remove:build && tsc -b packages/pulse-core packages/pulse-react",
     "dev": "yarn remove:build && tsc -b --watch packages/pulse-core packages/pulse-react",
     "test": "jest packages/**",

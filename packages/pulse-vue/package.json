@@ -1,18 +1,17 @@
 {
-    "name": "@pulsejs/vue",
-    "version": "1.0.0",
-    "author": "Jamie Pine",
-    "license": "MIT",
-    "description": "React integration for PulseJS",
-    "keywords": [],
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc -b"
-    },
-    "dependencies": {
-        "@pulsejs/core": "^3.3.0"
-    },
-    "devDependencies": {
-    }
+  "name": "@pulsejs/vue",
+  "version": "1.0.0",
+  "author": "Jamie Pine",
+  "license": "MIT",
+  "description": "React integration for PulseJS",
+  "keywords": [],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "peerDependencies": {
+    "@pulsejs/core": "^3.3.0"
+  },
+  "devDependencies": {}
 }
