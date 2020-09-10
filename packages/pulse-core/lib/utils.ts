@@ -12,10 +12,10 @@ export function cleanState<T>(state: State<T>): object {
   };
 }
 
-type ResetItem = Collection | State | Computed;
-type ResetItems = { [key: string]: ResetItem } | ResetItem | Collection;
+type ResetItem = { [key: string]: ResetItem } | Collection | State | Computed;
+type ResetItems = ResetItem | ResetItem[];
 
-export function resetState(stateToReset: ResetItems | ResetItems[]) {
+export function resetState(stateToReset: ResetItems) {
   if (!Array.isArray(stateToReset)) stateToReset = [stateToReset];
 
   for (let item of stateToReset) {
