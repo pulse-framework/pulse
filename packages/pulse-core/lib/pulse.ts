@@ -31,7 +31,7 @@ export class Pulse {
 
   // integrations
   public integrations: Integrations;
-  static initialIntegration: Integration;
+  static initialIntegrations: Integration[] = [];
 
   // Core reference
   public core: { [key: string]: any } = {};
@@ -152,14 +152,6 @@ export class Pulse {
    * Create a Pulse Error
    */
   public Error(error: any, code?: string) {}
-
-  /**
-   * Reset to initial state.
-   * - Supports: State, Collections and Groups
-   * - Removes persisted state from storage.
-   * @param Items Array of items to reset
-   */
-  public reset(items: Array<State | Group | Collection>): void {}
 
   /**
    * onError handler

@@ -28,4 +28,4 @@ export const PulseReact = new Integration({
   }
 });
 
-Pulse.initialIntegration = PulseReact;
+Pulse.initialIntegrations.push(PulseReact);

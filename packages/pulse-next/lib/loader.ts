@@ -5,7 +5,8 @@ interface PulseData {
   collections: Array<{ data: any; groups: { [key: string]: Array<PrimaryKey> } }>;
 }
 
-export function preserveServerState(instance: Pulse, nextProps: { [key: string]: any }) {
+export function preserveServerState(nextProps: { [key: string]: any }, instance?: Pulse) {
+  if (!instance) instance = getPulseInstance();
   const { _collections: collections, _state: state } = instance;
 
   const PULSE_DATA: PulseData = {
@@ -50,4 +51,7 @@ export function loadServerState(pulse: Pulse) {
 
 export function isServer() {
   return typeof process !== 'undefined' && process?.release?.name === 'node';
+}
+export function getPulseInstance(): Pulse {
+  return globalThis['__pulse__app'] || false;
 }
