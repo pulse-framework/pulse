@@ -36,7 +36,7 @@ export { SubController, ComponentContainer, CallbackContainer } from './sub';
 // Helper functions
 // export { usePulse, useEvent } from './old/react.integration';
 // export { PulseHOC } from './old/react.integration';
-export { cleanState, normalizeDeps, getPulseInstance } from './utils';
+export { cleanState, resetState, normalizeDeps, getPulseInstance } from './utils';
 export { persist } from './storage';
 export { isWatchableObject } from './helpers/isWatchableObj';
 

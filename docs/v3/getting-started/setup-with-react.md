@@ -7,24 +7,15 @@ title: Setup With React
 ## Installation
 
 ```
-npm i pulse-framework
+yarn add @pulsejs/core @pulsejs/react
 ```
 
 ## Initialization
 
 ```ts
-import Pulse from 'pulse-framework';
-import React from 'react';
+import Pulse from '@pulsejs/react';
 
-export const App = new Pulse({
-    framework: React;
-})
-```
-OR
-```ts
-import Pulse from 'pulse-framework/react';
-
-export const App = new Pulse();
+export const App = new Pulse()
 ```
 
 Follow this [guide]() to learn how to set up your core

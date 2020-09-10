@@ -1,6 +1,5 @@
 // prettier-ignore
-import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, Integrations } from './internal';
-import { Integration } from './integrate';
+import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, Integrations, Integration } from './internal';
 
 export interface PulseConfig {
   computedDefault?: any;
@@ -29,7 +28,10 @@ export class Pulse {
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
   public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
+
+  // integrations
   public integrations: Integrations;
+  static initialIntegration: Integration;
 
   // Core reference
   public core: { [key: string]: any } = {};
@@ -90,7 +92,7 @@ export class Pulse {
     return <G extends GroupObj = GroupObj, S extends SelectorObj = SelectorObj>(config: Config<DataType, G, S>) => {
       const collection = new Collection<DataType, G, S>(() => this, config);
       this._collections.add(collection);
-      return collection;
+      return collection as Collection<DataType, G, S>;
     };
   }
   /**

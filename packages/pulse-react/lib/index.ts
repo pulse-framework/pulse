@@ -5,8 +5,10 @@ export { PulseHOC } from './pulseHOC';
 export { usePulse } from './usePulse';
 export { useEvent } from './useEvent';
 
+export * from '@pulsejs/core';
+
 // declare pulse plugin
-export default new Integration({
+export const PulseReact = new Integration({
   name: 'react',
   foreignInstance: React,
   // used by the pulseHOC
@@ -24,3 +26,7 @@ export default new Integration({
     }
   }
 });
+
+export default Pulse;
+
+Pulse.initialIntegration = PulseReact;

@@ -1,5 +1,6 @@
-import { Pulse, State, Collection } from './internal';
+import { Pulse, State, Collection, Computed } from './internal';
 import { isWatchableObject } from './helpers/isWatchableObj';
+import { StateObj } from './controller';
 
 export function cleanState<T>(state: State<T>): object {
   return {
@@ -11,6 +12,33 @@ export function cleanState<T>(state: State<T>): object {
     name: state.name
   };
 }
+
+type ResetItem = Collection<any, any, any> | State<any> | Computed<any>;
+type ResetItems = { [key: string]: ResetItem } | ResetItem | Collection<any, any, any>;
+
+export function resetState(stateToReset: ResetItems | ResetItems[]) {
+  if (!Array.isArray(stateToReset)) stateToReset = [stateToReset];
+
+  for (let item of stateToReset) {
+    if (item instanceof State || item instanceof Collection) item.reset();
+    else if (typeof item !== 'object') {
+      const keys = Object.keys(item);
+      for (let name of keys) {
+        const stateOrCollection = item[name] as State | Collection;
+        if (stateOrCollection instanceof State || stateOrCollection instanceof Collection) stateOrCollection.reset();
+      }
+    }
+  }
+}
+
+const App = new Pulse();
+
+const reset = {
+  jeff: App.State<boolean>(true),
+  jeff2: App.Computed<boolean>(() => true)
+};
+
+resetState([reset]);
 
 export function getPulseInstance(state: State): Pulse {
   try {
