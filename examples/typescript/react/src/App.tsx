@@ -7,9 +7,7 @@ const App = new Pulse();
 
 const JEFF = App.State(0);
 
-JEFF.interval(val => {
-  return (val + 1) * 2;
-});
+JEFF.interval(val => ++val);
 
 const core = App.Core({ JEFF });
 

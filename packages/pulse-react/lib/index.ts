@@ -6,6 +6,7 @@ export { usePulse } from './usePulse';
 export { useEvent } from './useEvent';
 
 export * from '@pulsejs/core';
+export default Pulse;
 
 // declare pulse plugin
 export const PulseReact = new Integration({
@@ -26,7 +27,5 @@ export const PulseReact = new Integration({
     }
   }
 });
-
-export default Pulse;
 
 Pulse.initialIntegration = PulseReact;
