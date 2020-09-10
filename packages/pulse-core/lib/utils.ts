@@ -12,7 +12,7 @@ export function cleanState<T>(state: State<T>): object {
   };
 }
 
-type ResetItem = { [key: string]: ResetItem } | Collection | State | Computed;
+type ResetItem = { [key: string]: ResetItem } | Collection<any, any, any> | State | Computed;
 type ResetItems = ResetItem | ResetItem[];
 
 export function resetState(stateToReset: ResetItems) {
