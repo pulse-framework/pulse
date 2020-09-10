@@ -12,8 +12,8 @@ export function cleanState<T>(state: State<T>): object {
   };
 }
 
-type ResetItem = Collection<any, any, any> | State<any> | Computed<any>;
-type ResetItems = { [key: string]: ResetItem } | ResetItem | Collection<any, any, any>;
+type ResetItem = Collection | State | Computed;
+type ResetItems = { [key: string]: ResetItem } | ResetItem | Collection;
 
 export function resetState(stateToReset: ResetItems | ResetItems[]) {
   if (!Array.isArray(stateToReset)) stateToReset = [stateToReset];

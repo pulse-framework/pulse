@@ -1,8 +1,22 @@
 ---
-title: NextJS SSR
+title: Setup With Next
 ---
 
-## Introduction
+# React Setup
+
+## Installation
+
+```
+yarn add @pulsejs/core @pulsejs/next
+```
+
+## Initialization
+
+```ts
+import Pulse from '@pulsejs/react';
+
+export const App = new Pulse();
+```
 
 NextJS is built on top of React, which means Pulse will work just the same as usual. However if your application needs to make state changes server-side then this add-on for Pulse will help you out!
 
@@ -15,10 +29,9 @@ If any changes happen at runtime on the server, these changes must be sent with 
 ## Setup
 
 ```ts
-import Pulse from '@pulsejs/core';
-import PulseNext from '@pulsejs/next';
+import Pulse from '@pulsejs/next';
 
-const App = new Pulse().with(PulseNext);
+const App = new Pulse();
 ```
 
 # `preserveServerState()`
