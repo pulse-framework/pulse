@@ -1,6 +1,5 @@
 import { Pulse, State, Collection, Computed } from './internal';
 import { isWatchableObject } from './helpers/isWatchableObj';
-import { StateObj } from './controller';
 
 export function cleanState<T>(state: State<T>): object {
   return {
@@ -30,15 +29,6 @@ export function resetState(stateToReset: ResetItems | ResetItems[]) {
     }
   }
 }
-
-const App = new Pulse();
-
-const reset = {
-  jeff: App.State<boolean>(true),
-  jeff2: App.Computed<boolean>(() => true)
-};
-
-resetState([reset]);
 
 export function getPulseInstance(state: State): Pulse {
   try {
