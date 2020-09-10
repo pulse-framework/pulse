@@ -17,7 +17,9 @@ export class Integration<T = any> {
 export class Integrations {
   public loaded: { [key: string]: Integration } = {};
   public loadedSet: Set<Integration> = new Set();
-  constructor(public instance: () => Pulse) {}
+  constructor(public instance: () => Pulse) {
+    if (Pulse.initialIntegration) this.use(Pulse.initialIntegration);
+  }
   public use(integration: Integration) {
     if (!(integration instanceof Integration) || !integration.config.name) throw 'Pulse Error: Not a valid integration object';
     this.loaded[integration.config.name] = integration;
