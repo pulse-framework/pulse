@@ -11,7 +11,7 @@
     "build": "yarn remove:build && tsc -b packages/pulse-core packages/pulse-react packages/pulse-next",
     "dev": "yarn remove:build && tsc -b --watch packages/pulse-core packages/pulse-react packages/pulse-next",
     "test": "jest packages/**",
-    "release": "lerna publish --force-publish",
+    "release": "yarn build && lerna publish --force-publish",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
     "now-build": "yarn run docs:build"
