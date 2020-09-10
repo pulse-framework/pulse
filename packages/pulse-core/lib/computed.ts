@@ -7,7 +7,7 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
   }
 
   public get value(): ComputedValueType {
-    return this.value;
+    return this._value;
   }
 
   public set bind(val: ComputedValueType) {
