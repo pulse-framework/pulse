@@ -37,9 +37,9 @@ const core = App.Core({
 export default new Vue({
   el: '#vue',
   data: {
-    ...this.usePulse({
-      myState: this.core.MY_STATE
-    })
+    ...this.mapCore(core => ({
+      localName: core.MY_STATE
+    }))
   }
 });
 ```
