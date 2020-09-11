@@ -1,53 +1,38 @@
 {
-  "name": "pulse-framework",
-  "version": "3.1.0",
+  "private": true,
   "description": "Global state and logic framework for reactive JavaScript & TypeScript applications.",
-  "main": "./index.js",
-  "types": "./index.d.ts",
-  "module": "pulse-framework",
   "author": "Jamie Pine",
   "license": "MIT",
   "syncDir": "dist",
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "remove:build": "rimraf packages/**/dist packages/**/tsconfig.tsbuildinfo",
+    "remove:install": "lerna clean && rimraf node_modules",
+    "build": "yarn remove:build && tsc -b packages/pulse-core packages/pulse-react packages/pulse-next",
+    "dev": "yarn remove:build && tsc -b --watch packages/pulse-core packages/pulse-react packages/pulse-next",
+    "test": "jest packages/**",
+    "release": "yarn build && lerna publish --force-publish",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs --dest ./docs/dist/",
+    "now-build": "yarn run docs:build"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/pulse-framework/pulse"
   },
-  "scripts": {
-    "build": "yarn cleanup && webpack --config ./config/webpack.config.prod.js && yarn cleanup --post",
-    "dev": "yarn cleanup && webpack --config ./config/webpack.config.dev.js",
-    "cleanup": "node ./scripts/cleanup.js",
-    "prep": "yarn build && cp package.json README.md .gitignore ./dist",
-    "prep:publish": "yarn prep && yarn publish ./dist",
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs --dest ./docs/dist/",
-    "now-build": "yarn run docs:build",
-    "typecheck": "tsc --noEmit",
-    "test": "mocha -r ts-node/register --r jsdom-global/register --exit test/**/*.spec.ts",
-    "test:debug": "mocha -r ts-node/register --r jsdom-global/register --inspect-brk test/**/*.spec.ts",
-    "test:react": "(cd ./examples/react-typescript && yarn start)"
-  },
   "devDependencies": {
-    "@types/chai": "^4.2.12",
-    "@types/mocha": "^8.0.2",
-    "@types/node": "^14.6.4",
-    "@types/webpack": "^4.41.22",
-    "chai": "^4.2.0",
-    "dts-bundle-webpack": "^1.0.2",
+    "@types/jest": "^26.0.13",
+    "@types/node": "^8.0.28",
     "eslint-config-prettier": "^6.11.0",
-    "jsdom": "^16.4.0",
-    "jsdom-global": "^3.0.2",
-    "mocha": "^8.1.1",
-    "mock-local-storage": "^1.1.15",
+    "jest": "^26.4.2",
+    "lerna": "^2.9.0",
     "prettier": "2.0.5",
-    "terser-webpack-plugin": "^4.1.0",
-    "ts-loader": "^8.0.3",
-    "ts-node": "^8.10.2",
-    "tsc-watch": "^4.1.0",
-    "tslib": "^2.0.0",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^26.3.0",
     "typescript": "^3.9.7",
-    "uglify-js": "^3.10.3",
-    "vuepress": "^1.5.4",
-    "webpack": "^5.0.0-beta.29",
-    "webpack-cli": "^3.3.12"
-  }
+    "vuepress": "^1.5.4"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

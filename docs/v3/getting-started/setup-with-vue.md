@@ -11,37 +11,35 @@ Vue was a large part of previous versions, so we're eager to add Vue support for
 ## Installation
 
 ```
-npm i pulse-framework
+yarn add @pulsejs/core @pulsejs/vue
 ```
 
 ## Initialization
 
 ```ts
-import Pulse from 'pulse-framework';
-import Vue from 'vue';
+import Pulse from '@pulsejs/vue';
 
-export const App = new Pulse().with(Vue);
+export const App = new Pulse();
 ```
 
 ## Example
+
 ```ts
-import Pulse from 'pulse-framework';
 import Vue from 'vue';
+import Pulse from '@pulsejs/vue';
 
-const App = new Pulse().with(Vue);
+export const App = new Pulse();
 
-const core = {
-    MY_STATE: App.State(true)
-};
-
-Vue.use(App.Core(core));
+const core = App.Core({
+  MY_STATE: App.State(true)
+});
 
 export default new Vue({
   el: '#vue',
   data: {
-    ...this.usePulse({
-        myState: this.core.MY_STATE
-    })
+    ...this.mapCore(core => ({
+      localName: core.MY_STATE
+    }))
   }
 });
 ```
