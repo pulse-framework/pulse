@@ -4,7 +4,7 @@ title: Setup With Next
 
 # NextJS Setup
 
-NextJS is a web framework for React. [Learn more.]()
+NextJS is a web framework for React. [Learn more.](https://nextjs.org/)
 
 ## Installation
 
