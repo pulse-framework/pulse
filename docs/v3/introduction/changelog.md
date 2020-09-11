@@ -19,7 +19,7 @@ This is the current release build available on NPM
 yarn add @pulsejs/core
 ```
 
-See updated integration with [React](../getting-started/setup-with-react.html) and [Next](../getting-started/setup-with-vue.html)
+See updated integration with [React](../getting-started/setup-with-react.html) and [Next](../getting-started/setup-with-next.html)
 :::
 
 - Deprecated NPM package `pulse-framework`
