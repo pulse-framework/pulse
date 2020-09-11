@@ -11,12 +11,15 @@ This update is currently being worked on, but will be released soon!
 - Added support for VueJS
 
 ## 3.3 - The one with [@pulsejs]() imports
-::: tip Current NPM version 
+
+::: tip Current NPM version
 This is the current release build available on NPM
+
 ```
 yarn add @pulsejs/core
 ```
-See updated integration with [React]() and [Next]()
+
+See updated integration with [React](../getting-started/setup-with-react.html) and [Next](../getting-started/setup-with-vue.html)
 :::
 
 - Deprecated NPM package `pulse-framework`
