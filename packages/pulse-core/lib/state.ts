@@ -27,6 +27,9 @@ export class State<ValueType = any> {
   public persistState: boolean;
   // if this State locked to a particular type
   public typeOfVal?: string;
+  // history
+  public enableHistory?: boolean;
+  public history?: HistoryItem[];
   // for extended classes to perform actions upon state change
   public sideEffects?: Function;
   // // for extended classes to store a derived value, such as Group
@@ -82,7 +85,7 @@ export class State<ValueType = any> {
   }
 
   public getPublicValue(): ValueType {
-    if (this["output"] !== undefined) return this["output"];
+    if (this['output'] !== undefined) return this['output'];
     return this._value;
   }
 
@@ -172,6 +175,15 @@ export class State<ValueType = any> {
   public undo() {
     this.set(this.previousState);
   }
+  /**
+   * @public
+   * Records all state changes
+   */
+  public record(record?: boolean): this {
+    if (!this.history) this.history = [];
+    this.enableHistory = record === false ? false : true;
+    return this;
+  }
 
   /**
    * @public
@@ -225,6 +237,13 @@ export class State<ValueType = any> {
    * Write value directly to State
    */
   public privateWrite(value: any) {
+    if (this.enableHistory) {
+      this.history.push({
+        value: value,
+        previousValue: this._value,
+        timestamp: new Date()
+      });
+    }
     this._value = copy(value);
     this.nextState = copy(value);
     // If
@@ -277,3 +296,9 @@ export default State;
 export type SetFunc<ValueType> = (state: ValueType) => ValueType;
 type TypeString = 'string' | 'boolean' | 'array' | 'object' | 'number';
 type TypeConstructor = StringConstructor | BooleanConstructor | ArrayConstructor | ObjectConstructor | NumberConstructor;
+
+export interface HistoryItem<ValueType = any> {
+  previousValue: ValueType;
+  value: ValueType;
+  timestamp: Date;
+}
