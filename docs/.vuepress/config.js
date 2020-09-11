@@ -15,7 +15,7 @@ module.exports = {
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
     repo: 'jamiepine/pulse',
-    // Customising the header label
+    // Customizing the header label
     // Defaults to "GitHub"/"GitLab"/"Bitbucket" depending on `themeConfig.repo`
     repoLabel: 'Contribute!',
     // if your docs are not at the root of the repo:
@@ -121,7 +121,12 @@ module.exports = {
         {
           title: 'Getting Started',
           collapsable: false,
-          children: ['getting-started/setup-with-react', 'getting-started/setup-with-vue', 'getting-started/concepts']
+          children: [
+            'getting-started/concepts',
+            'getting-started/setup-with-react',
+            'getting-started/setup-with-vue',
+            'getting-started/setup-with-next'
+          ]
         },
         {
           title: 'Documentation',
@@ -136,8 +141,7 @@ module.exports = {
             'docs/core',
             'docs/api',
             'docs/persisting-data',
-            'docs/events',
-            'docs/ssr'
+            'docs/events'
           ]
         },
         {

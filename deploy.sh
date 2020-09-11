@@ -4,7 +4,7 @@ y#!/usr/bin/env sh
 set -e
 
 # build
-npm run docs:build
+yern docs:build
 
 # navigate into the build output directory
 cd docs/.vuepress/dist

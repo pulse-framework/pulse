@@ -2,7 +2,7 @@
 title: Changelog
 ---
 
-## 3.3 - The one with VueJS support
+## 3.4 - The one with VueJS support
 
 ::: warning Work in progress
 This update is currently being worked on, but will be released soon!
@@ -10,11 +10,24 @@ This update is currently being worked on, but will be released soon!
 
 - Added support for VueJS
 
+## 3.3 - The one with [@pulsejs]() imports
+::: tip Current NPM version 
+This is the current release build available on NPM
+```
+yarn add @pulsejs/core
+```
+See updated integration with [React]() and [Next]()
+:::
+
+- Deprecated NPM package `pulse-framework`
+- Converted Pulse to monorepo with new NPM org ([@pulsejs](https://www.npmjs.com/org/pulsejs))
+- Removed `framework` and `frameworkConstructor` from Pulse config
+- Added packages `@pulsejs/react`, `@pulsejs/next`
+- Fixed major bug with NextJS support
+
 ## 3.2 - The one with NextJS support
 
-::: tip NPM version
-This is the current release build available on NPM
-:::
+This release features NextJS support, however is not as stable as 3.3, so we recommend using that instead.
 
 - Added [NextJS support]() for server-side rendering
 - Added default Group for Collections [More]()
