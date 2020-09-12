@@ -9,6 +9,7 @@ This update is currently being worked on, but will be released soon!
 :::
 
 - Added support for VueJS
+- Added State.record() to optionally track mutation history
 
 ## 3.3 - The one with [@pulsejs]() imports
 ::: tip Current NPM version 
