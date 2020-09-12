@@ -27,7 +27,7 @@
       </template>
     </Sidebar>
 
-    <Home v-if="$page.frontmatter.home" />
+    <Home v-if="$page.frontmatter.home"/>
 
     <Page
       v-else
@@ -149,3 +149,11 @@ export default {
   }
 }
 </script>
+<style>
+main {
+  height: 100%;
+}
+.theme-container {
+  height: 100%;
+}
+</style>

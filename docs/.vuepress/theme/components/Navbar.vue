@@ -19,6 +19,7 @@
         :class="{ 'can-hide': $site.themeConfig.logo }"
       >{{ $siteTitle }}</span>
     </RouterLink>
+    
 
     <div
       class="links"
@@ -32,6 +33,7 @@
       />
       <SearchBox v-else-if="$site.themeConfig.search !== false && $page.frontmatter.search !== false" />
       <NavLinks class="can-hide" />
+      <ToggleDarkMode />
     </div>
   </header>
 </template>
@@ -41,11 +43,13 @@ import AlgoliaSearchBox from '@AlgoliaSearchBox'
 import SearchBox from '@SearchBox'
 import SidebarButton from '@theme/components/SidebarButton.vue'
 import NavLinks from '@theme/components/NavLinks.vue'
+import ToggleDarkMode from '@theme/components/ToggleDark.vue';
 
 export default {
   name: 'Navbar',
 
   components: {
+    ToggleDarkMode,
     SidebarButton,
     NavLinks,
     SearchBox,
