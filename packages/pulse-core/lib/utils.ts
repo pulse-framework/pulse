@@ -1,4 +1,4 @@
-import { Pulse, State, Collection, Computed } from './internal';
+import { Pulse, State, Collection, Computed, Controller } from './internal';
 import { isWatchableObject } from './helpers/isWatchableObj';
 
 export function cleanState<T>(state: State<T>): object {
@@ -19,11 +19,11 @@ export function resetState(stateToReset: ResetItems) {
   if (!Array.isArray(stateToReset)) stateToReset = [stateToReset];
 
   for (const item of stateToReset) {
-    if (item instanceof State || item instanceof Collection) item.reset();
+    if (item instanceof State || item instanceof Collection || item instanceof Controller) item.reset();
     else if (typeof item === 'object') {
       for (const name in item) {
-        const stateOrCollection = item[name] as State | Collection;
-        if (stateOrCollection instanceof State || stateOrCollection instanceof Collection) stateOrCollection.reset();
+        const instance = item[name] as State | Collection | Controller;
+        if (instance instanceof State || instance instanceof Collection || instance instanceof Controller) instance.reset();
       }
     } else console.warn('Pulse: resetState: item is not of type State | Collection | object', { item });
   }
