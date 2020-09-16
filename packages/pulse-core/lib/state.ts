@@ -46,11 +46,11 @@ export class State<ValueType = any> {
     return !!this.value;
   }
 
-  constructor(public instance: () => Pulse, public initialState, deps: Array<Dep> = []) {
+  constructor(public instance: () => Pulse, public initialState?: ValueType | null, deps: Array<Dep> = []) {
     // initialize the dependency manager
     this.dep = new Dep(deps);
     // write the initial value to this State
-    this.privateWrite(initialState);
+    this.privateWrite(initialState === undefined ? null : initialState);
   }
 
   /**

@@ -66,7 +66,7 @@ export class Pulse {
    * Create Pulse state
    * @param initialState Any - the value to initialize a State instance with
    */
-  public State<T>(initial: T) {
+  public State<T>(initial?: T) {
     const state = new State<T>(() => this, initial);
     this._state.add(state);
     return state;

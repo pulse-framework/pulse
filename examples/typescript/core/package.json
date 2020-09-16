@@ -1,0 +1,21 @@
+{
+  "name": "pulse-example-core",
+  "version": "1.0.0",
+  "author": "Jamie Pine",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pulse-framework/pulse"
+  },
+  "dependencies": {
+    "@pulsejs/core": "file:../../../packages/pulse-core/dist"
+  }
+}
