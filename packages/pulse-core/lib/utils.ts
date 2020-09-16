@@ -18,15 +18,14 @@ type ResetItems = ResetItem | ResetItem[];
 export function resetState(stateToReset: ResetItems) {
   if (!Array.isArray(stateToReset)) stateToReset = [stateToReset];
 
-  for (let item of stateToReset) {
+  for (const item of stateToReset) {
     if (item instanceof State || item instanceof Collection) item.reset();
-    else if (typeof item !== 'object') {
-      const keys = Object.keys(item);
-      for (let name of keys) {
+    else if (typeof item === 'object') {
+      for (const name in item) {
         const stateOrCollection = item[name] as State | Collection;
         if (stateOrCollection instanceof State || stateOrCollection instanceof Collection) stateOrCollection.reset();
       }
-    }
+    } else console.warn('Pulse: resetState: item is not of type State | Collection | object', { item });
   }
 }
 
