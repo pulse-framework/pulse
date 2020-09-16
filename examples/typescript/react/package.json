@@ -14,8 +14,9 @@
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.3",
     "typescript": "~3.7.2",
-    "@pulsejs/core": "file:../../../packages/pulse-core/dist",
-    "@pulsejs/react": "file:../../../packages/pulse-react/dist"
+    "pulse-example-core": "file:../../../examples/core",
+    "@pulsejs/core": "^3.3.9",
+    "@pulsejs/react": "^3.3.9"
   },
   "scripts": {
     "start": "react-scripts start",

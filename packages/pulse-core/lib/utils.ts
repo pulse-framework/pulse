@@ -12,20 +12,21 @@ export function cleanState<T>(state: State<T>): object {
   };
 }
 
-type ResetItem = { [key: string]: ResetItem } | Collection<any, any, any> | State | Computed;
+type PulseResettableInstance = Collection<any, any, any> | State | Computed | Controller;
+type ResetItem = { [key: string]: ResetItem } | PulseResettableInstance;
 type ResetItems = ResetItem | ResetItem[];
 
 export function resetState(stateToReset: ResetItems) {
+  const check = (instance: Collection | State | Computed | Controller) => {
+    if (typeof instance.reset === 'function') {
+      instance.reset();
+      return true;
+    } else return false;
+  };
   if (!Array.isArray(stateToReset)) stateToReset = [stateToReset];
-
-  for (const item of stateToReset) {
-    if (item instanceof State || item instanceof Collection || item instanceof Controller) item.reset();
-    else if (typeof item === 'object') {
-      for (const name in item) {
-        const instance = item[name] as State | Collection | Controller;
-        if (instance instanceof State || instance instanceof Collection || instance instanceof Controller) instance.reset();
-      }
-    } else console.warn('Pulse: resetState: item is not of type State | Collection | object', { item });
+  for (const i in stateToReset) {
+    const success = check(stateToReset[i] as PulseResettableInstance);
+    if (!success && typeof stateToReset[i] === 'object') for (const name in stateToReset[i]) check(stateToReset[i][name]);
   }
 }
 

@@ -1,1 +1,3 @@
-export * from './core';
+import core from './core';
+
+export default core;

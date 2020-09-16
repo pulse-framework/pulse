@@ -204,8 +204,8 @@ export class State<ValueType = any> {
   public reset(): this {
     this.isSet = false;
     this.previousState = null;
-    this.privateWrite(this.initialState);
     if (this.persistState) this.instance().storage.remove(this.name);
+    this.instance().runtime.ingest(this, this.initialState);
     return this;
   }
 

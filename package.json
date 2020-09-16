@@ -8,6 +8,8 @@
     "bootstrap": "lerna bootstrap",
     "remove:build": "rimraf packages/**/dist packages/**/tsconfig.tsbuildinfo",
     "remove:install": "lerna clean && rimraf node_modules",
+    "setup:react": "yarn build && (cd packages/pulse-react && yarn link) && (cd packages/pulse-core && yarn link) && (cd examples/typescript/core && yarn link @pulsejs/core && yarn link) && (cd examples/typescript/react && yarn link @pulsejs/react && yarn link @pulsejs/core && yarn link pulse-example-core)",
+    "test:react": "(cd examples/typescript/react && yarn start)",
     "build": "yarn remove:build && tsc -b packages/pulse-core packages/pulse-react packages/pulse-vue packages/pulse-next",
     "dev": "yarn remove:build && tsc -b --watch packages/pulse-core packages/pulse-react packages/pulse-vue packages/pulse-next",
     "test": "jest packages/**",
