@@ -2,7 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import Pulse, { usePulse } from '@pulsejs/react';
+import Pulse, { usePulse, useWatcher } from '@pulsejs/react';
 import { resetState } from '@pulsejs/core';
 
 import core from 'pulse-example-core';
@@ -22,6 +22,11 @@ globalThis['resetState'] = resetState;
 
 function MyApp() {
   const jeff = usePulse(core.accounts.ACCOUNT);
+
+  useWatcher(core.accounts.state.SESSION_TOKEN, () => {
+    console.log('token changed!');
+  });
+
   return (
     <div className="App">
       <header className="App-header">

@@ -39,6 +39,7 @@ export class Pulse {
   public _computed: Set<Computed> = new Set();
   public _state: Set<State> = new Set();
   public _collections: Set<Collection> = new Set();
+  private nonce = 0;
 
   constructor(public config: PulseConfig = defaultConfig) {
     this.integrations = new Integrations(() => this);
@@ -201,6 +202,11 @@ export class Pulse {
     } catch (error) {
       // fail silently
     }
+  }
+
+  public getNonce() {
+    this.nonce++;
+    return this.nonce;
   }
 }
 

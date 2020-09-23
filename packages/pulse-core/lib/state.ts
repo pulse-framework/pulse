@@ -149,21 +149,26 @@ export class State<ValueType = any> {
    * @public
    * Watch state for changes, run callback on each change
    */
-  public watch(key: number | string, callback: (value: any) => void): this {
+  public watch(callback: Callback<ValueType>): string | number;
+  public watch(key: string | number, callback: Callback<ValueType>): this;
+  public watch(keyOrCallback: string | number | Callback<ValueType>, callback?: Callback<ValueType>): this | string | number {
     if (!this.watchers) this.watchers = {};
+    let genKey = typeof keyOrCallback === 'function',
+      key: string | number;
 
-    if (typeof key !== 'string' || typeof key !== 'number' || typeof callback !== 'function') {
-      // console.error('Pulse watch, missing key or function');
-    }
+    if (genKey) key = this.instance().getNonce();
+    else key = keyOrCallback as string | number;
+
     this.watchers[key] = callback;
-    return this;
+
+    return genKey ? key : this;
   }
 
   /**
    * @public
    * Remove watcher by key
    */
-  public removeWatcher(key: number | string): this {
+  public removeWatcher(key: string | number): this {
     delete this.watchers[key];
     return this;
   }
@@ -302,3 +307,5 @@ export interface HistoryItem<ValueType = any> {
   value: ValueType;
   timestamp: Date;
 }
+
+type Callback<T = any> = (value: T) => void;

@@ -6,7 +6,7 @@ export const state = {
   // store the master copy of the current account
   AUTHED_ACCOUNT: App.State<Partial<Account>>({}),
   // store the session token & persist
-  SESSION_TOKEN: App.State('').persist().type(String),
+  SESSION_TOKEN: App.State('jeff').persist().type(String),
   // store the last email & persist
   LAST_EMAIL: App.State('').persist().type(String),
   // store account settings
