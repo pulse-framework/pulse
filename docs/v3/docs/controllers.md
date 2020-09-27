@@ -26,38 +26,37 @@ The first parameter of the Controller function is `ControllerConfig`
 const App = new Pulse();
 
 const config = {
-    collection: App.Collection()(),
-    state: {
-        MY_STATE: App.State(boolean),
-        MY_COMPUTED_STATE: App.Computed<boolean>(() => true)
-    }
-}
+  collection: App.Collection()(),
+  state: {
+    MY_STATE: App.State(),
+    MY_COMPUTED_STATE: App.Computed(() => true)
+  }
+};
 export const accounts = App.Controller(config);
 ```
 
-### Controller Config Structure
+## Config Structure
 
-> The following example is demonstrating the structure of the `ControllerConfig` with a Typescript interface, in practice this of course would be a real object.
+Each of the below properties passed into the config will be made available on the root. Think of these as pre-defined containers within your controller.
 
-```js
-interface ControllerConfig {
-    name?: string;
-    collection?: Collection | { [name: string]: Collection }; // A single Collection, or an object of Collections
-    groups?: { [name: string]: Group } // an object of Groups
-    selectors?: { [name: string]: Selector } // an object of Selectors
-    actions?: { [name: string]: Function } // an object of functions
-    helpers?: { [name: string]: Function }  // an object of functions
-    routes?: { [name: string]: Function }  // an object of functions
-}
-```
+| parameter      | type                     | description                                                                           |
+| -------------- | ------------------------ | ------------------------------------------------------------------------------------- |
+| `state?`       | `Object` of `State`      | A container for State objects.                                                        |
+| `collection?`  | `Collection`             | The primary Collection also exposes `.groups` and `.selectors` to root of controller. |
+| `collections?` | `Object` of `Collection` | Other Collection instances this controller may need.                                  |
+| `actions?`     | `Object` of `Function`   |                                                                                       |
+| `routes?`      | `Object` of `Function`   |                                                                                       |
+| `helpers?`     | `Object` of `Function`   |                                                                                       |
 
-These are the only available properties for the `ControllerConfig`, any aditional will be ignored. However it is possible to add custom root properties ([See Below](#custom-root-properties)).
+These are the only available properties for the `ControllerConfig`, any additional will be ignored. However it is possible to add custom root properties ([See .root()](#methods)).
 
 ::: tip Type Safety
 For Typescript users, the inferred types of the object you pass in will be preserved, but only for the properties shown on the above object.
 :::
 
-## Custom Root Properties
+## Methods
+
+# `.root()`
 
 In some cases you will prefer to use more than the default Controller categories, you might want to spread actions to the root of the controller instance so they can be access like the following.
 
@@ -65,23 +64,21 @@ In some cases you will prefer to use more than the default Controller categories
 accounts.myAction();
 ```
 
-We can do this with the second parameter of the `App.Controller` function. The properties of the supplied object will be spread to the root of the Controller instance.
+The `Controller.root()` method will return the Controller instance with the properties of the object supplied infused into the Controller at root level.
 
-In order to maintain type safety we can export the account and cast a custom type that combines the `controller` with `actions` in this case.
+```ts
+const state = { MY_STATE: App.State() };
+const actions = { myAction: App.Action() };
 
-```js
-const controller = App.Controller({
-    state: AccountState,
-    collection: AccountCollection,
-    routes,
-}, actions);
+const controller = App.Controller({ state }).root(actions);
 
-export const accounts = controller as typeof controller & typeof actions;
+controller.state.MY_STATE;
+controller.myAction();
 ```
 
 ## Structure
 
-This is how a controller folder should be organised.
+This is how a controller folder should be organized.
 
 ### `index.ts`
 
@@ -94,10 +91,7 @@ import { state, computed, collection } from './state';
 import * as actions from './actions';
 
 // init controller, merge state and computed state
-const controller = App.Controller({ state: { ...state, ...computed }, collection }, actions);
-
-// export with typesaftey
-export default controller as typeof controller & typeof actions;
+const controller = App.Controller({ state: { ...state, ...computed }, collection }).root(actions);
 ```
 
 The order of imports above is important, state/collections must be imported first to also allow them to be imported into `actions.ts` without creating a cyclic import. Sometimes this can cause `import * as ...` to return an empty object at runtime, following this structure will avoid that.
@@ -108,22 +102,22 @@ The order of imports above is important, state/collections must be imported firs
 import App from '../../app';
 
 export const collection = App.Collection()(Collection => ({
-    groups: {
-        MY_GROUP: Collection.Group()
-    }
-}))
+  groups: {
+    MY_GROUP: Collection.Group()
+  }
+}));
 
 export const state = {
-    MY_STATE: App.State('hello')
-    // etc...
-}
+  MY_STATE: App.State('hello')
+  // etc...
+};
 
 export const computed = {
-    MY_COMPUTED: App.Computed(() => {
-        return 1 + 2
-    })
-    // etc...
-}
+  MY_COMPUTED: App.Computed(() => {
+    return 1 + 2;
+  })
+  // etc...
+};
 ```
 
 ### `actions.ts`

@@ -7,39 +7,40 @@ title: Setup With React
 ## Installation
 
 ```
-npm i pulse-framework
+yarn add @pulsejs/core @pulsejs/react
 ```
+
+Think of `@pulsejs/react` as an extension of Pulse in the context of React. It provides access to all core functions + React only helpers such as the `usePulse` hook. We can't forget to install the `@pulsejs/core` as it is used by the React integration.
 
 ## Initialization
 
 ```ts
-import Pulse from 'pulse-framework';
-import React from 'react';
+import Pulse from '@pulsejs/react';
 
-export const App = new Pulse({
-    framework: React;
-})
+export const App = new Pulse();
 ```
 
-Follow this [guide]() to learn how to set up your core
+Unlike older versions you do not need to pass React into Pulse, as the React package lists React as a peer dependency. This allows for a much cleaner syntax for setup!
+
+Follow this [guide](../docs/core.html#definition) to learn how to set up your core.
 
 ## Functional Components: `usePulse()`
 
 `usePulse` is a React hook that _subscribes_ a React functional component to State instances.
 
 ```ts
-const [myStateValue] = usePulse([core.MY_STATE]);
+const myStateValue = usePulse(core.MY_STATE);
 ```
 
 > Both the input and the return value are an array, allowing you to subscribe to more than one State.
 
-It also supports extentions of State, such as Computed, Groups, Selectors and even Collection Data, meaning you can also use functions that return State, such as `Collection.findById()`
+It also supports extensions of State, such as Computed, Groups, Selectors and even Collection Data, meaning you can also use functions that return State, such as `Collection.findById()`
 
-::: tip usePulse returns the value, not the instance.
+::: tip NOTE: usePulse returns the value, not the instance.
 The return value is `State.value`, not the State instance. For Groups it's slightly different, you'll get the `Group.output`, which is the useful data for your component.
 :::
 
-**An exmaple React Component**
+### Example Component
 
 ```tsx
 import { usePulse } from 'pulse-framework';
@@ -52,6 +53,16 @@ export default function Component(): React.FC {
   return <>{account.username}</>;
 }
 ```
+
+### State Arrays
+
+usePulse also supports **arrays** of State instances, returning values as an array that can be destructured.
+
+```ts
+const [myState, anotherState] = usePulse([core.MY_STATE, core.ANOTHER_STATE]);
+```
+
+The names of the values can be anything, though we recommend they be the camel case counter-part to the State instance name. This is completely typesafe as of version `3.1`
 
 ## Class Components: `PulseHOC()`
 

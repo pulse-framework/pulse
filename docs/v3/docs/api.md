@@ -1,24 +1,24 @@
 ---
 title: API
 ---
-
 ## Introduction
-
+::: warning Sorry!
+This page is not up to standards, improvements need to be made inline with the rest of the documentation.
+:::
 # API
 
 This is Pulse's integrated fetch API. It's a wrapper around Fetch, which is native to the browser environment.
-
+```ts
+const MyAPI = App.API()
+```
 ## Setup
-
-To create an api instance, you must pass a config object. This will define several things such as the options, baseurl, path, timeout and some functions to run before and after each http request.
-
+The API class accepts a config object.
 ```ts
 const MyAPI = App.API({
   options: {
     headers: {
       'content-type': 'application/json, text/plain' // this is not necessary
     }
-    // ...
   },
   baseURL: 'https://api.mysite.co', // default: 'https://localhost'
   path: '/api', // default: '/'
@@ -71,9 +71,9 @@ interface PulseResponse<DataType = any> {
 }
 ```
 
-**Available functions and Properties**
+## Methods
 
-## `API.with()`
+# `.with()`
 
 This function allows you to override the API config and request options. It returns a modified instance of the original API with the options in the config parameter overriding the original config options.
 
@@ -85,7 +85,7 @@ This function allows you to override the API config and request options. It retu
 
 - [response (Response)](#response)
 
-## `API.get()`
+# `.get()`
 
 Send a HTTP get request to a url
 
@@ -98,7 +98,7 @@ Send a HTTP get request to a url
 
 - [response (Response)](#response)
 
-## `API.post()`
+# `.post()`
 
 Send a HTTP post request to a URL
 
@@ -112,7 +112,7 @@ Send a HTTP post request to a URL
 
 - [response (Response)](#response)
 
-## `API.put()`
+# `.put()`
 
 Send a HTTP put request to a URL
 
@@ -126,7 +126,7 @@ Send a HTTP put request to a URL
 
 - [response (Response)](#response)
 
-## `API.patch()`
+# `.patch()`
 
 Send a HTTP patch request to a URL
 
@@ -140,7 +140,7 @@ Send a HTTP patch request to a URL
 
 - [Response (response)](#response)
 
-## `API.delete()`
+# `.delete()`
 
 Send a HTTP delete request to a URL
 

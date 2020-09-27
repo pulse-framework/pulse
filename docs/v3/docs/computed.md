@@ -66,3 +66,32 @@ _Forces the Computed instance to recompute_
 ```typescript
 MY_COMPUTED.recompute();
 ```
+
+## Initial compute
+Computed functions need to compute their value initially, however doing this upon declaration can cause issues depending on data accessed within the compute function.
+
+Normally Pulse applications use `App.Core()` to export the [Core](), but this function also acts as a way to finalize Pulse. This is a perfect opportunity to compute the initial values for all Computed instances.
+
+```ts
+const App = new Pulse(); 
+
+const MY_COMPUTED = App.Computed(() => 1 + 1);
+
+MY_COMPUTED.value // undefined
+
+const core = App.Core(myCore);
+
+MY_COMPUTED.value // 2
+```
+
+
+If they were to compute immediately after declaration, other State / Computed values in your core might not be defined yet, throwing many angry errors.
+
+If this is not the behavior you want, or you are not using a core you can bypass this logic using the config option `noCore: true`
+```ts
+const App = new Pulse({ noCore: true });
+
+const MY_COMPUTED = App.Computed(() => 1 + 1);
+
+MY_COMPUTED.value // 2
+```

@@ -1,0 +1,28 @@
+{
+  "name": "@pulsejs/vue",
+  "version": "3.3.9",
+  "author": "Jamie Pine",
+  "license": "MIT",
+  "description": "Vue integration for PulseJS",
+  "keywords": [],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "@pulsejs/core": "^3.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pulse-framework/pulse"
+  },
+  "gitHead": "df2d02d8e5a07ded7bb792c0d8e1473c5b6159ba",
+  "dependencies": {
+    "@vue/cli": "^4.5.4",
+    "vue": "^2.6.12"
+  }
+}

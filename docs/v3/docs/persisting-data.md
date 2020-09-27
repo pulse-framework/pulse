@@ -18,7 +18,7 @@ Configuration is optional. In browser environments Pulse automatically integrate
 const App = new Pulse();
 
 App.Storage({
-    prefix: 'my-app' // custom storage key prefix (optional)
+    prefix: 'my_app' // custom storage key prefix (optional)
     async: false,
     set: ...
     get: ...
