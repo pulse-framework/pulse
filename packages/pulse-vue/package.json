@@ -24,5 +24,8 @@
   "dependencies": {
     "@vue/cli": "^4.5.4",
     "vue": "^2.6.12"
-  }
+  },
+  "files": [
+    "dist/**/*"
+  ]
 }

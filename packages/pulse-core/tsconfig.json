@@ -4,5 +4,7 @@
     "rootDir": "lib",
     "outDir": "dist"
   },
-  "exclude": ["tests", "dist"]
+  "include": [
+    "./lib/**/*"
+  ]
 }
