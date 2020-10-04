@@ -18,7 +18,7 @@ export interface ControllerConfig {
   routes: FuncObj;
 }
 
-export class Controller<O extends Partial<ControllerConfig>> {
+export class Controller<O extends Partial<ControllerConfig> = Partial<ControllerConfig>> {
   public name?: string;
   public config: O;
 
@@ -65,5 +65,10 @@ export class Controller<O extends Partial<ControllerConfig>> {
   public root<R extends AnyObj = AnyObj>(bindObj: R): this & R {
     for (const propertyName in bindObj) this[propertyName as string] = bindObj[propertyName];
     return this as this & R;
+  }
+  public reset(): void {
+    for (const name in this.state) this.state[name] instanceof State && this.state[name].reset();
+    for (const name in this.collections) this.collections[name] instanceof State && this.collections[name].reset();
+    if (this.collection instanceof Collection) this.collection.reset();
   }
 }
