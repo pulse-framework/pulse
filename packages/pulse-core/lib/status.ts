@@ -65,11 +65,13 @@ export class StatusObject {
   constructor(private state: State<{ [key: string]: StatusObjectData }>, private key: string) {}
 
   public status(newStatus: 'invalid' | 'success' | 'error' | 'none'): StatusObject {
-    this.state.set(Object.assign(copy(this.state.value), { [this.key]: { status: newStatus === 'none' ? null : newStatus } }));
+    this.state.nextState[this.key].status = newStatus === 'none' ? null : newStatus;
+    this.state.set();
     return this;
   }
   public message(messageText: string): StatusObject {
-    this.state.set(Object.assign(copy(this.state.value), { [this.key]: { message: messageText } }));
+    this.state.nextState[this.key].message = messageText;
+    this.state.set();
     return this;
   }
 }
