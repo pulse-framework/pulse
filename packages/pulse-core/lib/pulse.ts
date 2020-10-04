@@ -23,7 +23,7 @@ interface ErrorObject {
 export class Pulse {
   public ready: boolean = false;
   public runtime: Runtime;
-  // public status: StatusTracker;
+  public status: StatusTracker;
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
@@ -44,7 +44,7 @@ export class Pulse {
   constructor(public config: PulseConfig = defaultConfig) {
     this.integrations = new Integrations(() => this);
     this.subController = new SubController(this);
-    // this.status = new StatusTracker(() => this);
+    this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, config.storage || {});
     // if (config.framework) this.initFrameworkIntegration(config.framework);

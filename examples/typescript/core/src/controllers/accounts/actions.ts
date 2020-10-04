@@ -3,6 +3,9 @@ import { AuthCreds } from './interfaces';
 import { state } from './state';
 import * as routes from './routes';
 
+import { ICore } from '../../core';
+const core = App.Core<ICore>();
+
 export async function login(creds: AuthCreds): Promise<void> {
   try {
     // make API request
