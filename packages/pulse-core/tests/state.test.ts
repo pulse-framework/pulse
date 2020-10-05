@@ -3,15 +3,20 @@ import Pulse from '../lib';
 const App = new Pulse();
 const BooleanState = App.State<boolean>(true);
 const StringState = App.State<string>('Hello Pulse!');
+const ObjectState = App.State<{ days: Days }>({ days: { monday: true, wednesday: true } });
+const NullState = App.State(null);
 
-//.value | Retrieve current state value
+interface Days {
+  monday?: boolean;
+  tuesday?: boolean;
+  wednesday?: boolean;
+  thursday?: boolean;
+  friday?: boolean;
+  saturday?: boolean;
+  sunday?: boolean;
+}
 
-test('State can be created and retrieved', () => {
-  //Verify state was created and can be retrieved
-  expect(BooleanState.value).toBeTruthy();
-});
-
-//.set() | Update state to passed value
+//.set() | Allows you to mutate a value
 
 test('State can be changed', () => {
   //Mutate state to (false)
@@ -20,33 +25,11 @@ test('State can be changed', () => {
   expect(BooleanState.value).toBeFalsy();
 });
 
-//.undo() | Revert back to previous state
+//.value | Provides the current value (read-only)
 
-test('State change can be undone', () => {
-  //Mutate state to (Bye Pulse!)
-  StringState.set('Bye Pulse!');
-  //Undo previous state mutation
-  StringState.undo();
-  //Verify previous mutation has been undone successfully
-  expect(StringState.value).toBe('Hello Pulse!');
-});
-
-//.previousState | Retrieve previous state
-
-test('Previous State can be retrieved', () => {
-  //Set state key to ('Bye Pulse!')
-  StringState.set('Bye Pulse!');
-  //Verify that previousState can be accessed
-  expect(StringState.previousState).toBe('Hello Pulse!');
-});
-
-//.key() | Set state key
-
-test('State key can be set and name can be retrieved', () => {
-  //Set state key to (StringState)
-  StringState.key('StringStateKey');
-  //Verify that state key has been successfully set
-  expect(StringState.name).toBe('StringStateKey');
+test('State can be created and retrieved', () => {
+  //Verify state was created and can be retrieved
+  expect(BooleanState.value).toBeTruthy();
 });
 
 //.bind | Assign new value to state
@@ -58,12 +41,53 @@ test('New value can be bound to state', () => {
   expect(StringState.value).toBe('Bye Pulse!');
 });
 
-//.persist() | test
+//.undo() | Revert to previous state
+
+test('State change can be undone', () => {
+  //Mutate state to (Bye Pulse!)
+  StringState.set('Bye Pulse!');
+  //Undo previous state mutation
+  StringState.undo();
+  //Verify previous mutation has been undone successfully
+  expect(StringState.value).toBe('Hello Pulse!');
+});
+
+//.previousState | Returns the previous state
+
+test('Previous State can be retrieved', () => {
+  //Set state key to ('Bye Pulse!')
+  StringState.set('Bye Pulse!');
+  //Verify that previousState can be accessed
+  expect(StringState.previousState).toBe('Hello Pulse!');
+});
+
+//.type() | Force State to only allow mutations of provided type
+
+test('Previous State can be retrieved', () => {
+  //Set state type to boolean
+  NullState.type(Boolean);
+  //Give state false value
+  NullState.set(false);
+  //Verify that state's type and value has successfully changed
+  expect(NullState.value).toBeFalsy();
+});
+
+//.key() | Provide a name (or key) to identify the state, required for SSR and persisting
+//.name() | The name of the state, can be set directly or using above key()
+
+test('State key can be set and name can be retrieved', () => {
+  //Set state key to (StringState)
+  StringState.key('StringStateKey');
+  //Verify that state key has been successfully set
+  expect(StringState.name).toBe('StringStateKey');
+});
+
+//.persist() | Will preserve state in the appropriate local storage for the environment (web / mobile)
 
 ////
 ////
 
-//.exists | State doesn't exist test
+//.exists | Returns truthiness of the current value
 
 test("State doesn't exist test", () => {
   //Mutate state to (null)
@@ -72,8 +96,6 @@ test("State doesn't exist test", () => {
   expect(StringState.exists).toBeFalsy();
 });
 
-//.exists | State does exist test
-
 test('Can get if state exists', () => {
   //Mutate state to (Hello Pulse!)
   StringState.set('Hello Pulse!');
@@ -81,7 +103,7 @@ test('Can get if state exists', () => {
   expect(StringState.exists).toBeTruthy();
 });
 
-//.is() | Test for equality
+//.is() | Equivalent to ===
 
 test('Is function equality', () => {
   //Mutate state to (Bye Pulse!)
@@ -90,7 +112,7 @@ test('Is function equality', () => {
   expect(StringState.is('Bye Pulse!')).toBeTruthy();
 });
 
-//.isNot() | Test for inequality
+//.isNot() | Equivalent to !==
 
 test('IsNot function equality', () => {
   //Mutate state to (Hello Pulse!)
@@ -99,7 +121,7 @@ test('IsNot function equality', () => {
   expect(StringState.isNot(null)).toBeTruthy();
 });
 
-//.initialState | Get state initial value
+//.initialState | The starting value as established in code
 
 test('Can get initial state', () => {
   //Mutate state to (Bye Pulse!)
@@ -108,7 +130,7 @@ test('Can get initial state', () => {
   expect(StringState.initialState).toBe('Hello Pulse!');
 });
 
-//.onNext() | Callback that fires after mutation
+//.onNext() | A callback that fires on the next mutation, then destroys itself
 
 test('onNext callback fires after mutation', () => {
   let nextCallback = false;
@@ -126,8 +148,25 @@ test('onNext callback fires after mutation', () => {
 
 //.patch() | A function to edit ("patch") deep properties of an object, provided the State value is an object
 
-////
-////
+test('Deep merge patch', () => {
+  //Patch in saturday date with deep option for deep merge
+  ObjectState.patch({ days: { saturday: true } }, { deep: true });
+  //Expect monday, wednesday, and saturday because deep merge leaves the other properties
+  expect(ObjectState.value.days).toStrictEqual({
+    monday: true,
+    wednesday: true,
+    saturday: true
+  });
+});
+
+test('Shallow merge patch', () => {
+  //Patch in saturday date without deep option for deep merge
+  ObjectState.patch({ days: { saturday: true } }, { deep: false });
+  //Expect just saturday because shallow merge removes other dates
+  expect(ObjectState.value.days).toStrictEqual({
+    saturday: true
+  });
+});
 
 //.watch() | A keyed callback that will fire every mutation, provides current value in as first param in callback
 
@@ -167,7 +206,7 @@ test('Watch callback gets fired after mutation', () => {
 
 ////WIP
 
-//.reset()
+//.reset() | Reset state to initial value
 
 test('Can reset to initial state', () => {
   //Mutate state to (Bye Pulse!)
@@ -178,7 +217,7 @@ test('Can reset to initial state', () => {
   expect(StringState.value).toBe('Hello Pulse!');
 });
 
-//.toggle()
+//.toggle() | If current value is a boolean, this will invert it
 
 test('Can invert boolean values', () => {
   //Mutate state to (true)
@@ -189,7 +228,7 @@ test('Can invert boolean values', () => {
   expect(BooleanState.value).toBeFalsy();
 });
 
-//.interval()
+//.interval() | A mutation callback fired on a self contained interval
 
 test('Interval callback can successfully fire', () => {
   //Enable fake timers to work with intervals
