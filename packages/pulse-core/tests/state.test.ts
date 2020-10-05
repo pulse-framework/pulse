@@ -84,8 +84,7 @@ test('State key can be set and name can be retrieved', () => {
 
 //.persist() | Will preserve state in the appropriate local storage for the environment (web / mobile)
 
-////
-////
+//// WIP
 
 //.exists | Returns truthiness of the current value
 
@@ -204,7 +203,7 @@ test('Watch callback gets fired after mutation', () => {
 
 //.relate()
 
-////WIP
+//// WIP
 
 //.reset() | Reset state to initial value
 
