@@ -4,23 +4,23 @@ const App = new Pulse();
 const BooleanState = App.State<boolean>(true);
 const StringState = App.State<string>('Hello Pulse!');
 
-//.value | test
+//.value | Retrieve current value
 
 test('State can be created and retrieved', () => {
   //Verify state was created and can be retrieved
-  expect(BooleanState.value).toBe(true);
+  expect(BooleanState.value).toBeTruthy();
 });
 
-//.set() | test
+//.set() | Update state to passed value
 
 test('State can be changed', () => {
   //Mutate state to (false)
   BooleanState.set(false);
   //Verify previous state mutation successfully occurred
-  expect(BooleanState.value).toBe(false);
+  expect(BooleanState.value).toBeFalsy();
 });
 
-//.undo() | test
+//.undo() | Revert back to previous state
 
 test('State change can be undone', () => {
   //Mutate state to (Bye Pulse!)
@@ -31,7 +31,7 @@ test('State change can be undone', () => {
   expect(StringState.value).toBe('Hello Pulse!');
 });
 
-//.previousState | test
+//.previousState | Retrieve previous state
 
 test('Previous State can be retrieved', () => {
   //Set state key to ('Bye Pulse!')
@@ -40,7 +40,7 @@ test('Previous State can be retrieved', () => {
   expect(StringState.previousState).toBe('Hello Pulse!');
 });
 
-//.key() | Set state key and retrieve state name test
+//.key() | Set state key
 
 test('State key can be set and name can be retrieved', () => {
   //Set state key to (StringState)
@@ -49,10 +49,14 @@ test('State key can be set and name can be retrieved', () => {
   expect(StringState.name).toBe('StringState');
 });
 
-//.bind | test
+//.bind | Assign new value to state
 
-////
-////
+test('New value can be bound to state', () => {
+  //Bind new value to StringState (Bye Pulse!)
+  StringState.bind = 'Bye Pulse!';
+  //Verify that the new string has been successfully bound
+  expect(StringState.value).toBe('Bye Pulse!');
+});
 
 //.persist() | test
 
@@ -65,7 +69,7 @@ test("State doesn't exist test", () => {
   //Mutate state to (null)
   StringState.set(null);
   //Verify that state doesn't exists
-  expect(StringState.exists).toBe(false);
+  expect(StringState.exists).toBeFalsy();
 });
 
 //.exists | State does exist test
@@ -74,25 +78,25 @@ test('Can get if state exists', () => {
   //Mutate state to (Hello Pulse!)
   StringState.set('Hello Pulse!');
   //Verify that state exists
-  expect(StringState.exists).toBe(true);
+  expect(StringState.exists).toBeTruthy();
 });
 
-//.is() | Test state for equality
+//.is() | Test for equality
 
 test('Is function equality', () => {
   //Mutate state to (Bye Pulse!)
   StringState.set('Bye Pulse!');
   //Check if string has been successfully mutated and if equality check is successful
-  expect(StringState.is('Bye Pulse!')).toBe(true);
+  expect(StringState.is('Bye Pulse!')).toBeTruthy();
 });
 
-//.isNot() | Test state for inequality
+//.isNot() | Test for inequality
 
 test('IsNot function equality', () => {
   //Mutate state to (Hello Pulse!)
   StringState.set('Hello Pulse!');
   //Check if string is not null
-  expect(StringState.isNot(null)).toBe(true);
+  expect(StringState.isNot(null)).toBeTruthy();
 });
 
 //.initialState | Get state initial value
@@ -117,7 +121,7 @@ test('onNext callback fires after mutation', () => {
   StringState.set('Bye Pulse!');
 
   //nextCallback should be true after onNext fires
-  expect(nextCallback).toBe(true);
+  expect(nextCallback).toBeTruthy();
 });
 
 //.patch() | A function to edit ("patch") deep properties of an object, provided the State value is an object
@@ -138,7 +142,7 @@ test('Watch callback gets fired after mutation', () => {
   StringState.set('Bye Pulse!');
 
   //Should be true due to callback setting (didWatchCallback) to true
-  expect(didWatchCallback).toBe(true);
+  expect(didWatchCallback).toBeTruthy();
 });
 
 //.removeWatcher() | Remove a watcher by key
@@ -156,7 +160,7 @@ test('Watch callback gets fired after mutation', () => {
   StringState.set('Bye Pulse!');
 
   //Should be false due to keyed callback being removed and not firing
-  expect(didWatchCallback).toBe(false);
+  expect(didWatchCallback).toBeFalsy();
 });
 
 //.relate()
@@ -183,7 +187,7 @@ test('Can invert boolean values', () => {
   //Invert boolean value from (true) to (false)
   BooleanState.toggle();
   //Should be (false) assuming inversion successfully occurred
-  expect(BooleanState.value).toBe(false);
+  expect(BooleanState.value).toBeFalsy();
 });
 
 //.interval()
