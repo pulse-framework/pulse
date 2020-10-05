@@ -10,15 +10,19 @@ title: Setup With React
 yarn add @pulsejs/core @pulsejs/react
 ```
 
+Think of `@pulsejs/react` as an extension of Pulse in the context of React. It provides access to all core functions + React only helpers such as the `usePulse` hook. We can't forget to install the `@pulsejs/core` as it is used by the React integration.
+
 ## Initialization
 
 ```ts
 import Pulse from '@pulsejs/react';
 
-export const App = new Pulse()
+export const App = new Pulse();
 ```
 
-Follow this [guide]() to learn how to set up your core
+Unlike older versions you do not need to pass React into Pulse, as the React package lists React as a peer dependency. This allows for a much cleaner syntax for setup!
+
+Follow this [guide](../docs/core.html#definition) to learn how to set up your core.
 
 ## Functional Components: `usePulse()`
 
@@ -49,6 +53,7 @@ export default function Component(): React.FC {
   return <>{account.username}</>;
 }
 ```
+
 ### State Arrays
 
 usePulse also supports **arrays** of State instances, returning values as an array that can be destructured.
@@ -56,8 +61,8 @@ usePulse also supports **arrays** of State instances, returning values as an arr
 ```ts
 const [myState, anotherState] = usePulse([core.MY_STATE, core.ANOTHER_STATE]);
 ```
- The names of the values can be anything, though we recommend they be the camel case counter-part to the State instance name. This is completely typesafe as of version `3.1`
-  
+
+The names of the values can be anything, though we recommend they be the camel case counter-part to the State instance name. This is completely typesafe as of version `3.1`
 
 ## Class Components: `PulseHOC()`
 
