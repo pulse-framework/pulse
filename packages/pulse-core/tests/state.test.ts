@@ -4,7 +4,7 @@ const App = new Pulse();
 const BooleanState = App.State<boolean>(true);
 const StringState = App.State<string>('Hello Pulse!');
 
-//.value | Retrieve current value
+//.value | Retrieve current state value
 
 test('State can be created and retrieved', () => {
   //Verify state was created and can be retrieved
@@ -27,7 +27,7 @@ test('State change can be undone', () => {
   StringState.set('Bye Pulse!');
   //Undo previous state mutation
   StringState.undo();
-  //Verify previous mutation has been undone
+  //Verify previous mutation has been undone successfully
   expect(StringState.value).toBe('Hello Pulse!');
 });
 
@@ -36,7 +36,7 @@ test('State change can be undone', () => {
 test('Previous State can be retrieved', () => {
   //Set state key to ('Bye Pulse!')
   StringState.set('Bye Pulse!');
-  //Verify that previousState can be accessed (Hello Pulse!)
+  //Verify that previousState can be accessed
   expect(StringState.previousState).toBe('Hello Pulse!');
 });
 
@@ -44,9 +44,9 @@ test('Previous State can be retrieved', () => {
 
 test('State key can be set and name can be retrieved', () => {
   //Set state key to (StringState)
-  StringState.key('StringState');
+  StringState.key('StringStateKey');
   //Verify that state key has been successfully set
-  expect(StringState.name).toBe('StringState');
+  expect(StringState.name).toBe('StringStateKey');
 });
 
 //.bind | Assign new value to state
@@ -165,8 +165,7 @@ test('Watch callback gets fired after mutation', () => {
 
 //.relate()
 
-////
-////
+////WIP
 
 //.reset()
 
@@ -192,5 +191,17 @@ test('Can invert boolean values', () => {
 
 //.interval()
 
-////
-////
+test('Interval callback can successfully fire', () => {
+  //Enable fake timers to work with intervals
+  jest.useFakeTimers();
+  //Set callback function to record how many times the function has been called
+  const callback = jest.fn();
+  //Set string state interval to run every second
+  StringState.interval(() => {
+    callback();
+  }, 1000);
+  //Fast forward string state interval timer 10 seconds
+  jest.advanceTimersByTime(10000);
+  //The callback function should have been called 10 times
+  expect(callback).toHaveBeenCalledTimes(10);
+});
