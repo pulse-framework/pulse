@@ -16,15 +16,6 @@ interface Days {
   sunday?: boolean;
 }
 
-//.set() | Allows you to mutate a value
-
-test('State can be changed', () => {
-  //Mutate state to (false)
-  BooleanState.set(false);
-  //Verify previous state mutation successfully occurred
-  expect(BooleanState.value).toBeFalsy();
-});
-
 //.value | Provides the current value (read-only)
 
 test('State can be created and retrieved', () => {
@@ -32,13 +23,13 @@ test('State can be created and retrieved', () => {
   expect(BooleanState.value).toBeTruthy();
 });
 
-//.bind | Assign new value to state
+//.set() | Allows you to mutate a value
 
-test('New value can be bound to state', () => {
-  //Bind new value to StringState (Bye Pulse!)
-  StringState.bind = 'Bye Pulse!';
-  //Verify that the new string has been successfully bound
-  expect(StringState.value).toBe('Bye Pulse!');
+test('State can be changed', () => {
+  //Mutate state to (false)
+  BooleanState.set(false);
+  //Verify previous state mutation successfully occurred
+  expect(BooleanState.value).toBeFalsy();
 });
 
 //.undo() | Revert to previous state
@@ -59,6 +50,15 @@ test('Previous State can be retrieved', () => {
   StringState.set('Bye Pulse!');
   //Verify that previousState can be accessed
   expect(StringState.previousState).toBe('Hello Pulse!');
+});
+
+//.bind | Assign new value to state
+
+test('New value can be bound to state', () => {
+  //Bind new value to StringState (Bye Pulse!)
+  StringState.bind = 'Bye Pulse!';
+  //Verify that the new string has been successfully bound
+  expect(StringState.value).toBe('Bye Pulse!');
 });
 
 //.type() | Force State to only allow mutations of provided type
