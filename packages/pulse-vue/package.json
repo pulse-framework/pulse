@@ -1,7 +1,7 @@
 {
   "name": "@pulsejs/vue",
   "version": "3.3.9",
-  "author": "Jamie Pine",
+  "author": "Philippe Clesca",
   "license": "MIT",
   "description": "Vue integration for PulseJS",
   "keywords": [],
