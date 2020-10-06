@@ -1,29 +1,35 @@
-import Vue from 'vue';
 import Pulse, { Integration } from '@pulsejs/core';
+import Vue from 'vue';
 
-export * from '@pulsejs/core';
-export default Pulse;
+declare module 'vue/types/vue' {
+  interface VueConstructor {
+    mapCore: (...args: any) => any; // define real typings here if you want
+    $core: any;
+  }
+}
 
-export {mapCore} from './mapCore';
-
-// declare pulse plugin
-export const PulseVue = new Integration({
+const VuePulse = new Integration({
   name: 'vue',
   foreignInstance: Vue,
-  // used by the pulseHOC
-  updateMethod(component, payload) {
-    // UpdatedData will be empty if the PulseHOC doesn't get an object as deps
-    if (Object.keys(payload).length !== 0) {
-      // Update Props
-      component.updatedProps = { ...component.updatedProps, ...payload };
-
-      // Set State (Rerender)
-      component.setState(payload);
-    } else {
-      // Force Update (Rerender)
-      component.forceUpdate();
-    }
+  onPulseReady: pulse => {
+    Vue.use({
+      install: vue => {
+        vue.mixin({
+          created: function () {
+            pulse.subController.registerSubscription(this);
+            this.$core = pulse.core;
+            this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['Core']>) => T) => {
+              const stateObj = mapObj(pulse.core);
+              return pulse.subController.subscribeWithSubsObject(this, stateObj).props;
+            };
+          }
+        });
+      }
+    });
   }
 });
 
-Pulse.initialIntegrations.push(PulseVue);
+Pulse.initialIntegrations.push(VuePulse);
+
+export * from '@pulsejs/core';
+export default Pulse;;
