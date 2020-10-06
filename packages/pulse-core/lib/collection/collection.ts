@@ -138,8 +138,8 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   /**
    * Collect iterable data into this collection. Note:
    * - Data items must include a primary key (id)
-   * @param {(Array<object>|object)} data - Array of data, or single data object
-   * @param {(Array<string>|string)} groups - Array of group names or single group name
+   * @param data - Array of data, or single data object
+   * @param groups - Array of group names or single group name
    */
   public collect(
     items: DataType | Array<DataType>,
@@ -150,9 +150,13 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
       forEachItem?: (item: DataType, key: PrimaryKey, index: number) => void;
     } = {}
   ): void {
-    let _items = normalizeArray(items);
+    const _items = normalizeArray(items);
+
     if (!groups) groups = 'default';
     groups = normalizeArray(groups);
+
+    // fix for default not always being given collected data
+    if (groups.indexOf('default') === -1) groups.push('default');
 
     // if any of the groups don't already exist, create them
     groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
@@ -161,6 +165,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
       let key = this.saveData(item, config.patch);
       if (config.forEachItem) config.forEachItem(item, key, index);
       if (key === null) return;
+
       (groups as Array<string>).forEach(groupName => {
         let group = this.groups[groupName];
         if (!group.nextState.includes(key)) group.nextState[config.method || 'push'](key);
