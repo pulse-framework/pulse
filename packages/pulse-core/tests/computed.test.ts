@@ -1,21 +1,33 @@
-import Pulse from '../lib';
+import Pulse, { Computed, State } from '../lib';
 
-const App = new Pulse({ noCore: true });
-const NumberState = App.State<number>(1);
-const ComputedState = App.Computed(() => NumberState.value + 2);
+let //
+  App: Pulse,
+  NumberState: State<number>,
+  ComputedState: Computed<number>;
 
-//.value | Check that computation occurred properly
-
-test('Computed State can be successfully initialized', () => {
-  //Verify state was created and can be retrieved
-  expect(ComputedState.value).toBe(3);
+beforeAll(() => {
+  App = new Pulse({ noCore: true });
 });
 
-//.value | Dependency mutation computation test
+beforeEach(() => {
+  const NumberState = App.State<number>(1);
+  const ComputedState = App.Computed(() => NumberState.value + 2);
+});
 
-test('Number state can be changed and cause computed state to recompute', () => {
-  //Mutate number state to (2)
-  NumberState.set(2);
-  //Verify state was created and can be retrieved
-  expect(ComputedState.value).toBe(4);
+describe('Computed State', () => {
+  //.value | Check that computation occurred properly
+
+  test('Computed State can be successfully initialized', () => {
+    //Verify state was created and can be retrieved
+    expect(ComputedState.value).toBe(3);
+  });
+
+  //.value | Dependency mutation computation test
+
+  test('Number state can be changed and cause computed state to recompute', () => {
+    //Mutate number state to (2)
+    NumberState.set(2);
+    //Verify state was created and can be retrieved
+    expect(ComputedState.value).toBe(4);
+  });
 });
