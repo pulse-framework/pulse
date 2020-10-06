@@ -9,6 +9,9 @@ This update is currently being worked on, but will be released soon!
 :::
 
 - Added support for VueJS
+- Added State.record() to optionally track mutation history
+- Added `useWatcher()` for React integration
+- Watchers can now accept callbacks as the first parameter, returning a unique key for cleanup (non breaking)
 
 ## 3.3 - The one with [@pulsejs]() imports
 

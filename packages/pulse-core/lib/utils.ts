@@ -1,4 +1,4 @@
-import { Pulse, State, Collection, Computed } from './internal';
+import { Pulse, State, Collection, Computed, Controller } from './internal';
 import { isWatchableObject } from './helpers/isWatchableObj';
 
 export function cleanState<T>(state: State<T>): object {
@@ -12,21 +12,21 @@ export function cleanState<T>(state: State<T>): object {
   };
 }
 
-type ResetItem = { [key: string]: ResetItem } | Collection<any, any, any> | State | Computed;
+type PulseResettableInstance = Collection<any, any, any> | State | Computed | Controller;
+type ResetItem = { [key: string]: ResetItem } | PulseResettableInstance;
 type ResetItems = ResetItem | ResetItem[];
 
 export function resetState(stateToReset: ResetItems) {
+  const check = (instance: Collection | State | Computed | Controller) => {
+    if (typeof instance.reset === 'function') {
+      instance.reset();
+      return true;
+    } else return false;
+  };
   if (!Array.isArray(stateToReset)) stateToReset = [stateToReset];
-
-  for (let item of stateToReset) {
-    if (item instanceof State || item instanceof Collection) item.reset();
-    else if (typeof item !== 'object') {
-      const keys = Object.keys(item);
-      for (let name of keys) {
-        const stateOrCollection = item[name] as State | Collection;
-        if (stateOrCollection instanceof State || stateOrCollection instanceof Collection) stateOrCollection.reset();
-      }
-    }
+  for (const i in stateToReset) {
+    const success = check(stateToReset[i] as PulseResettableInstance);
+    if (!success && typeof stateToReset[i] === 'object') for (const name in stateToReset[i]) check(stateToReset[i][name]);
   }
 }
 

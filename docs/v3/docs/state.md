@@ -141,9 +141,6 @@ _The starting value as established in code_
 _A callback that fires on the next mutation, then destroys itself._
 
 ```typescript
-import Pulse from 'pulse-framework';
-const App = new Pulse();
-
 const MY_STATE = App.State(true).onNext(() => {
   // do some stuff
 });

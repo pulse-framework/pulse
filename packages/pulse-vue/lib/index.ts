@@ -32,4 +32,4 @@ const VuePulse = new Integration({
 Pulse.initialIntegrations.push(VuePulse);
 
 export * from '@pulsejs/core';
-export default Pulse;;
+export default Pulse;
