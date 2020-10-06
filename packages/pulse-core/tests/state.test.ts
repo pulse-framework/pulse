@@ -5,7 +5,7 @@ let //
   BooleanState: State<boolean>,
   StringState: State<string>,
   ObjectState: State<{ days: Days }>,
-  NullState: State<null>;
+  NullState: State<null | boolean>;
 
 beforeAll(() => {
   App = new Pulse({ noCore: true });
