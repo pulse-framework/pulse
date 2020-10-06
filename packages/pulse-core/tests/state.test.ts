@@ -1,6 +1,6 @@
 import Pulse, { State } from '../lib';
 
-import { Days } from './util.test';
+import { Days } from './util';
 
 let //
   App: Pulse,
