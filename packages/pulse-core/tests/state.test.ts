@@ -1,10 +1,22 @@
-import Pulse from '../lib';
+import Pulse, { State } from '../lib';
 
-const App = new Pulse();
-const BooleanState = App.State<boolean>(true);
-const StringState = App.State<string>('Hello Pulse!');
-const ObjectState = App.State<{ days: Days }>({ days: { monday: true, wednesday: true } });
-const NullState = App.State(null);
+let //
+  App: Pulse,
+  BooleanState: State<boolean>,
+  StringState: State<string>,
+  ObjectState: State<{ days: Days }>,
+  NullState: State<null>;
+
+beforeAll(() => {
+  App = new Pulse({ noCore: true });
+});
+
+beforeEach(() => {
+  BooleanState = App.State(true);
+  StringState = App.State('Hello Pulse!');
+  ObjectState = App.State({ days: { monday: true, wednesday: true } });
+  NullState = App.State(null);
+});
 
 interface Days {
   monday?: boolean;
