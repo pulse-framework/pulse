@@ -153,7 +153,8 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     let _items = normalizeArray(items);
     if (!groups) groups = 'default';
     groups = normalizeArray(groups);
-
+    // fix for default not always being given collected data
+    if(groups.indexOf('default')===-1) groups.push('default');
     // if any of the groups don't already exist, create them
     groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
 
