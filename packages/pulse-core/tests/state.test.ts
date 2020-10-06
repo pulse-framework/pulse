@@ -1,5 +1,7 @@
 import Pulse, { State } from '../lib';
 
+import { Days } from './util.test';
+
 let //
   App: Pulse,
   BooleanState: State<boolean>,
@@ -17,16 +19,6 @@ beforeEach(() => {
   ObjectState = App.State({ days: { monday: true, wednesday: true } });
   NullState = App.State(null);
 });
-
-interface Days {
-  monday?: boolean;
-  tuesday?: boolean;
-  wednesday?: boolean;
-  thursday?: boolean;
-  friday?: boolean;
-  saturday?: boolean;
-  sunday?: boolean;
-}
 
 //.value | Provides the current value (read-only)
 
