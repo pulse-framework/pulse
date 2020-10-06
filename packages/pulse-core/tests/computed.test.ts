@@ -10,8 +10,8 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  const NumberState = App.State<number>(1);
-  const ComputedState = App.Computed(() => NumberState.value + 2);
+  NumberState = App.State(1);
+  ComputedState = App.Computed(() => NumberState.value + 2);
 });
 
 describe('Computed State', () => {
