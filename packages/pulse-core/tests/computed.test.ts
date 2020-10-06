@@ -15,19 +15,17 @@ beforeEach(() => {
 });
 
 describe('Computed State', () => {
-  //.value | Check that computation occurred properly
+  describe('.value | Check that computation occurred properly', () => {
+    test('Computed State can be initializes successfully', () => {
+      //Verify state was created and can be retrieved
+      expect(ComputedState.value).toBe(3);
+    });
 
-  test('Computed State can be successfully initialized', () => {
-    //Verify state was created and can be retrieved
-    expect(ComputedState.value).toBe(3);
-  });
-
-  //.value | Dependency mutation computation test
-
-  test('Number state can be changed and cause computed state to recompute', () => {
-    //Mutate number state to (2)
-    NumberState.set(2);
-    //Verify state was created and can be retrieved
-    expect(ComputedState.value).toBe(4);
+    test('Computed State auto recomputes', () => {
+      //Mutate number state to (2)
+      NumberState.set(2);
+      //Verify state was created and can be retrieved
+      expect(ComputedState.value).toBe(4);
+    });
   });
 });
