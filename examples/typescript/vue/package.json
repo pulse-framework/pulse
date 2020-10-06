@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "@pulsejs/core": "file:../../../packages/pulse-core",
+    "@pulsejs/vue": "file:../../../packages/pulse-vue"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

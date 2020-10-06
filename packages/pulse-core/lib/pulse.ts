@@ -23,7 +23,7 @@ interface ErrorObject {
 export class Pulse {
   public ready: boolean = false;
   public runtime: Runtime;
-  // public status: StatusTracker;
+  public status: StatusTracker;
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
@@ -39,11 +39,12 @@ export class Pulse {
   public _computed: Set<Computed> = new Set();
   public _state: Set<State> = new Set();
   public _collections: Set<Collection> = new Set();
+  private nonce = 0;
 
   constructor(public config: PulseConfig = defaultConfig) {
     this.integrations = new Integrations(() => this);
     this.subController = new SubController(this);
-    // this.status = new StatusTracker(() => this);
+    this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, config.storage || {});
     // if (config.framework) this.initFrameworkIntegration(config.framework);
@@ -66,7 +67,7 @@ export class Pulse {
    * Create Pulse state
    * @param initialState Any - the value to initialize a State instance with
    */
-  public State<T>(initial: T) {
+  public State<T>(initial?: T) {
     const state = new State<T>(() => this, initial);
     this._state.add(state);
     return state;
@@ -201,6 +202,11 @@ export class Pulse {
     } catch (error) {
       // fail silently
     }
+  }
+
+  public getNonce() {
+    this.nonce++;
+    return this.nonce;
   }
 }
 
