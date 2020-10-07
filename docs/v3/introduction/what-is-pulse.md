@@ -13,6 +13,7 @@ Created by [@jamiepine]() | Sponsored and maintained by the [Notify Team]()
 
 > _Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
 
+<!-- Using HTML instead of Markdown links because they get themed with an 'external' badge -->
 <!-- TODO: Figure out if there's a way to remove the external badge so we can use sane syntax -->
 <a href="https://discord.gg/RjG8ShB" target="_blank">
   <img src="https://discordapp.com/api/guilds/658189217746255881/embed.png" alt="Join Discord"></a>
