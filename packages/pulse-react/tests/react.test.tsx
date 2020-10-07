@@ -5,7 +5,7 @@ import * as renderer from 'react-test-renderer';
 let //
   App: Pulse,
   StringState: State<string>,
-  BooleanState: State<boolean>,
+  BooleanState: State<boolean>, // TODO: use this somewhere, anywhere!
   TestComponent: React.FC<{}>;
 
 const TestString = 'This is a string! Wow, so glorious!';
@@ -17,6 +17,7 @@ beforeAll(() => {
 describe('usePulse() | Typings', () => {
   beforeEach(() => {
     StringState = App.State(TestString);
+    BooleanState = App.State(false);
   });
 
   test('State typings', () => {
