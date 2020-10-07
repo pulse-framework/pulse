@@ -98,7 +98,7 @@ export class State<ValueType = any> {
     return this;
   }
 
-  public interval(setFunc: (currentValue: any) => any, ms?: number): this {
+  public interval(setFunc: (currentValue: ValueType) => any, ms?: number): this {
     setInterval(() => {
       this.set(setFunc(this.value));
     }, ms || 1000);
@@ -218,7 +218,7 @@ export class State<ValueType = any> {
    * @public
    * Returns a copy of the current value, objects and arrays will be cloned
    */
-  public copy(): any {
+  public copy(): ValueType {
     return copy(this.value);
   }
   /**
@@ -241,7 +241,7 @@ export class State<ValueType = any> {
    * @internal
    * Write value directly to State
    */
-  public privateWrite(value: any) {
+  public privateWrite(value: ValueType) {
     if (this.enableHistory) {
       this.history.push({
         value: value,
