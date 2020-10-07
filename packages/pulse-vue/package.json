@@ -10,10 +10,9 @@
   "scripts": {
     "build": "tsc"
   },
-  "peerDependencies": {
-    "@pulsejs/core": "^3.3.0",
-    "vue": "^2.6.12"
-  },
+  "files": [
+    "dist/**/*"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -21,8 +20,12 @@
     "type": "git",
     "url": "https://github.com/pulse-framework/pulse"
   },
-  "gitHead": "df2d02d8e5a07ded7bb792c0d8e1473c5b6159ba",
   "devDependencies": {
-    "@vue/cli": "^4.5.4"
+    "@vue/cli": "^4.5.4",
+    "vue": "^2.6.12"
+  },
+  "peerDependencies": {
+    "@pulsejs/core": "^3.3.0",
+    "vue": "^2.6.12"
   }
 }
