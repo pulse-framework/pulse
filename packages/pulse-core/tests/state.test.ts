@@ -1,6 +1,5 @@
 import Pulse, { State } from '../lib';
-
-import { Days } from './util';
+import { Days, DefaultLoggers, makeMockLoggers, restoreDefaultLoggers } from './util';
 
 let //
   App: Pulse,
@@ -9,210 +8,240 @@ let //
   ObjectState: State<{ days: Partial<Days> }>,
   NullState: State<null | boolean>;
 
+const initialValue = {
+  Boolean: true,
+  String: 'Hello Pulse!',
+  Object: { days: { monday: true, wednesday: true } },
+  Null: null
+};
+
 beforeAll(() => {
   App = new Pulse({ noCore: true });
 });
 
 beforeEach(() => {
-  BooleanState = App.State(true);
-  StringState = App.State('Hello Pulse!');
-  ObjectState = App.State({ days: { monday: true, wednesday: true } });
-  NullState = App.State(null);
+  makeMockLoggers();
+
+  BooleanState = App.State(initialValue.Boolean);
+  StringState = App.State(initialValue.String);
+  ObjectState = App.State(initialValue.Object);
+  NullState = App.State(initialValue.Null);
+});
+
+afterEach(() => {
+  restoreDefaultLoggers();
 });
 
 describe('State', () => {
-  test('.value | Provides the current value (read-only)', () => {
-    //Verify state was created and can be retrieved
-    expect(BooleanState.value).toBeTruthy();
+  test('.value | Provide current value', () => {
+    // Verify state was created and can be retrieved
+    expect(BooleanState.value).toBe(initialValue.Boolean);
+    expect(StringState.value).toBe(initialValue.String);
+    expect(ObjectState.value).toStrictEqual(initialValue.Object);
+    expect(NullState.value).toBe(initialValue.Null);
   });
 
-  test('.set() | Allows you to mutate a value', () => {
-    //Mutate state to (false)
+  test('.set() | Mutate value', () => {
     BooleanState.set(false);
-    //Verify previous state mutation successfully occurred
-    expect(BooleanState.value).toBeFalsy();
+    StringState.set('Hi again, Pulse!');
+    ObjectState.set({ days: { monday: true, thursday: true, friday: true } });
+    NullState.set(false);
+
+    expect(BooleanState.value).toBe(false);
+    expect(StringState.value).toBe('Hi again, Pulse!');
+    expect(ObjectState.value).toStrictEqual({ days: { monday: true, thursday: true, friday: true } });
+    expect(NullState.value).toBe(false);
   });
 
-  test('.undo() | Revert to previous state', () => {
-    //Mutate state to (Bye Pulse!)
+  test('.undo() | Revert to previous value', () => {
     StringState.set('Bye Pulse!');
-    //Undo previous state mutation
+    ObjectState.set({ days: { thursday: true } });
+
     StringState.undo();
-    //Verify previous mutation has been undone successfully
-    expect(StringState.value).toBe('Hello Pulse!');
+    ObjectState.undo();
+
+    expect(StringState.value).toBe(initialValue.String);
+    expect(ObjectState.value).toStrictEqual(initialValue.Object);
   });
 
-  test('.previousState | Returns the previous state', () => {
-    //Set state key to ('Bye Pulse!')
+  test('.previousState | Return previous value', () => {
     StringState.set('Bye Pulse!');
-    //Verify that previousState can be accessed
-    expect(StringState.previousState).toBe('Hello Pulse!');
+    BooleanState.set(!initialValue.Boolean);
+
+    expect(StringState.previousState).toBe(initialValue.String);
+    expect(BooleanState.previousState).toBe(initialValue.Boolean);
   });
 
-  test('.bind | Assign new value to state', () => {
-    //Bind new value to StringState (Bye Pulse!)
+  test('.bind | Assign new value', () => {
     StringState.bind = 'Bye Pulse!';
-    //Verify that the new string has been successfully bound
+
     expect(StringState.value).toBe('Bye Pulse!');
   });
 
   test('.type() | Force State to only allow mutations of provided type', () => {
-    //Set state type to boolean
-    NullState.type(Boolean);
-    //Give state false value
-    NullState.set(false);
-    //Verify that state's type and value has successfully changed
+    NullState.type(Boolean).set(false);
+
     expect(NullState.value).toBeFalsy();
+
+    const reset = jest.fn(() => {
+      NullState.set(initialValue.Null);
+    });
+    reset();
+
+    expect(console.warn).toBeCalledWith(expect.stringContaining('Incorrect type (object) was provided. Type fixed to boolean'));
   });
 
-  test('.name | The name of the state && .key() | Provide a name (or key) to identify the state', () => {
-    //Set state key to (StringState)
-    StringState.key('StringStateKey');
-    //Verify that state key has been successfully set
-    expect(StringState.name).toBe('StringStateKey');
+  test('.name + .key() | Provide key for State', () => {
+    StringState.key('StringStateKeyWow');
+
+    expect(StringState.name).toBe('StringStateKeyWow');
   });
 
-  //.persist() | Will preserve state in the appropriate local storage for the environment (web / mobile)
+  // TODO: .persist() | Will preserve state in the appropriate local storage for the environment (web / mobile)
 
-  //// WIP
-
-  describe('.exists | Returns truthiness of the current value', () => {
-    test('State does not exist', () => {
-      //Mutate state to (null)
+  describe('.exists | Return truthiness of value', () => {
+    test('null is falsy', () => {
       StringState.set(null);
-      //Verify that state doesn't exists
+
       expect(StringState.exists).toBeFalsy();
     });
 
-    test('State does exist', () => {
-      //Mutate state to (Hello Pulse!)
+    test('string is truthy', () => {
       StringState.set('Hello Pulse!');
-      //Verify that state exists
+
       expect(StringState.exists).toBeTruthy();
     });
   });
 
-  test('.is() | Equivalent to ===', () => {
-    //Mutate state to (Bye Pulse!)
-    StringState.set('Bye Pulse!');
-    //Check if string has been successfully mutated and if equality check is successful
-    expect(StringState.is('Bye Pulse!')).toBeTruthy();
+  describe('.is() | Has equivalent value', () => {
+    test('match string', () => {
+      StringState.set('Bye Pulse!');
+
+      expect(StringState.is('Bye Pulse!')).toBeTruthy();
+    });
+
+    test('match boolean', () => {
+      BooleanState.set(!BooleanState.value);
+
+      expect(BooleanState.is(!initialValue.Boolean)).toBeTruthy();
+    });
+
+    test('do not match Object', () => {
+      expect(ObjectState.is(initialValue.Object)).toBeFalsy();
+
+      const test = { days: null };
+
+      ObjectState.set(test);
+
+      expect(StringState.is(test)).toBeFalsy();
+    });
   });
 
-  test('.isNot() | Equivalent to !==', () => {
-    //Mutate state to (Hello Pulse!)
-    StringState.set('Hello Pulse!');
-    //Check if string is not null
+  test('.isNot() | Has non-equivalent value', () => {
+    StringState.set('Hi, and testing, Pulse!');
+
+    expect(StringState.isNot('Hello Pulse!')).toBeTruthy();
     expect(StringState.isNot(null)).toBeTruthy();
   });
 
-  test('.initialState | The starting value as established in code', () => {
-    //Mutate state to (Bye Pulse!)
+  test('.initialState | Retains initial value', () => {
     StringState.set('Bye Pulse!');
-    //Check if initial state retrieves correct value (Hello Pulse!)
-    expect(StringState.initialState).toBe('Hello Pulse!');
+
+    expect(StringState.initialState).toBe(initialValue.String);
   });
 
-  test('.onNext() | A callback that fires on the next mutation, then destroys itself', () => {
+  test('.onNext() | Fires upon mutation', () => {
     let nextCallback = false;
 
-    //Adds callback that fires upon next mutation
     StringState.onNext(() => {
       nextCallback = true;
     });
-    //State mutation causing onNext to fire
+    // Mutate value, triggering onNext()
     StringState.set('Bye Pulse!');
 
-    //nextCallback should be true after onNext fires
     expect(nextCallback).toBeTruthy();
   });
 
-  describe('.patch() | A function to edit ("patch") deep properties of an object, provided the State value is an object', () => {
-    test('Deep merge patch', () => {
-      //Patch in saturday date with deep option for deep merge
+  describe('.patch() | Merges values into existing object value', () => {
+    test('deep merge', () => {
       ObjectState.patch({ days: { saturday: true } }, { deep: true });
-      //Expect monday, wednesday, and saturday because deep merge leaves the other properties
+
       expect(ObjectState.value.days).toStrictEqual({
-        monday: true,
-        wednesday: true,
-        saturday: true
+        saturday: true,
+        ...initialValue.Object.days
       });
     });
 
-    test('Shallow merge patch', () => {
-      //Patch in saturday date without deep option for deep merge
+    test('shallow merge', () => {
       ObjectState.patch({ days: { saturday: true } }, { deep: false });
-      //Expect just saturday because shallow merge removes other dates
+
       expect(ObjectState.value.days).toStrictEqual({
         saturday: true
       });
     });
   });
 
-  test('.watch() | A keyed callback that will fire every mutation, provides current value in as first param in callback', () => {
-    let didWatchCallback = false;
+  describe('Watchers', () => {
+    let didCallback: boolean;
 
-    //Adds keyed callback that fires upon mutation
-    StringState.watch('StringState', () => {
-      didWatchCallback = true;
+    beforeEach(() => {
+      didCallback = false;
     });
-    //Sets StringState state, forcing keyed callback to fire (if still watching)
-    StringState.set('Bye Pulse!');
 
-    //Should be true due to callback setting (didWatchCallback) to true
-    expect(didWatchCallback).toBeTruthy();
+    test('.watch() | Fires upon mutation', () => {
+      StringState.watch('StringState', () => {
+        didCallback = true;
+      });
+      // Cause mutation & subsequent watch callback
+      StringState.set('Bye Pulse!');
+
+      expect(didCallback).toBeTruthy();
+    });
+
+    test('.removeWatcher() | Removes watcher', () => {
+      let didWatchCallback = false;
+
+      //Adds keyed callback that fires upon mutation
+      StringState.watch('StringState', () => {
+        didWatchCallback = true;
+      });
+      //Removes keyed callback from string state
+      StringState.removeWatcher('StringState');
+      //Sets StringState state, forcing keyed callback to fire (if still watching)
+      StringState.set('Bye Pulse!');
+
+      //Should be false due to keyed callback being removed and not firing
+      expect(didWatchCallback).toBeFalsy();
+    });
   });
 
-  test('.removeWatcher() | Remove a watcher by key', () => {
-    let didWatchCallback = false;
-
-    //Adds keyed callback that fires upon mutation
-    StringState.watch('StringState', () => {
-      didWatchCallback = true;
-    });
-    //Removes keyed callback from string state
-    StringState.removeWatcher('StringState');
-    //Sets StringState state, forcing keyed callback to fire (if still watching)
-    StringState.set('Bye Pulse!');
-
-    //Should be false due to keyed callback being removed and not firing
-    expect(didWatchCallback).toBeFalsy();
-  });
-
-  //.relate()
-
-  //// WIP
+  // TODO: .relate()
 
   test('.reset() | Reset state to initial value', () => {
-    //Mutate state to (Bye Pulse!)
     StringState.set('Bye Pulse!');
-    //Reset state to initial value (Hello Pulse!)
     StringState.reset();
-    //Should be initial value (Hello Pulse!) assuming reset successfully ran
-    expect(StringState.value).toBe('Hello Pulse!');
+
+    expect(StringState.value).toBe(initialValue.String);
   });
 
-  test('.toggle() | If current value is a boolean, this will invert it', () => {
-    //Mutate state to (true)
+  test('.toggle() | Invert boolean value', () => {
     BooleanState.set(true);
-    //Invert boolean value from (true) to (false)
     BooleanState.toggle();
-    //Should be (false) assuming inversion successfully occurred
+
     expect(BooleanState.value).toBeFalsy();
   });
 
   test('.interval() | A mutation callback fired on a self contained interval', () => {
-    //Enable fake timers to work with intervals
     jest.useFakeTimers();
-    //Set callback function to record how many times the function has been called
     const callback = jest.fn();
-    //Set string state interval to run every second
+
     StringState.interval(() => {
       callback();
-    }, 1000);
-    //Fast forward string state interval timer 10 seconds
+    }, 1000); // Run callback once every second
+
+    // Fast-forward StringState interval by 10 seconds
     jest.advanceTimersByTime(10000);
-    //The callback function should have been called 10 times
+
     expect(callback).toHaveBeenCalledTimes(10);
   });
 });
