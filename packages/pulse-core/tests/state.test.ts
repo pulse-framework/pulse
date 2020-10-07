@@ -6,7 +6,7 @@ let //
   App: Pulse,
   BooleanState: State<boolean>,
   StringState: State<string>,
-  ObjectState: State<{ days: Days }>,
+  ObjectState: State<{ days: Partial<Days> }>,
   NullState: State<null | boolean>;
 
 beforeAll(() => {
