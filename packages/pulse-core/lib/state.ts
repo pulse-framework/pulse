@@ -101,7 +101,7 @@ export class State<ValueType = any> {
   public interval(setFunc: (currentValue: ValueType) => any, ms?: number): this {
     setInterval(() => {
       this.set(setFunc(this.value));
-    }, ms || 1000);
+    }, ms ?? 1000);
     return this;
   }
 
