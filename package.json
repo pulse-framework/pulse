@@ -13,7 +13,7 @@
     "test:core": "(cd examples/typescript/core && tsc -W)",
     "build": "yarn remove:build && tsc -b packages/pulse-core packages/pulse-react packages/pulse-vue packages/pulse-next",
     "dev": "yarn remove:build && tsc -b --watch packages/pulse-core packages/pulse-react packages/pulse-vue packages/pulse-next",
-    "test": "jest packages/**",
+    "test": "jest",
     "release": "yarn build && lerna publish --force-publish",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
