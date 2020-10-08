@@ -1,6 +1,6 @@
 {
   "name": "@pulsejs/react",
-  "version": "3.3.12-1",
+  "version": "3.3.12-2",
   "author": "Jamie Pine",
   "license": "MIT",
   "description": "React integration for PulseJS",
@@ -17,8 +17,8 @@
   "devDependencies": {
     "@types/react": "^16.9.49",
     "@types/react-test-renderer": "^16.9.3",
-    "react-test-renderer": "^16.13.1",
-    "react": "^16.13.1"
+    "react": "^16.13.1",
+    "react-test-renderer": "^16.13.1"
   },
   "publishConfig": {
     "access": "public"
