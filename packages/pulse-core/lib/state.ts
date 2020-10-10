@@ -98,11 +98,17 @@ export class State<ValueType = any> {
     return this;
   }
 
-  public interval(setFunc: (currentValue: ValueType) => any, ms?: number): this {
-    setInterval(() => {
+  /**
+   * On a certain interval of milliseconds, set the state's value to the return value of a provided callback.
+   * @param setFunc Function that returns the next value to be applied to state.
+   * @param ms Time, in milliseconds, between individual runs of the interval.
+   * @returns Native handle from `setInterval` that can be passed into `clearInterval`.
+   */
+  public interval(setFunc: (currentValue: ValueType) => any, ms?: number): NodeJS.Timer | number {
+    // TODO: test this on web
+    return setInterval(() => {
       this.set(setFunc(this.value));
     }, ms ?? 1000);
-    return this;
   }
 
   public persist(key?: string): this {
