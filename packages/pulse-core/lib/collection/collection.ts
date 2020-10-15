@@ -147,7 +147,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     config: {
       patch?: boolean;
       method?: 'push' | 'unshift';
-      forEachItem?: (item: DataType, key: PrimaryKey, index: number) => void;
+      forEachItem?: (item: DataType, key: PrimaryKey, index: number) => DataType;
     } = {}
   ): void {
     const _items = normalizeArray(items);
@@ -161,9 +161,12 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     // if any of the groups don't already exist, create them
     groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
 
+    // if method is unshift reverse array order to maintain correct order
+    if (config.method === 'unshift') _items.reverse();
+
     _items.forEach((item, index) => {
+      if (config.forEachItem) item = config.forEachItem(item, item[this.config.primaryKey], index);
       let key = this.saveData(item, config.patch);
-      if (config.forEachItem) config.forEachItem(item, key, index);
       if (key === null) return;
 
       (groups as Array<string>).forEach(groupName => {

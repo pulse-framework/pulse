@@ -12,6 +12,8 @@ This update is currently being worked on, but will be released soon!
 - Added State.record() to optionally track mutation history
 - Added `useWatcher()` for React integration
 - Watchers can now accept callbacks as the first parameter, returning a unique key for cleanup (non breaking)
+- Collect method now preserves the correct order when collecting more than one item in unshift mode
+- Collection `forEachItem` function now allows you to return a modified object
 
 ## 3.3 - The one with [@pulsejs]() imports
 
