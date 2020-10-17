@@ -162,8 +162,10 @@ export class State<ValueType = any> {
     let genKey = typeof keyOrCallback === 'function',
       key: string | number;
 
-    if (genKey) key = this.instance().getNonce();
-    else key = keyOrCallback as string | number;
+    if (genKey) {
+      key = this.instance().getNonce();
+      callback = keyOrCallback as Callback<ValueType>;
+    } else key = keyOrCallback as string | number;
 
     this.watchers[key] = callback;
 
