@@ -1,19 +1,20 @@
 ---
 title: Changelog
 ---
+## 3.5 - The one with VueJS support
 
-## 3.4 - The one with VueJS support
+## 3.4 - The one with useWatcher
 
 ::: warning Work in progress
 This update is currently being worked on, but will be released soon!
 :::
 
-- Added support for VueJS
 - Added State.record() to optionally track mutation history
 - Added `useWatcher()` for React integration
 - Watchers can now accept callbacks as the first parameter, returning a unique key for cleanup (non breaking)
 - Collect method now preserves the correct order when collecting more than one item in unshift mode
 - Collection `forEachItem` function now allows you to return a modified object
+- Computed now throws and error if no function is provided
 
 ## 3.3 - The one with [@pulsejs]() imports
 
