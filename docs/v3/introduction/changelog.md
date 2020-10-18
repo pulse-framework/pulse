@@ -3,7 +3,7 @@ title: Changelog
 ---
 ## 3.5 - The one with VueJS support
 
-## 3.4 - The one with useWatcher
+## 3.4 - The one with useWatcher()
 
 ::: warning Work in progress
 This update is currently being worked on, but will be released soon!
