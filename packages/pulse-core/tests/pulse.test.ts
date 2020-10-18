@@ -1,7 +1,13 @@
 import Pulse from '../lib';
 
-const App = new Pulse();
+let App: Pulse;
 
-test('Pulse instance is created', () => {
-  expect(App).toHaveProperty('runtime');
+beforeAll(() => {
+  App = new Pulse({ noCore: true });
+});
+
+describe('Pulse Generic', () => {
+  test('Pulse instance is created', () => {
+    expect(App).toHaveProperty('runtime');
+  });
 });

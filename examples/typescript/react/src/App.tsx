@@ -1,21 +1,32 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Pulse, { usePulse } from '@pulsejs/react';
 
-const App = new Pulse();
+import Pulse, { usePulse, useWatcher } from '@pulsejs/react';
+import { resetState } from '@pulsejs/core';
 
-const JEFF = App.State(0);
+import core from 'pulse-example-core';
 
-JEFF.interval(val => ++val);
+// const App = new Pulse();
 
-const core = App.Core({ JEFF });
+// const JEFF = App.State(0);
+
+// JEFF.interval(val => ++val);
+
+// const core = App.Core({ JEFF });
 
 //@ts-ignore
 globalThis['core'] = core;
+//@ts-ignore
+globalThis['resetState'] = resetState;
 
 function MyApp() {
-  const jeff = usePulse(JEFF);
+  const jeff = usePulse(core.accounts.ACCOUNT);
+
+  useWatcher(core.accounts.state.SESSION_TOKEN, () => {
+    console.log('token changed!');
+  });
+
   return (
     <div className="App">
       <header className="App-header">
@@ -24,7 +35,7 @@ function MyApp() {
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
         <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-          {jeff}
+          {JSON.stringify(jeff)}
         </a>
       </header>
     </div>

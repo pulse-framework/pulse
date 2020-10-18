@@ -1,9 +1,10 @@
-import React from 'react';
+import * as React from 'react';
 import Pulse, { Integration } from '@pulsejs/core';
 
 export { PulseHOC } from './pulseHOC';
 export { usePulse } from './usePulse';
 export { useEvent } from './useEvent';
+export { useWatcher } from './useWatcher';
 
 export * from '@pulsejs/core';
 export default Pulse;

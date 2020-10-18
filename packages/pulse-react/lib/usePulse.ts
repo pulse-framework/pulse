@@ -1,5 +1,5 @@
 import { Pulse, State, normalizeDeps, getPulseInstance } from '@pulsejs/core';
-import React from 'react';
+import * as React from 'react';
 
 export type PulseHookArray<T> = { [K in keyof T]: T[K] extends State<infer U> ? U : never };
 export type PulseHookResult<T> = T extends State<infer U> ? U : never;

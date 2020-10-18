@@ -27,6 +27,9 @@ export class State<ValueType = any> {
   public persistState: boolean;
   // if this State locked to a particular type
   public typeOfVal?: string;
+  // history
+  public enableHistory?: boolean;
+  public history?: HistoryItem[];
   // for extended classes to perform actions upon state change
   public sideEffects?: Function;
   // // for extended classes to store a derived value, such as Group
@@ -43,11 +46,11 @@ export class State<ValueType = any> {
     return !!this.value;
   }
 
-  constructor(public instance: () => Pulse, public initialState, deps: Array<Dep> = []) {
+  constructor(public instance: () => Pulse, public initialState?: ValueType | null, deps: Array<Dep> = []) {
     // initialize the dependency manager
     this.dep = new Dep(deps);
     // write the initial value to this State
-    this.privateWrite(initialState);
+    this.privateWrite(initialState === undefined ? null : initialState);
   }
 
   /**
@@ -82,7 +85,7 @@ export class State<ValueType = any> {
   }
 
   public getPublicValue(): ValueType {
-    if (this["output"] !== undefined) return this["output"];
+    if (this['output'] !== undefined) return this['output'];
     return this._value;
   }
 
@@ -95,11 +98,17 @@ export class State<ValueType = any> {
     return this;
   }
 
-  public interval(setFunc: (currentValue: any) => any, ms?: number): this {
-    setInterval(() => {
+  /**
+   * On a certain interval of milliseconds, set the state's value to the return value of a provided callback.
+   * @param setFunc Function that returns the next value to be applied to state.
+   * @param ms Time, in milliseconds, between individual runs of the interval.
+   * @returns Native handle from `setInterval` that can be passed into `clearInterval`.
+   */
+  public interval(setFunc: (currentValue: ValueType) => any, ms?: number): NodeJS.Timer | number {
+    // TODO: test this on web
+    return setInterval(() => {
       this.set(setFunc(this.value));
-    }, ms || 1000);
-    return this;
+    }, ms ?? 1000);
   }
 
   public persist(key?: string): this {
@@ -146,21 +155,28 @@ export class State<ValueType = any> {
    * @public
    * Watch state for changes, run callback on each change
    */
-  public watch(key: number | string, callback: (value: any) => void): this {
+  public watch(callback: Callback<ValueType>): string | number;
+  public watch(key: string | number, callback: Callback<ValueType>): this;
+  public watch(keyOrCallback: string | number | Callback<ValueType>, callback?: Callback<ValueType>): this | string | number {
     if (!this.watchers) this.watchers = {};
+    let genKey = typeof keyOrCallback === 'function',
+      key: string | number;
 
-    if (typeof key !== 'string' || typeof key !== 'number' || typeof callback !== 'function') {
-      // console.error('Pulse watch, missing key or function');
-    }
+    if (genKey) {
+      key = this.instance().getNonce();
+      callback = keyOrCallback as Callback<ValueType>;
+    } else key = keyOrCallback as string | number;
+
     this.watchers[key] = callback;
-    return this;
+
+    return genKey ? key : this;
   }
 
   /**
    * @public
    * Remove watcher by key
    */
-  public removeWatcher(key: number | string): this {
+  public removeWatcher(key: string | number): this {
     delete this.watchers[key];
     return this;
   }
@@ -171,6 +187,15 @@ export class State<ValueType = any> {
    */
   public undo() {
     this.set(this.previousState);
+  }
+  /**
+   * @public
+   * Records all state changes
+   */
+  public record(record?: boolean): this {
+    if (!this.history) this.history = [];
+    this.enableHistory = record === false ? false : true;
+    return this;
   }
 
   /**
@@ -192,8 +217,8 @@ export class State<ValueType = any> {
   public reset(): this {
     this.isSet = false;
     this.previousState = null;
-    this.privateWrite(this.initialState);
     if (this.persistState) this.instance().storage.remove(this.name);
+    this.instance().runtime.ingest(this, this.initialState);
     return this;
   }
 
@@ -201,7 +226,7 @@ export class State<ValueType = any> {
    * @public
    * Returns a copy of the current value, objects and arrays will be cloned
    */
-  public copy(): any {
+  public copy(): ValueType {
     return copy(this.value);
   }
   /**
@@ -224,7 +249,14 @@ export class State<ValueType = any> {
    * @internal
    * Write value directly to State
    */
-  public privateWrite(value: any) {
+  public privateWrite(value: ValueType) {
+    if (this.enableHistory) {
+      this.history.push({
+        value: value,
+        previousValue: this._value,
+        timestamp: new Date()
+      });
+    }
     this._value = copy(value);
     this.nextState = copy(value);
     // If
@@ -277,3 +309,11 @@ export default State;
 export type SetFunc<ValueType> = (state: ValueType) => ValueType;
 type TypeString = 'string' | 'boolean' | 'array' | 'object' | 'number';
 type TypeConstructor = StringConstructor | BooleanConstructor | ArrayConstructor | ObjectConstructor | NumberConstructor;
+
+export interface HistoryItem<ValueType = any> {
+  previousValue: ValueType;
+  value: ValueType;
+  timestamp: Date;
+}
+
+type Callback<T = any> = (value: T) => void;

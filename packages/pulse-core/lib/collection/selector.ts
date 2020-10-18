@@ -1,6 +1,10 @@
 import { Computed, Collection, DefaultDataItem, Data, GroupObj, SelectorObj, PrimaryKey } from '../internal';
 
-export class Selector<DataType extends DefaultDataItem = DefaultDataItem, G extends GroupObj = GroupObj, S extends SelectorObj = SelectorObj> extends Computed<DataType> {
+export class Selector<
+  DataType extends DefaultDataItem = DefaultDataItem,
+  G extends GroupObj = GroupObj,
+  S extends SelectorObj = SelectorObj
+> extends Computed<DataType> {
   private collection: () => Collection<DataType, G, S>;
   private _masterSelected: PrimaryKey;
   public set id(val: PrimaryKey) {
@@ -8,6 +12,7 @@ export class Selector<DataType extends DefaultDataItem = DefaultDataItem, G exte
     this.recompute();
   }
   public get id() {
+    if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this._masterSelected;
   }
   constructor(collection: () => Collection<DataType, G, S>, key: PrimaryKey) {
@@ -41,7 +46,10 @@ export class Selector<DataType extends DefaultDataItem = DefaultDataItem, G exte
 
 export default Selector;
 
-function findData<DataType extends DefaultDataItem = DefaultDataItem, G extends GroupObj = GroupObj, S extends SelectorObj = SelectorObj>(collection: Collection<DataType, G, S>, key: PrimaryKey) {
+function findData<DataType extends DefaultDataItem = DefaultDataItem, G extends GroupObj = GroupObj, S extends SelectorObj = SelectorObj>(
+  collection: Collection<DataType, G, S>,
+  key: PrimaryKey
+) {
   let data = collection.findById(key).value;
   // if data is not found, create placeholder data, so that when real data is collected it maintains connection
   if (!data) {

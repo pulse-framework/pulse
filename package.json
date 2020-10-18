@@ -8,13 +8,17 @@
     "bootstrap": "lerna bootstrap",
     "remove:build": "rimraf packages/**/dist packages/**/tsconfig.tsbuildinfo",
     "remove:install": "lerna clean && rimraf node_modules",
-    "build": "yarn remove:build && tsc -b packages/pulse-core packages/pulse-react packages/pulse-next",
-    "dev": "yarn remove:build && tsc -b --watch packages/pulse-core packages/pulse-react packages/pulse-next",
-    "test": "jest packages/**",
+    "setup:react": "yarn build && (cd packages/pulse-react && yarn link) && (cd packages/pulse-core && yarn link) && (cd examples/typescript/core && yarn link @pulsejs/core && yarn link) && (cd examples/typescript/react && yarn link @pulsejs/react && yarn link @pulsejs/core && yarn link pulse-example-core)",
+    "test:react": "(cd examples/typescript/react && yarn start)",
+    "test:core": "(cd examples/typescript/core && tsc -W)",
+    "build": "yarn remove:build && tsc -b packages/pulse-core packages/pulse-react packages/pulse-vue packages/pulse-next",
+    "dev": "yarn remove:build && tsc -b --watch packages/pulse-core packages/pulse-react packages/pulse-vue packages/pulse-next",
+    "test": "jest",
     "release": "yarn build && lerna publish --force-publish",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --dest ./docs/dist/",
-    "now-build": "yarn run docs:build"
+    "now-build": "yarn run docs:build",
+    "postinstall": "git config --local core.hooksPath .githooks"
   },
   "repository": {
     "type": "git",

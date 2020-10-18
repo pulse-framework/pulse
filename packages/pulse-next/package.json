@@ -1,6 +1,6 @@
 {
   "name": "@pulsejs/next",
-  "version": "3.3.9",
+  "version": "3.4.0",
   "author": "Jamie Pine",
   "license": "MIT",
   "description": "Next.js integration for PulseJS",
@@ -25,5 +25,7 @@
     "type": "git",
     "url": "https://github.com/pulse-framework/pulse"
   },
-  "gitHead": "df2d02d8e5a07ded7bb792c0d8e1473c5b6159ba"
+  "files": [
+    "dist/**/*"
+  ]
 }

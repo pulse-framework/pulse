@@ -12,3 +12,5 @@ export const PulseNext = new Integration({
 });
 
 Pulse.initialIntegrations.push(PulseNext);
+
+export default Pulse;
