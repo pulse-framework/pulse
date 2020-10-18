@@ -2,12 +2,11 @@
 title: Changelog
 ---
 ## 3.5 - The one with VueJS support
-
-## 3.4 - The one with useWatcher()
-
 ::: warning Work in progress
 This update is currently being worked on, but will be released soon!
 :::
+
+## 3.4 - The one with useWatcher()
 
 - Added State.record() to optionally track mutation history
 - Added `useWatcher()` for React integration
