@@ -5,6 +5,7 @@ title: Changelog
 ::: warning Work in progress
 This update is currently being worked on, but will be released soon!
 :::
+- Added onNext to Events
 
 ## 3.4 - The one with useWatcher()
 

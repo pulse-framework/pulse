@@ -31,6 +31,8 @@ export class Event<P = EventPayload> {
   // should never be defined, but holds reference to the Payload type for useEvent to read
   public payload: P;
 
+  private onNextCallback: (payload?: P) => any;
+
   constructor(public instance: () => Pulse, public config: EventConfig<P> = {}) {
     // initiate uses state if applicable
     if (config.disableAfterUses) this.uses = 0;
@@ -72,10 +74,19 @@ export class Event<P = EventPayload> {
     this.config.enabled = false;
   }
 
+  public onNext(callback: (payload?: P) => any) {
+    this.onNextCallback = callback;
+  }
+
   // Private functions
   private emitter(payload: P) {
     // foreach callback, invoke the saved function
     this.callbacks.forEach(callback => callback(payload));
+
+    if (typeof this.onNextCallback === 'function') {
+      this.onNextCallback(payload);
+      delete this.onNextCallback;
+    }
     // increment the uses if
     if (this.uses !== undefined) this.uses++;
   }
