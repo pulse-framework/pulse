@@ -1,7 +1,7 @@
 import { Pulse } from './internal';
 
 // default event payload
-export type EventPayload = { [key: string]: any };
+export type EventPayload = any;
 // type of the callback an event should receive
 export type EventCallbackFunc<P = EventPayload> = (payload: P) => void;
 // type of the function used as an alias to create an event instance, with a generic for the payload type
