@@ -24,8 +24,8 @@ const Hello = App.State<string>('the sound of music');
 
 Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourges developers to construct a core library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
 
-### Typescript
+### TypeScript
 
-Pulse is written in Typescript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code.
+Pulse is written in TypeScript and is designed to support it heavily. Everything is type safe **out of the box** and encourages you to write clean, efficiently typed code.
 
 Read the [documentation](https://pulsejs.org/v3/introduction/what-is-pulse.html) to learn more!
