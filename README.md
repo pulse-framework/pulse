@@ -1,4 +1,4 @@
-![PulseJS Logo](https://i.ibb.co/nPLDJ12/Screen-Shot-2020-10-22-at-18-54-45.png)
+<img src="https://i.ibb.co/nPLDJ12/Screen-Shot-2020-10-22-at-18-54-45.png" marginLeft="-5px"></img>
 
 # Pulse Framework `3.0`
 
