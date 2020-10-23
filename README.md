@@ -28,4 +28,20 @@ Pulse provides a clean-cut toolset to build a Javascript application quickly and
 
 Pulse is written in TypeScript and is designed to support it heavily. Everything is type safe **out of the box** and encourages you to write clean, fully-typed code.
 
+### Core
+
+Pulse applications are managed and mostly centered around the `core` object. The core is a single object that contains all Controllers, State, Collections, actions, routes, and helpers as you define them under a Pulse instance.
+
+Think of the core as your custom library of state and methods in a portable container that can be deployed in any JS environment or framework.
+
+It's the final product of a Pulse powered application.
+
+```ts
+core.accounts.login();
+
+core.posts.collection.findById(21);
+
+core.authentication.state.TOKEN.value;
+```
+
 Read the [documentation](https://pulsejs.org/v3/introduction/what-is-pulse.html) to learn more!
