@@ -1,3 +1,5 @@
+![PulseJS Logo](https://i.ibb.co/nPLDJ12/Screen-Shot-2020-10-22-at-18-54-45.png)
+
 # Pulse Framework `3.0`
 
 _Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
