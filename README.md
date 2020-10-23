@@ -26,6 +26,6 @@ Pulse provides a clean-cut toolset to build a Javascript application quickly and
 
 ### TypeScript
 
-Pulse is written in TypeScript and is designed to support it heavily. Everything is type safe **out of the box** and encourages you to write clean, efficiently typed code.
+Pulse is written in TypeScript and is designed to support it heavily. Everything is type safe **out of the box** and encourages you to write clean, fully-typed code.
 
 Read the [documentation](https://pulsejs.org/v3/introduction/what-is-pulse.html) to learn more!
