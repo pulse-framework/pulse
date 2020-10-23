@@ -1,4 +1,8 @@
-<img src="https://i.ibb.co/nPLDJ12/Screen-Shot-2020-10-22-at-18-54-45.png" marginLeft="-5px"></img>
+<img src="https://i.ibb.co/nPLDJ12/Screen-Shot-2020-10-22-at-18-54-45.png#pulselogo" marginLeft="-5px"></img>
+
+img[src*="#pulselogo"] {
+   margin-left: -15px;
+}
 
 # Pulse Framework `3.0`
 
