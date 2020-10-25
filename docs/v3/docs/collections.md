@@ -292,18 +292,6 @@ The put method allows you to _put_ data from one group into another! A great exa
 MyCollection.put([22, 34, 75], 'MyGroupName');
 ```
 
-# `.deleteData()`
-
-Delete data from your collection
-
-**Parameters**
-
-- [primaryKeys (string | number | string[] | number[])]()
-
-```js
-MyCollection.deleteData(21);
-```
-
 # `.reset()`
 
 Reset allows you to easily clear the collection of all data (keeping group structure but removing the data from the groups)
