@@ -77,7 +77,7 @@ export class Pulse {
    * @param deps Array - An array of state items to depend on
    * @param func Function - A function where the return value is the state, ran every time a dep changes
    */
-  public Computed<T = any>(func: () => any, deps?: Array<any>) {
+  public Computed<T = any>(func: () => T, deps?: Array<any>) {
     const computed = new Computed<T>(() => this, func, deps);
     this._computed.add(computed);
     return computed;
