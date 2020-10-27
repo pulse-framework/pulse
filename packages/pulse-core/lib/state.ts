@@ -29,7 +29,7 @@ export class State<ValueType = any> {
   public typeOfVal?: string;
   // history
   public enableHistory?: boolean;
-  public history?: HistoryItem[];
+  public history?: HistoryItem<ValueType>[];
   // for extended classes to perform actions upon state change
   public sideEffects?: Function;
   // // for extended classes to store a derived value, such as Group
@@ -257,6 +257,14 @@ export class State<ValueType = any> {
         timestamp: new Date()
       });
     }
+    if (this.instance().config.globalHistory) {
+      this.instance().history.push({
+        value: value,
+        previousValue: this._value,
+        timestamp: new Date(),
+        name: this.name
+      });
+    }
     this._value = copy(value);
     this.nextState = copy(value);
     // If
@@ -314,6 +322,7 @@ export interface HistoryItem<ValueType = any> {
   previousValue: ValueType;
   value: ValueType;
   timestamp: Date;
+  name?: string;
 }
 
 type Callback<T = any> = (value: T) => void;

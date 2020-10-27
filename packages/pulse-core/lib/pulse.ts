@@ -1,5 +1,6 @@
 // prettier-ignore
 import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, Integration, Integrations } from './internal';
+import { HistoryItem } from './state';
 
 export interface PulseConfig {
   computedDefault?: any;
@@ -7,6 +8,7 @@ export interface PulseConfig {
   storage?: StorageConfig;
   logJobs?: boolean;
   noCore?: boolean;
+  globalHistory?: boolean;
 }
 
 export const defaultConfig: PulseConfig = {
@@ -28,6 +30,8 @@ export class Pulse {
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
   public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
+
+  public history: HistoryItem[] = [];
 
   // integrations
   public integrations: Integrations;

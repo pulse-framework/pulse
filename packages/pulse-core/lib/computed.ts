@@ -21,8 +21,8 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
 
     if (deps) deps.forEach(state => state.dep.depend(this));
 
-    // if Core will not be used, compute immediately
-    if (instance().config.noCore === true) this.recompute();
+    // if Core will not be used, or Pulse in a post-core state (ready), compute immediately
+    if (instance().config.noCore === true || instance().ready) this.recompute();
   }
 
   public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {
