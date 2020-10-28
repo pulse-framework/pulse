@@ -1,9 +1,22 @@
 {
-  "private": true,
+  "name": "pulse-framework",
+  "version": "3.0.0",
   "description": "Global state and logic framework for reactive JavaScript & TypeScript applications.",
-  "author": "Jamie Pine",
   "license": "MIT",
-  "syncDir": "dist",
+  "author": {
+    "name": "Jamie Pine",
+    "url": "https://github.com/jamiepine"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "LICENCE"
+  ],
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pulse-framework/pulse"
+  },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "remove:build": "rimraf packages/**/dist packages/**/tsconfig.tsbuildinfo",
@@ -19,10 +32,6 @@
     "docs:build": "vuepress build docs --dest ./docs/dist/",
     "now-build": "yarn run docs:build",
     "postinstall": "git config --local core.hooksPath .githooks"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/pulse-framework/pulse"
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",

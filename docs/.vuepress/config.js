@@ -1,6 +1,6 @@
 module.exports = {
   title: 'Pulse Framework',
-  description: 'A global state and logic framework for reactive Javascript applications.',
+  description: 'Global state and logic framework for reactive JavaScript applications.',
   dest: 'dist',
   serviceWorker: true,
   base: '/',
@@ -14,8 +14,8 @@ module.exports = {
     ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
-    repo: 'jamiepine/pulse',
-    // Customizing the header label
+    repo: 'pulse-framework/pulse',
+    // Customising the header label
     // Defaults to "GitHub"/"GitLab"/"Bitbucket" depending on `themeConfig.repo`
     repoLabel: 'Contribute!',
     // if your docs are not at the root of the repo:

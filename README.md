@@ -1,32 +1,32 @@
-# Pulse Framework `3.0`
+# Pulse Framework
 
-_Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
+**Global state and logic for reactive JavaScript applications.** Supports frameworks like React, Vue, and React Native.
 
-Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to create a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
+**Lightweight, modular and powerful.** Provides a **core** state & logic framework for your entire application; plug-and-play directly into any UI framework.
 
-Created by [@jamiepine]() | Sponsored and maintained by the [Notify Team]()
+Replaces Redux, Vuex, and MobX for state; and for API requests, replaces Axios and `fetch`.
 
-### Official website: [pulsejs.org](https://pulsejs.org/v3/introduction/what-is-pulse.html)
+**Created by [@jamiepine](https://twitter.com/jamiepine)**
+| **Sponsored and maintained by the [Notify](https://notify.me) team.**
 
-<p align="left">
-  <a href="https://discord.gg/RjG8ShB"><img src="https://discordapp.com/api/guilds/658189217746255881/embed.png" alt="Join Discord"></a>
-  <a href="https://patreon.com/jamiepine"><img src="https://img.shields.io/badge/donate-patreon-F96854.svg" alt="Donate on patreon"></a>
-  <a href="https://twitter.com/jamiepine"><img src="https://img.shields.io/twitter/follow/jamiepine.svg?label=Jamie's Twitter" alt="Follow on twitter"></a>
-  <a href="https://twitter.com/pulseframework"><img src="https://img.shields.io/twitter/follow/pulseframework.svg?label=Pulse+Twitter" alt="Follow Pulse on twitter"></a>
-</p>
+### Read the docs at [pulsejs.org](https://pulsejs.org).
+
+[![Join Discord](https://discordapp.com/api/guilds/658189217746255881/embed.png)](https://discord.gg/RjG8ShB)
+[![Follow Pulse on Twitter](https://img.shields.io/twitter/follow/pulseframework.svg?label=Pulse+on+Twitter)](https://twitter.com/pulseframework)
+[![Follow Jamie Pine on Twitter](https://img.shields.io/twitter/follow/jamiepine.svg?label=Jamie+on+Twitter)](https://twitter.com/jamiepine)
 
 ```ts
 const App = new Pulse();
 
-const Hello = App.State<string>('the sound of music');
+const hello = App.State<string>('the sound of music');
 ```
 
 ## Why Pulse?
 
-Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourges developers to construct a core library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
+Pulse Framework provides a complete toolset to build front-end applications quickly and efficiently. It encourages you to construct a single core library that can be used in any UI framework. The core handles everything at the center of your application — state management, API requests, and all miscellaneous logic and calculations. Pulse supplies computed data to your UI components with full reactivity, in the framework of your choice.
 
-### Typescript
+### TypeScript
 
-Pulse is written in Typescript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code.
+Pulse is fully written in TypeScript and supports it heavily. Everything is type-safe out of the box and encourages you to write clean, typed code.
 
-Read the [documentation](https://pulsejs.org/v3/introduction/what-is-pulse.html) to learn more!
+**Read the [documentation](https://pulsejs.org/v3/introduction/what-is-pulse.html) to learn more!**
