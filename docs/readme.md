@@ -12,9 +12,9 @@ footer: MIT Licensed | Copyright © 2020 - Jamie Pine
 
 Pulse is a global state and logic framework for reactive Typescript & Javascript applications.
 
-With support for React, React Native, VueJS and an API to support more.
+With support for React, React Native, Vue, and an API to support more.
 
-[Documentation](/v3) / [Changelog](/v3/introduction/changelog)
+[Documentation](/v3/introduction/what-is-pulse.html) / [Changelog](/v3/introduction/changelog.html)
 
 <!-- Using HTML instead of Markdown links because they get themed with an 'external' badge -->
 <!-- TODO: Figure out if there's a way to remove the external badge so we can use sane syntax -->
