@@ -4,7 +4,7 @@ import { computeHash } from './helpers';
 
 export const state = {
   // store the master copy of the current account
-  AUTHED_ACCOUNT: App.State<Partial<Account>>({}),
+  AUTHED_ACCOUNT: App.State<Partial<Account>>({ id: '0' }),
   // store the session token & persist
   SESSION_TOKEN: App.State('jeff').persist().type(String),
   // store the last email & persist
@@ -16,7 +16,7 @@ export const state = {
 };
 
 // a component friendly version of the account
-const ACCOUNT = App.Computed<Account & ComputedAccountData>(() => {
+const ACCOUNT = App.Computed<Partial<Account & ComputedAccountData>>(() => {
   return {
     ...state.AUTHED_ACCOUNT.value,
     avatar: computeHash(state.AUTHED_ACCOUNT.value.avatar_hash)

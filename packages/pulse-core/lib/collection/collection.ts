@@ -338,6 +338,21 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     const groups = Object.keys(this.groups);
     groups.forEach(groupName => this.groups[groupName].reset());
   }
+
+  public flatten() {
+    const flatCollection: { groups: { [key: string]: PrimaryKey[] }; data: { [key: string]: DataType } } = {
+      data: {},
+      groups: {}
+    };
+
+    for (const key in this.data) {
+      flatCollection.data[key] = this.data[key].copy();
+    }
+    for (const group in this.groups) {
+      flatCollection.groups[group] = this.groups[group].copy();
+    }
+    return flatCollection;
+  }
 }
 
 export default Collection;

@@ -6,6 +6,7 @@ title: Changelog
 This update is currently being worked on, but will be released soon!
 :::
 - Added onNext to Events
+- Computed will now generate immediately if created _after_ core has initialized (App.Core())
 
 ## 3.4 - The one with useWatcher()
 
