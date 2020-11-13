@@ -7,6 +7,9 @@ This update is currently being worked on, but will be released soon!
 :::
 - Added onNext to Events
 - Computed will now generate immediately if created _after_ core has initialized (App.Core())
+- Fixed bug with API class that was causing one-time header overrides to persist to all future route calls
+- API class will allow you to set content-type, previously it forced auto detection.
+- State.interval() now returns _this_, saves interval id locally and provides State.clearInterval().
 
 ## 3.4 - The one with useWatcher()
 

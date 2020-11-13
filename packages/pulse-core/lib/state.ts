@@ -32,6 +32,8 @@ export class State<ValueType = any> {
   public history?: HistoryItem<ValueType>[];
   // for extended classes to perform actions upon state change
   public sideEffects?: Function;
+
+  private intervalId?: NodeJS.Timer | number;
   // // for extended classes to store a derived value, such as Group
   // public output?: any;
   // getter and setter for the State value, best for I/O binding
@@ -104,11 +106,19 @@ export class State<ValueType = any> {
    * @param ms Time, in milliseconds, between individual runs of the interval.
    * @returns Native handle from `setInterval` that can be passed into `clearInterval`.
    */
-  public interval(setFunc: (currentValue: ValueType) => any, ms?: number): NodeJS.Timer | number {
-    // TODO: test this on web
-    return setInterval(() => {
+  public interval(setFunc: (currentValue: ValueType) => any, ms?: number): this {
+    this.intervalId = setInterval(() => {
       this.set(setFunc(this.value));
     }, ms ?? 1000);
+
+    return this;
+  }
+
+  public clearInterval(): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId as number);
+      delete this.intervalId;
+    }
   }
 
   public persist(key?: string): this {
