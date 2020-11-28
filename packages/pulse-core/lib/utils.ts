@@ -111,6 +111,6 @@ export function validateNumber(mutable, amount) {
   }
   return true;
 }
-export function normalizeArray(items: any | Array<any>): Array<any> {
+export function normalizeArray<T>(items: T | Array<T>): Array<T> {
   return Array.isArray(items) ? items : [items];
 }

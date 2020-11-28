@@ -1,15 +1,31 @@
 ---
 title: Changelog
 ---
-## 3.5 - The one with VueJS support
+## 3.5 - The one with Actions
 ::: warning Work in progress
 This update is currently being worked on, but will be released soon!
 :::
-- Added onNext to Events
+
+**NEW FEATURES**
+- Added `App.Action()` - A better way to write actions. [still WIP]
+- Added `App.Error()` - A global error handler. [still WIP]
+- Added `App.track()` - Track mutations and revert using returned `undo` method.
+- Added `App.batch()` - Increase performance by batching multiple mutations.*
+- Added `Event.onNext()` - Run a callback once after next event.
+- Added `Collection.onCollect()` - Mutate data on collect, persistent alternative to `Collection.compute()` which runs the mutate function only on Group output, not affecting original data.
+
+**BIG PERFORMANCE GAINS**: 
+- Groups can now "soft rebuild" when generating output in some cases, avoiding rebuilding from scratch every time data was changed.
+- *`App.batch()` Can be used to instruct runtime to batch State mutations together, this will result in the side effects being squashed and offset to the end of the batch.
+- Removed a `Collection.getGroup()` memory leak when used inside a Computed function, where no group is found. It would return an empty group that is dependent on the Computed function, which would add a useless dependent every recompute. Now `getGroup()` memorizes the requested key by creating a provisional group registered in the Collection.
+
+**MISC FIXES**:
+- `Group.index` now returns the index accurate to the output. Useful if missing data was encountered during Group build. Previously it was an alias for `Group.value` directly, which could contain primary keys for data that does not exist in the collection.
 - Computed will now generate immediately if created _after_ core has initialized (App.Core())
-- Fixed bug with API class that was causing one-time header overrides to persist to all future route calls
+- Fixed bug with API class that was causing one-time header overrides to persist to all future route calls.
 - API class will allow you to set content-type, previously it forced auto detection.
-- State.interval() now returns _this_, saves interval id locally and provides State.clearInterval().
+- `State.interval()` now returns _this_, saves interval id locally and provides `State.clearInterval()`.
+- Collection's default group will not be auto created unless specified in config OR no groups are provided at initialization.
 
 ## 3.4 - The one with useWatcher()
 

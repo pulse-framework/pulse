@@ -19,6 +19,9 @@ export { Controller } from './controller';
 // Events
 export { Event } from './event';
 
+// Actions
+export { Action } from './action';
+
 // Status
 export { StatusTracker } from './status';
 
@@ -29,6 +32,7 @@ export { API } from './api';
 
 // Internal Classes
 export { Runtime } from './runtime';
+export { Tracker } from './tracker';
 export { Storage } from './storage';
 export { Dep } from './dep';
 export { SubController, ComponentContainer, CallbackContainer } from './sub';
@@ -42,6 +46,8 @@ export { isWatchableObject } from './helpers/isWatchableObj';
 
 // Types
 export { SetFunc } from './state';
+export { IJob } from './runtime';
+export { FuncType } from './action';
 export { SubscriptionContainer } from './sub';
 export { APIConfig, PulseResponse } from './api';
 export { PrimaryKey, GroupName, GroupAddOptions } from './collection/group';

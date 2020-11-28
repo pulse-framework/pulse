@@ -1,29 +1,38 @@
-import { Pulse, State, Computed, CallbackContainer, SubscriptionContainer } from './internal';
+import { Pulse, State, Computed, CallbackContainer, SubscriptionContainer, Tracker } from './internal';
 import { copy } from './utils';
 
-export interface JobInterface {
+export interface IJob {
+  id?: number;
   state: State;
   newStateValue?: any;
   background?: boolean;
+  parentJob?: number;
+  jobSpawnedFrom?: Function;
+  preventDepIngest?: boolean;
 }
 
 export interface JobConfigInterface {
   perform?: boolean;
   background?: boolean;
+  jobSpawnedFrom?: Function;
+  parentJob?: number;
+  batched?: boolean;
 }
 
 export class Runtime {
   public instance: () => Pulse;
 
   // queue system
-  public currentJob: JobInterface | null = null;
-  private jobsQueue: Array<JobInterface> = [];
-  private jobsToRerender: Array<JobInterface> = [];
+  public currentJob: IJob | null = null;
+  private jobsQueue: Array<IJob> = [];
+  private jobsToRerender: Array<IJob> = [];
   private tasksOnceComplete: Array<() => any> = [];
-
+  public trackers: Set<Tracker> = new Set();
   // used for tracking computed dependencies
   public trackState: boolean = false;
   public foundState: Set<State> = new Set();
+  private batchJobs: boolean = false;
+  private batchQueue: Set<IJob> = new Set();
 
   constructor(pulseInstance: Pulse) {
     this.instance = () => pulseInstance;
@@ -33,9 +42,15 @@ export class Runtime {
    * @internal
    * Creates a Job out of State and new Value and than add it to a job queue
    */
-  public ingest(state: State, newStateValue?: any, options: JobConfigInterface = { perform: true, background: false }): void {
+  public ingest(state: State, newStateValue?: any, options: JobConfigInterface = {}): void {
+    options = { perform: true, background: false, ...options };
     // Create Job
-    const job: JobInterface = { state: state, newStateValue: newStateValue, background: options?.background };
+    const job: IJob = { state: state, newStateValue: newStateValue, background: options?.background, parentJob: options.parentJob };
+
+    job.id = this.instance().getNonce();
+
+    if (options.jobSpawnedFrom) job.jobSpawnedFrom = options.jobSpawnedFrom;
+    if (options.batched) job.preventDepIngest = true;
 
     // grab nextState if newState not passed, compute if needed
     if (newStateValue === undefined) {
@@ -62,7 +77,7 @@ export class Runtime {
    * @internal
    * Perform a State Update
    */
-  private perform(job: JobInterface): void {
+  private perform(job: IJob): void {
     // Set Job to current
     this.currentJob = job;
 
@@ -73,7 +88,7 @@ export class Runtime {
     job.state.privateWrite(job.newStateValue);
 
     // Perform SideEffects such as watcher functions
-    this.sideEffects(job.state);
+    this.sideEffects(job.state, job);
 
     // Set Job as completed (The deps and subs of completed jobs will be updated)
     if (!job.background) this.jobsToRerender.push(job);
@@ -83,6 +98,8 @@ export class Runtime {
 
     // Logging
     if (this.instance().config.logJobs) console.log(`Pulse: Completed Job(${job.state.name})`, job);
+
+    this.trackers.forEach(tracker => tracker.ingest(job));
 
     // Continue the Loop and perform the next job.. if no job is left update the Subscribers for each completed job
     if (this.jobsQueue.length > 0) this.perform(this.jobsQueue.shift());
@@ -95,9 +112,9 @@ export class Runtime {
   }
 
   /**
-   * SideEffects are sideEffects of the perform function.. for instance the watchers
+   * SideEffects are side effects of the perform function.. for instance the watchers
    */
-  private sideEffects(state: State) {
+  private sideEffects(state: State, job?: IJob) {
     let dep = state.dep;
     // this should not be used on root state class as it would be overwritten by extensions
     // this is used mainly to cause group to generate its output after changing
@@ -106,8 +123,37 @@ export class Runtime {
     // Call Watchers
     for (let watcher in state.watchers) if (typeof state.watchers[watcher] === 'function') state.watchers[watcher](state.getPublicValue());
 
+    if (this.batchJobs && job) this.batchQueue.add(job);
     // Ingest dependents (Perform is false because it will be performed anyway after this sideEffect)
-    dep.deps.forEach(state => this.ingest(state, undefined, { perform: false }));
+    else if (!job?.preventDepIngest) dep.deps.forEach(state => this.ingest(state, undefined, { perform: false, parentJob: job?.id }));
+  }
+
+  public batch(func: () => unknown): void {
+    this.batchJobs = true;
+    func();
+    this.batchJobs = false;
+    const state = Array.from(this.batchQueue).map(job => job.state);
+    const sideEffects = this.getUniqueDependentsRecursively(state);
+    console.log({ sideEffects, this: this });
+    this.batchQueue = new Set();
+    sideEffects.forEach(state => this.ingest(state, undefined, { perform: false, batched: true }));
+    this.perform(this.jobsQueue.shift());
+  }
+
+  public getUniqueDependentsRecursively(stateItems: State[]): Set<State> {
+    const foundDeps: Set<State> = new Set();
+    function look(nextStateItems: State[]) {
+      const next = [];
+      nextStateItems.forEach(state => {
+        state.dep.deps.forEach(state => {
+          next.push(state);
+          foundDeps.add(state);
+        });
+      });
+      if (next.length > 0) look(next);
+    }
+    look(stateItems);
+    return foundDeps;
   }
 
   /**

@@ -50,7 +50,7 @@ export class State<ValueType = any> {
 
   constructor(public instance: () => Pulse, public initialState?: ValueType | null, deps: Array<Dep> = []) {
     // initialize the dependency manager
-    this.dep = new Dep(deps);
+    this.dep = new Dep(deps, () => this);
     // write the initial value to this State
     this.privateWrite(initialState === undefined ? null : initialState);
   }
@@ -59,10 +59,10 @@ export class State<ValueType = any> {
    * Directly set state to a new value, if nothing is passed in State.nextState will be used as the next value
    * @param newState - The new value for this state
    */
-  public set(newState?: ValueType | SetFunc<ValueType>, options: { background?: boolean } = {}): this {
+  public set(newState?: ValueType | SetFunc<ValueType>, options: { background?: boolean; _caller?: Function } = {}): this {
     // if newState not provided, just ingest update with existing value
     if (newState === undefined) {
-      this.instance().runtime.ingest(this, undefined);
+      this.instance().runtime.ingest(this, undefined, { jobSpawnedFrom: options._caller });
       return this;
     }
     // if newState is a function, run that function and supply existing value as first param
@@ -79,7 +79,7 @@ export class State<ValueType = any> {
       this.privateWrite(newState);
       if (this.sideEffects) this.sideEffects();
     } else {
-      this.instance().runtime.ingest(this, newState);
+      this.instance().runtime.ingest(this, newState, { jobSpawnedFrom: options._caller });
     }
 
     this.isSet = true;

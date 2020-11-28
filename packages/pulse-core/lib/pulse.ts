@@ -1,5 +1,6 @@
 // prettier-ignore
-import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, Integration, Integrations } from './internal';
+import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, Integration, Integrations, Action, FuncType } from './internal';
+import { Tracker } from './tracker';
 import { HistoryItem } from './state';
 
 export interface PulseConfig {
@@ -103,12 +104,8 @@ export class Pulse {
   /**
    * Create a Pulse Action
    */
-  public Action(func: Function) {
-    return () => {
-      const returnValue = func();
-
-      return returnValue;
-    };
+  public Action<T extends FuncType>(func: T) {
+    return new Action(() => new Pulse(), func).hoc();
   }
 
   /**
@@ -156,7 +153,7 @@ export class Pulse {
   /**
    * Create a Pulse Error
    */
-  public Error(error: any, code?: string) {}
+  public Error(error: any, info?: { fromAction?: any }) {}
 
   /**
    * onError handler
@@ -194,6 +191,13 @@ export class Pulse {
     this.storage = new Storage(() => this, config);
     this.storage.persistedState = persistedState;
     this.storage.persistedState.forEach(state => state.persist(state.name));
+  }
+
+  public track(changeFunc: () => void) {
+    return new Tracker(() => this, changeFunc);
+  }
+  public batch(batchFunc: () => void): void {
+    this.runtime.batch(batchFunc);
   }
 
   /**
