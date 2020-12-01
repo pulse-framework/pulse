@@ -67,7 +67,7 @@ cleanup();
 This syntax is bulky considering you must invoke the cleanup function on component unmount, so with React the `useEvent()` hook will cleanup for you!
 ```ts
 import React from 'react';
-import { useEvent } from 'pulse-framework';
+import { useEvent } from '@pulse/react';
 
 export function MyComponent() {
 	useEvent(ALERT, payload => {
@@ -87,5 +87,28 @@ const events = App.EventGroup(Event => ({
 	ALERT: Event<{ message: string }>({ throttle: 100 })
 }));
 ```
+
+## useEvent()
+This is a React hook for functional components that allows you to use an Event with automatic cleanup
+
+```ts
+import React from 'react';
+
+export function MyComponent(props) {
+	
+	useEvent(events.ALERT, () => {
+		// do something
+	})
+
+	return <div></div>
+}
+```
+In this example `events` is referencing the EventGroup created above, however usually this would be located inside your [Core](/v3/docs/core.html).
+
+This is a really handy syntax for using Events and we'd recommend all React users.
+
 ## Importing Events
-It's best practice to export your Events in your [core]() object, so they can easily be used within your components.
+It's best practice to export your Events in your [Core](/v3/docs/core.html) object, so they can easily be used within your components.
+
+You might want to make your events global to your core, such as `core.events`, or maybe you'll put them in your [Controllers](/v3/docs/controllers.html) ``core.accounts.events.MY_EVENT``. It's up to you!
+

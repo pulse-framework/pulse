@@ -17,10 +17,12 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
   constructor(public instance: () => Pulse, public func: () => ComputedValueType, public deps?: Array<State>) {
     super(instance, instance().config.computedDefault || null);
 
+    if (typeof func !== 'function') throw new TypeError('A compute function must be provided to Computed.');
+
     if (deps) deps.forEach(state => state.dep.depend(this));
 
-    // if Core will not be used, compute immediately
-    if (instance().config.noCore === true) this.recompute();
+    // if Core will not be used, or Pulse in a post-core state (ready), compute immediately
+    if (instance().config.noCore === true || instance().ready) this.recompute();
   }
 
   public computeValue(): ComputedValueType | SetFunc<ComputedValueType> {

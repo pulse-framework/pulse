@@ -4,7 +4,7 @@ export class Dep {
   public deps: Set<any> = new Set();
   public subs: Set<SubscriptionContainer> = new Set();
 
-  constructor(initialDeps?: Array<Dep>) {
+  constructor(initialDeps?: Array<Dep>, private instance?: () => State) {
     if (initialDeps) initialDeps.forEach(dep => this.deps.add(dep));
   }
 

@@ -73,44 +73,44 @@ export class API {
   private async send(method: string, endpoint, payload?: any): Promise<PulseResponse> {
     // initial definitions
     let fullUrl: string,
-      data: any,
       response: PulseResponse | unknown,
-      config: APIConfig = { ...this.config };
+      config: APIConfig = API.cloneDefaultConfig(this.config);
 
     // inject method into request options
     config.options.method = method;
 
     if (!config.options.headers) config.options.headers = {};
-    let originalType = config.options.headers['content-type'] || config.options.headers['Content-Type'];
 
-    if (payload && payload._parts && payload.getParts) {
-      // inject body if not get method
-      config.options.body = payload;
-      config.options.headers['content-type'] = 'multipart/form-data';
-    } else if (typeof payload === 'object') {
-      // inject body if not get method
+    // inject payload into request body
+    if (typeof payload === 'object' && !(payload instanceof FormData)) {
+      // stringify body
       config.options.body = JSON.stringify(payload);
-      config.options.headers['content-type'] = 'application/json';
-    } else config.options.body = payload;
+      // if body is object and no content type specified, auto assign content-type to application/json
+      if (!config.options.headers['content-type']) config.options.headers['content-type'] = 'application/json';
+    } else {
+      config.options.body = payload;
+    }
 
     // construct endpoint
     let path = this.config.path ? '/' + this.config.path : '';
     if (endpoint.startsWith('http')) fullUrl = endpoint;
     else fullUrl = `${this.config.baseURL ? this.config.baseURL : ''}${path}/${endpoint}`;
 
+    // fire request interceptor
     if (config.requestIntercept) config.requestIntercept({ ...config.options, endpoint: fullUrl });
 
+    // make the request
     let timedout = false;
-    if (this.config.timeout) {
+    if (config.timeout) {
       let t: any;
       const timeout = new Promise(resolve => {
         t = setTimeout(() => {
           timedout = true;
           resolve();
-        }, this.config.timeout);
+        }, config.timeout);
       });
       const request = new Promise((resolve, reject) => {
-        fetch(fullUrl, this.config.options)
+        fetch(fullUrl, config.options)
           .then(data => {
             clearTimeout(t);
             resolve(data);
@@ -119,11 +119,8 @@ export class API {
       });
       response = await Promise.race([timeout, request]);
     } else {
-      response = await fetch(fullUrl, this.config.options);
+      response = await fetch(fullUrl, config.options);
     }
-
-    // Return the old content type header
-    if (originalType) config.options.headers['content-type'] = originalType;
 
     // if we got here, PulseResponse is the actual response object
     let res: PulseResponse = {
@@ -141,9 +138,16 @@ export class API {
       res.data = await res.raw.text();
     }
 
+    // fire the response interceptor
     if (config.responseIntercept) config.responseIntercept(res);
 
     return res;
+  }
+  static cloneDefaultConfig(config: APIConfig): APIConfig {
+    config = { ...config };
+    config.options = { ...config.options };
+    config.options.headers = { ...config.options.headers };
+    return config;
   }
 }
 

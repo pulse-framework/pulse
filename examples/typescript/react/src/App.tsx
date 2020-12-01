@@ -21,7 +21,7 @@ globalThis['core'] = core;
 globalThis['resetState'] = resetState;
 
 function MyApp() {
-  const jeff = usePulse(core.accounts.ACCOUNT);
+  const jeff = usePulse(core.posts.collection.groups.FEED);
 
   useWatcher(core.accounts.state.SESSION_TOKEN, () => {
     console.log('token changed!');

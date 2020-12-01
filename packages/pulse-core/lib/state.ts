@@ -29,9 +29,11 @@ export class State<ValueType = any> {
   public typeOfVal?: string;
   // history
   public enableHistory?: boolean;
-  public history?: HistoryItem[];
+  public history?: HistoryItem<ValueType>[];
   // for extended classes to perform actions upon state change
   public sideEffects?: Function;
+
+  public intervalId?: NodeJS.Timer | number;
   // // for extended classes to store a derived value, such as Group
   // public output?: any;
   // getter and setter for the State value, best for I/O binding
@@ -48,7 +50,7 @@ export class State<ValueType = any> {
 
   constructor(public instance: () => Pulse, public initialState?: ValueType | null, deps: Array<Dep> = []) {
     // initialize the dependency manager
-    this.dep = new Dep(deps);
+    this.dep = new Dep(deps, () => this);
     // write the initial value to this State
     this.privateWrite(initialState === undefined ? null : initialState);
   }
@@ -57,10 +59,10 @@ export class State<ValueType = any> {
    * Directly set state to a new value, if nothing is passed in State.nextState will be used as the next value
    * @param newState - The new value for this state
    */
-  public set(newState?: ValueType | SetFunc<ValueType>, options: { background?: boolean } = {}): this {
+  public set(newState?: ValueType | SetFunc<ValueType>, options: { background?: boolean; _caller?: Function } = {}): this {
     // if newState not provided, just ingest update with existing value
     if (newState === undefined) {
-      this.instance().runtime.ingest(this, undefined);
+      this.instance().runtime.ingest(this, undefined, { jobSpawnedFrom: options._caller });
       return this;
     }
     // if newState is a function, run that function and supply existing value as first param
@@ -77,7 +79,7 @@ export class State<ValueType = any> {
       this.privateWrite(newState);
       if (this.sideEffects) this.sideEffects();
     } else {
-      this.instance().runtime.ingest(this, newState);
+      this.instance().runtime.ingest(this, newState, { jobSpawnedFrom: options._caller });
     }
 
     this.isSet = true;
@@ -98,11 +100,26 @@ export class State<ValueType = any> {
     return this;
   }
 
-  public interval(setFunc: (currentValue: any) => any, ms?: number): this {
-    setInterval(() => {
+  /**
+   * On a certain interval of milliseconds, set the state's value to the return value of a provided callback.
+   * @param setFunc Function that returns the next value to be applied to state.
+   * @param ms Time, in milliseconds, between individual runs of the interval.
+   * @returns Native handle from `setInterval` that can be passed into `clearInterval`.
+   */
+  public interval(setFunc: (currentValue: ValueType) => any, ms?: number): this {
+    if (this.intervalId !== undefined) return this;
+    this.intervalId = setInterval(() => {
       this.set(setFunc(this.value));
-    }, ms || 1000);
+    }, ms ?? 1000);
+
     return this;
+  }
+
+  public clearInterval(): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId as number);
+      delete this.intervalId;
+    }
   }
 
   public persist(key?: string): this {
@@ -156,8 +173,10 @@ export class State<ValueType = any> {
     let genKey = typeof keyOrCallback === 'function',
       key: string | number;
 
-    if (genKey) key = this.instance().getNonce();
-    else key = keyOrCallback as string | number;
+    if (genKey) {
+      key = this.instance().getNonce();
+      callback = keyOrCallback as Callback<ValueType>;
+    } else key = keyOrCallback as string | number;
 
     this.watchers[key] = callback;
 
@@ -218,7 +237,7 @@ export class State<ValueType = any> {
    * @public
    * Returns a copy of the current value, objects and arrays will be cloned
    */
-  public copy(): any {
+  public copy(): ValueType {
     return copy(this.value);
   }
   /**
@@ -241,12 +260,20 @@ export class State<ValueType = any> {
    * @internal
    * Write value directly to State
    */
-  public privateWrite(value: any) {
+  public privateWrite(value: ValueType) {
     if (this.enableHistory) {
       this.history.push({
         value: value,
         previousValue: this._value,
         timestamp: new Date()
+      });
+    }
+    if (this.instance().config.globalHistory) {
+      this.instance().history.push({
+        value: value,
+        previousValue: this._value,
+        timestamp: new Date(),
+        name: this.name
       });
     }
     this._value = copy(value);
@@ -306,6 +333,7 @@ export interface HistoryItem<ValueType = any> {
   previousValue: ValueType;
   value: ValueType;
   timestamp: Date;
+  name?: string;
 }
 
 type Callback<T = any> = (value: T) => void;

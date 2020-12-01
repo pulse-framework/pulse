@@ -1,8 +1,10 @@
 import App from './app';
 import accounts from './controllers/accounts';
+import posts from './controllers/posts';
 
 const core = {
-  accounts
+  accounts,
+  posts
 };
 
 export default App.Core(core);

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { State, Pulse, normalizeDeps, getPulseInstance, SubscriptionContainer } from '@pulsejs/core';
 
 export function PulseHOC(ReactComponent: any, deps?: Array<State> | { [key: string]: State } | State, pulseInstance?: Pulse) {

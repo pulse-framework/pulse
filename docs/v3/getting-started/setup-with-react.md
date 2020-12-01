@@ -81,3 +81,10 @@ export default PulseHoc(Component, [core.MY_STATE]);
 ::: warning
 PulseHOC is a low priority WIP and has not been tested at the time of writing these docs, if you need this and it doesn't work, please let me know via Discord
 :::
+
+## Additional Hooks
+
+Pulse's React integration also provides some helpful hooks for functional React components, the documentation for these hooks can be found in the sections for the parent functionality.
+
+- [useWatcher()](/v3/docs/state.html#methods) - A hook to use State watchers with auto cleanup/
+- [useEvent()](/v3/docs/events.html#useevent) - A hook to use a Pulse Event with a cleaner syntax and auto cleanup.

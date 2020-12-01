@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`usePulse() | Typings State typings 1`] = `
+<div>
+  <p>
+    This is a string! Wow, so glorious!
+  </p>
+  <p>
+    This is a string! Wow, so glorious!
+  </p>
+  <p>
+    This is a string! Wow, so glorious!
+  </p>
+</div>
+`;
