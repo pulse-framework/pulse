@@ -329,6 +329,27 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     this._groups.forEach(group => group.has(primaryKey) && this.instance().runtime.ingest(group));
   }
 
+  public getGroupsWith(primaryKey: PrimaryKey, config: {includeDefault?: boolean}={}): Group[]{
+    config = defineConfig(config, {
+      includeDefault: true,
+    });
+    const groups: Array<Group> = [];
+    for(let key in this.groups){
+      const group = this.getGroup(key);
+      if(group.has(primaryKey)){
+        if(!config.includeDefault && group.name === "default"){ 
+          continue;
+        }
+        groups.push(group);
+      }
+    }
+    return groups;
+  }
+  
+  public getGroupNamesWith(primaryKey: PrimaryKey){
+    return this.getGroupsWith(primaryKey).map(group => group.name)
+  }
+
   public reset() {
     this.data = {};
     this.size = 0;
