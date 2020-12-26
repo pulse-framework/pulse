@@ -95,8 +95,8 @@ export class Pulse {
    * @param config.groups object - Define groups for this collection.
    */
   public Collection<DataType extends DefaultDataItem = DefaultDataItem>() {
-    return <G extends GroupObj = GroupObj, S extends SelectorObj = SelectorObj>(config: Config<DataType, G, S>) => {
-      const collection = new Collection<DataType, G, S>(() => this, config);
+    return <G extends GroupObj = GroupObj, S extends SelectorObj = SelectorObj>(config?: Config<DataType, G, S>) => {
+      const collection = new Collection<DataType, G, S>(() => this, config || {});
       this._collections.add(collection);
       return collection as Collection<DataType, G, S>;
     };

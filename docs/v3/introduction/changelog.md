@@ -11,7 +11,7 @@ This update is currently being worked on, but will be released soon!
 - Added [`App.Error()`]() - A global error handler. [still WIP]
 - Added [`App.track()`]() - Track multiple mutations and revert using returned [`undo()`]() method.
 - Added [`App.batch()`]() - Increase performance by batching multiple mutations.*
-- Added [`Collection.onCollect()`]() - Mutate data on collect
+- Added [`Collection.onCollect()`]() - Mutate data on collect.
 > onCollect is a persistent alternative to [`Collection.compute()`]() which runs the mutate function only on Group output, not affecting original data. onCollect will mutate each data item collected as it is collected.
 - Added [`Event.onNext()`]() - Run a callback once after next event.
 
@@ -28,6 +28,7 @@ This update is currently being worked on, but will be released soon!
 - API class will allow you to set content-type, previously it forced auto detection.
 - [`State.interval()`]() now returns _this_, saves interval id locally and provides [`State.clearInterval()`]().
 - Collection's default group will not be auto created unless specified in config OR no groups are provided at initialization.
+- Typescript: usePulse with Groups fixed types.
 
 ## 3.4 - The one with useWatcher()
 

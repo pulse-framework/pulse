@@ -5,12 +5,12 @@ import { normalizeArray } from '../utils';
 
 // Shorthand for an expandable object
 type Expandable = { [key: string]: any };
+export interface DefaultDataItem extends Expandable {}
 
 interface RemoveOptions {
   fromGroups: (groups: string | number | Array<string>) => any;
   everywhere: () => any;
 }
-export interface DefaultDataItem extends Expandable {}
 
 // Defaults for collection sub instance objects, used as generics
 export type GroupObj = { [key: string]: Group<any> };
@@ -101,7 +101,12 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     this._groups.add(group);
     return group;
   }
-  // create a selector instance under this collection
+
+  /**
+   * Create a selector instance under this collection
+   * @param initialSelection - An initial PrimaryKey (string or number) to select.
+   * Supports selecting data that does not yet exist, will update if that data item is eventually collected.
+   */
   public Selector(initialSelection?: string | number): Selector<DataType> {
     const selector = new Selector<DataType>(() => this, initialSelection);
     this._selectors.add(selector);

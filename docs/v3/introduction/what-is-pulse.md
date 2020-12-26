@@ -140,9 +140,11 @@ MY_STATE.value; // Expected Output: "hello"
 const ALERT = App.Event();
 
 ALERT.emit({ message: 'notify events best events!' });
-const cleanup = ALERT.on(renderAlert);
+ALERT.on(renderAlert);
 
 useEvent(ALERT, renderAlert); // React Hook with auto cleanup!
+
+ALERT.onNext(() => {}) // onetime-use callback useful for event chaining.
 ```
 
 ### :hourglass_flowing_sand: [WIP] CRON Jobs — [App.Job()]()
@@ -162,11 +164,33 @@ MY_STATE.watch('name', () => {
 ```
 
 ### :construction: Task queuing for race condition prevention
+```ts
+App.runtime
+```
 
-### :closed_book: [WIP] Error logging & snapshot bug reporting
+### :closed_book: [WIP] Error handling
+A global error handler can be very useful, this is a basic example. App.Action() uses this automatically.
+```ts
+// Set up error handler
+App.onError((error, config) => {
+  console.error('uh oh', error)
+})
+// Usage
+try {
+// do stuff here
+} catch (e) {
+  App.Error(e, { quiet: true });
+}
+```
 
 ### :leaves: Lightweight (only 37KB) with 0 dependencies
 
 ### :fire: Supports Vue, React, React Native and NextJS
+```ts
+yarn add @pulsejs/core // install the Pulse core
 
+yarn add @pulsejs/react // React integration
+yarn add @pulsejs/vue // Vue integration
+yarn add @pulsejs/next // Next integration
+```
 ### :yellow_heart: Well documented (I'm getting there...)
