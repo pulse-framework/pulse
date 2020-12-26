@@ -23,7 +23,7 @@ const MY_STATE = App.State(true);
 - Methods to modify, mutate and access the State value are chainable.
 
 ```js
-MY_STATE.persist().type(Boolean).toggle(); // false
+MY_STATE.toggle().persist().set().type().watch().reset().undo(); // etc...
 ```
 
 ## Explicit Types
@@ -171,7 +171,7 @@ const MY_OBJ_STATE = App.State({ things: { thingOne: true, thingTwo: true }, })
 
 MY_STATE.patch({ things: { thingOne: false } }, { deep: true });
 ```
-In this case `things.thingTwo` will remain untouched!
+In this case `things.thingTwo` will remain untouched.
 
 # `.watch()`
 
@@ -225,11 +225,6 @@ export function MyComponent (props) {
 ```
 It will automatically cleanup when the component unmounts!
 
-
-# `.relate()`
-
-[WIP] Associate two State instances, used for Group, Data and Computed
-
 # `.reset()`
 
 Reset state to initial value
@@ -239,5 +234,14 @@ Reset state to initial value
 If current value is a boolean, this will invert it.
 
 # `.interval()`
+  A mutation callback fired on a self contained interval, useful for logic that operates on an interval basis. As the interval is self contained within State, it is protected from being created twice, a memory leak which is a common in vanilla JS, especially with frameworks like React and Vue.
+```ts
+const TIMER = App.State(0);
 
-A mutation callback fired on a self contained interval
+TIMER.interval((value) => {
+  return value++
+}, 1000);
+```
+```ts
+TIMER.clearInterval()
+```
