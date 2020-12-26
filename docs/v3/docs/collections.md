@@ -144,13 +144,14 @@ Add a key to a Group. Takes an options object as the second parameter.
 
 ```js
 MyCollection.groups.MY_GROUP.add(23, {}); // returns Group instance
-
-interface Options {
-  atIndex?: number; // specify explicit index to insert
-  method?: 'unshift' | 'push'; // (default: push) method to add to group
-  overwrite?: boolean; // (default: false) set to false to leave primary key in place if already present
-}
 ```
+Second parameter is a config object with the following options:
+| parameter | type                   | description                                           |
+| --------- | ---------------------- | ----------------------------------------------------- |
+| `atIndex?`   | `Number` | Specify explicit index to insert. |
+| `softRebuild?` | `Boolean` | Group will avoid rebuilding from scratch, save performance.    |
+| `method?` | `unshift` or `push`         | Method to add to group, add items to the top or bottom of the array. (Default `push`)                     |
+| `overwrite?` | `ConfigObject`         | Set to `false` to leave primary key in place if already present. (Default `true`)                                 |
 
 ### `.remove()`
 
@@ -191,7 +192,7 @@ MyCollection.selectors.MY_SELECTOR.value; // cached selected Collection data
 MyCollection.selectors.MY_SELECTOR.select(1); // select a new primary key
 ```
 
-Selectors are smart, if you select a primary key that doesn't exist in your Collection yet, the Selector will return an empty object. However once the data is collected under that primary key, the Selector will update seemlessly.
+Selectors are smart, if you select a primary key that doesn't exist in your Collection yet, the Selector will return an empty object. However once the data is collected under that primary key, the Selector will update seamlessly.
 
 ## Selector Methods
 
@@ -282,15 +283,15 @@ MyCollection.getValueById(32).shallowProperty; //  { iWasUntouched: true, deepPr
 
 The put method allows you to _put_ data from one group into another. A good example would be moving a new user from unverified to verified.
 
-**Parameters**
-
-- [primaryKeys (string | number | string[] | number[])]()
-- [groupNames (string | string[])]()
-- [options (Object)]() _optional_
-
 ```js
 MyCollection.put([22, 34, 75], 'MyGroupName');
 ```
+**Parameters**
+| parameter     | type                    | description                    |
+| ------------- | ----------------------- | ------------------------------ |
+| `primaryKeys` | `PrimaryKey` or `Array` of `PrimaryKey` | The Primary Key to update, can be a string or number.    |
+| `groupNames`     | `String` | `Array` of `String`                | Groups to put data item(s) into |
+| `options?`     | `GroupAddOptions`          | See Group.add()                 |
 
 # `.reset()`
 

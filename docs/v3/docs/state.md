@@ -36,7 +36,7 @@ const MY_STATE = App.State<boolean>(true);
 
 # `.value`
 
-_Provides the current value (read-only)_
+Provides the current value (read-only)
 
 ```typescript
 const MY_STATE = App.State('hello');
@@ -46,7 +46,7 @@ MY_STATE.value; // Expected Output: "hello"
 
 # `.bind`
 
-_Provides the current value (reactive, can be written to, automatically invokes `set()`)_
+Provides the current value (reactive, can be written to, automatically invokes `set()`)
 
 ```typescript
 const MY_STATE = App.State('hello');
@@ -56,7 +56,7 @@ MY_STATE.bind = 'bye';
 
 # `.previousState`
 
-_Returns the previous state_
+Returns the previous state
 
 ```typescript
 MY_STATE.set('bye');
@@ -70,11 +70,11 @@ The starting value as established in code
 
 ## Methods
 
-_Refer to Typescript / Intellisense for detailed param descriptions_
+Refer to Typescript / Intellisense for detailed param descriptions
 
 # `.set()`
 
-_Allows you to mutate a value_
+Allows you to mutate a value
 
 ```typescript
 const MY_STATE = App.State(true);
@@ -84,7 +84,7 @@ MY_STATE.set(false); // the value is now reactively set to false
 
 # `.undo()`
 
-_Revert to previous state_
+Revert to previous state
 
 ```typescript
 const MY_STATE = App.State('hello');
@@ -124,7 +124,31 @@ MY_STATE.name; // MY_STATE
 
 # `.persist()`
 
-Will preserve state in the appropriate local storage for the environment (web / mobile)
+Will preserve State value in the appropriate local storage for the current environment (web / mobile).
+
+Storage can be configured in the [Pulse Instance]() config, but will default to localStorage on web.
+
+```typescript
+MY_STATE.persist();
+```
+
+::: tip Local storage key 
+In the example we are not providing a key as the first and only parameter, this would only work in cases where the State is used within a Controller or StateGroup. In which case the key would be extracted from the object.
+```typescript
+App.Controller({
+  state: {
+    MY_STATE: App.State().persist()
+  }
+})
+```
+The local storage key will be `MY_STATE`.
+
+Otherwise the key must set directly:
+```typescript
+const MY_STATE = App.State(true).persist('MY_STATE')
+```
+If no key is provided Pulse will warn in development, but fail silently in production.
+:::
 
 # `.exists`
 
@@ -226,15 +250,25 @@ export function MyComponent (props) {
 It will automatically cleanup when the component unmounts!
 
 # `.reset()`
-
 Reset state to initial value
+```js
+MY_STATE.reset();
+```
+
 
 # `.toggle()`
 
 If current value is a boolean, this will invert it.
+```js
+const MY_STATE = App.State(true);
+
+MY_STATE.toggle();
+
+MY_STATE.value; // true
+```
 
 # `.interval()`
-  A mutation callback fired on a self contained interval, useful for logic that operates on an interval basis. As the interval is self contained within State, it is protected from being created twice, a memory leak which is a common in vanilla JS, especially with frameworks like React and Vue.
+  A mutation callback fired on a self contained interval, useful for logic that operates on an interval basis. As the interval is contained within State, it is protected from being created more that once, a memory leak which is a common in vanilla JS–especially with frameworks like React and Vue.
 ```ts
 const TIMER = App.State(0);
 

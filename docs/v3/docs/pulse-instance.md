@@ -37,10 +37,12 @@ const App = new Pulse({
 
 ```ts
 interface PulseConfig {
-  storage?: StorageConfig;
   computedDefault?: any;
   waitForMount?: boolean;
+  storage?: StorageConfig;
   logJobs?: boolean;
+  noCore?: boolean;
+  globalHistory?: boolean;
 }
 ```
 
@@ -71,7 +73,11 @@ The value provided here will be the fallback used when the result of a computed 
 ### `errors` [wip]
 
 ```ts
-interface ErrorConfig {}
+interface ErrorConfig {
+  key: string;
+  message: string;
+  code?: number;
+}
 ```
 
 ## Error Handling [WIP]
