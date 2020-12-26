@@ -280,7 +280,7 @@ MyCollection.getValueById(32).shallowProperty; //  { iWasUntouched: true, deepPr
 
 # `.put()`
 
-The put method allows you to _put_ data from one group into another! A great example would be moving a new user from unverified to verified.
+The put method allows you to _put_ data from one group into another. A good example would be moving a new user from unverified to verified.
 
 **Parameters**
 
