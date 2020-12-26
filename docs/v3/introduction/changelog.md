@@ -2,8 +2,15 @@
 title: Changelog
 ---
 ## 3.5 - The one with Actions
-::: warning Work in progress
-This update is currently being worked on, but will be released soon!
+
+::: tip Current NPM version
+This is the current release build available on NPM
+
+```
+yarn add @pulsejs/core
+```
+
+See updated integration with [React](../getting-started/setup-with-react.html) and [Next](../getting-started/setup-with-next.html)
 :::
 
 **NEW FEATURES**
@@ -28,19 +35,9 @@ This update is currently being worked on, but will be released soon!
 - API class will allow you to set content-type, previously it forced auto detection.
 - [`State.interval()`]() now returns _this_, saves interval id locally and provides [`State.clearInterval()`]().
 - Collection's default group will not be auto created unless specified in config OR no groups are provided at initialization.
-- Typescript: usePulse with Groups fixed types.
+- **Typescript:** [usePulse()]() when used with Groups has working types.
 
 ## 3.4 - The one with useWatcher()
-
-::: tip Current NPM version
-This is the current release build available on NPM
-
-```
-yarn add @pulsejs/core
-```
-
-See updated integration with [React](../getting-started/setup-with-react.html) and [Next](../getting-started/setup-with-next.html)
-:::
 
 - Added State.record() to optionally track mutation history
 - Added `useWatcher()` for React integration
