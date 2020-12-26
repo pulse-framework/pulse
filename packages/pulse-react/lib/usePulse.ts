@@ -1,40 +1,34 @@
-import { Pulse, State, normalizeDeps, getPulseInstance } from '@pulsejs/core';
+import { Pulse, State, normalizeDeps, getPulseInstance, Group } from '@pulsejs/core';
 import * as React from 'react';
 
-export type PulseHookArray<T> = { [K in keyof T]: T[K] extends State<infer U> ? U : never };
-export type PulseHookResult<T> = T extends State<infer U> ? U : never;
+// usePulse returns the State value, or an array of State values, not the instances themselves.
+// This type will extract the inferred value of State
+// We use a Typescript ternary to detect which type of Pulse class we're working with.
+export type PulseValue<T> = T extends Group<infer U> ? U[] : T extends State<infer U> ? U : never;
+export type PulseValueArray<T> = { [K in keyof T]: T[K] extends Group<infer U> ? U[] : T[K] extends State<infer U> ? U : never };
+
+// We use function overloads to describe specific use cases of usePulse, that have different return formats
 
 // array-argument syntax
-export function usePulse<X extends State<any>[]>(deps: X | [], pulseInstance?: Pulse): PulseHookArray<X>;
-// single-argument syntax
-export function usePulse<X extends State<any>>(deps: X, pulseInstance?: Pulse): PulseHookResult<X>;
+export function usePulse<X extends State<any>[]>(deps: X | [], pulseInstance?: Pulse): PulseValueArray<X>;
 
-export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, pulseInstance?: Pulse): PulseHookArray<X> | PulseHookResult<X> {
-  // Normalize Dependencies
-  let depsArray = normalizeDeps(deps) as PulseHookArray<X>;
+// single-argument syntax
+export function usePulse<X extends State<any>>(deps: X, pulseInstance?: Pulse): PulseValue<X>;
+
+export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, pulseInstance?: Pulse): PulseValueArray<X> | PulseValue<X> {
+  const depsArray = normalizeDeps(deps) as PulseValueArray<X>;
 
   // Get Pulse Instance
   if (!pulseInstance) {
-    const tempPulseInstance = getPulseInstance(depsArray[0]);
-    if (!tempPulseInstance) {
-      console.error('Pulse: Failed to get Pulse Instance');
+    const extractedPulseInstance = getPulseInstance(depsArray[0]);
+    if (!extractedPulseInstance) {
+      console.error('Pulse: Failed to get Pulse Instance. It is likely you provided a value that is not a valid State instance to usePulse().');
       return undefined;
     }
-    pulseInstance = tempPulseInstance;
+    pulseInstance = extractedPulseInstance;
   }
-  /* TODO: depsArrayFinal doesn't get used so idk if its necessary
-	let depsArrayFinal: Array<State> = [];
-	// this allows you to pass in a keyed object of States and subscribe to all  State within the first level of the object. Useful if you wish to subscribe a component to several State instances at the same time.
-	depsArray.forEach(dep => {
-		if (dep instanceof State) depsArrayFinal.push(dep);
-		else if (typeof dep === 'object')
-			for (let d in dep as keyedState) {
-				if ((dep[d] as any) instanceof State) depsArrayFinal.push(dep[d]);
-			}
-	});
-	 */
 
-  // this is a trigger state used to force the component to re-render
+  // This is a trigger state used to force the component to re-render
   const [_, set_] = React.useState({});
 
   React.useEffect(function () {
@@ -47,11 +41,9 @@ export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, puls
     return () => pulseInstance?.subController.unsubscribe(subscriptionContainer);
   }, []);
 
-  // Return Public Value of State
+  // Return public value of state
   if (!Array.isArray(deps) && depsArray.length === 1) return depsArray[0].getPublicValue();
 
-  // Return Public Value of State in Array
-  return depsArray.map(dep => {
-    return dep.getPublicValue();
-  }) as PulseHookArray<X>;
+  // Return public value of state
+  return depsArray.map(dep => dep.getPublicValue()) as PulseValueArray<X>;
 }

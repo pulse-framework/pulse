@@ -6,10 +6,9 @@ title: Pulse Instance
 
 # Pulse Instance
 
-Everything you write with Pulse will use the `App` instance. which is created with `new Pulse()`. With this you can create [State](), [Computed State](), [Collections](), [APIs]() and more.
+The Pulse instance is created with `new Pulse()`, it is unique to your application. With it, you can create [State](), [Computed State](), [Collections]() and more.
 
-The Pulse Instance is unique to your application, you only need one. It should be exported top-level and imported into core files.
-
+The instance not only contains configuration for Pulse, but also a job queue system for managing State mutations.
 ```ts
 const App = new Pulse();
 ```
@@ -18,7 +17,7 @@ The Pulse Instance provides helpful function to your application, and the way yo
 
 - Queueing [State]() changes and preventing race conditions.
 - Providing global awareness to [Computed State]() for automatic dependency tracking.
-- Intergrating with persistent storage.
+- Integrating with persistent storage.
 - Initializing the [Core]() structure.
 - Issuing squashed updates to subscribed components via the [Pulse Runtime]().
 
@@ -28,7 +27,6 @@ Pulse takes an optional configuration object as the only parameter
 
 ```ts
 const App = new Pulse({
-  framework: React,
   storage: {
     prefix: 'CoolApp'
   }
@@ -42,7 +40,6 @@ interface PulseConfig {
   storage?: StorageConfig;
   computedDefault?: any;
   waitForMount?: boolean;
-  framework?: any;
   logJobs?: boolean;
 }
 ```
@@ -70,8 +67,6 @@ The value provided here will be the fallback used when the result of a computed 
 ### `waitForMount`
 
 ### `computedDefault`
-
-### `framework`
 
 ### `errors` [wip]
 
