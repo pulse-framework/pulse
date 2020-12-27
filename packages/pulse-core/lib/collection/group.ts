@@ -146,7 +146,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
   public add(primaryKey: PrimaryKey, options: GroupAddOptions = {}): this {
     // set defaults
-    options = defineConfig(options, { method: 'push', overwrite: true });
+    options = defineConfig(options, { method: 'push', overwrite: true, softRebuild: true });
     let value = this.copy();
     const useIndex = options.atIndex != undefined;
     const exists = value.includes(primaryKey);
@@ -176,6 +176,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   }
 
   public remove(primaryKey: PrimaryKey, options: GroupRemoveOptions = {}): this {
+    options = defineConfig(options, { softRebuild: true });
     const value = this.copy();
     const index = this._preciseIndex.indexOf(primaryKey);
 

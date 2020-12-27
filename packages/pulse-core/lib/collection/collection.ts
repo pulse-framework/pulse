@@ -293,7 +293,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
       (primaryKeys as Array<PrimaryKey>).forEach(key => {
         // since we're adding a single item, we can soft rebuild the group data
         // this is a huge performance benefit since it avoids rebuilding the entire group output
-        this.groups[groupName].add(key, { ...options, softRebuild: true });
+        this.groups[groupName].add(key, options);
       });
     });
   }
@@ -317,7 +317,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
       let group = this.getGroup(groupName);
       // this loop is bad, the group should be able to handle a remove action with many keys
       (primaryKeys as Array<PrimaryKey>).forEach(primaryKey => {
-        group.remove(primaryKey, { softRebuild: true });
+        group.remove(primaryKey);
       });
     });
     return true;
@@ -329,7 +329,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
 
     _primaryKeys.forEach(key => {
       delete this.data[key];
-      _groups.forEach(groupName => this.groups[groupName].remove(key, { softRebuild: true }));
+      _groups.forEach(groupName => this.groups[groupName].remove(key));
     });
 
     return true;

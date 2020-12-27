@@ -9,11 +9,10 @@ export type PulseValueArray<T> = { [K in keyof T]: T[K] extends Group<infer U> ?
 
 // We use function overloads to describe specific use cases of usePulse, that have different return formats
 
-// array-argument syntax
-export function usePulse<X extends State<any>[]>(deps: X | [], pulseInstance?: Pulse): PulseValueArray<X>;
-
 // single-argument syntax
 export function usePulse<X extends State<any>>(deps: X, pulseInstance?: Pulse): PulseValue<X>;
+// array-argument syntax
+export function usePulse<X extends State<any>[]>(deps: X | [], pulseInstance?: Pulse): PulseValueArray<X>;
 
 export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, pulseInstance?: Pulse): PulseValueArray<X> | PulseValue<X> {
   const depsArray = normalizeDeps(deps) as PulseValueArray<X>;
