@@ -1,6 +1,6 @@
 import { config } from 'process';
 import { Pulse, State, Collection, DefaultDataItem, Data } from '../internal';
-import { defineConfig } from '../utils';
+import { defineConfig, normalizeArray } from '../utils';
 
 export type PrimaryKey = string | number;
 export type GroupName = string | number;
@@ -144,31 +144,35 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     this.computedFunc = func;
   }
 
-  public add(primaryKey: PrimaryKey, options: GroupAddOptions = {}): this {
-    // set defaults
+  public add(primaryKeyOrKeys: PrimaryKey | PrimaryKey[], options: GroupAddOptions = {}): this {
     options = defineConfig(options, { method: 'push', overwrite: true, softRebuild: true });
+    // set defaults
     let value = this.copy();
     const useIndex = options.atIndex != undefined;
-    const exists = value.includes(primaryKey);
 
-    if (options.overwrite) value = value.filter(i => i !== primaryKey);
-    // if we do not want to overwrite and key already exists in group, exit
-    else if (exists) return this;
+    for (let [i, primaryKey] of normalizeArray(primaryKeyOrKeys).entries()) {
+      const exists = value.includes(primaryKey);
 
-    // if atIndex is set, inject at that index.
-    if (useIndex) {
-      if (options.atIndex > value.length) options.atIndex = value.length - 1;
-      value.splice(options.atIndex, 0, primaryKey);
-    }
-    // push or unshift into state
-    else value[options.method](primaryKey);
+      if (options.overwrite) value = value.filter(i => i !== primaryKey);
+      // if we do not want to overwrite and key already exists in group, exit
+      else if (exists) return this;
 
-    if (options.softRebuild) {
-      this.trackChange({
-        method: exists ? TrackedChangeMethod.UPDATE : TrackedChangeMethod.ADD,
-        key: primaryKey,
-        index: useIndex ? options.atIndex : options.method == 'push' ? value.length - 1 : 0
-      });
+      // if atIndex is set, inject at that index.
+      if (useIndex) {
+        // if index is greater than length insert at the end of the array
+        if (options.atIndex > value.length) options.atIndex = value.length - 1;
+        value.splice(options.atIndex + i, 0, primaryKey);
+      }
+      // push or unshift into state
+      else value[options.method](primaryKey);
+
+      if (options.softRebuild) {
+        this.trackChange({
+          method: exists ? TrackedChangeMethod.UPDATE : TrackedChangeMethod.ADD,
+          key: primaryKey,
+          index: useIndex ? options.atIndex : options.method == 'push' ? value.length - 1 : 0
+        });
+      }
     }
 
     this.set(value, { _caller: this.add });

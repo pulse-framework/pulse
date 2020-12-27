@@ -34,3 +34,13 @@ interface StatusData {
   };
 }
 ```
+
+
+
+# Collection Relations
+```ts
+Users.relate(Posts, 'posts')
+```
+- posts property will be deleted and auto collected into posts
+- group will be created automatically on Posts as the user id
+- users output will contain posts

@@ -8,6 +8,10 @@ title: Collections
 
 Pulse provides _Collections_ as a way to predictably save external data. Collections are designed for arrays of data following the same structure, usually returned from an API. Such as posts, comments, reviews, store items—for example.
 
+```js
+Users.collect(users);
+```
+
 ### **Think of a Collection like a database table.**
 
 - Data is stored and indexed by primary key, as a single source of truth\*.
@@ -15,36 +19,38 @@ Pulse provides _Collections_ as a way to predictably save external data. Collect
 - [Selectors](#Selectors) selects a single item from a Collection by primary key.
 - Groups and Selectors cache their `output`, and can be used reactively by components.
 - Collections include database-like methods to manipulate data.
-- Each item collected is its own [State](state.html) instance.
+- Each item collected is stored inside an extended [State](state.html) instance, called [Data]().
+- Collections will eventually support persistence in the browser [WIP].
 
-\*The beauty of Collections is that data can only be **collected once**, meaning if you need to modify it, there's one place to do so, and everything using that data will update accordingly. Collecting the same data again will overwrite the old data.
+> *The beauty of Collections is that data can only be **collected once**, meaning if you need to modify it, there's one place to do so, and everything using that data will update accordingly. Collecting the same data again will overwrite the old data.
 
 ## Setup
 
 ```js
-const MyCollection = App.Collection()();
+const Users = App.Collection()();
 ```
 
-This will create a Collection instance, but without any Groups, Selectors or configuration.
+This will create a Collection instance, but without any Groups, Selectors or configuration. We've called this collection "Users" for the purposes of this documentation.
 
 ::: tip Collections use a double parentheses syntax.
 This is to compensate for a Typescript caveat with partially inferred generics. The first parentheses allow the generic `DataType` to be passed explicitly, while the second infers types from the config function. [Learn More]()
 
 ```ts
-const MyCollection = App.Collection<DataType>()();
+const Users = App.Collection<DataType>()();
 ```
 :::
 
 ### With a Typescript interface
 
 ```ts
-// This interface describes an arbitary data item
-interface DataType {
+// This interface describes an arbitrary data structure for a "user".
+interface User {
   id: number;
-  message: string;
+  name: string;
 }
-// Create the Collection and pass in the datatype as a generic
-const MyCollection = App.Collection<DataType>()();
+
+// Create the Collection and pass in the User as a generic
+const Users = App.Collection<User>()();
 ```
 
 The DataType is passed in as a generic type parameter to the first set of parentheses.
@@ -54,8 +60,8 @@ The DataType is passed in as a generic type parameter to the first set of parent
 Configuration is optional, but recommended. The second pair of parentheses is where the config object or function returning a config object is passed in.
 
 ```js
-const MyCollection = App.Collection()(({ Group, Selector }) => ({
-  primaryKey: 'id', // default
+const Users = App.Collection()(({ Group, Selector }) => ({
+  primaryKey: 'id', // default is 'id'
   defaultGroup: true // default false
   groups: {
     favorites: Group()
@@ -65,7 +71,7 @@ const MyCollection = App.Collection()(({ Group, Selector }) => ({
   },
 }))
 ```
-We use a function so the Collection being created can be used as context when creating Groups and Selectors.
+> We use a function so the Collection being created can be used as context when creating Groups and Selectors.
 
 **All config parameters** _(All params are optional)_
 
@@ -73,9 +79,9 @@ We use a function so the Collection being created can be used as context when cr
 | --------------- | ---------------------- | ---------------------------------------------------------------------------------------------------- | ------- |
 | `primaryKey?`   | `string`               | Define which property on collected items should be used for indexing.                                | `id`    |
 | `name?`         | `string`               | The name of this collection, if used within controllers Collection will inherit the controller name. | N/A     |
-| `defaultGroup?` | `Boolean`              | Create a default Group that catches all collected items. [Read More](#groups)                        | `false` |
-| `groups?`       | `Object` of `Group`    |                                                                                                      | N/A     |
-| `selectors?`    | `Object` of `Selector` |                                                                                                      | N/A     |
+| `defaultGroup?` | `boolean`              | Create a default Group that catches all collected items. [Read More](#groups)                        | `false` |
+| `groups?`       | `Object` of `Group`    |  An object of Group instances.                                                                                                    | N/A     | 
+| `selectors?`    | `Object` of `Selector` |                  An object of Selector instances.                                                                                    | N/A     |
 
 ::: tip Typescript: Groups and Selectors infer types from config
 Collections will infer the types for groups and selectors automatically from the config object. Meaning you do not need to write custom interfaces to have type safety and Intellisense when using your Collection instance.
@@ -83,19 +89,26 @@ Collections will infer the types for groups and selectors automatically from the
 
 ## Groups
 
-Groups are arrays of primary keys referencing data inside a Collection, we call this an `index`.
+Often applications need to categorize and preserve ordering of structured data and Groups are the cleanest way to do. Designed to be directly used within UI components, they allow you to cluster together data from a Collection as an array of primary keys.
 
-Groups provide a cached array of actual collection data mirroring the index called `output`. When the index is modified, the output will rebuild with actual collection data.
+The value of the group is called the `index`, from which Groups will construct a cached array of _actual collection data_, called the `output`. 
+```js
+index -> [12, 43, 54, 65]
+
+output -> [{ id: 12, name: 'jeff' }, ...]
+```
+
+When the index is modified, the output will rebuild with collection data.
 
 ```js
-const MyCollection = App.Collection()(({ Group }) => ({
+const Users = App.Collection()(({ Group }) => ({
   groups: {
     myGroup: Group()
   }
 }))
 ```
 
-Groups are dependent on a Collection instance, and so the Collection config provides the Collection instance as the first and only parameter.
+Groups are dependent on a Collection instance, and so the Collection config function provides the Collection instance as the first and only parameter.
 
 ::: tip Groups extend the State class
 
@@ -104,34 +117,42 @@ Groups have all the methods and functionality State does (See [State methods](st
 :::
 
 ```js
-MyCollection.groups.myGroup.output; // Actual data
-MyCollection.groups.myGroup.index; // Array of primary keys
+Users.groups.myGroup.output; // Actual data
+Users.groups.myGroup.index; // Array of primary keys
 ```
+
+`Group.index` is always 1:1 with `Group.output`, while `Group.value` contains the primary keys desired to be in a Group, even if they don't exist in the Collection.
 
 ### Create Groups dynamically
-It's a common pattern in Pulse to create groups dynamically. 
+It's a common pattern in Pulse to create groups dynamically (This means after the Collection has been defined). Though in Typescript these Groups will not be part of the Collection type.
 
 ```js
-const newGroup = MyCollection.Group([1, 2, 3]);
+const newGroup = Users.Group([1, 2, 3]);
 ```
-However this isn't the typical use-case for dynamic Groups, as the above snippet is hard-coded. 
+In the above example the Group is hard-coded, but to really take advantage of dynamically created Groups we could do something like this:
+
 ```js
-UserCollection.collect(user)
-PostCollection.collect(user.posts, user.id)
+Users.collect(user)
+Posts.collect(user.posts, user.id)
+```
+Here we have two Collections, one for users and another for posts, which are owned by users. We can collect posts specific to a user and group them automatically by the user's id.
+
+We can access the posts data for a specific user by using [getGroup()]() and passing the user id. 
+```js
+Posts.getGroup(user.id).output
 ```
 
 
-
-### Default Group
+### The default Group
 
 Collections can have a default Group, in which **all** items collected will be included this Group. In order to create default group you can either not define _any_ groups, or use the config param: `defaultGroup: true`.
 
 ```ts
 // With no config:
-const MyCollection = App.Collection()();
+const Users = App.Collection()();
 
 // With config & custom groups:
-const MyCollection = App.Collection()(Collection => {
+const Users = App.Collection()(Collection => {
   defaultGroup: true;
   groups: { ... } // custom groups go here
 });
@@ -141,9 +162,9 @@ const MyCollection = App.Collection()(Collection => {
 ::: details An example collecting into the default group
 
 ```ts
-MyCollection.collect({ id: 1, jeff: true }); // goes into default group
+Users.collect({ id: 1, name: 'jeff' }); // goes into default group
 
-MyCollection.getGroup('default').output; // [{ id: 1, jeff: true }]
+Users.getGroup('default').output; // [{ id: 1, name: 'jeff' }]
 ```
 
 :::
@@ -155,7 +176,7 @@ MyCollection.getGroup('default').output; // [{ id: 1, jeff: true }]
 Check if a Group has a primary key.
 
 ```js
-MyCollection.groups.myGroup.has(23); // boolean
+Users.groups.myGroup.has(23); // boolean
 ```
 
 ### `.add()`
@@ -163,15 +184,15 @@ MyCollection.groups.myGroup.has(23); // boolean
 Add a key to a Group. Takes an options object as the second parameter.
 
 ```js
-MyCollection.groups.myGroup.add(23, {}); // returns Group instance
+Users.groups.myGroup.add(23, {}); // returns Group instance
 ```
 Second parameter is a config object (GroupAddOptions) with the following options:
 | parameter | type                   | description                                           |
 | --------- | ---------------------- | ----------------------------------------------------- |
-| `atIndex?`   | `Number` | Specify explicit index to insert. |
-| `softRebuild?` | `Boolean` | Group will avoid rebuilding from scratch, save performance.(Default `true`)       |
-| `method?` | `unshift` or `push`         | Method to add to group, add items to the top or bottom of the array. (Default `push`)                     |
-| `overwrite?` | `Boolean`         | Set to `false` to leave primary key in place if already present. (Default `true`)                                 |
+| `atIndex?`   | `number` | Specify explicit index to insert. |
+| `softRebuild?` | `boolean` | Group will avoid rebuilding from scratch, save performance. (default true)       |
+| `method?` | `unshift` or `push`         | Method to add to group, add items to the top or bottom of the array. (default "push")                     |
+| `overwrite?` | `boolean`         | Set to `false` to leave primary key in place if already present. (default true)                                 |
 
 :::  details What is Soft Rebuild?
 When Groups `build` they loop over the index and pull data from the Collection. Sometimes this involves running the `Collection.compute()` function on each data item. For large groups this can be a very expensive operation. Soft Rebuild is used when we know specific items are being added/removed from a group at a specific index. Pulse will update the output instead of building from scratch.
@@ -183,7 +204,7 @@ Remove primary key from Group.
 
 
 ```js
-MyCollection.groups.myGroup.remove(23);
+Users.groups.myGroup.remove(23);
 ```
 Returns the Group instance.
 
@@ -192,17 +213,17 @@ Returns the Group instance.
 Force rebuild the Group output, though you should never need to use this method as Collections take care of rebuilding Groups automatically.
 
 ```js
-MyCollection.groups.myGroup.build();
+Users.groups.myGroup.build();
 ```
 
 ## Selectors
 
-Selectors allow you to _select_ a data item from a Collection. Components that need one piece of data such as a "current account" or maybe "current viewing post" would benifit from using Selectors.
+Selectors allow you to _select_ a data item from a Collection. Components that need one piece of data such as a "current user" or maybe "current viewing post" would benefit from using Selectors.
 
 ```js
-const MyCollection = App.Collection<DataType>()(collection => ({
+const Users = App.Collection()(({ Selector }) => ({
   selectors: {
-    mySelector: collection.Selector(0)
+    current: Selector(0)
   }
 }))
 ```
@@ -214,8 +235,8 @@ Selectors store the selected primary key under `Selector.id`, the Collection dat
 :::
 
 ```js
-MyCollection.selectors.mySelector.value; // cached selected Collection data
-MyCollection.selectors.mySelector.select(1); // select a new primary key
+Users.selectors.current.value; // cached selected Collection data
+Users.selectors.current.select(1); // select a new primary key
 ```
 
 Selectors are smart, if you select a primary key that doesn't exist in your Collection yet, the Selector will return an empty object. However once the data is collected under that primary key, the Selector will update seamlessly.
@@ -227,7 +248,7 @@ Selectors are smart, if you select a primary key that doesn't exist in your Coll
 Select a data item by primary key
 
 ```js
-MyCollection.selectors.mySelector.select(23);
+Users.selectors.mySelector.select(23);
 ```
 
 ### `.persist()`
@@ -235,22 +256,26 @@ MyCollection.selectors.mySelector.select(23);
 Persist selected key in local storage
 
 ```js
-MyCollection.selectors.mySelector.persist('SELECTOR_KEY');
+Users.selectors.mySelector.persist('SELECTOR_KEY');
 ```
 
 ## Collection Methods
 
 # `.collect()`
 
-The Collect method allows you to _collect_ data and add it to a collection (single object or an array of objects). The second parameter is the group you would like the data to be collected into and is optional.
+The Collect method allows you to _collect_ data and add it to a collection (single object or an array of objects). The second parameter is the group(s) you would like the data to be collected into and is optional.
 
 ```js
-MyCollection.collect(data);
+Users.collect(data);
 // OR
-MyCollection.collect(data, 'myGroup');
+Users.collect(data, 'myGroup');
 ```
 
 Collecting will overwrite data by default if it already exists in collection.
+
+::: tip Note: Data must have a primary key
+In order to be collected, the data must contain a primary key which matches the Collection's config. By default this is `id`, but can be configured otherwise.
+:::
 
 | parameter | type                   | description                                           |
 | --------- | ---------------------- | ----------------------------------------------------- |
@@ -270,7 +295,7 @@ Collecting will overwrite data by default if it already exists in collection.
 The update method updates data in a collection by primary key.
 
 ```js
-MyCollection.update(32, { username: 'jeff' });
+Users.update(32, { name: 'Channing Tatum' });
 ```
 
 | parameter     | type                    | description                    |
@@ -292,40 +317,41 @@ Deep merging allows you to target deep properties on an object without affecting
 ```ts
 // Shallow merge
 let data = { shallowProperty: { everythingInHereIsNew: true } };
-MyCollection.update(32, data);
+Users.update(32, data);
 
-MyCollection.getValueById(32).shallowProperty; // { everythingInHereIsNew: true }
+Users.getValueById(32).shallowProperty; // { everythingInHereIsNew: true }
 
 // Deep merge
 let data = { shallowProperty: { deepProperty: true } };
-MyCollection.update(32, data, { deep: true });
+Users.update(32, data, { deep: true });
 
-MyCollection.getValueById(32).shallowProperty; //  { iWasUntouched: true, deepProperty: true }
+Users.getValueById(32).shallowProperty; //  { iWasUntouched: true, deepProperty: true }
 ```
 
 :::
 
 # `.put()`
 
-The put method allows you to _put_ data from one group into another. 
+The put method allows you to _put_ data into a group. It is an alias for [Group.add()]() but can work for several groups at a time and will create groups dynamically if they are not already present.
 
 ```js
-MyCollection.put([22, 34, 75], 'myGroup');
+Users.put(75, ['favorites', 'someNewGroup']);
 ```
+
 
 **Parameters**
 | parameter     | type                    | description                    |
 | ------------- | ----------------------- | ------------------------------ |
 | `primaryKeys` | `PrimaryKey` or `Array` of `PrimaryKey` | The Primary Key to update, can be a string or number.    |
-| `groupNames`     | `String` | `Array` of `String`                | Groups to put data item(s) into |
-| `options?`     | `GroupAddOptions`          | See Group.add()                 |
+| `groupNames`     | `string` | `Array` of `string`                | Groups to put data item(s) into |
+| `options?`     | [`GroupAddOptions`]()          | See Group.add()                 |
 
 # `.reset()`
 
 Reset allows you to easily clear the collection of all data (keeping group structure but removing the data from the groups)
 
 ```js
-MyCollection.reset();
+Users.reset();
 ```
 
 # `.compute()`
@@ -333,7 +359,7 @@ MyCollection.reset();
 This is a function that is used when you would like a computed value based on your data. The only parameter is a callback which provides a single parameter of the
 
 ```js
-MyCollection.compute(data => {
+Users.compute(data => {
   // do things then return a value
   return value;
 });
@@ -344,7 +370,7 @@ MyCollection.compute(data => {
 Given a group name, this function returns a Group instance. 
 
 ```js
-MyCollection.getGroup('myGroup');
+Users.getGroup('myGroup');
 ```
 ::: tip Note
 This method will _always_ return a Group instance, even if the group does not exist. In which case it will be stored as a "provisional" Group, this is to allow the Group to be depended on before it has been created — useful for [Computed State]() to work flawlessly without extra logic from the developer.
@@ -354,14 +380,14 @@ An alternate method to this would be [`getValueById()`]() which will return just
 ::: details An example with usePulse()
 The `getGroup()` method can be used directly in the [`usePulse()`]() React hook. It will return the Group `output` instead of the `value`, which is the Group's index.
 ```js
-const [myGroup] = usePulse([MyCollection.getGroup('myGroup')])
+const [myGroup] = usePulse([Users.getGroup('myGroup')])
 ```
 :::
 ::: details An example with Computed State
 The `getGroup()` method can be used within [`Computed State`](). It will reactively link the Group to the Computed State instance as a dependency.
 ```js
 const MY_COMPUTED = App.Computed(() => {
-  return MyCollection.getGroup('myGroup').output;
+  return Users.getGroup('myGroup').output;
 })
 ```
 This is a basic example with no advantage in being computed, however you can perform logic or sorting on the group data.
@@ -380,7 +406,7 @@ Fetch data using the primary key/id!
 - [data (Object)]()
 
 ```js
-MyCollection.findById(23);
+Users.findById(23);
 ```
 
 # `.getValueById()`
@@ -393,7 +419,7 @@ Given an id/key, this function returns the raw data from this collection for the
 
 ```js
 // will return the computed value of that data
-MyCollection.getValueById(23);
+Users.getValueById(23);
 ```
 
 # `.remove()`
@@ -411,7 +437,7 @@ Remove is an alias function that takes the primary key(s) given, returns functio
 
 ```js
 // will remove data with key 2 from the group named myGroup
-MyCollection.remove(2).fromGroups('myGroup');
+Users.remove(2).fromGroups('myGroup');
 ```
 
 # `.updateDataKey()`
@@ -425,7 +451,7 @@ This method allows you to change the primary key of a data item in your collecti
 
 ```js
 // the data at key 1 will now have a key of 4550
-MyCollection.updateDataKey(1, 4550);
+Users.updateDataKey(1, 4550);
 ```
 
 # `.rebuildGroupsThatInclude()`

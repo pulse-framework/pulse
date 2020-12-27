@@ -14,13 +14,13 @@ See updated integration with [React](../getting-started/setup-with-react.html) a
 :::
 
 **NEW FEATURES**
-- Added [`App.Action()`]() - A better way to write actions. [still WIP]
-- Added [`App.Error()`]() - A global error handler. [still WIP]
-- Added [`App.track()`]() - Track multiple mutations and revert using returned [`undo()`]() method.
-- Added [`App.batch()`]() - Increase performance by batching multiple mutations.*
-- Added [`Collection.onCollect()`]() - Mutate data on collect.
+- Added [App.Action()]() - A better way to write actions. [still WIP]
+- Added [App.Error()]() - A global error handler. [still WIP]
+- Added [App.track()]() - Track multiple mutations and revert using returned [`undo()`]() method.
+- Added [App.batch()]() - Increase performance by batching multiple mutations.*
+- Added [Collection.onCollect()]() - Mutate data on collect.
 > onCollect is a persistent alternative to [`Collection.compute()`]() which runs the mutate function only on Group output, not affecting original data. onCollect will mutate each data item collected as it is collected.
-- Added [`Event.onNext()`]() - Run a callback once after next event.
+- Added [Event.onNext()]() - Run a callback once after next event.
 
 **BIG PERFORMANCE GAINS**: 
 - Groups can now _**soft rebuild**_ when generating output, avoiding rebuilding from scratch every time data was changed. Group will memorize the change key & index, applying a custom splice action to the cached output data.
@@ -29,13 +29,18 @@ See updated integration with [React](../getting-started/setup-with-react.html) a
 
 **MISC FIXES**:
 - [Computed]() will now generate immediately if created _after_ core has initialized (App.Core())
-- [`Group.index`]() now returns the index accurate to the output.
+- [Group.index]() now returns the index accurate to the output.
     > Useful if missing data was encountered during Group build. Previously it was an alias for `Group.value` directly, which could contain primary keys for data that does not exist in the collection. `Group.index` is now always true to `Group.output`, while `Group.value` contains the primary keys desired to be in a group, even if they don't exist in the Collection.
+- [Group.add()]() now accepts multiple primary keys.
+- [Collection.put()]() will now create groups if they do not already exist.
 - Fixed bug with API class that was causing one-time header overrides to persist to all future route calls.
 - API class will allow you to set content-type, previously it forced auto detection.
-- [`State.interval()`]() now returns _this_, saves interval id locally and provides [`State.clearInterval()`]().
+- [State.interval()]() now returns _this_, saves interval id locally and provides [`State.clearInterval()`]().
 - Collection's default group will not be auto created unless specified in config OR no groups are provided at initialization.
 - **Typescript:** [usePulse()]() when used with Groups has working types.
+
+
+Big improvements to documentation!
 
 ## 3.4 - The one with useWatcher()
 

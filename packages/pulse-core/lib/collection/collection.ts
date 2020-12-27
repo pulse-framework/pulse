@@ -158,8 +158,8 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
    * @param groups - Array of group names or single group name
    */
   public collect(
-    items: DataType | Array<DataType>,
-    groups?: GroupName | Array<GroupName>,
+    items: DataType | DataType[],
+    groups?: GroupName | GroupName[],
     config: {
       patch?: boolean;
       method?: 'push' | 'unshift';
@@ -193,7 +193,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   }
   /**
    * Return an item from this collection by primaryKey as Data instance (extends State)
-   * @param {(number|string)} primaryKey - The primary key of the data
+   * @param primaryKey - The primary key of the data
    */
   public findById(id: PrimaryKey | State): Data<DataType> {
     if (id instanceof State) id = id.value;
@@ -203,16 +203,15 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     return this.data[id as PrimaryKey];
   }
 
-  public getValueById(id: PrimaryKey | State): DataType {
+  public getValueById(id: PrimaryKey | State): DataType | {} {
     let data = this.findById(id).value;
-    // @ts-ignore
-    if (!data) data = {};
+    if (!data) return {};
     return this.computedFunc ? this.computedFunc(data) : data;
   }
 
   /**
    * Return an group from this collection as Group instance (extends State)
-   * @param {(number|string)} groupName - The name of your group
+   * @param groupName - The name of your group
    */
   public getGroup(groupName?: string | number): Group<DataType> {
     // if (groupName === undefined) {
@@ -235,10 +234,9 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
 
   /**
    * Update data by id in a Pulse Collection
-   * @param {(string|number|State)} updateKey - The primary key of the item to update
-   * @param {Object} changes - This object will be deep merged with the original
+   * @param updateKey - The primary key of the item to update
+   * @param changes - This object will be deep merged with the original
    */
-
   public update(updateKey: PrimaryKey | State, changes: Expandable = {}, config: { deep?: boolean } = {}): State {
     // if State instance passed as updateKey grab the value
     if (updateKey instanceof State) updateKey = updateKey.value;
@@ -283,36 +281,35 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     this.collectFunc = func;
   }
 
-  public put(primaryKeys: PrimaryKey | Array<PrimaryKey>, groupNames: GroupName | Array<GroupName>, options?: GroupAddOptions) {
-    primaryKeys = normalizeArray(primaryKeys);
-    groupNames = normalizeArray(groupNames);
-
-    groupNames.forEach(groupName => {
-      if (!this.groups.hasOwnProperty(groupName)) return;
-
-      (primaryKeys as Array<PrimaryKey>).forEach(key => {
-        // since we're adding a single item, we can soft rebuild the group data
-        // this is a huge performance benefit since it avoids rebuilding the entire group output
-        this.groups[groupName].add(key, options);
-      });
+  /**
+   * Update data by id in a Pulse Collection
+   * @param primaryKeysOrKeys - The primary key array of keys of the item(s) to update
+   * @param groupNameOrNames - Group name or array of names
+   */
+  public put(primaryKeysOrKeys: PrimaryKey | PrimaryKey[], groupNameOrNames: GroupName | GroupName[], options?: GroupAddOptions) {
+    normalizeArray(groupNameOrNames).forEach(groupName => {
+      if (!this.groups.hasOwnProperty(groupName)) {
+        this.createGroup(groupName);
+      }
+      this.groups[groupName].add(primaryKeysOrKeys, options);
     });
   }
 
   /**
    * this is an alias function that returns other functions for removing data from a collection
    */
-  public remove(primaryKeys: PrimaryKey | Array<PrimaryKey>): RemoveOptions {
-    primaryKeys = normalizeArray(primaryKeys);
+  public remove(primaryKeysOrKeys: PrimaryKey | PrimaryKey[]): RemoveOptions {
+    const primaryKeys = normalizeArray(primaryKeysOrKeys);
     return {
       fromGroups: (groups: Array<string>) => this.removeFromGroups(primaryKeys, groups),
       everywhere: () => this.deleteData(primaryKeys, Object.keys(this.groups))
     };
   }
 
-  public removeFromGroups(primaryKeys: PrimaryKey | Array<PrimaryKey>, groups: GroupName | Array<GroupName>): boolean {
-    primaryKeys = normalizeArray(primaryKeys);
-    groups = normalizeArray(groups);
-    groups.forEach(groupName => {
+  public removeFromGroups(primaryKeyOrKeys: PrimaryKey | PrimaryKey[], groupNameOrNames: GroupName | GroupName[]): boolean {
+    const primaryKeys = normalizeArray(primaryKeyOrKeys);
+    const groupNames = normalizeArray(groupNameOrNames);
+    groupNames.forEach(groupName => {
       if (!this.groups[groupName]) return;
       let group = this.getGroup(groupName);
       // this loop is bad, the group should be able to handle a remove action with many keys
@@ -323,13 +320,13 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     return true;
   }
 
-  public deleteData(primaryKeys: PrimaryKey | Array<PrimaryKey>, groups: GroupName | Array<GroupName>): boolean {
-    const _primaryKeys = normalizeArray(primaryKeys);
-    const _groups = normalizeArray(groups);
+  public deleteData(primaryKeyOrKeys: PrimaryKey | PrimaryKey[], groupNameOrNames: GroupName | GroupName[]): boolean {
+    const primaryKeys = normalizeArray(primaryKeyOrKeys);
+    const groupNames = normalizeArray(groupNameOrNames);
 
-    _primaryKeys.forEach(key => {
+    primaryKeys.forEach(key => {
       delete this.data[key];
-      _groups.forEach(groupName => this.groups[groupName].remove(key));
+      groupNames.forEach(groupName => this.groups[groupName].remove(key));
     });
 
     return true;

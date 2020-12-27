@@ -9,7 +9,7 @@ title: Welcome
 
 # Pulse Framework `3.0`
 
-Created by [@jamiepine]() | Sponsored and maintained by the [Notify Team]()
+Created by [@jamiepine](https://twitter.com/jamiepine)
 
 > _Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
 
