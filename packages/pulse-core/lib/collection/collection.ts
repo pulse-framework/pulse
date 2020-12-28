@@ -203,9 +203,9 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     return this.data[id as PrimaryKey];
   }
 
-  public getDataValue(id: PrimaryKey | State): DataType | {} {
+  public getDataValue(id: PrimaryKey | State): DataType | null {
     let data = this.findById(id).value;
-    if (!data) return {};
+    if (!data) return null;
     return this.computedFunc ? this.computedFunc(data) : data;
   }
 
@@ -381,7 +381,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   public findById(id: PrimaryKey | State): Data<DataType> {
     return this.getData(id);
   }
-  public getValueById(id: PrimaryKey | State): DataType | {} {
+  public getValueById(id: PrimaryKey | State): DataType | null {
     return this.getDataValue(id);
   }
 }
