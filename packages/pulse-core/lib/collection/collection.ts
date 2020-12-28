@@ -195,7 +195,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
    * Return an item from this collection by primaryKey as Data instance (extends State)
    * @param primaryKey - The primary key of the data
    */
-  public findById(id: PrimaryKey | State): Data<DataType> {
+  public getData(id: PrimaryKey | State): Data<DataType> {
     if (id instanceof State) id = id.value;
     if (!this.data.hasOwnProperty(id as PrimaryKey)) {
       return new Data(() => this, undefined);
@@ -203,7 +203,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     return this.data[id as PrimaryKey];
   }
 
-  public getValueById(id: PrimaryKey | State): DataType | {} {
+  public getDataValue(id: PrimaryKey | State): DataType | {} {
     let data = this.findById(id).value;
     if (!data) return {};
     return this.computedFunc ? this.computedFunc(data) : data;
@@ -375,6 +375,14 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
       flatCollection.groups[group] = this.groups[group].copy();
     }
     return flatCollection;
+  }
+
+  // backward-compatible alias'
+  public findById(id: PrimaryKey | State): Data<DataType> {
+    return this.getData(id);
+  }
+  public getValueById(id: PrimaryKey | State): DataType | {} {
+    return this.getDataValue(id);
   }
 }
 

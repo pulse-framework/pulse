@@ -35,6 +35,20 @@ interface StatusData {
 }
 ```
 
+## Data Model
+
+```js
+App.Model((model, data) => {
+  return {
+    id: model.index(),
+    thumbnail_hash: model.string().max(100).min(100).hidden().optional()
+    thumbnail: model.compute(() => AppState.URL.value + data.thumbnail_hash).if(data.thumbnail_hash)
+    connections: model.relate(Connections)
+    settings: model.level('owner'),
+  }
+})
+```
+
 
 
 # Collection Relations

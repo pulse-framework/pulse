@@ -28,6 +28,8 @@ See updated integration with [React](../getting-started/setup-with-react.html) a
 - Removed a `Collection.getGroup()` memory leak when used inside a Computed function, where no group is found. It would return an empty group that is dependent on the Computed function, which would add a useless dependent every recompute. Now `getGroup()` memorizes the requested key by creating a provisional group registered in the Collection.
 
 **MISC FIXES**:
+- [Collection.findById()]() renamed to [Collection.getData()]() (non-breaking, has backward compatible alias)
+- [Collection.getValueById()]() renamed to [Collection.getDataValue()]() (non-breaking, has backward compatible alias)
 - [Computed]() will now generate immediately if created _after_ core has initialized (App.Core())
 - [Group.index]() now returns the index accurate to the output.
     > Useful if missing data was encountered during Group build. Previously it was an alias for `Group.value` directly, which could contain primary keys for data that does not exist in the collection. `Group.index` is now always true to `Group.output`, while `Group.value` contains the primary keys desired to be in a group, even if they don't exist in the Collection.

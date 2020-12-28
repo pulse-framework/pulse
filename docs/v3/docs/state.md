@@ -38,7 +38,7 @@ const MY_STATE = App.State<boolean>(true);
 
 Provides the current value (read-only)
 
-```typescript
+```ts
 const MY_STATE = App.State('hello');
 
 MY_STATE.value; // Expected Output: "hello"
@@ -48,7 +48,7 @@ MY_STATE.value; // Expected Output: "hello"
 
 Provides the current value (reactive, can be written to, automatically invokes `set()`)
 
-```typescript
+```ts
 const MY_STATE = App.State('hello');
 
 MY_STATE.bind = 'bye';
@@ -58,10 +58,24 @@ MY_STATE.bind = 'bye';
 
 Returns the previous state
 
-```typescript
+```ts
 MY_STATE.set('bye');
 
 MY_STATE.previousState; // hello
+```
+
+# `.nextState`
+
+Returns the current state, but mutable. You can make static modifications to the current value without affecting the actual value.
+
+If you call the [.set()]() method without passing a new value, nextState will be used.
+
+```ts
+const MY_ARRAY = App.State([1, 2, 3]);
+
+MY_ARRAY.nextState.push(4);
+
+MY_ARRAY.set(); 
 ```
 
 # `.initialState`
@@ -76,7 +90,7 @@ Refer to Typescript / Intellisense for detailed param descriptions
 
 Allows you to mutate a value
 
-```typescript
+```ts
 const MY_STATE = App.State(true);
 
 MY_STATE.set(false); // the value is now reactively set to false
@@ -86,7 +100,7 @@ MY_STATE.set(false); // the value is now reactively set to false
 
 Revert to previous state
 
-```typescript
+```ts
 const MY_STATE = App.State('hello');
 
 MY_STATE.set('bye');
@@ -100,7 +114,7 @@ MY_STATE.value; // Expected Output: "hello"
 
 Force State to only allow mutations of provided type. This is different from Typescript as it enforces the type at runtime. Some extensions of State are by default forced to a particular type, such as [Groups]() (Array) and [Data]() (Object).
 
-```typescript
+```ts
 MY_STATE.type(Boolean);
 ```
 The type function takes in the JS constructor for that type, possible options are:
@@ -111,14 +125,14 @@ Boolean, String, Object, Array, Number
 # `.key()`
 
 Provide a name to identify the State, required for SSR and State persistance.
-```typescript
+```ts
 MY_STATE.key('MY_STATE');
 ```
 
 Not required if using [Controllers]() as the key will be set automatically based on the key in the object the State defined within.
 
 
-```typescript
+```ts
 MY_STATE.name; // MY_STATE
 ```
 
@@ -128,13 +142,13 @@ Will preserve State value in the appropriate local storage for the current envir
 
 Storage can be configured in the [Pulse Instance]() config, but will default to localStorage on web.
 
-```typescript
+```ts
 MY_STATE.persist();
 ```
 
 ::: tip Local storage key 
 In the example we are not providing a key as the first and only parameter, this would only work in cases where the State is used within a Controller or StateGroup. In which case the key would be extracted from the object.
-```typescript
+```ts
 App.Controller({
   state: {
     MY_STATE: App.State().persist()
@@ -144,7 +158,7 @@ App.Controller({
 The local storage key will be `MY_STATE`.
 
 Otherwise the key must set directly:
-```typescript
+```ts
 const MY_STATE = App.State(true).persist('MY_STATE')
 ```
 If no key is provided Pulse will warn in development, but fail silently in production.
@@ -157,7 +171,7 @@ Returns truthiness of the current value
 # `.is()`
 
 Equivalent to `===`
-```typescript
+```ts
 if (MY_STATE.is(true)) {
   // do something
 }
@@ -165,7 +179,7 @@ if (MY_STATE.is(true)) {
 
 # `.isNot()`
   Equivalent to `!==`
-```typescript
+```ts
 if (MY_STATE.isNot(true)) {
   // do something
 }
@@ -175,7 +189,7 @@ if (MY_STATE.isNot(true)) {
 
 A callback that fires on the next mutation, then destroys itself. It will only fire once.
 
-```typescript
+```ts
 MY_STATE.onNext(() => {
   // do something
 })
@@ -184,13 +198,13 @@ MY_STATE.onNext(() => {
 # `.patch()`
   A function to mutate properties of an object, provided the State value is an object. 
 
-```typescript
+```ts
 const MY_OBJ_STATE = App.State({ thingOne: true, thingTwo: true })
 
 MY_STATE.patch({ thingOne: false });
 ```
 Patch can also target deep properties with the `deep: true` config option.
-```typescript
+```ts
 const MY_OBJ_STATE = App.State({ things: { thingOne: true, thingTwo: true }, })
 
 MY_STATE.patch({ things: { thingOne: false } }, { deep: true });
@@ -201,7 +215,7 @@ In this case `things.thingTwo` will remain untouched.
 
 A callback that will fire every mutation.
 
-```typescript
+```ts
 MY_STATE.watch((value) => {
   // do something
 })
@@ -214,7 +228,7 @@ Watchers however, are for when you want a *side effect* function to run as a res
 
 
 The watch function is not chainable like most State methods, as it returns a cleanup key instead. 
-```typescript
+```ts
 const cleanupKey = MY_STATE.watch((value) => {})
 
 cleanupKey // 1
@@ -226,7 +240,7 @@ cleanupKey // 1
 If you need to use a watcher in component code, it is important to cleanup as if the component unmounts and the watcher remains it can cause memory leaks.
 This is not important if your watcher is inside your core code, as it doesn't "unmount" like components do.
 
-```typescript
+```ts
 const cleanupKey = MY_STATE.watch((value) => {})
 
 MY_STATE.removeWatcher(cleanupKey)
@@ -235,7 +249,7 @@ MY_STATE.removeWatcher(cleanupKey)
 ### `useWatcher()`
 
 If you use React and don't fancy cleaning up after yourself the `useWatcher()` hook exists in the `@pulsejs/react` integration.
-```typescript
+```ts
 import { useWatcher } from '@pulsejs/react';
 
 export function MyComponent (props) {

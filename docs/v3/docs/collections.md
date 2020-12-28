@@ -330,41 +330,6 @@ Users.getValueById(32).shallowProperty; //  { iWasUntouched: true, deepProperty:
 
 :::
 
-# `.put()`
-
-The put method allows you to _put_ data into a group. It is an alias for [Group.add()]() but can work for several groups at a time and will create groups dynamically if they are not already present.
-
-```js
-Users.put(75, ['favorites', 'someNewGroup']);
-```
-
-
-**Parameters**
-| parameter     | type                    | description                    |
-| ------------- | ----------------------- | ------------------------------ |
-| `primaryKeys` | `PrimaryKey` or `Array` of `PrimaryKey` | The Primary Key to update, can be a string or number.    |
-| `groupNames`     | `string` | `Array` of `string`                | Groups to put data item(s) into |
-| `options?`     | [`GroupAddOptions`]()          | See Group.add()                 |
-
-# `.reset()`
-
-Reset allows you to easily clear the collection of all data (keeping group structure but removing the data from the groups)
-
-```js
-Users.reset();
-```
-
-# `.compute()`
-
-This is a function that is used when you would like a computed value based on your data. The only parameter is a callback which provides a single parameter of the
-
-```js
-Users.compute(data => {
-  // do things then return a value
-  return value;
-});
-```
-
 # `.getGroup()`
 
 Given a group name, this function returns a Group instance. 
@@ -375,7 +340,6 @@ Users.getGroup('myGroup');
 ::: tip Note
 This method will _always_ return a Group instance, even if the group does not exist. In which case it will be stored as a "provisional" Group, this is to allow the Group to be depended on before it has been created — useful for [Computed State]() to work flawlessly without extra logic from the developer.
 :::
-An alternate method to this would be [`getValueById()`]() which will return just the value without the instance, and `null` if Group does not exist.
 
 ::: details An example with usePulse()
 The `getGroup()` method can be used directly in the [`usePulse()`]() React hook. It will return the Group `output` instead of the `value`, which is the Group's index.
@@ -393,69 +357,97 @@ const MY_COMPUTED = App.Computed(() => {
 This is a basic example with no advantage in being computed, however you can perform logic or sorting on the group data.
 :::
 
-# `.findById()`
+# `.getData()`
 
-Fetch data using the primary key/id!
-
-**Parameters**
-
-- [primaryKey (string | number)]()
-
-**Returns**
-
-- [data (Object)]()
+Fetch Data instance using the primary key.
 
 ```js
-Users.findById(23);
+Users.getData(27);
 ```
+::: tip Note
+This method will _always_ return a Data instance, even if the data does not exist. With the same benefits as `getGroup()`
+:::
+An alternate method to this would be [`getDataValue()`]() which will return just the value without the instance, and `{}` if Group does not exist.
 
-# `.getValueById()`
 
-Given an id/key, this function returns the raw data from this collection for the provided id.
+::: details An example with usePulse()
+The `findById()` method can be used directly in the [`usePulse()`]() React hook. It will return the Data `value`.
+```js
+const myData = usePulse(Users.findById(27))
+```
+Your component will now be dependent on the data item with primary key 27 directly, though selectors would be a better choice for this.
+```js
+const myData = usePulse(Users.selectors.current)
+```
+:::
 
-**Parameters**
+# `.getDataValue()`
 
-- [primaryKey (string | number)]()
+Returns data from a collection by primary key, the only parameter. 
+
+If no data is found this method will return an empty object.
 
 ```js
-// will return the computed value of that data
-Users.getValueById(23);
+Users.getDataValue(23);
 ```
+Warning: This method can **NOT** be used with `usePulse()`
+
+# `.put()`
+
+The put method allows you to _put_ data into a group. It is an alias for [Group.add()]() but can work for several groups at a time and will create groups dynamically if they are not already present.
+
+```js
+Users.put(75, ['favorites', 'someNewGroup']);
+```
+
+
+**Parameters**
+| parameter     | type                    | description                    |
+| ------------- | ----------------------- | ------------------------------ |
+| `primaryKeys` | `PrimaryKey` or `Array` of `PrimaryKey` | The Primary Key to update, can be a string or number.    |
+| `groupNames`     | `string` | `Array` of `string`                | Groups to put data item(s) into |
+| `options?`     | [`GroupAddOptions`]()          | See Group.add()                 |
+
+
 
 # `.remove()`
 
-Remove is an alias function that takes the primary key(s) given, returns functions for the different delete options, and passes the primary keys to the sub-function you call. It returns:
+This method returns two methods.
 
-**Parameters**
+### `remove().fromGroups()`
+This method will remove a primary key from specific groups.
+```js
+Users.remove(27).fromGroups(['favorites'])
+```
+### `remove().everywhere()`
+This method removes data from all groups and deletes from the Collection.
+```js
+Users.remove(27).everywhere()
+```
 
-- [primaryKeys (string | number | string[] | number[])]()
+# `.reset()`
 
-**Returns**
-
-- `remove.fromGroups(groupNames)` [Function]() - Removes the data from the group(s) specified
-- `remove.everywhere` [Function]() - Removes the data from all groups
+Reset allows you to easily clear the collection of all data (keeping group structure but removing the data from the groups)
 
 ```js
-// will remove data with key 2 from the group named myGroup
-Users.remove(2).fromGroups('myGroup');
+Users.reset();
+```
+
+# `.compute()`
+
+This method allows you to mutate data as
+```js
+Users.compute(data => {
+  // do things then return a value 
+  return value;
+});
 ```
 
 # `.updateDataKey()`
 
-This method allows you to change the primary key of a data item in your collection
-
-**Parameters**
-
-- [oldKey (string | number | string[] | number[])]() -
-- [newKey (string | number | string[] | number[])]() -
-
+This method allows you to change the primary key of a data item in your Collection.
 ```js
 // the data at key 1 will now have a key of 4550
 Users.updateDataKey(1, 4550);
 ```
 
-# `.rebuildGroupsThatInclude()`
-
-**Parameters**
-
-- [PrimaryKey (string | number)]()
