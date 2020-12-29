@@ -381,7 +381,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   public findById(id: PrimaryKey | State): Data<DataType> {
     return this.getData(id);
   }
-  public getValueById(id: PrimaryKey | State): DataType | {} {
+  public getValueById(id: PrimaryKey | State): DataType | null {
     return this.getDataValue(id);
   }
 }
