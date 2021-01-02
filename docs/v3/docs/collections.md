@@ -152,7 +152,7 @@ Collections can have a default Group, in which **all** items collected will be i
 const Users = App.Collection()();
 
 // With config & custom groups:
-const Users = App.Collection()(Collection => {
+const Users = App.Collection()(() => {
   defaultGroup: true;
   groups: { ... } // custom groups go here
 });
@@ -367,7 +367,7 @@ Users.getData(27);
 ::: tip Note
 This method will _always_ return a Data instance, even if the data does not exist. With the same benefits as `getGroup()`
 :::
-An alternate method to this would be [`getDataValue()`]() which will return just the value without the instance, and `{}` if Group does not exist.
+An alternate method to this would be [`getDataValue()`]() which will return just the value without the instance, and `null` if Data does not exist.
 
 
 ::: details An example with usePulse()
