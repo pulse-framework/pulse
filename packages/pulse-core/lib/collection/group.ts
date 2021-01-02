@@ -68,12 +68,12 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     this.type(Array);
 
     this.sideEffects = () => {
-      if (config.lazyBuild != undefined) this._outdated = true;
+      if (config.lazyBuild != false) this._outdated = true;
       else this.build();
     };
 
     // initial build
-    if (config.lazyBuild != undefined) this._output = [];
+    if (config.lazyBuild != false) this._output = [];
     else this.build();
   }
 
