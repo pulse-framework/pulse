@@ -20,6 +20,12 @@ interface TrackedChange {
   index: number;
 }
 
+interface GroupConfig {
+  name?: string;
+  provisional?: boolean;
+  lazyBuild?: boolean;
+}
+
 export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> {
   private collection: () => Collection<DataType>;
 
@@ -28,6 +34,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   private _preciseIndex: Array<PrimaryKey> = [];
   private _missingPrimaryKeys: PrimaryKey[] = [];
   private _trackedIndexChanges: TrackedChange[];
+  private _outdated: boolean;
 
   // group configuration
   private computedFunc?: (data: DataType) => DataType;
@@ -44,11 +51,12 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
   // getter for group output, contains built collection data
   public get output(): Array<DataType> {
+    if (this._outdated) this.build();
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this._output;
   }
 
-  constructor(context: InstanceContext, initialIndex?: Array<PrimaryKey>, config: { name?: string; provisional?: boolean } = {}) {
+  constructor(context: InstanceContext, initialIndex?: Array<PrimaryKey>, config: GroupConfig = {}) {
     // This invokes the parent class with either the collection or the Pulse instance as context
     // This means groups can be created before (or during) a Collection instantiation
     super((context() instanceof Pulse ? context : (context() as Collection<DataType>).instance) as () => Pulse, initialIndex || []);
@@ -59,10 +67,14 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
     this.type(Array);
 
-    this.sideEffects = () => this.build();
+    this.sideEffects = () => {
+      if (config.lazyBuild != undefined) this._outdated = true;
+      else this.build();
+    };
 
     // initial build
-    this.build();
+    if (config.lazyBuild != undefined) this._output = [];
+    else this.build();
   }
 
   public build() {
@@ -110,6 +122,8 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
         })
         .filter(item => item != undefined);
     }
+
+    delete this._outdated;
   }
 
   private getData(key: PrimaryKey, index: number): Data<DataType> | undefined {
