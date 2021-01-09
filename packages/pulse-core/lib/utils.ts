@@ -42,8 +42,9 @@ export function normalizeDeps(deps: Array<State> | State) {
 }
 
 export const copy = val => {
-  // ignore if primitive type
-  if (typeof val !== 'object' || val instanceof Date) return val;
+  // ignore if not an Array or Object (will ignore if class instance)
+  const valConstructorName = Object.getPrototypeOf(val).constructor.name
+  if(['object', 'array'].includes(valConstructorName.toLowerCase())) return val
 
   if (isWatchableObject(val)) val = { ...val };
   else if (Array.isArray(val)) val = [...val];
