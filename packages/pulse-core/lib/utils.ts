@@ -43,7 +43,7 @@ export function normalizeDeps(deps: Array<State> | State) {
 
 export const copy = val => {
   // ignore if primitive type
-  if (typeof val !== 'object') return val;
+  if (typeof val !== 'object' || val instanceof Date) return val;
 
   if (isWatchableObject(val)) val = { ...val };
   else if (Array.isArray(val)) val = [...val];
