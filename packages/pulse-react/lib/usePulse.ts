@@ -29,15 +29,24 @@ export function usePulse<X extends Array<State<any>>>(deps: X | [] | State, puls
 
   // This is a trigger state used to force the component to re-render
   const [_, set_] = React.useState({});
+  // This removes the warning: `Can't perform a React state update on an unmounted component`
+  const isMountedRef = React.useRef(false);
 
   React.useEffect(function () {
+    isMountedRef.current = true;
+
     // Create a callback base subscription, Callback invokes re-render Trigger
     const subscriptionContainer = pulseInstance?.subController.subscribeWithSubsArray(() => {
-      set_({});
+      if (isMountedRef.current == true) {
+        set_({});
+      }
     }, depsArray);
 
     // Unsubscribe on Unmount
-    return () => pulseInstance?.subController.unsubscribe(subscriptionContainer);
+    return () => {
+      isMountedRef.current = false;
+      return pulseInstance?.subController.unsubscribe(subscriptionContainer);
+    }
   }, []);
 
   // Return public value of state
