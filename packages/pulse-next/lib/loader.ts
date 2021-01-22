@@ -29,9 +29,9 @@ export function preserveServerState(nextProps: { [key: string]: any }, instance?
   if (collections)
     for (const collection of collections) {
       if (collection.config?.name) {
-        const collectionData = { data: {}, groups: {}, selectors: {}, name: collection.config.name };
+        const collectionData = { data: [], groups: {}, selectors: {}, name: collection.config.name };
 
-        for (let key in collection.data) if (collection.data[key].value !== undefined) collectionData.data[key] = collection.data[key]._value;
+        for (let key in collection.data) if (collection.data[key].value !== undefined) collectionData.data.push(collection.data[key]._value);
 
         for (let key in collection.groups as any) if (collection.groups[key].size > 0) collectionData.groups[key] = collection.groups[key]._value;
 
@@ -69,6 +69,7 @@ export function loadServerState(pulse: Pulse) {
               }
             }
           }
+
           collection.collect(local.data);
 
           for (const key in local.selectors) if (collection.selectors[key].name) collection.selectors[key].set(local.selectors[key]);
