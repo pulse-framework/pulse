@@ -118,7 +118,8 @@ Groups have all the methods and functionality State does (See [State methods](st
 
 ```js
 Users.groups.myGroup.output; // Actual data
-Users.groups.myGroup.index; // Array of primary keys
+Users.groups.myGroup.value; // array of desired primary keys in this group
+Users.groups.myGroup.index; // same as above but 1:1 with output
 ```
 
 `Group.index` is always 1:1 with `Group.output`, while `Group.value` contains the primary keys desired to be in a Group, even if they don't exist in the Collection.
@@ -152,10 +153,10 @@ Collections can have a default Group, in which **all** items collected will be i
 const Users = App.Collection()();
 
 // With config & custom groups:
-const Users = App.Collection()(() => {
+const Users = App.Collection()(() => ({
   defaultGroup: true;
   groups: { ... } // custom groups go here
-});
+}));
 ...
 ```
 
@@ -168,6 +169,7 @@ Users.getGroup('default').output; // [{ id: 1, name: 'jeff' }]
 ```
 
 :::
+
 
 ## Group Methods
 
@@ -184,15 +186,22 @@ Users.groups.myGroup.has(23); // boolean
 Add a key to a Group. Takes an options object as the second parameter.
 
 ```js
-Users.groups.myGroup.add(23, {}); // returns Group instance
+Users.groups.myGroup.add(23); // returns Group instance
 ```
-Second parameter is a config object (GroupAddOptions) with the following options:
+Optional second parameter is a config object (`GroupAddOptions`)
+```js
+Users.groups.myGroup.add(23, { 
+  atIndex: 2,
+  softRebuild: false
+}); 
+```
 | parameter | type                   | description                                           |
 | --------- | ---------------------- | ----------------------------------------------------- |
 | `atIndex?`   | `number` | Specify explicit index to insert. |
 | `softRebuild?` | `boolean` | Group will avoid rebuilding from scratch, save performance. (default true)       |
 | `method?` | `unshift` or `push`         | Method to add to group, add items to the top or bottom of the array. (default "push")                     |
 | `overwrite?` | `boolean`         | Set to `false` to leave primary key in place if already present. (default true)                                 |
+
 
 :::  details What is Soft Rebuild?
 When Groups `build` they loop over the index and pull data from the Collection. Sometimes this involves running the `Collection.compute()` function on each data item. For large groups this can be a very expensive operation. Soft Rebuild is used when we know specific items are being added/removed from a group at a specific index. Pulse will update the output instead of building from scratch.
@@ -210,11 +219,22 @@ Returns the Group instance.
 
 ### `.build()`
 
-Force rebuild the Group output, though you should never need to use this method as Collections take care of rebuilding Groups automatically.
+Build the Group output from index. This method maps the Group's index to Collection data values optionally running the `Collection.compute()` callback (if applicable) on each data item.
 
 ```js
 Users.groups.myGroup.build();
 ```
+
+You should never need to use this method directly as Pulse will automatically build the output when necessary.
+
+#### Lazy Building
+
+Lazy building is a default, but optional configuration for Groups that defers the building of `output` until it is accessed. It does not affect the way your code functions, but is a great performance boost.
+
+```ts
+const myGroup = Users.Group([], { lazyBuild: true }) // <- default is true
+```
+In our tests this feature lead to 7.5 times less compute on building Groups throughout our application.
 
 ## Selectors
 
@@ -394,18 +414,26 @@ Warning: This method can **NOT** be used with `usePulse()`
 
 # `.put()`
 
-The put method allows you to _put_ data into a group. It is an alias for [Group.add()]() but can work for several groups at a time and will create groups dynamically if they are not already present.
+The put method allows you to add a key or multiple keys into a group or multiple groups. It is an alias for [Group.add()](), with the added benefit of putting into several groups at once. It will also create groups dynamically if they are not already present.
 
 ```js
 Users.put(75, ['favorites', 'someNewGroup']);
+```
+
+# `.move()`
+
+This method allows you to move a key or multiple keys from a group or multiple groups. It will remove the key from the group(s) specified as the second parameter.
+
+```js
+Users.move(75, 'favorites', 'someNewGroup');
 ```
 
 
 **Parameters**
 | parameter     | type                    | description                    |
 | ------------- | ----------------------- | ------------------------------ |
-| `primaryKeys` | `PrimaryKey` or `Array` of `PrimaryKey` | The Primary Key to update, can be a string or number.    |
-| `groupNames`     | `string` | `Array` of `string`                | Groups to put data item(s) into |
+| `primaryKeyOrKeys` | `PrimaryKey` or `Array` of `PrimaryKey` | The Primary Key to update, can be a string or number.    |
+| `groupNameOrNames`     | `Array` of `string` | Groups to put data item(s) into. |
 | `options?`     | [`GroupAddOptions`]()          | See Group.add()                 |
 
 
