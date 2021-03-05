@@ -7,32 +7,33 @@ export class Selector<
   S extends SelectorObj = SelectorObj
   //
 > extends Computed<DataType> {
-  private collection: () => Collection<DataType, G, S>;
-  private _masterSelected: PrimaryKey;
+  protected collection: () => Collection<DataType, G, S>;
+  // this is the selected primary key
+  private _id: PrimaryKey = 0;
 
+  // getter and setter for primary key
   public set id(val: PrimaryKey) {
-    this._masterSelected = val;
+    this._id = val;
     this.recompute();
   }
   public get id() {
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
-    return this._masterSelected;
+    return this._id;
   }
 
   constructor(collection: () => Collection<DataType, G, S>, key: PrimaryKey) {
-    if (!key) key = 0;
     // initialize computed constructor with initial compute state
     super(collection().instance, () => Selector.findData<DataType, G, S>(collection(), key));
 
     // computed function that returns a given item from collection
-    this.func = () => Selector.findData<DataType, G, S>(collection(), this._masterSelected);
+    this.func = () => Selector.findData<DataType, G, S>(collection(), this._id);
 
     // alias collection function
     this.collection = collection;
 
     this.type(Object);
 
-    this._masterSelected = key;
+    this._id = key;
   }
 
   public select(key: PrimaryKey) {
@@ -65,6 +66,12 @@ export class Selector<
       data = collection.computedFunc ? collection.computedFunc(data) : data;
     }
     return data;
+  }
+
+   public reset(): this {
+    super.reset();
+    this._id = 0;
+    return this;
   }
 }
 
