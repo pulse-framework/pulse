@@ -1,4 +1,4 @@
-<img src=".github/resources/logo.svg" width="80" height="80" alt="Logo" />
+<img src=".github/resources/logo.svg" width="80" height="80" alt="Logo" align="left" />
 
 Pulse Framework
 ===
