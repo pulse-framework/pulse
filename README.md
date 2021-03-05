@@ -1,4 +1,7 @@
-# Pulse Framework
+<img src=".github/resources/logo.svg" width="80" height="80" alt="Logo" />
+
+Pulse Framework
+===
 
 **Global state and logic for reactive JavaScript applications.** Supports frameworks like React, Vue, and React Native.
 
