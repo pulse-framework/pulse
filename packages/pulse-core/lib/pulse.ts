@@ -146,7 +146,7 @@ export class Pulse {
    * Create many Pulse states at the same time
    * @param stateGroup Object with keys as state name and values as initial state
    */
-  public StateGroup(stateGroup: any) {
+  public StateGroup<T extends any>(stateGroup: T): { [key in keyof T]: State<T[key]> } {
     return StateGroup(() => this, stateGroup);
   }
 
