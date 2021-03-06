@@ -357,9 +357,14 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   }
 
   public reset() {
+    // reset data
     this.data = {};
+    // reset groups
     const groups = Object.keys(this.groups);
     groups.forEach(groupName => this.groups[groupName].reset());
+    //reset selectors 
+    const selectors = Object.keys(this.groups);
+    selectors.forEach(selectorName => this.selectors[selectorName].reset());
   }
 
   public flatten() {
