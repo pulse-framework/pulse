@@ -1,0 +1,61 @@
+name: Continuous Deployment
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release_version:
+    name: Publish new Pulse version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Set current version
+        shell: bash -ex {0}
+        run: |
+          echo "CURRENT_VERSION=$(node -p 'require("./lerna.json").version')" >> $GITHUB_ENV
+
+      - name:
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Pulse v${{  }}
+          draft: true
+          prerelease: false
+
+      # Upload packages for github release
+      - name: Upload @pulsejs/core gzip
+        uses: actions/upload-release-asset@v1
+        if: steps.package_core.outputs.files_exists == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./resourcepack.zip
+          asset_name: ${{ github.event.repository.name }}-${{ steps.tag_version.outputs.TAG_VERSION }}-mc${{ steps.mc_version.outputs.MC_VERSION }}-resourcepack.zip
+          asset_content_type: application/zip
+      - name: Upload @pulsejs/react gzip
+        uses: actions/upload-release-asset@v1
+        if: steps.package_react.outputs.files_exists == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./datapack.zip
+          asset_name: ${{ github.event.repository.name }}-${{ steps.tag_version.outputs.TAG_VERSION }}-mc${{ steps.mc_version.outputs.MC_VERSION }}-datapack.zip
+          asset_content_type: application/zip

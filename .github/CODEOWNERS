@@ -1,0 +1,14 @@
+# GitHub will automatically request corresponding code owners for review when any of "their" files are changed
+# This could specifically be useful for particular maintainers on e.g. pulse-react and -vue
+# Read more: https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
+
+# Unless someone else owns the changed files, Jamie is requested
+*							@jamiepine
+
+# Documentation
+/examples/		@hadenpf @jamiepine
+/docs/				@hadenpf @jamiepine
+
+# Repo metadata and base configs
+/*						@hadenpf @jamiepine
+/.*/					@hadenpf @jamiepine

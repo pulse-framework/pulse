@@ -3,24 +3,18 @@
 Pulse Framework
 ===
 
-**Global state and logic for reactive JavaScript applications.** Supports frameworks like React, Vue, and React Native.
+[![Join Discord](https://discordapp.com/api/guilds/658189217746255881/embed.png)](https://discord.gg/RjG8ShB)
+[![Pulse on Twitter](https://img.shields.io/twitter/follow/pulseframework.svg?label=Pulse+on+Twitter)](https://twitter.com/pulseframework)
+[![Jamie on Twitter](https://img.shields.io/twitter/follow/jamiepine.svg?label=Jamie+on+Twitter)](https://twitter.com/jamiepine)
 
-**Lightweight, modular and powerful.** Provides a **core** state & logic framework for your entire application; plug-and-play directly into any UI framework.
-
-Replaces Redux, Vuex, and MobX for state; and for API requests, replaces Axios and `fetch`.
-
-**Created by [@jamiepine](https://twitter.com/jamiepine)**
+**Global state and logic for reactive JavaScript applications.** Plug-and-play directly into your UI framework.
 
 ### Read the docs at [pulsejs.org](https://pulsejs.org).
-
-[![Join Discord](https://discordapp.com/api/guilds/658189217746255881/embed.png)](https://discord.gg/RjG8ShB)
-[![Follow Pulse on Twitter](https://img.shields.io/twitter/follow/pulseframework.svg?label=Pulse+on+Twitter)](https://twitter.com/pulseframework)
-[![Follow Jamie Pine on Twitter](https://img.shields.io/twitter/follow/jamiepine.svg?label=Jamie+on+Twitter)](https://twitter.com/jamiepine)
 
 ```ts
 const App = new Pulse();
 
-const hello = App.State<string>('the sound of music');
+const hello = App.State('the sound of music');
 ```
 
 ## Why Pulse?

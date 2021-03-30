@@ -10,7 +10,7 @@
 <!--- Leave any extra information about the issue if needed -->
 
 ## Environment Information
-- Operating System: `OS NAME/VERSION`
-- Browser Version (If applicable): `BROWSER NAME/VERSION`
-- Pulse Version: `PULSE VERSION NUMBER`
-- Framework/Framework Version (If applicable): `If using a framework like Vue or React, fill this out.`
+- Operating system: `OS NAME/VERSION`
+- Browser version (If applicable): `BROWSER NAME/VERSION`
+- Pulse version: `PULSE VERSION NUMBER`
+- Framework version (If applicable): `If using a framework like Vue or React, fill this out.`
