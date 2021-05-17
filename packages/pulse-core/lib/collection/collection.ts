@@ -49,7 +49,9 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
 
   public computedFunc?: (data: DataType) => DataType;
   public collectFunc?: (data: DataType) => DataType;
-  public provisionalGroups: { [key: string]: Group<DataType> } = {};
+
+  public _provisionalData: { [key: string]: Data<DataType> } = {};
+  public _provisionalGroups: { [key: string]: Group<DataType> } = {};
 
   // collection config can either be an object of type CollectionConfig or a function that returns CollectionConfig
   constructor(public instance: () => Pulse, config: Config<DataType, G, S>) {
@@ -120,9 +122,9 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   public createGroup(groupName: GroupName, initialIndex?: Array<PrimaryKey>): Group<DataType> {
     if (this.groups[groupName]) return this.groups[groupName];
     let group: Group<DataType>;
-    if (this.provisionalGroups[groupName]) {
-      group = this.provisionalGroups[groupName];
-      delete this.provisionalGroups[groupName];
+    if (this._provisionalGroups[groupName]) {
+      group = this._provisionalGroups[groupName];
+      delete this._provisionalGroups[groupName];
     } else {
       group = this.Group(initialIndex).key(groupName as string);
     }
@@ -146,6 +148,11 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     if (patch && this.data[data[key]]) this.data[data[key]].patch(data, { deep: false });
     // if already exists and no config, overwrite data
     else if (this.data[data[key]]) this.data[data[key]].set(data);
+    // if provisional data exists for this key, migrate data instance
+    else if (this._provisionalData.hasOwnProperty(data[key])) {
+      this.data[data[key]] = this._provisionalData[data[key]];
+      delete this._provisionalData[data[key]];
+    }
     // otherwise create new data instance
     else this.data[data[key]] = new Data<DataType>(() => this, data);
     return data[key];
@@ -198,13 +205,15 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   public getData(id: PrimaryKey | State): Data<DataType> {
     if (id instanceof State) id = id.value;
     if (!this.data.hasOwnProperty(id as PrimaryKey)) {
-      return new Data(() => this, undefined);
+      const data = new Data(() => this, undefined);
+      this._provisionalData[id as PrimaryKey] = data;
+      return data;
     }
     return this.data[id as PrimaryKey];
   }
 
   public getDataValue(id: PrimaryKey | State): DataType | null {
-    let data = this.findById(id).value;
+    let data = this.getData(id).value;
     if (!data) return null;
     return this.computedFunc ? this.computedFunc(data) : data;
   }
@@ -219,8 +228,8 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     // }
     if (this.groups[groupName]) {
       return this.groups[groupName];
-    } else if (this.provisionalGroups[groupName]) {
-      return this.provisionalGroups[groupName];
+    } else if (this._provisionalGroups[groupName]) {
+      return this._provisionalGroups[groupName];
     } else {
       return this.createProvisionalGroup(groupName);
     }
@@ -228,7 +237,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
 
   private createProvisionalGroup(groupName: PrimaryKey) {
     const group = new Group<DataType>(() => this, [], { provisional: true, name: groupName as string });
-    this.provisionalGroups[groupName] = group;
+    this._provisionalGroups[groupName] = group;
     return group;
   }
 
@@ -362,7 +371,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     // reset groups
     const groups = Object.keys(this.groups);
     groups.forEach(groupName => this.groups[groupName].reset());
-    //reset selectors 
+    //reset selectors
     const selectors = Object.keys(this.groups);
     selectors.forEach(selectorName => this.selectors[selectorName].reset());
   }
