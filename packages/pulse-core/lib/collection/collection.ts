@@ -151,6 +151,9 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     // if provisional data exists for this key, migrate data instance
     else if (this._provisionalData.hasOwnProperty(data[key])) {
       this.data[data[key]] = this._provisionalData[data[key]];
+      // update provisional data instance with new data
+      if (patch) this.data[data[key]].patch(data, { deep: false });
+      else this.data[data[key]].set(data);
       delete this._provisionalData[data[key]];
     }
     // otherwise create new data instance
