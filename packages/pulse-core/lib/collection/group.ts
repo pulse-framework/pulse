@@ -91,7 +91,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
         }
         //
         else {
-          const data = this.getData(change.key, change.index);
+          const data = this.getCollectionData(change.key, change.index);
           if (data && change.method == TrackedChangeMethod.ADD) {
             this._output.splice(change.index, 0, this.renderData(data));
             this._preciseIndex.splice(change.index, 0, change.key);
@@ -113,7 +113,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
       // build the group data from collection data using the index
       this._output = this._value
         .map((primaryKey, index) => {
-          const data = this.getData(primaryKey, index);
+          const data = this.getCollectionData(primaryKey, index);
           if (data) {
             this._preciseIndex.push(primaryKey);
             return this.renderData(data);
@@ -126,7 +126,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     delete this._outdated;
   }
 
-  private getData(key: PrimaryKey, index: number): Data<DataType> | undefined {
+  private getCollectionData(key: PrimaryKey, index: number): Data<DataType> | undefined {
     let data = this.collection().data[key];
 
     if (!data) {

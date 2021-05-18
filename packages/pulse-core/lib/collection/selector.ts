@@ -55,12 +55,14 @@ export class Selector<
     collection: Collection<DataType, G, S>,
     key: PrimaryKey
   ) {
-    let data = collection.findById(key).value;
+    if (key == undefined) return null;
+
+    let data = collection.getData(key).value;
     // if data is not found, create placeholder data, so that when real data is collected it maintains connection
     if (!data) {
       // this could be improved by storing temp references outside data object in collection
       collection.data[key] = new Data<DataType>(() => collection, { id: key } as any);
-      data = collection.findById(key).value;
+      data = collection.getData(key).value;
     } else {
       // If we have a computed function, run it before returning the data.
       data = collection.computedFunc ? collection.computedFunc(data) : data;
@@ -68,7 +70,7 @@ export class Selector<
     return data;
   }
 
-   public reset(): this {
+  public reset(): this {
     super.reset();
     this._id = 0;
     return this;

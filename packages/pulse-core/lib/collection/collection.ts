@@ -131,6 +131,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     (this.groups as { [key: string]: Group<DataType> })[groupName] = group;
     return group;
   }
+
   // create a selector instance on this collection
   public createSelector(selectorName: string | number, initialSelected?: PrimaryKey): Selector<DataType> {
     if (this.selectors[selectorName]) return this.selectors[selectorName];
@@ -144,16 +145,21 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     let key = this.config.primaryKey;
     if (!data || !data.hasOwnProperty(key)) return null;
     if (this.collectFunc) data = this.collectFunc(data);
+    const existingData = this.data[data[key]];
     // if the data already exists and config is to patch, patch data
-    if (patch && this.data[data[key]]) this.data[data[key]].patch(data, { deep: false });
+    if (patch && existingData) existingData.patch(data, { deep: false });
     // if already exists and no config, overwrite data
-    else if (this.data[data[key]]) this.data[data[key]].set(data);
+    else if (existingData) existingData.set(data);
     // if provisional data exists for this key, migrate data instance
     else if (this._provisionalData.hasOwnProperty(data[key])) {
       this.data[data[key]] = this._provisionalData[data[key]];
       // update provisional data instance with new data
-      if (patch) this.data[data[key]].patch(data, { deep: false });
-      else this.data[data[key]].set(data);
+      if (patch) {
+        this.data[data[key]].patch(data, { deep: false });
+      } else {
+        this.data[data[key]].set(data);
+      }
+      // cleanup provisional data
       delete this._provisionalData[data[key]];
     }
     // otherwise create new data instance
@@ -208,7 +214,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   public getData(id: PrimaryKey | State): Data<DataType> {
     if (id instanceof State) id = id.value;
     if (!this.data.hasOwnProperty(id as PrimaryKey)) {
-      const data = new Data(() => this, undefined);
+      const data = new Data(() => this, ({ id } as unknown) as DataType);
       this._provisionalData[id as PrimaryKey] = data;
       return data;
     }
@@ -398,6 +404,7 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   public findById(id: PrimaryKey | State): Data<DataType> {
     return this.getData(id);
   }
+
   public getValueById(id: PrimaryKey | State): DataType | null {
     return this.getDataValue(id);
   }
