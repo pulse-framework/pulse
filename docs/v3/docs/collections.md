@@ -405,10 +405,7 @@ The `findById()` method can be used directly in the [`usePulse()`]() React hook.
 ```js
 const myData = usePulse(Users.findById(27))
 ```
-Your component will now be dependent on the data item with primary key 27 directly, though selectors would be a better choice for this.
-```js
-const myData = usePulse(Users.selectors.current)
-```
+Your component will now be dependent on the data item with primary key 27 directly.
 :::
 
 # `.getDataValue()`
