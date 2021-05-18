@@ -44,9 +44,6 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   public groups: G;
   public selectors: S;
 
-  private _groups: Set<Group<DataType>> = new Set();
-  private _selectors: Set<Selector<DataType>> = new Set();
-
   public computedFunc?: (data: DataType) => DataType;
   public collectFunc?: (data: DataType) => DataType;
 
@@ -76,11 +73,6 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
 
   private initSubInstances(subInstanceType: 'groups' | 'selectors') {
     const subInstanceObj: any = {};
-    // You'll need the below code when you add support for arrays of group names ;)
-    // const subInstanceTypeGeneratorName = subInstanceType.charAt(0).toUpperCase() + subInstanceType.slice(1, -1);
-    // const keys: Array<string> = Array.isArray(this.config[subInstanceType])
-    //   ? (this.config[subInstanceType] as Array<string>)
-    //   : Object.keys(this.config[subInstanceType]);
 
     const keys = Object.keys(this.config[subInstanceType]);
 
@@ -90,6 +82,11 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
       subInstanceObj[subInstanceName] = value;
       // assign sub instance to instance and inject key of the sub instance name
       if (!subInstanceObj[subInstanceName].name) subInstanceObj[subInstanceName].key(subInstanceName);
+      // assign defined Groups, this will move them from provisional to named
+      else if (subInstanceObj[subInstanceName] instanceof Group) {
+        delete this._provisionalGroups[subInstanceObj[subInstanceName].name];
+        subInstanceObj[subInstanceName].key(subInstanceName);
+      }
     }
     this[subInstanceType] = subInstanceObj;
   }
@@ -98,9 +95,9 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
    * Create a group associated with this collection
    * @param initialIndex - An optional array of primary keys to initialize this groups with.
    */
-  public Group(initialIndex?: Array<PrimaryKey>): Group<DataType> {
-    const group = new Group<DataType>(() => this, initialIndex);
-    this._groups.add(group);
+  public Group(initialIndex?: Array<PrimaryKey>, groupName?: string): Group<DataType> {
+    const group = new Group<DataType>(() => this, initialIndex, { name: groupName || this.instance().getNonce().toString() });
+    if (!groupName) this._provisionalGroups[group.name] = group;
     return group;
   }
 
@@ -111,7 +108,6 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
    */
   public Selector(initialSelection?: string | number): Selector<DataType> {
     const selector = new Selector<DataType>(() => this, initialSelection);
-    this._selectors.add(selector);
     return selector;
   }
 
@@ -121,12 +117,13 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
    */
   public createGroup(groupName: GroupName, initialIndex?: Array<PrimaryKey>): Group<DataType> {
     if (this.groups[groupName]) return this.groups[groupName];
+    if (groupName == undefined) return;
     let group: Group<DataType>;
     if (this._provisionalGroups[groupName]) {
       group = this._provisionalGroups[groupName];
       delete this._provisionalGroups[groupName];
     } else {
-      group = this.Group(initialIndex).key(groupName as string);
+      group = this.Group(initialIndex, groupName as string);
     }
     (this.groups as { [key: string]: Group<DataType> })[groupName] = group;
     return group;
@@ -189,13 +186,14 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     if (this.config.defaultGroup && groups.indexOf('default') === -1) groups.push('default');
 
     // if any of the groups don't already exist, create them
-    groups.forEach(groupName => !this.groups[groupName] && this.createGroup(groupName));
+    for (let groupName of groups) !this.groups.hasOwnProperty(groupName) && this.createGroup(groupName);
 
     // if method is unshift reverse array order to maintain correct order
     if (config.method === 'unshift') _items.reverse();
 
-    _items.forEach((item, index) => {
+    for (let [index, item] of _items.entries()) {
       if (config.forEachItem) item = config.forEachItem(item, item[this.config.primaryKey], index);
+
       let key = this.saveData(item, config.patch);
       if (key === null) return;
 
@@ -203,26 +201,30 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
         let group = this.groups[groupName];
         if (!group.nextState.includes(key)) group.nextState[config.method || 'push'](key);
       });
-    });
+    }
 
-    groups.forEach(groupName => this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState));
+    for (let groupName of groups) this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState);
   }
   /**
    * Return an item from this collection by primaryKey as Data instance (extends State)
    * @param primaryKey - The primary key of the data
    */
-  public getData(id: PrimaryKey | State): Data<DataType> {
+  public getData(id: PrimaryKey | State, options: { createProvisional: boolean } = { createProvisional: true }): Data<DataType> {
     if (id instanceof State) id = id.value;
-    if (!this.data.hasOwnProperty(id as PrimaryKey)) {
+
+    if (!this.data.hasOwnProperty(id as PrimaryKey) && options.createProvisional) {
+      if (this._provisionalData[id as PrimaryKey]) return this._provisionalData[id as PrimaryKey];
+
       const data = new Data(() => this, ({ id } as unknown) as DataType);
       this._provisionalData[id as PrimaryKey] = data;
+
       return data;
     }
     return this.data[id as PrimaryKey];
   }
 
   public getDataValue(id: PrimaryKey | State): DataType | null {
-    let data = this.getData(id).value;
+    let data = this.getData(id, { createProvisional: false })?.value;
     if (!data) return null;
     return this.computedFunc ? this.computedFunc(data) : data;
   }
@@ -370,8 +372,13 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     }
   }
 
+  public has(primaryKey: PrimaryKey): boolean {
+    return !!this.data.hasOwnProperty(primaryKey);
+  }
+
   public rebuildGroupsThatInclude(primaryKey: PrimaryKey): void {
-    this._groups.forEach(group => group.rebuildOne(primaryKey));
+    Object.values(this.groups).forEach(group => group.rebuildOne(primaryKey));
+    if (Object.keys(this._provisionalGroups).length > 0) Object.values(this._provisionalGroups).forEach(group => group.rebuildOne(primaryKey));
   }
 
   public reset() {
@@ -380,31 +387,22 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     // reset groups
     const groups = Object.keys(this.groups);
     groups.forEach(groupName => this.groups[groupName].reset());
+
     //reset selectors
-    const selectors = Object.keys(this.groups);
+    const selectors = Object.keys(this.selectors);
     selectors.forEach(selectorName => this.selectors[selectorName].reset());
   }
 
-  public flatten() {
-    const flatCollection: { groups: { [key: string]: PrimaryKey[] }; data: { [key: string]: DataType } } = {
-      data: {},
-      groups: {}
-    };
-
-    for (const key in this.data) {
-      flatCollection.data[key] = this.data[key].copy();
-    }
-    for (const group in this.groups) {
-      flatCollection.groups[group] = this.groups[group].copy();
-    }
-    return flatCollection;
-  }
-
-  // backward-compatible alias'
+  /**
+   * @deprecated Please use Collection.getData
+   */
   public findById(id: PrimaryKey | State): Data<DataType> {
     return this.getData(id);
   }
 
+  /**
+   * @deprecated Please use Collection.getDataValue
+   */
   public getValueById(id: PrimaryKey | State): DataType | null {
     return this.getDataValue(id);
   }

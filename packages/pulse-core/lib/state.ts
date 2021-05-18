@@ -188,7 +188,7 @@ export class State<ValueType = any> {
    * Remove watcher by key
    */
   public removeWatcher(key: string | number): this {
-    delete this.watchers[key];
+    if (this.watchers[key]) delete this.watchers[key];
     return this;
   }
 

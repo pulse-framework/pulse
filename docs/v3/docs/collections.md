@@ -362,9 +362,19 @@ This method will _always_ return a Group instance, even if the group does not ex
 :::
 
 ::: details An example with usePulse()
-The `getGroup()` method can be used directly in the [`usePulse()`]() React hook. It will return the Group `output` instead of the `value`, which is the Group's index.
+The `getGroup()` method can be used directly in the [`usePulse()`]() React hook. It will return the Group `output` instead of the `value`.
 ```js
-const [myGroup] = usePulse([Users.getGroup('myGroup')])
+const myGroup = usePulse(Users.getGroup('myGroup'))
+```
+:::
+::: details An example with usePulse() depending on a Group before it exists
+The `getGroup()` method creates a "provisional" Group instance called myNewGroup, as myNewGroup didn't already exist in the Collection. Once the group is created, in this example by the `collect()` method, it is now moved into `Collection.groups()`.
+```js
+const myGroup = usePulse(Users.getGroup('myNewGroup'))
+
+MyCollection.collect(data, 'myNewGroup');
+
+// myGroup = data
 ```
 :::
 ::: details An example with Computed State

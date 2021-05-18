@@ -8,7 +8,7 @@ let //
   App: Pulse,
   MyCollection: Collection<ExampleData>;
 
-const dataCount = 10;
+const dataCount = 5;
 
 function createExampleDataArray() {
   let i: number = 0,
@@ -36,11 +36,13 @@ describe('Collections', () => {
   test('Collection has reference to the Pulse instance', () => {
     expect(MyCollection.instance() instanceof Pulse).toBe(true);
   });
+
   test('Collection is configured correctly', () => {
     expect(MyCollection.groups['default'] instanceof Group).toBe(true);
     expect(MyCollection.groups['explicitlyDefinedGroup'] instanceof Group).toBe(true);
     expect(MyCollection.selectors['mySelector'] instanceof Selector).toBe(true);
   });
+
   function testGroupValues(groupName: string) {
     MyCollection.collect(createExampleDataArray(), groupName);
     expect(MyCollection.getGroup(groupName).value.length).toBe(dataCount);
@@ -48,8 +50,11 @@ describe('Collections', () => {
     // index is only set after output is accessed once
     expect(MyCollection.getGroup(groupName).index.length).toBe(dataCount);
   }
+
   test('Data is present in default group', () => testGroupValues('default'));
+
   test('Data is present in a dynamic group', () => testGroupValues('haha'));
+
   test('Data is present in a explicitly defined group', () => testGroupValues('explicitlyDefinedGroup'));
 
   test('Provisional data works correctly', () => {
@@ -69,9 +74,7 @@ describe('Collections', () => {
     expect(MyCollection.data[chosenId].watchers[watcherId]).toBeDefined();
   });
 
-  //   test('Does not error with no function', () => {
-  //     const makeComputed = jest.fn(() => App.Computed(null));
-
-  //     expect(makeComputed).toThrowError(TypeError); // does not throw error
-  //   });
+  test('getDataValue returns null if data does not exist', () => {
+    expect(MyCollection.getDataValue('myNameJeff')).toBe(null);
+  });
 });
