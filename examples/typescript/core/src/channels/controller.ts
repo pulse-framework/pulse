@@ -1,7 +1,7 @@
 import { Controller, collection, action, state, model, route } from '@pulsejs/core';
 
 // the core module is a file that exports all controllers
-import { app, ui } from '../';
+import { app, ui } from '../core';
 import { Channel, Subscription, NotificationOptions } from './types';
 
 /**
