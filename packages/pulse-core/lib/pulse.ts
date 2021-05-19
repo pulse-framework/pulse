@@ -1,9 +1,5 @@
 // prettier-ignore
-import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, Integration, Integrations, Action, FuncType } from './internal';
-import { Tracker } from './tracker';
-import { HistoryItem } from './state';
-import { CollectionConfig } from './collection/collection';
-import { HigherOrderFunc } from './action';
+import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller,   Action, FuncType, Integrations, Integration, Tracker, HistoryItem, CollectionConfig } from './internal';
 
 export interface PulseConfig {
   computedDefault?: any;
@@ -28,7 +24,7 @@ interface ErrorObject {
 export class Pulse {
   public ready: boolean = false;
   public runtime: Runtime;
-  public status: StatusTracker;
+  // public status: StatusTracker;
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
@@ -40,7 +36,7 @@ export class Pulse {
   static initialIntegrations: Integration[] = [];
 
   // Core reference
-  public core: { [key: string]: any } = {};
+  public _core: { [key: string]: any } = {};
   // Context reference
   public _computed: Set<Computed> = new Set();
   public _state: Set<State> = new Set();
@@ -51,7 +47,7 @@ export class Pulse {
   constructor() {
     this.integrations = new Integrations(() => this);
     this.subController = new SubController(this);
-    this.status = new StatusTracker(() => this);
+    // this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, this.config.storage || {});
 
@@ -68,6 +64,11 @@ export class Pulse {
     this._computed.forEach(instance => instance.recompute());
 
     this.integrations.coreReady();
+  }
+
+  public core<CoreType>(core?: CoreType): CoreType {
+    if (!this.ready && core) this.onCoreReady(core);
+    return this._core as CoreType;
   }
 
   public with(integration: Integration): this {
@@ -117,45 +118,4 @@ export class Pulse {
   }
 }
 
-export const instance = new Pulse();
-
-export default instance;
-
-export function state<T>(initialState: T): State<T>;
-export function state<T>(computedFunc: () => T): Computed<T>;
-export function state<T>(value: T | (() => T)): State<T> | Computed<T> {
-  if (typeof value == 'function') {
-    return new Computed<T>(() => instance, (value as unknown) as () => T);
-  }
-  return new State<T>(() => instance, value);
-}
-
-export function collection<DataType extends DefaultDataItem = DefaultDataItem>(config: CollectionConfig = {}) {
-  const collection = new Collection<DataType, {}, {}>(() => instance, config);
-  return collection;
-}
-
-export function action<T extends FuncType>(func: T) {
-  return new Action(() => this, func).func();
-}
-
-export function event<P = EventPayload>(config?: EventConfig<P>) {
-  return new Event(() => this, config);
-}
-
-export interface RouteConfig {
-  method?: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
-  endpoint?: string;
-}
-
-export interface CallRouteConfig {
-  params?: Record<string, any>;
-  query?: Record<string, any>;
-  body?: Record<string, any>;
-}
-
-export function route<ResponseType = any>(config?: RouteConfig) {
-  return async (config?: CallRouteConfig): Promise<ResponseType> => {
-    return null;
-  };
-}
+export default Pulse;

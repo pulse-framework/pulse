@@ -1379,8 +1379,10 @@
   resolved "https://registry.yarnpkg.com/@pulsejs/core/-/core-3.4.2-0.tgz#92d1e52fc4c2ab791aa6b90f96f7e7c5354c7be5"
   integrity sha512-9fK5q0S/7fScjY8jA8R3ltYS4MRH2Bw4rKMzxKJ3q7O4nSD1jqbpCosquyAXcGiMG/D3KHm2XflCnUURdC7jqQ==
 
-"@pulsejs/core@file:../../../packages/pulse-core/dist":
-  version "0.0.0"
+"@pulsejs/core@latest":
+  version "3.5.8"
+  resolved "https://registry.yarnpkg.com/@pulsejs/core/-/core-3.5.8.tgz#63a2212d3d5dd37d72e8296ceefe2a5242fb7832"
+  integrity sha512-EClwlMR/1xEUHMlHpF+QS8+4CKd+ZLzxNxpWL/r/02LvgrRlLexOsWvQ+ji7G7ygDCRNc5gLQXBf1K3f8PHWYA==
 
 "@pulsejs/react@^3.4.2-0":
   version "3.4.2-0"
@@ -8561,7 +8563,7 @@ public-encrypt@^4.0.0:
 "pulse-example-core@file:../core":
   version "1.0.0"
   dependencies:
-    "@pulsejs/core" "file:../../../../../Library/Caches/Yarn/v6/packages/pulse-core/dist"
+    "@pulsejs/core" latest
 
 pump@^2.0.0:
   version "2.0.1"

@@ -1,5 +1,6 @@
 import { config } from 'process';
-import { Pulse, State, Collection, DefaultDataItem, Data } from '../internal';
+import { Pulse } from '../pulse';
+import { State, Collection, DefaultDataItem, Data } from '../internal';
 import { defineConfig, normalizeArray } from '../utils';
 
 export type PrimaryKey = string | number;
@@ -62,7 +63,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     super((context() instanceof Pulse ? context : (context() as Collection<DataType>).instance) as () => Pulse, initialIndex || []);
     if (context() instanceof Collection) this.collection = context as () => Collection<DataType>;
 
-    if (config.name) this.key(config.name);
+    if (config.name) this.key(config.name as string);
     if (config.provisional) this.provisional = config.provisional;
 
     this.type(Array);
@@ -142,8 +143,8 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
       return dataComputed;
 
       // use collection level computed func if local does not exist
-    } else if (this.collection().computedFunc) {
-      let dataComputed = this.collection().computedFunc(data.copy());
+    } else if (this.collection()._computedFunc) {
+      let dataComputed = this.collection()._computedFunc(data.copy());
 
       return dataComputed;
     }

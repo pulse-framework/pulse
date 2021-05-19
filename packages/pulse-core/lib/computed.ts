@@ -1,4 +1,5 @@
-import { Pulse, State, SetFunc } from './internal';
+import { Pulse } from './pulse';
+import { State, SetFunc } from './internal';
 
 export class Computed<ComputedValueType = any> extends State<ComputedValueType> {
   // private cleanup: Set<State> = new Set();

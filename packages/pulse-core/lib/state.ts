@@ -1,4 +1,5 @@
-import { Pulse, Dep } from './internal';
+import { Pulse } from './pulse';
+import { Dep } from './internal';
 import { copy, shallowmerge } from './utils';
 import { deepmerge } from './helpers/deepmerge';
 

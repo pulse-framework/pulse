@@ -17,7 +17,6 @@
   "devDependencies": {
     "@types/react": "^16.9.49",
     "@types/react-test-renderer": "^16.9.3",
-    "react": "^16.13.1",
     "react-test-renderer": "^16.13.1"
   },
   "publishConfig": {

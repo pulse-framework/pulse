@@ -1,5 +1,7 @@
 import { Pulse, State, normalizeDeps, getPulseInstance, Group } from '@pulsejs/core';
-import * as React from 'react';
+import React from 'react';
+
+globalThis.React1 = React;
 
 // usePulse returns the State value, or an array of State values, not the instances themselves.
 // This type will extract the inferred value of State

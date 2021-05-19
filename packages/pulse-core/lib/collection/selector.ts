@@ -62,7 +62,7 @@ export class Selector<
       data = collection.getData(key).value;
     } else {
       // If we have a computed function, run it before returning the data.
-      data = collection.computedFunc ? collection.computedFunc(data) : data;
+      data = collection._computedFunc ? collection._computedFunc(data) : data;
     }
     return data;
   }

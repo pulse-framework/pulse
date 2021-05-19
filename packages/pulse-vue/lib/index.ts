@@ -18,7 +18,9 @@ const VuePulse = new Integration({
           created: function () {
             pulse.subController.registerSubscription(this);
             this.$core = pulse.core;
-            this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['Core']>) => T) => {
+
+            //@ts-ignore
+            this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['core']>) => T) => {
               const stateObj = mapObj(pulse.core);
               return pulse.subController.subscribeWithSubsObject(this, stateObj).props;
             };

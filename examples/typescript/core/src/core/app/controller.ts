@@ -1,4 +1,4 @@
-import { Controller, state } from '@pulsejs/core/lib';
+import { Controller, state } from '@pulsejs/core';
 
 class App extends Controller {
   public state = {

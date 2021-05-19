@@ -1,4 +1,4 @@
-import { Controller, collection, action, state, model, route } from '@pulsejs/core/lib';
+import { Controller, collection, action, state, model, route } from '@pulsejs/core';
 
 // the core module is a file that exports all controllers
 import { app, ui } from '../';
@@ -24,8 +24,8 @@ class Channels extends Controller {
    */
 
   public collection = collection<Channel>()
-    .group('subscribed')
-    .selector('current')
+    .createSelector('current')
+    .createGroup('subscribed')
     // .groups(['subscribed', 'favorites', 'muted', 'authed'])
     // .selectors(['current'])
     .model(
@@ -104,10 +104,4 @@ class Channels extends Controller {
   );
 }
 
-const channels = new Channels();
-
-export default channels;
-
-channels.subscribe('channel_id', NotificationOptions.EVERYTHING);
-
-channels.collection.getGroup('subscribed');
+export const channels = new Channels();

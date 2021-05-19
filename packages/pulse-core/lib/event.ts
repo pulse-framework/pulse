@@ -1,4 +1,4 @@
-import { Pulse } from './internal';
+import { Pulse } from './pulse';
 
 // default event payload
 export type EventPayload = any;

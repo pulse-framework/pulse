@@ -1,4 +1,5 @@
-import { Pulse, State, Computed, CallbackContainer, SubscriptionContainer, Tracker } from './internal';
+import { Pulse } from './pulse';
+import { State, Computed, CallbackContainer, SubscriptionContainer, Tracker } from './internal';
 import { copy } from './utils';
 
 export interface IJob {

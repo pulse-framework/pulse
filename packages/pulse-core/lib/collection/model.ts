@@ -1,4 +1,4 @@
-import { DefaultDataItem } from './collection';
+import { DefaultDataItem } from '../internal';
 
 interface DataPropertyConfig<DataType extends DefaultDataItem> {
   index?: boolean;

@@ -2,10 +2,13 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import Pulse, { usePulse, useWatcher } from '@pulsejs/react';
+import { usePulse } from '@pulsejs/react';
 import { resetState } from '@pulsejs/core';
 
 import core from 'pulse-example-core';
+
+//@ts-ignore
+globalThis.React2 = React;
 
 // const App = new Pulse();
 
@@ -21,11 +24,11 @@ globalThis['core'] = core;
 globalThis['resetState'] = resetState;
 
 function MyApp() {
-  const jeff = usePulse(core.posts.collection.groups.FEED);
+  const jeff = usePulse(core.app.state.assetURL);
 
-  useWatcher(core.accounts.state.SESSION_TOKEN, () => {
-    console.log('token changed!');
-  });
+  // useWatcher(core.ui.state, () => {
+  //   console.log('token changed!');
+  // });
 
   return (
     <div className="App">
@@ -35,7 +38,7 @@ function MyApp() {
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
         <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-          {JSON.stringify(jeff)}
+          {jeff}
         </a>
       </header>
     </div>

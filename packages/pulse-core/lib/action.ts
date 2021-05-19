@@ -1,6 +1,6 @@
 // Actions provide modifiers that can help with function execution
 // Track/Undo class is aliased, however action takes care of self containing multiple instances of track/undo
-import { Pulse } from './internal';
+import { Pulse } from './pulse';
 import { Tracker } from './internal';
 
 // This object contains all trackers created during the execution of an action
