@@ -8,16 +8,9 @@ import { Channel, Subscription, NotificationOptions } from './types';
  * Channel Controller Class
  */
 class Channels extends Controller {
-  /**
-   * Channel State
-   */
   public state = {
     searchValue: state<string | null>(null)
   };
-
-  /**
-   * Channel Collection
-   */
 
   public collection = collection<Channel>()
     .createSelector('current')
@@ -35,9 +28,6 @@ class Channels extends Controller {
     )
     .persist({ db: 'sqlite', table: 'channels' });
 
-  /**
-   * Channel Routes
-   */
   private routes = {
     get: route<Channel>({ method: 'GET', endpoint: '/channel' }),
     subscribe: route<Subscription>({ method: 'GET', endpoint: '/channel/subscribe/:channel_id' }),
