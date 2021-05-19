@@ -41,18 +41,13 @@ class Channels extends Controller {
    */
   public subscribe = action(async ({ onCatch, undo, batch }, channelId: string, notificationOption: NotificationOptions) => {
     onCatch(undo, ui.alert, false);
-
     batch(() => {
       this.collection.put(channelId, ['subscribed']);
       this.collection.update(channelId, { subscription: { notification_options: notificationOption } });
     });
-
     const subscription = await this.routes.subscribe({ params: { channelId: this.collection.getSelector('current').id }, query: { limit: 30 } });
-
     if (!subscription.active) throw 'subscription_not_active';
-
     this.collection.update(channelId, { subscription });
-
     return true;
   });
 
@@ -63,11 +58,8 @@ class Channels extends Controller {
   public getChannel = action(
     async ({ onCatch }, username: string): Promise<Channel | false> => {
       onCatch(ui.alert, false);
-
       const channel = await this.routes.get({ query: { username, includeConnections: true, includeModules: true } });
-
       this.collection.collect(channel, [], { patch: true });
-
       return this.collection.getDataValueByIndex('username', username);
     }
   );
