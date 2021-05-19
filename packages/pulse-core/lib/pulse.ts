@@ -105,7 +105,7 @@ export class Pulse {
    * Create a Pulse Action
    */
   public Action<T extends FuncType>(func: T) {
-    return new Action(() => new Pulse(), func).hoc();
+    return new Action(() => this, func).hoc();
   }
 
   /**
