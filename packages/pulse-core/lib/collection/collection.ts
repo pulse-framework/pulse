@@ -17,9 +17,7 @@ export type GroupObj = { [key: string]: Group<any> };
 export type SelectorObj = { [key: string]: Selector<any> };
 
 // Interface for the collection config object
-export interface CollectionConfig<G, S> {
-  groups?: G;
-  selectors?: S;
+export interface CollectionConfig {
   name?: string;
   primaryKey?: string | number;
   defaultGroup?: boolean;
@@ -27,12 +25,12 @@ export interface CollectionConfig<G, S> {
 
 // An optional type defining config as either an object, or an object that returns a function
 export type Config<DataType = DefaultDataItem, G = GroupObj, S = SelectorObj> =
-  | CollectionConfig<G, S>
-  | ((collection: Collection<DataType>) => CollectionConfig<G, S>);
+  | CollectionConfig
+  | ((collection: Collection<DataType>) => CollectionConfig);
 
 // The collection class, should be created by the Pulse class for functioning types
 export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G extends GroupObj = GroupObj, S extends SelectorObj = SelectorObj> {
-  public config: Required<CollectionConfig<G, S>>;
+  public config: Required<CollectionConfig>;
   // the amount of data items stored inside this collection
   public get size(): number {
     return Object.keys(this.data).length;
@@ -53,18 +51,14 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   // collection config can either be an object of type CollectionConfig or a function that returns CollectionConfig
   constructor(public instance: () => Pulse, config: Config<DataType, G, S>) {
     // if collection config is a function, execute and assign to config
-    if (typeof config === 'function') config = config(this) as CollectionConfig<G, S>;
+    if (typeof config === 'function') config = config(this) as CollectionConfig;
 
     // assign defaults to config object ensuring type safety
     this.config = defineConfig<typeof config>(config, {
       primaryKey: 'id'
     }) as Required<typeof config>;
 
-    // create groups
-    if (this.config.groups) this.initSubInstances('groups');
-    if (this.config.selectors) this.initSubInstances('selectors');
-
-    if (this.config.defaultGroup || !this.config.groups) {
+    if (this.config.defaultGroup) {
       if (!this.groups) this.groups = {} as any;
       this.config.defaultGroup = true;
       this.createGroup('default');

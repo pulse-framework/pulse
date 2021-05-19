@@ -11,8 +11,8 @@
     "build": "tsc"
   },
   "peerDependencies": {
-    "@pulsejs/core": "^3.3.0",
-    "@pulsejs/react": "^3.3.0",
+    "@pulsejs/core": "^3.5.7",
+    "@pulsejs/react": "^3.5.7",
     "react": "^16.13.1"
   },
   "devDependencies": {

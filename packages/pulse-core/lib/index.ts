@@ -1,5 +1,3 @@
 export * from './internal';
-
-import { Pulse } from './internal';
-
+import * as Pulse from './internal';
 export default Pulse;

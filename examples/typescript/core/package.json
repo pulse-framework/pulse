@@ -16,6 +16,6 @@
     "url": "https://github.com/pulse-framework/pulse"
   },
   "dependencies": {
-    "@pulsejs/core": "file:../../../packages/pulse-core/dist"
+    "@pulsejs/core": "latest"
   }
 }

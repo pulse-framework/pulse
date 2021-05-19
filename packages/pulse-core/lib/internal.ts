@@ -1,7 +1,7 @@
 // This file exposes Pulse functions and types to the outside world.
 // It also serves as a cyclic dependency workaround.
 // All internal Pulse modules must import from here.
-export { Pulse } from './pulse';
+export * from './pulse';
 
 // State
 export { State, StateGroup } from './state';
@@ -12,6 +12,7 @@ export { Collection } from './collection/collection';
 export { Group } from './collection/group';
 export { Selector } from './collection/selector';
 export { Data } from './collection/data';
+export * from './collection/model';
 
 // Controllers
 export { Controller } from './controller';

@@ -2,6 +2,8 @@
 import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller, ControllerConfig, FuncObj, StateObj, StatusTracker, Integration, Integrations, Action, FuncType } from './internal';
 import { Tracker } from './tracker';
 import { HistoryItem } from './state';
+import { CollectionConfig } from './collection/collection';
+import { HigherOrderFunc } from './action';
 
 export interface PulseConfig {
   computedDefault?: any;
@@ -31,7 +33,6 @@ export class Pulse {
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
   public errorHandlers: Set<(error: ErrorObject) => void> = new Set();
-
   public history: HistoryItem[] = [];
 
   // integrations
@@ -46,19 +47,19 @@ export class Pulse {
   public _collections: Set<Collection> = new Set();
   private nonce = 0;
   public config: PulseConfig = {};
+
   constructor() {
     this.integrations = new Integrations(() => this);
     this.subController = new SubController(this);
     this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, this.config.storage || {});
-    // if (config.framework) this.initFrameworkIntegration(config.framework);
-    this.globalBind();
 
+    this.globalBind();
     this.integrations.pulseReady();
   }
 
-  private onCoreReady(core?: { [key: string]: any }) {
+  public onCoreReady(core?: { [key: string]: any }) {
     this.ready = true;
 
     // Copy core object structure without destroying this.core object reference
@@ -68,9 +69,22 @@ export class Pulse {
 
     this.integrations.coreReady();
   }
+
   public with(integration: Integration): this {
     this.integrations.use(integration);
     return this;
+  }
+
+  public nextPulse(callback: () => any): void {
+    this.runtime.nextPulse(callback);
+  }
+
+  public track(changeFunc: () => void) {
+    return new Tracker(() => this, changeFunc);
+  }
+
+  public batch(batchFunc: () => void): void {
+    this.runtime.batch(batchFunc);
   }
 
   public setStorage(config: StorageConfig): void {
@@ -80,11 +94,8 @@ export class Pulse {
     this.storage.persistedState.forEach(state => state.persist(state.name));
   }
 
-  public track(changeFunc: () => void) {
-    return new Tracker(() => this, changeFunc);
-  }
-  public batch(batchFunc: () => void): void {
-    this.runtime.batch(batchFunc);
+  public createError(error: any, info?: { fromAction?: any }): void {
+    // handle
   }
 
   /**
@@ -94,14 +105,15 @@ export class Pulse {
     try {
       if (!globalThis.__pulse__) globalThis.__pulse__ = Pulse;
       if (!globalThis.__pulse__app) globalThis.__pulse__app = this;
-    } catch (error) {
-      // fail silently
-    }
+    } catch (error) {} // fail silently
   }
 
   public getNonce() {
     this.nonce++;
     return this.nonce;
+  }
+  public configure(config: PulseConfig) {
+    this.config = config;
   }
 }
 
@@ -110,5 +122,38 @@ export const instance = new Pulse();
 export default instance;
 
 export function state<T>(initialState: T) {
+  if (typeof initialState == 'function') {
+    return new Computed<T>(() => instance, (initialState as unknown) as () => T);
+  }
   return new State<T>(() => instance, initialState);
+}
+
+export function collection<DataType extends DefaultDataItem = DefaultDataItem>(config: CollectionConfig = {}) {
+  const collection = new Collection<DataType, any, any>(() => instance, config);
+  return collection;
+}
+
+export function action<T extends FuncType>(func: T) {
+  return new Action(() => this, func).func();
+}
+
+export function event<P = EventPayload>(config?: EventConfig<P>) {
+  return new Event(() => this, config);
+}
+
+export interface RouteConfig {
+  method?: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
+  endpoint?: string;
+}
+
+export interface CallRouteConfig {
+  params?: Record<string, any>;
+  query?: Record<string, any>;
+  body?: Record<string, any>;
+}
+
+export function route<ResponseType = any>(config?: RouteConfig) {
+  return async (config?: CallRouteConfig): Promise<ResponseType> => {
+    return null;
+  };
 }
