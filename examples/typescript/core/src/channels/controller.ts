@@ -10,6 +10,7 @@ class Channels extends Controller {
   public state = {
     searchValue: state<string | null>(null)
   };
+
   public collection = collection<Channel>()
     .createSelector('current')
     .createGroup('subscribed')
@@ -33,7 +34,7 @@ class Channels extends Controller {
   };
 
   /**
-   * @public Subscribe to channel
+   * @action Subscribe to channel
    * @param {string} channelId - The channel to subscribe to
    * @param {NotificationOption} notificationOption - The notification settings for this subscription
    */
@@ -58,7 +59,7 @@ class Channels extends Controller {
   });
 
   /**
-   * @public Get a channel by username
+   * @action Get a channel by username
    * @param {string} username - The channel username to get
    */
   public getChannel = action(
