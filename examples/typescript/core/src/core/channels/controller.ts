@@ -24,8 +24,10 @@ class Channels extends Controller {
    */
 
   public collection = collection<Channel>()
-    .groups(['subscribed', 'favorites', 'muted', 'authed'])
-    .selectors(['current'])
+    .group('subscribed')
+    .selector('current')
+    // .groups(['subscribed', 'favorites', 'muted', 'authed'])
+    // .selectors(['current'])
     .model(
       data => ({
         // the first occurrence of index() defines the primary key
@@ -35,7 +37,7 @@ class Channels extends Controller {
         // avatar hash is returned by the api, however we want to hide this as it is used for computing
         avatar_hash: model.string().max(100).min(100).hidden().optional(),
         // the compute will only regen if one of its deps changes, otherwise the result is cached
-        avatar: model.if(data.avatar_hash).compute(() => app.state.url.value + data.thumbnail_hash)
+        avatar: model.if(data.avatar_hash).compute(() => app.state.assetURL.value + data.thumbnail_hash)
       }),
       // optional model config
       {
@@ -72,7 +74,7 @@ class Channels extends Controller {
     });
 
     // routes accept parameters, body and query data neatly in an object format
-    const subscription = await this.routes.subscribe({ params: { channelId: this.collection.current.id }, query: { limit: 30 } });
+    const subscription = await this.routes.subscribe({ params: { channelId: this.collection.getSelector('current').id }, query: { limit: 30 } });
 
     // action exists within a try/catch, so you can throw an error code, triggering onCatch
     if (!subscription.active) throw 'subscription_not_active';
@@ -88,16 +90,18 @@ class Channels extends Controller {
    * @param {string} username - The channel username to get
    * This example
    */
-  public getChannel = action(({ onCatch }, username: string): Channel | false => {
-    onCatch(ui.alert, false);
+  public getChannel = action(
+    async ({ onCatch }, username: string): Promise<Channel | false> => {
+      onCatch(ui.alert, false);
 
-    const channel = this.routes.get({ query: { username, includeConnections: true, includeModules: true } });
+      const channel = await this.routes.get({ query: { username, includeConnections: true, includeModules: true } });
 
-    this.collection.collect(channel, { patch: true });
+      this.collection.collect(channel, [], { patch: true });
 
-    // access the data by the username index we provided in the model above
-    return this.collection.getDataValueByIndex('username', username);
-  });
+      // access the data by the username index we provided in the model above
+      return this.collection.getDataValueByIndex('username', username);
+    }
+  );
 }
 
 const channels = new Channels();
@@ -105,4 +109,5 @@ const channels = new Channels();
 export default channels;
 
 channels.subscribe('channel_id', NotificationOptions.EVERYTHING);
-// channels.collectio
+
+channels.collection.getGroup('subscribed');

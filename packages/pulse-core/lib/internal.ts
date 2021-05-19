@@ -10,7 +10,7 @@ export { Computed } from './computed';
 // Collections
 export { Collection } from './collection/collection';
 export { Group } from './collection/group';
-export { Selector } from './collection/selector';
+export { Selector, SelectorName } from './collection/selector';
 export { Data } from './collection/data';
 export * from './collection/model';
 

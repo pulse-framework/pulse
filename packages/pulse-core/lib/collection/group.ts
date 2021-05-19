@@ -21,7 +21,7 @@ interface TrackedChange {
 }
 
 interface GroupConfig {
-  name?: string;
+  name?: GroupName;
   provisional?: boolean;
   lazyBuild?: boolean;
 }

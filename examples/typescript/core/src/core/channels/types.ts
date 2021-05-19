@@ -6,8 +6,8 @@ export interface Channel {
 }
 
 export interface Subscription {
-  id: string;
-  active: boolean;
+  id?: string;
+  active?: boolean;
   notification_options: NotificationOptions;
 }
 

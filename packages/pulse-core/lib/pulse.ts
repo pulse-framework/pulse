@@ -121,15 +121,17 @@ export const instance = new Pulse();
 
 export default instance;
 
-export function state<T>(initialState: T) {
-  if (typeof initialState == 'function') {
-    return new Computed<T>(() => instance, (initialState as unknown) as () => T);
+export function state<T>(initialState: T): State<T>;
+export function state<T>(computedFunc: () => T): Computed<T>;
+export function state<T>(value: T | (() => T)): State<T> | Computed<T> {
+  if (typeof value == 'function') {
+    return new Computed<T>(() => instance, (value as unknown) as () => T);
   }
-  return new State<T>(() => instance, initialState);
+  return new State<T>(() => instance, value);
 }
 
 export function collection<DataType extends DefaultDataItem = DefaultDataItem>(config: CollectionConfig = {}) {
-  const collection = new Collection<DataType, any, any>(() => instance, config);
+  const collection = new Collection<DataType, {}, {}>(() => instance, config);
   return collection;
 }
 

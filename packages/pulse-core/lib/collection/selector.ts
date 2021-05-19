@@ -1,13 +1,13 @@
 import { Computed, Collection, DefaultDataItem, Data, GroupObj, SelectorObj, PrimaryKey } from '../internal';
 
+export type SelectorName = string | number;
+
 export class Selector<
   // Generics
-  DataType extends DefaultDataItem = DefaultDataItem,
-  G extends GroupObj = GroupObj,
-  S extends SelectorObj = SelectorObj
+  DataType extends DefaultDataItem = DefaultDataItem
   //
 > extends Computed<DataType> {
-  protected collection: () => Collection<DataType, G, S>;
+  protected collection: () => Collection<DataType>;
   // this is the selected primary key
   private _id: PrimaryKey = 0;
 
@@ -21,12 +21,12 @@ export class Selector<
     return this._id;
   }
 
-  constructor(collection: () => Collection<DataType, G, S>, key: PrimaryKey) {
+  constructor(collection: () => Collection<DataType>, key: PrimaryKey) {
     // initialize computed constructor with initial compute state
-    super(collection().instance, () => Selector.findData<DataType, G, S>(collection(), key));
+    super(collection().instance, () => Selector.findData<DataType>(collection(), key));
 
     // computed function that returns a given item from collection
-    this.func = () => Selector.findData<DataType, G, S>(collection(), this._id);
+    this.func = () => Selector.findData<DataType>(collection(), this._id);
 
     // alias collection function
     this.collection = collection;
@@ -51,10 +51,7 @@ export class Selector<
     return this.id;
   }
 
-  static findData<DataType extends DefaultDataItem = DefaultDataItem, G extends GroupObj = GroupObj, S extends SelectorObj = SelectorObj>(
-    collection: Collection<DataType, G, S>,
-    key: PrimaryKey
-  ) {
+  static findData<DataType extends DefaultDataItem = DefaultDataItem>(collection: Collection<DataType>, key: PrimaryKey) {
     if (key == undefined) return null;
 
     let data = collection.getData(key).value;
