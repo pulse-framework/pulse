@@ -1,6 +1,6 @@
 module.exports = {
-  title: 'Pulse Framework',
-  description: 'Global state and logic framework for reactive JavaScript applications.',
+  title: 'Pulse',
+  description: 'A global state and logic framework for reactive JavaScript & TypeScript applications.',
   dest: 'dist',
   serviceWorker: true,
   base: '/',

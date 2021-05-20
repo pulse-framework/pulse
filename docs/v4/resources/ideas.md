@@ -60,7 +60,7 @@ enum NotificationOptions {
 
  /**
    * Channel Controller Class
-   * Using classes is optional, however Typescript classes provide a clean structure to organize and build a controller instance.
+   * Using classes is optional, however TypeScript classes provide a clean structure to organize and build a controller instance.
    * The Controller class from which this controller extends provides some basic functions to help work with your controller instance
    */
 class Channels extends Controller () {

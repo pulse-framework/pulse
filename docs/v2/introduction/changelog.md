@@ -101,7 +101,7 @@ Reactive properties on collections are no longer accessible under their type nam
 
 ### Main Improvements Under The Hood
 
-- Written in Typescript
+- Written in TypeScript
 - Improved internal structure
   - Internal architecture now follows a clear structure with an efficient job queuing system. Code broken up into classes to group logic and de-spaghettify code.
 - Added component update squashing

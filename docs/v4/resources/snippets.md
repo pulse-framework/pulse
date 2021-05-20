@@ -6,7 +6,7 @@ title: Snippets
 
 **Install:** bottom-right cog > user snippets > your_language.json
 
-### API Route `Typescript`
+### API Route `TypeScript`
 
 ```json
 {

@@ -33,7 +33,7 @@ const App = new Pulse({
 });
 ```
 
-> Here's a Typescript interface for quick refrence, however each property will be explained in more detail below.
+> Here's a TypeScript interface for quick refrence, however each property will be explained in more detail below.
 
 ```ts
 interface PulseConfig {

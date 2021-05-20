@@ -33,26 +33,28 @@ export class Collection<
   S extends SelectorObj<DataType> = SelectorObj<DataType>
 > {
   public config: Required<CollectionConfig>;
+
+  // collection data is stored here
+  public data: { [key: string]: Data<DataType> } = {};
+  public groups: G = {} as G;
+  public selectors: S = {} as S;
+
+  public _provisionalData: { [key: string]: Data<DataType> } = {};
+  public _provisionalGroups: { [key: string]: Group<DataType> } = {};
+  public _computedFunc?: (data: DataType) => DataType;
+  public _collectFunc?: (data: DataType) => DataType;
+
   // the amount of data items stored inside this collection
   public get size(): number {
     return Object.keys(this.data).length;
   }
 
-  // collection data is stored here
-  public data: { [key: string]: Data<DataType> } = {};
-
+  // a getter to return the default group value
   public get items(): DataType[] {
     const defaultGroup = this.groups?.default;
     if (!defaultGroup) return [];
     return defaultGroup.output;
   }
-
-  public groups: G = {} as G;
-  public selectors: S = {} as S;
-  public _provisionalData: { [key: string]: Data<DataType> } = {};
-  public _provisionalGroups: { [key: string]: Group<DataType> } = {};
-  public _computedFunc?: (data: DataType) => DataType;
-  public _collectFunc?: (data: DataType) => DataType;
 
   // collection config can either be an object of type CollectionConfig or a function that returns CollectionConfig
   constructor(public instance: () => Pulse, config: Config<DataType>) {
@@ -79,26 +81,26 @@ export class Collection<
     return this as this & Collection<DataType, Record<GN, Group<DataType>>, S>;
   }
 
-  /**
-   * Create a selector instance under this collection
-   * @param initialSelection - An initial PrimaryKey (string or number) to select.
-   * Supports selecting data that does not yet exist, will update if that data item is eventually collected.
-   */
-  public createSelector<SN extends SelectorName>(selectorName: SN, initialSelection?: string | number) {
-    const selector = new Selector<DataType>(() => this, initialSelection);
-    this.selectors[selectorName] = (selector as unknown) as S[SN];
-    //@ts-ignore - doesn't error in vscode, but errors at build
-    return this as this & Collection<DataType, G, { [key in SN]: Selector<DataType> }>;
-  }
-
   public createGroups<GroupNames extends GroupName>(groupNames: [GroupNames, ...GroupNames[]]) {
     for (const name of groupNames) this.createGroup(name);
     //@ts-ignore - doesn't error in vscode, but errors at build
     return this as this & Collection<DataType, { [key in GroupNames]: Group<DataType> }, S>;
   }
 
+  /**
+   * Create a selector instance under this collection
+   * @param initialSelection - An initial PrimaryKey (string or number) to select.
+   * Supports selecting data that does not yet exist, will update if that data item is eventually collected.
+   */
+  public selector<SN extends SelectorName>(selectorName: SN, initialSelection?: string | number) {
+    const selector = new Selector<DataType>(() => this, initialSelection);
+    this.selectors[selectorName] = (selector as unknown) as S[SN];
+    //@ts-ignore - doesn't error in vscode, but errors at build
+    return this as this & Collection<DataType, G, { [key in SN]: Selector<DataType> }>;
+  }
+
   public createSelectors<SelectorNames extends SelectorName>(selectorNames: [SelectorNames, ...SelectorNames[]]) {
-    for (const name of selectorNames) this.createSelector(name);
+    for (const name of selectorNames) this.selector(name);
     //@ts-ignore - doesn't error in vscode, but errors at build
     return this as this & Collection<DataType, G, { [key in SelectorNames]: Selector<DataType> }>;
   }
@@ -178,6 +180,7 @@ export class Collection<
 
     for (let groupName of groups) this.instance().runtime.ingest(this.groups[groupName], this.groups[groupName].nextState);
   }
+
   /**
    * Return an item from this collection by primaryKey as Data instance (extends State)
    * @param primaryKey - The primary key of the data
@@ -209,13 +212,16 @@ export class Collection<
   public getGroup(groupName: string): Group<DataType>;
   public getGroup(groupName: keyof G): Group<DataType>;
   public getGroup(groupName: keyof G | string): Group<DataType> {
-    if (this.groups[groupName]) {
-      return this.groups[groupName];
-    } else if (this._provisionalGroups[groupName as GroupName]) {
-      return this._provisionalGroups[groupName as GroupName];
-    } else {
-      return this.createProvisionalGroup(groupName as GroupName);
-    }
+    // if group already exists return that
+    if (this.groups[groupName]) return this.groups[groupName];
+    // if provisional group exists return that
+    else if (this._provisionalGroups[groupName as GroupName]) return this._provisionalGroups[groupName as GroupName];
+    // if no group found create a provisional group
+    else return this.createProvisionalGroup(groupName as GroupName);
+  }
+
+  public getGroupValue(groupName: keyof G | string): DataType[] {
+    return this.getGroup(groupName).output;
   }
 
   /**
@@ -224,6 +230,10 @@ export class Collection<
    */
   public getSelector(selectorName: keyof S): Selector<DataType> {
     return this.selectors[selectorName];
+  }
+
+  public getSelectorValue(selectorName: keyof S): DataType {
+    return this.getSelector(selectorName).value;
   }
 
   private createProvisionalGroup(groupName: GroupName) {

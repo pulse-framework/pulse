@@ -1,20 +1,22 @@
 ---
 home: true
-# actionText: Documentation →
-# actionLink: /v3/
+heroText: 'Pulse 4'
+actionText: Walk me through →
+actionLink: /v4/introduction/what-is-pulse.html
 
 footer: MIT Licensed | Copyright © 2020 - Jamie Pine
 ---
-
 <center>
 
-### [Walk me through...](/v3/introduction/what-is-pulse.html)
+ :tada: Pulse 4 is out now! [See changelog →](/v4/introduction/changelog.html)
 
-Pulse is a global state and logic framework for reactive Typescript & Javascript applications.
+```ts
+const hello = state("the moon is beautiful, isn't it")
+```
+<!-- ### [Walk me through...](/v4/introduction/what-is-pulse.html) -->
 
 With support for React, React Native, Vue, and an API to support more.
 
-[Documentation](/v3/introduction/what-is-pulse.html) / [Changelog](/v3/introduction/changelog.html)
 
 <!-- Using HTML instead of Markdown links because they get themed with an 'external' badge -->
 <!-- TODO: Figure out if there's a way to remove the external badge so we can use sane syntax -->
@@ -45,5 +47,8 @@ With support for React, React Native, Vue, and an API to support more.
   <img src="https://img.shields.io/github/languages/code-size/pulse-framework/pulse.svg" alt="GitHub Code Size"></a>
 <a href="https://github.com/pulse-framework/pulse">
   <img src="https://img.shields.io/github/repo-size/pulse-framework/pulse.svg" alt="GitHub Repo Size"></a>
+
+<br />
+<br />
 
 </center>

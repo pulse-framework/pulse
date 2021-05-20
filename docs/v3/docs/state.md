@@ -84,7 +84,7 @@ The starting value as established in code
 
 ## Methods
 
-Refer to Typescript / Intellisense for detailed param descriptions
+Refer to TypeScript / Intellisense for detailed param descriptions
 
 # `.set()`
 
@@ -112,7 +112,7 @@ MY_STATE.value; // Expected Output: "hello"
 
 # `.type()`
 
-Force State to only allow mutations of provided type. This is different from Typescript as it enforces the type at runtime. Some extensions of State are by default forced to a particular type, such as [Groups]() (Array) and [Data]() (Object).
+Force State to only allow mutations of provided type. This is different from TypeScript as it enforces the type at runtime. Some extensions of State are by default forced to a particular type, such as [Groups]() (Array) and [Data]() (Object).
 
 ```ts
 MY_STATE.type(Boolean);

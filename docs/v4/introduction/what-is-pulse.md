@@ -7,14 +7,24 @@ title: Welcome
 
 ## Introduction
 
-# Pulse Framework `4.0`
+# Pulse `v4.0`
 
 Created by [@jamiepine](https://twitter.com/jamiepine)
 
-> _Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
+Pulse is a global state and logic framework for reactive TypeScript & Javascript applications. Supporting frameworks like VueJS, React and React Native.
+```ts
+import { state } from '@pulsejs/core';
+
+const Hello = state('the sound of music');
+```
+<br/>
 
 <!-- Using HTML instead of Markdown links because they get themed with an 'external' badge -->
 <!-- TODO: Figure out if there's a way to remove the external badge so we can use sane syntax -->
+<a href="https://npm.im/@pulsejs/core">
+  <img src="https://img.shields.io/npm/dm/pulse-framework.svg" alt="npm nonthly downloads"></a>
+<a href="https://npm.im/@pulsejs/core">
+  <img src="https://img.shields.io/npm/dt/pulse-framework.svg" alt="npm total downloads"></a>
 <a href="https://discord.gg/RjG8ShB" target="_blank">
   <img src="https://discordapp.com/api/guilds/658189217746255881/embed.png" alt="Join Discord"></a>
 <a href="https://twitter.com/pulseframework" target="_blank">
@@ -26,21 +36,22 @@ Created by [@jamiepine](https://twitter.com/jamiepine)
 [![Follow Pulse on Twitter](https://img.shields.io/twitter/follow/pulseframework.svg?label=Pulse+on+Twitter)](https://twitter.com/pulseframework)
 [![Follow Jamie Pine on Twitter](https://img.shields.io/twitter/follow/jamiepine.svg?label=Jamie+on+Twitter)](https://twitter.com/jamiepine) -->
 
-```ts
-import { state } from '@pulsejs/core';
 
-const Hello = state('the sound of music');
-```
 
-Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and request libraries such as `Axios`/`Request.js`. Use Pulse to create a **_core_** state & logic library for your application; plug and play directly into any UI Framework.
+## Motivation
+Most state libraries come along with complex syntax, confusing terminology and lack functionality out of the box. 
 
-## Why Pulse?
+### Primary concepts 
+- Business logic should be separated from components*.
+- Data should be stored in one place, as a single source of truth.
+- Business logic should be separated by the data it supports.
+- State should be both mutable and immutable, but clearly differentiated.
+- Code should be simple, readable and upgradable.
 
-Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourages developers to construct a core library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
 
-### Typescript
-
-Pulse is written in Typescript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code, however Pulse can still be used without Typescript.
+::: tip Native support for TypeScript
+Pulse is written in TypeScript and is designed to support it heavily. Everything is typesafe out of the box resulting in maintainable and predictable code, however Pulse can still be used without TypeScript.
+:::
 
 ## Quick Walk-Through
 
@@ -49,7 +60,11 @@ Pulse is written in Typescript and is designed to support it heavily. Everything
 A handy container to store, manipulate and relate data.
 
 ```ts
+import { state } from '@pulsejs/core';
+
 const MyState = state(true);
+
+MyState.value // true
 ```
 
 ...with a range of chainable methods.
@@ -58,12 +73,24 @@ const MyState = state(true);
 MyState.toggle().persist().set().type().watch().reset().undo(); // etc...
 ```
 
+### :six_pointed_star:   React Integration
+usePulse, one among many custom hooks provided by Pulse, allows React components to subscribe to State changes, also works with Computed State, Collections, Data, Groups and Selectors
+```ts
+const MyState = state('hi');
+
+function MyReactComponent() {
+  const myStateValue = usePulse(MyState)
+
+  return <h1>{myStateValue}</h1>;
+}
+```
+
 ### :robot: Computed State
 
 Computed State is an extension of State. It computes a value from a function that you provide, and caches it to avoid unnecessary recomputation.
 
 ```ts
-const MyComputedState = state(() => !!MY_STATE.value);
+const MyComputedState = computed(() => !!MyState.value);
 ```
 
 It will magically recompute when it's dependencies change and can track dependencies automatically or manually.
@@ -75,7 +102,7 @@ A DB/ORM-like class for front-end data collection.
 Collections are designed for arrays of data following the same structure, usually returned from an API. They have handy features to work with that data and act as a single source of truth.
 
 ```ts
-const UserCollection = collection({ primaryKey: 'id' });
+const UserCollection = collection<DataType>({ primaryKey: 'id' });
 
 const users = [
     { id: 1, username: 'jamie' },
@@ -92,12 +119,15 @@ UserCollection.items; // user[]
 Groups handy to provide arrays of collection data and can be used independently in your components.
 
 ```ts
-const UserCollection = collection().createGroup('mine');
+const UserCollection = collection({
+  groups: ['mine', 'following']
+})
 
 UserCollection.collect(data, ['mine']); 
 
 UserCollection.selectors.mine.output; // [{ id: 1, ...}...]
 ```
+_Groups work with usePulse()_
 
 When the index of a Group is modified, it will "rebuild" the `output` with actual collection data.
 
@@ -106,38 +136,59 @@ When the index of a Group is modified, it will "rebuild" the `output` with actua
 Groups handy to provide arrays of collection data and can be used independently in your components.
 
 ```ts
-const UserCollection = collection().createSelector('current');
+const UserCollection = collection({
+  selectors: ['current']
+})
 
 UserCollection.selectors.current.select(2);
 
-const mine = usePulse(UserCollection.selectors.current);
+UserCollection.selectors.current //
 ```
+_Selectors work with usePulse()_
 
 When the index of a Group is modified, it will "rebuild" the `output` with actual collection data.
 
-### :telephone_receiver: Pulse Query 
+### :telephone_receiver: Query Client
 
-Create an API instance to make requests.
+Create an Query Client instance to make requests.
 
 ```ts
-import { createRequestClient, createErrorHandler } from '@pulse/core';
+import { createQueryClient } from '@pulse/core';
+import Axios from 'axios';
 
-createRequestClient((request) => ({
-  
-}))
+createQueryClient({
+  use: Axios,
+  baseURL: state('https://api.notify.me')
+  headers: {
+    Authorization: state((token) => `Bearer ${token}`)
+  }
+})
 ```
 
-Create routes for your API as functions.
+### :warning: Error handling
+Create a global error handler to make sense of errors.
 
 ```ts
-const GetAccount = async () => (await API.get('/account')).data;
+import { createErrorHandler } from '@pulse/core';
+
+createErrorHandler((e, context) => {
+  const error = {};
+
+  // some very simplified error parsing...
+  if (e.message) error.message = e;
+  if (e.code) error.code = e;
+
+  return error
+})
 ```
+The return value must always fit the typing of `ErrorDetails`, so that all subsequent handlers are dealing with the same data structure.
 
-### :floppy_disk: Persisted Storage API — [App.Storage()]()
-
+### :floppy_disk: Persistance
+localStorage integration is automatic, so here's a custom example.
 ```ts
-// localStorage is automatic, so here's a custom example
-App.Storage({
+import { createStorage } from '@pulsejs/core';
+
+createStorage({
   async: true,
   get: AsyncStorage.getItem,
   set: AsyncStorage.setItem,
@@ -145,65 +196,88 @@ App.Storage({
 });
 ```
 
-### :timer_clock: Turn back the clock — [State.undo()]()
-
+### :timer_clock: Turn back the clock 
+State remembers its previous state, and can be reverted at anytime.
 ```ts
-const MY_STATE = App.State('hello');
+const myState = state(true).set(false);
 
-MY_STATE.set('bye');
+myState.undo();
 
-MY_STATE.undo();
+myState.value; // true
+```
+To take that a step further, combined with actions we can track batches of state changes and undo them if something didn't go to plan...
+```ts
+import { state, action, batch } from '@pulsejs/core';
 
-MY_STATE.value; // Expected Output: "hello"
+const myAction = action(async ({ onCatch, undo }) => {
+  onCatch(undo)
+
+  // respond immediately to interaction by mutating local state
+  batch(() => {
+    something.state.myState.set(123);
+    something.collection.put(1, 'newGroup');
+  })
+  
+  // if the asynchronous request below throws an error, onCatch is triggered and the changes are reverted
+  const data = await sendSomeAsyncData();
+})
 ```
 
-### :bus: Events — [App.Event()]()
-
+### :bus: Events
 ```ts
-const ALERT = App.Event();
+import { event } from '@pulsejs/core';
+ 
+const Alert = event<EventPayload>();
 
-ALERT.emit({ message: 'notify events best events!' });
-ALERT.on(renderAlert);
+Alert.emit({ message: 'notify events best events!' });
+Alert.on(renderAlert);
 
-useEvent(ALERT, renderAlert); // React Hook with auto cleanup!
+// React Hook with auto cleanup!
+useEvent(Alert, (payload) => {
+  // render some ui stuff...
+  console.log(payload.message);
+}); 
 
-ALERT.onNext(() => {}) // onetime-use callback useful for event chaining.
+Alert.onNext(() => {}) // one-time use callback
 ```
 
-### :hourglass_flowing_sand: [WIP] CRON Jobs — [App.Job()]()
-
+### :bus: Controllers
 ```ts
-App.Job(60000, () => {
-  // do something
-}).start();
-```
+import { Controller, state, computed, route, action } from '@pulsejs/core';
+ 
+class MyController extends Controller {
+  constructor () {
+    super();
+  }
 
-### :first_quarter_moon: Lifecycle hooks — [State.watch()]() / [App.onReady()]() / [App.nextPulse()]()
+  // define a collection, or many—its up to you!
+  public collection = collection();
 
-```ts
-MY_STATE.watch('name', () => {
-  // do something when MY_STATE changes
-});
+  // define state, these aren't really function examples
+  public state = {
+    myState: state(0),
+    myComputed: computed(() => this.myState.is(true))
+  }
+
+  // define routes
+  public routes = {
+    getPost: route({ method: 'GET', endpoint: 'post/:post_id' })
+  }
+  
+  // define actions
+  public myAction = action(async ({ onCatch }, postId: string) => {
+    onCatch(console.error, alert);
+
+    const data = await this.route.getPost({ params: { post_id: postId } });
+
+    this.collection.collect(data)
+  }) 
+}
 ```
 
 ### :construction: Task queuing for race condition prevention
 ```ts
 App.runtime
-```
-
-### :closed_book: [WIP] Error handling
-A global error handler can be very useful, this is a basic example. App.Action() uses this automatically.
-```ts
-// Set up error handler
-App.onError((error, config) => {
-  console.error('uh oh', error)
-})
-// Usage
-try {
-// do stuff here
-} catch (e) {
-  App.Error(e, { quiet: true });
-}
 ```
 
 ### :leaves: Lightweight (only 37KB) with 0 dependencies

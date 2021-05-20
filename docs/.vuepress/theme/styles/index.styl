@@ -54,6 +54,9 @@ body
   border-right 1px solid $borderColor
   overflow-y auto
 
+
+
+    
 {$contentClass}:not(.custom)
   @extend $wrapper
   > *:first-child
@@ -92,6 +95,8 @@ kbd
   border-bottom solid 0.25rem #ddd
   border-radius 0.15rem
   padding 0 0.15em
+
+
 
 blockquote
   font-size 1rem
@@ -189,6 +194,13 @@ th, td
     .sidebar
       top 0
 
+  .home
+      max-width: 640px;
+
+  .home .hero .action-button 
+      background-color #ef425a
+      border-radius: 30px
+      padding 0.4rem 1.1rem !important
 
 @media (min-width: ($MQMobile + 1px))
   .theme-container.no-sidebar

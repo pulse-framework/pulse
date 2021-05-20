@@ -11,7 +11,7 @@ title: Welcome
 
 Created by [@jamiepine](https://twitter.com/jamiepine)
 
-> _Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
+> _Pulse is a global state and logic framework for reactive TypeScript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
 
 <!-- Using HTML instead of Markdown links because they get themed with an 'external' badge -->
 <!-- TODO: Figure out if there's a way to remove the external badge so we can use sane syntax -->
@@ -38,9 +38,9 @@ Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and r
 
 Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourages developers to construct a core library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
 
-### Typescript
+### TypeScript
 
-Pulse is written in Typescript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code, however Pulse can still be used without Typescript.
+Pulse is written in TypeScript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code, however Pulse can still be used without TypeScript.
 
 ## Quick Walk-Through
 

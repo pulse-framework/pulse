@@ -16,7 +16,7 @@ const App = new Pulse();
 const ALERT = App.Event();
 ```
 
-::: tip Typescript: Payload Type
+::: tip TypeScript: Payload Type
 Events support an optional generic parameter for the payload type, providing typesafety and VScode intellisense when using your Event.
 ```ts
 const ALERT = App.Event<{ message: string }>();

@@ -33,14 +33,14 @@ const Users = App.Collection()();
 This will create a Collection instance, but without any Groups, Selectors or configuration. We've called this collection "Users" for the purposes of this documentation.
 
 ::: tip Collections use a double parentheses syntax.
-This is to compensate for a Typescript caveat with partially inferred generics. The first parentheses allow the generic `DataType` to be passed explicitly, while the second infers types from the config function. [Learn More]()
+This is to compensate for a TypeScript caveat with partially inferred generics. The first parentheses allow the generic `DataType` to be passed explicitly, while the second infers types from the config function. [Learn More]()
 
 ```ts
 const Users = App.Collection<DataType>()();
 ```
 :::
 
-### With a Typescript interface
+### With a TypeScript interface
 
 ```ts
 // This interface describes an arbitrary data structure for a "user".
@@ -83,7 +83,7 @@ const Users = App.Collection()(({ Group, Selector }) => ({
 | `groups?`       | `Object` of `Group`    |  An object of Group instances.                                                                                                    | N/A     | 
 | `selectors?`    | `Object` of `Selector` |                  An object of Selector instances.                                                                                    | N/A     |
 
-::: tip Typescript: Groups and Selectors infer types from config
+::: tip TypeScript: Groups and Selectors infer types from config
 Collections will infer the types for groups and selectors automatically from the config object. Meaning you do not need to write custom interfaces to have type safety and Intellisense when using your Collection instance.
 :::
 
@@ -125,7 +125,7 @@ Users.groups.myGroup.index; // same as above but 1:1 with output
 `Group.index` is always 1:1 with `Group.output`, while `Group.value` contains the primary keys desired to be in a Group, even if they don't exist in the Collection.
 
 ### Create Groups dynamically
-It's a common pattern in Pulse to create groups dynamically (This means after the Collection has been defined). Though in Typescript these Groups will not be part of the Collection type.
+It's a common pattern in Pulse to create groups dynamically (This means after the Collection has been defined). Though in TypeScript these Groups will not be part of the Collection type.
 
 ```js
 const newGroup = Users.Group([1, 2, 3]);

@@ -39,7 +39,7 @@ See updated integration with [React](../getting-started/setup-with-react.html) a
 - API class will allow you to set content-type, previously it forced auto detection.
 - [State.interval()]() now returns _this_, saves interval id locally and provides [`State.clearInterval()`]().
 - Collection's default group will not be auto created unless specified in config OR no groups are provided at initialization.
-- **Typescript:** [usePulse()]() when used with Groups has working types.
+- **TypeScript:** [usePulse()]() when used with Groups has working types.
 
 
 Big improvements to documentation!
@@ -105,7 +105,7 @@ const Hello = App.State<string>('the sound of music');
 See full [documentation]() for everything new!
 
 - Complete rewrite
-- Fully **typesafe**, written in Typescript. (Intellisense for TS users!)
+- Fully **typesafe**, written in TypeScript. (Intellisense for TS users!)
 - **Modular syntax** for better control and efficiency.
 - **70%** reduction on code bundle size.
 - **usePulse** React Hook.
@@ -119,7 +119,7 @@ See full [documentation]() for everything new!
 
 > The mechanics are simpler, yet the function is stronger.
 
-- Employing Typescript from the start has lead to stabler, testable code.
+- Employing TypeScript from the start has lead to stabler, testable code.
 - Architectural changes have allowed for a huge code reduction.
 - The State class is the foundation for everything and the only class the Pulse Runtime will handle.
 - Groups, Computed, Selectors and Collection Data all extend the State class.

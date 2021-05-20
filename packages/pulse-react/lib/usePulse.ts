@@ -5,7 +5,7 @@ globalThis.React1 = React;
 
 // usePulse returns the State value, or an array of State values, not the instances themselves.
 // This type will extract the inferred value of State
-// We use a Typescript ternary to detect which type of Pulse class we're working with.
+// We use a TypeScript ternary to detect which type of Pulse class we're working with.
 export type PulseValue<T> = T extends Group<infer U> ? U[] : T extends State<infer U> ? U : never;
 export type PulseValueArray<T> = { [K in keyof T]: T[K] extends Group<infer U> ? U[] : T[K] extends State<infer U> ? U : never };
 
