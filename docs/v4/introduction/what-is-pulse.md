@@ -58,40 +58,55 @@ _*In small scale applications you might not need to separate business logic, and
 
 
 ### It could look something like this...
+In this example we create a data model, a collection to store data to fit that model, a route to fetch data and an action to tie it all together.
 
 _[Skip ahead]() for a breakdown on the individual concepts._
 ```ts
-import { Controller, state, computed, route, action, model } from '@pulsejs/core';
+import { state, computed, route, action, model } from '@pulsejs/core'
 
-// describe a data structure for this controller
+// describe a data structure
 export const User = model.create({
   id: model.primaryKey(),
   username: model.string().min(3).max(20),
+  verified: model.bool().optional()
 })
 
 // create a collection to store users
-export const collection = collection(User)
+export const users = collection(User)
 
-// define API routes that can be used by this controller 
+// define API routes to query relevant data
 export const routes = {
   getUser: route({ method: 'GET', endpoint: 'user/:user_id' })
 }
 
 // define an action to get the user
-export const getUser = action(async ({ onCatch }, userId: string) => {
-  onCatch(console.error);
+export const getUser = action(async ({ onCatch }, userId) => {
+  onCatch(console.error)
 
-  const user = await routes.getUser({ params: { user_id: userId } });
+  const user = await routes.getUser({ params: { user_id: userId } })
 
-  collection.collect(user)
+  users.collect(user)
 });
 ```
+
+For Typescript users, the collection is completely type-safe and inferred directly from the model.
+```ts
+type User = {
+  id: string;
+  username: string;
+  verified?: boolean;
+}
+```
+
+This is but a small example of the power of Pulse, lets go over a few more features before you dive into the rest of the documentation.
 
 ## Quick Walk-Through
 
 ### :zap: **State** 
 
-A handy container to store, manipulate and relate data.
+A handy container to store, manipulate and relate data. 
+
+State is the foundation of Pulse with many other features extending the functionality of State.
 
 ```ts
 import { state } from '@pulsejs/core';
@@ -101,14 +116,14 @@ const MyState = state(true);
 MyState.value // true
 ```
 
-...with a range of chainable methods.
+State comes with a range of chainable methods.
 
 ```js
 MyState.toggle().persist().set().type().watch().reset().undo(); // etc...
 ```
 
 ### :six_pointed_star:   React Integration
-usePulse, one among many custom hooks provided by Pulse, allows React components to subscribe to State changes, also works with Computed State, Collections, Data, Groups and Selectors
+usePulse, one among many custom hooks provided by Pulse, allowing React components to subscribe to State changes. It also works with Computed State, Collections, Data, Groups and Selectors.
 ```ts
 const MyState = state('hi');
 
