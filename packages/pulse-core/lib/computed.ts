@@ -18,6 +18,8 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
   constructor(public instance: () => Pulse, public func: () => ComputedValueType, public deps?: Array<State>) {
     super(instance, instance().config.computedDefault || null);
 
+    instance()._computed.add(this);
+
     if (typeof func !== 'function') throw new TypeError('A compute function must be provided to Computed.');
 
     if (deps) deps.forEach(state => state.dep.depend(this));

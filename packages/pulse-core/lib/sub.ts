@@ -89,7 +89,6 @@ export class SubController {
       // Add State to SubscriptionContainer Subs
       if (state instanceof Collection) {
         const collection = state as Collection;
-        // @ts-expect-error
         if (collection.groups['default']) state = collection.getGroup('default');
         else throw 'usePulse error, Collection has no default group';
       }

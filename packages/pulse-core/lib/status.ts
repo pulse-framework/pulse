@@ -14,13 +14,15 @@ const initialData: StatusObjectData = {
 
 export class StatusTracker {
   //@ts-ignore
-  public state: State<{ [key: string]: StatusObjectData }> = new State<ins>({});
+  public state: State<{ [key: string]: StatusObjectData }>;
 
   public get all(): { [key: string]: StatusObjectData } {
     return this.state.value;
   }
 
-  constructor(private instance: () => Pulse) {}
+  constructor(private instance: () => Pulse) {
+    this.state = new State(instance, {});
+  }
 
   public get(key: string): StatusObjectData {
     return this?.state?.value[key];

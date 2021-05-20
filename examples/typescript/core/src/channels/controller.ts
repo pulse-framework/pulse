@@ -12,8 +12,8 @@ class Channels extends Controller {
   };
 
   public collection = collection<Channel>()
+    .createGroups(['subscribed', 'muted', 'previous'])
     .createSelector('current')
-    .createGroup('subscribed')
     .model(
       data => ({
         id: model.index().string(),
@@ -75,3 +75,6 @@ class Channels extends Controller {
 }
 
 export const channels = new Channels();
+
+channels.collection.selectors.current;
+channels.collection.groups.subscribed;

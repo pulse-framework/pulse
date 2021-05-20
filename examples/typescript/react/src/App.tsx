@@ -8,27 +8,10 @@ import { resetState } from '@pulsejs/core';
 import core from 'pulse-example-core';
 
 //@ts-ignore
-globalThis.React2 = React;
-
-// const App = new Pulse();
-
-// const JEFF = App.State(0);
-
-// JEFF.interval(val => ++val);
-
-// const core = App.Core({ JEFF });
-
-//@ts-ignore
 globalThis['core'] = core;
-//@ts-ignore
-globalThis['resetState'] = resetState;
 
 function MyApp() {
   const jeff = usePulse(core.app.state.assetURL);
-
-  // useWatcher(core.ui.state, () => {
-  //   console.log('token changed!');
-  // });
 
   return (
     <div className="App">

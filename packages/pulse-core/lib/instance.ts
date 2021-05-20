@@ -42,3 +42,10 @@ export function route<ResponseType = any>(config?: RouteConfig) {
     return null;
   };
 }
+
+export const core = instance.core;
+export const nextPulse = instance.nextPulse;
+export const track = instance.track;
+export const batch = instance.batch;
+export const setStorage = instance.setStorage;
+export const configure = instance.configure;

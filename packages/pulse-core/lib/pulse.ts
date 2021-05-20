@@ -1,5 +1,6 @@
 // prettier-ignore
 import { State, StateGroup, Computed, Collection, GroupObj, DefaultDataItem, SelectorObj, Config, SubController, Runtime, Storage, Event, EventPayload, EventConfig, EventsObjFunc, StorageConfig, API, APIConfig, Group, Controller,   Action, FuncType, Integrations, Integration, Tracker, HistoryItem, CollectionConfig } from './internal';
+import StatusTracker from './status';
 
 export interface PulseConfig {
   computedDefault?: any;
@@ -24,7 +25,7 @@ interface ErrorObject {
 export class Pulse {
   public ready: boolean = false;
   public runtime: Runtime;
-  // public status: StatusTracker;
+  public status: StatusTracker;
   public storage: Storage;
   public controllers: { [key: string]: any } = {};
   public subController: SubController;
@@ -47,7 +48,7 @@ export class Pulse {
   constructor() {
     this.integrations = new Integrations(() => this);
     this.subController = new SubController(this);
-    // this.status = new StatusTracker(() => this);
+    this.status = new StatusTracker(() => this);
     this.runtime = new Runtime(this);
     this.storage = new Storage(() => this, this.config.storage || {});
 

@@ -27,7 +27,11 @@ export interface CollectionConfig {
 export type Config<DataType = DefaultDataItem> = CollectionConfig | ((collection: Collection<DataType>) => CollectionConfig);
 
 // The collection class, should be created by the Pulse class for functioning types
-export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G extends GroupObj<DataType> = {}, S extends SelectorObj<DataType> = {}> {
+export class Collection<
+  DataType extends DefaultDataItem = DefaultDataItem,
+  G extends GroupObj<DataType> = GroupObj<DataType>,
+  S extends SelectorObj<DataType> = SelectorObj<DataType>
+> {
   public config: Required<CollectionConfig>;
   // the amount of data items stored inside this collection
   public get size(): number {
@@ -63,13 +67,6 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     if (this.config.defaultGroup) this.createGroup('default');
   }
 
-  // public create = {
-  //   group: this.createGroup.bind(this) as Collection<DataType, G, S>['createGroup'],
-  //   groups: this.createGroups.bind(this) as Collection<DataType, G, S>['createGroups'],
-  //   selector: this.createSelector.bind(this) as Collection<DataType, G, S>['createSelector'],
-  //   selectors: this.createSelectors.bind(this) as Collection<DataType, G, S>['createSelectors']
-  // };
-
   /**
    *  Create a group instance under this collection
    * @param initialIndex - An optional array of primary keys to initialize this groups with.
@@ -78,8 +75,8 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
     // if (this.groups[groupName]) return this;
     const group = new Group<DataType>(() => this, initialIndex, { name: groupName });
     this.groups[groupName] = (group as unknown) as G[GN];
-    //@ts-ignore
-    return this as this & Collection<DataType, { [key in GN]: Group<DataType> }, S>;
+    //@ts-ignore - doesn't error in vscode, but errors at build
+    return this as this & Collection<DataType, Record<GN, Group<DataType>>, S>;
   }
 
   /**
@@ -90,12 +87,21 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
   public createSelector<SN extends SelectorName>(selectorName: SN, initialSelection?: string | number) {
     const selector = new Selector<DataType>(() => this, initialSelection);
     this.selectors[selectorName] = (selector as unknown) as S[SN];
-    //@ts-ignore
+    //@ts-ignore - doesn't error in vscode, but errors at build
     return this as this & Collection<DataType, G, { [key in SN]: Selector<DataType> }>;
   }
 
-  public createGroups<GroupNames extends GroupName[]>() {}
-  public createSelectors<SelectorNames extends SelectorName[]>() {}
+  public createGroups<GroupNames extends GroupName>(groupNames: [GroupNames, ...GroupNames[]]) {
+    for (const name of groupNames) this.createGroup(name);
+    //@ts-ignore - doesn't error in vscode, but errors at build
+    return this as this & Collection<DataType, { [key in GroupNames]: Group<DataType> }, S>;
+  }
+
+  public createSelectors<SelectorNames extends SelectorName>(selectorNames: [SelectorNames, ...SelectorNames[]]) {
+    for (const name of selectorNames) this.createSelector(name);
+    //@ts-ignore - doesn't error in vscode, but errors at build
+    return this as this & Collection<DataType, G, { [key in SelectorNames]: Selector<DataType> }>;
+  }
 
   public model(config: (...args: any) => any, options: Record<string, any>) {
     return this;
@@ -200,7 +206,9 @@ export class Collection<DataType extends DefaultDataItem = DefaultDataItem, G ex
    * Return an group from this collection as Group instance (extends State)
    * @param groupName - The name of your group
    */
-  public getGroup(groupName: keyof G): Group<DataType> {
+  public getGroup(groupName: string): Group<DataType>;
+  public getGroup(groupName: keyof G): Group<DataType>;
+  public getGroup(groupName: keyof G | string): Group<DataType> {
     if (this.groups[groupName]) {
       return this.groups[groupName];
     } else if (this._provisionalGroups[groupName as GroupName]) {
