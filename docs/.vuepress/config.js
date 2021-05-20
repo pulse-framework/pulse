@@ -9,8 +9,8 @@ module.exports = {
     logo: '/logo.svg',
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Documentation', link: '/v3/introduction/what-is-pulse' },
-      { text: 'Changelog', link: '/v3/introduction/changelog' }
+      { text: 'Documentation', link: '/v4/introduction/what-is-pulse' },
+      { text: 'Changelog', link: '/v4/introduction/changelog' }
     ],
     lastUpdated: 'Last Updated',
     // Assumes GitHub. Can also be a full GitLab url.
@@ -113,6 +113,44 @@ module.exports = {
         }
       ],
       '/v3/': [
+        {
+          title: 'Introduction',
+          collapsable: false,
+          children: ['introduction/what-is-pulse', 'introduction/changelog']
+        },
+        {
+          title: 'Getting Started',
+          collapsable: false,
+          children: [
+            'getting-started/concepts',
+            'getting-started/setup-with-react',
+            'getting-started/setup-with-vue',
+            'getting-started/setup-with-next'
+          ]
+        },
+        {
+          title: 'Documentation',
+          collapsable: false,
+          children: [
+            'docs/pulse-instance',
+            'docs/state',
+            'docs/computed',
+            'docs/collections',
+            'docs/actions',
+            'docs/controllers',
+            'docs/core',
+            'docs/api',
+            'docs/persisting-data',
+            'docs/events'
+          ]
+        },
+        {
+          title: 'Resources',
+          collapsable: false,
+          children: ['resources/snippets', 'getting-started/style-guide', 'resources/ideas']
+        }
+      ],
+      '/v4/': [
         {
           title: 'Introduction',
           collapsable: false,
