@@ -70,7 +70,7 @@ export const User = model.create({
 })
 
 // create a collection to store users
-export const collection = collection(User).config({ selectors: ['current'] })
+export const collection = collection(User)
 
 // define API routes that can be used by this controller 
 export const routes = {
@@ -81,20 +81,10 @@ export const routes = {
 export const getUser = action(async ({ onCatch }, userId: string) => {
   onCatch(console.error);
 
-  const user = await this.routes.getUser({ params: { user_id: userId } });
+  const user = await routes.getUser({ params: { user_id: userId } });
 
-  this.collection.collect(user)
-  this.collection.selectors.current.select(user.id)
+  collection.collect(user)
 });
-
-export const current = collection.selectors.current;
-```
-```ts
-import * as users from './controller';
-
-await users.getUser(1234);
-
-users.current.value // current user
 ```
 
 ## Quick Walk-Through
@@ -335,32 +325,3 @@ yarn add @pulsejs/vue // Vue integration
 yarn add @pulsejs/next // Next integration
 ```
 ### :yellow_heart: Well documented (I'm getting there...)
-
-
-```ts
-import { Controller, state, computed, route, action, model } from '@pulsejs/core';
-
-class User extends Controller {
-
-  // describe a data structure for this controller
-  model = {
-    id: model.primaryKey().required(),
-    username: model.string().min(3).max(20),
-  }
-
-  // create a collection to store users
-  users = collection({ model: this.model })
-
-  // define API routes that can be used by this controller 
-  routes = {
-    getUser: route({ method: 'GET', endpoint: 'user/:user_id' })
-  }
-  
-  myAction = action(async ({ onCatch }, userId: string) => {
-    onCatch(console.error);
-
-    const user = await this.routes.getUser({ params: { user_id: userId } });
-    this.collection.collect(user)
-  }) 
-}
-```
