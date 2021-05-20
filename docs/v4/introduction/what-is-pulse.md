@@ -50,44 +50,52 @@ Most state libraries come along with complex syntax, confusing terminology and l
 
 While Pulse is modular, and you can use it selectively anywhere, its best used to create a `core`; we define this as a singular application, class or object that contains all the state, actions, data models and request handlers for your application.
 
+::: tip Native support for TypeScript
+Pulse is written in TypeScript and is designed to support it heavily. Everything is typesafe out of the box resulting in maintainable and predictable code, however Pulse can still be used without TypeScript.
+:::
+
 _*In small scale applications you might not need to separate business logic, and other solutions such as [React Query]() might be better suited. You should make this decision based on if you intend to use your core in multiple projects, or you want the freedom to replace components or even your entire UI in the future._
 
 
 ### It could look something like this...
-A class based controller example. Classes are optional, objects or const exports are great alternatives.
 
 _[Skip ahead]() for a breakdown on the individual concepts._
 ```ts
 import { Controller, state, computed, route, action, model } from '@pulsejs/core';
 
-class User extends Controller {
+// describe a data structure for this controller
+export const User = model.create({
+  id: model.primaryKey(),
+  username: model.string().min(3).max(20),
+})
 
-  // describe a data structure for this controller
-  model = {
-    id: model.primaryKey().required(),
-    username: model.string().min(3).max(20),
-  }
+// create a collection to store users
+export const collection = collection(User).config({ selectors: ['current'] })
 
-  // create a collection to store users
-  users = collection({ model: this.model })
-
-  // define API routes that can be used by this controller 
-  routes = {
-    getUser: route({ method: 'GET', endpoint: 'user/:user_id' })
-  }
-  
-  myAction = action(async ({ onCatch }, userId: string) => {
-    onCatch(console.error);
-
-    const user = await this.routes.getUser({ params: { user_id: userId } });
-    this.collection.collect(user)
-  }) 
+// define API routes that can be used by this controller 
+export const routes = {
+  getUser: route({ method: 'GET', endpoint: 'user/:user_id' })
 }
-```
 
-::: tip Native support for TypeScript
-Pulse is written in TypeScript and is designed to support it heavily. Everything is typesafe out of the box resulting in maintainable and predictable code, however Pulse can still be used without TypeScript.
-:::
+// define an action to get the user
+export const getUser = action(async ({ onCatch }, userId: string) => {
+  onCatch(console.error);
+
+  const user = await this.routes.getUser({ params: { user_id: userId } });
+
+  this.collection.collect(user)
+  this.collection.selectors.current.select(user.id)
+});
+
+export const current = collection.selectors.current;
+```
+```ts
+import * as users from './controller';
+
+await users.getUser(1234);
+
+users.current.value // current user
+```
 
 ## Quick Walk-Through
 
@@ -327,3 +335,32 @@ yarn add @pulsejs/vue // Vue integration
 yarn add @pulsejs/next // Next integration
 ```
 ### :yellow_heart: Well documented (I'm getting there...)
+
+
+```ts
+import { Controller, state, computed, route, action, model } from '@pulsejs/core';
+
+class User extends Controller {
+
+  // describe a data structure for this controller
+  model = {
+    id: model.primaryKey().required(),
+    username: model.string().min(3).max(20),
+  }
+
+  // create a collection to store users
+  users = collection({ model: this.model })
+
+  // define API routes that can be used by this controller 
+  routes = {
+    getUser: route({ method: 'GET', endpoint: 'user/:user_id' })
+  }
+  
+  myAction = action(async ({ onCatch }, userId: string) => {
+    onCatch(console.error);
+
+    const user = await this.routes.getUser({ params: { user_id: userId } });
+    this.collection.collect(user)
+  }) 
+}
+```
