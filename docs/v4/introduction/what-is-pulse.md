@@ -15,7 +15,7 @@ Pulse is a global state and logic framework for reactive TypeScript & Javascript
 ```ts
 import { state } from '@pulsejs/core';
 
-const Hello = state('the sound of music');
+const hello = state('the sound of music');
 ```
 <br/>
 
@@ -39,15 +39,51 @@ const Hello = state('the sound of music');
 
 
 ## Motivation
-Most state libraries come along with complex syntax, confusing terminology and lack functionality out of the box. 
+Most state libraries come along with complex syntax, confusing terminology and lack functionality out of the box. Pulse gets straight to the point providing not only the tools needed to create small and large scale applications, but also a structure to ensure you follow best practices.  
 
 ### Primary concepts 
-- Business logic should be separated from components*.
+- Business logic should be separated from UI components*.
 - Data should be stored in one place, as a single source of truth.
 - Business logic should be separated by the data it supports.
 - State should be both mutable and immutable, but clearly differentiated.
 - Code should be simple, readable and upgradable.
 
+While Pulse is modular, and you can use it selectively anywhere, its best used to create a `core`; we define this as a singular application, class or object that contains all the state, actions, data models and request handlers for your application.
+
+_*In small scale applications you might not need to separate business logic, and other solutions such as [React Query]() might be better suited. You should make this decision based on if you intend to use your core in multiple projects, or you want the freedom to replace components or even your entire UI in the future._
+
+
+### It could look something like this...
+A class based controller example. Classes are optional, objects or const exports are great alternatives.
+
+_[Skip ahead]() for a breakdown on the individual concepts._
+```ts
+import { Controller, state, computed, route, action, model } from '@pulsejs/core';
+
+class User extends Controller {
+
+  // describe a data structure for this controller
+  model = {
+    id: model.primaryKey().required(),
+    username: model.string().min(3).max(20),
+  }
+
+  // create a collection to store users
+  users = collection({ model: this.model })
+
+  // define API routes that can be used by this controller 
+  routes = {
+    getUser: route({ method: 'GET', endpoint: 'user/:user_id' })
+  }
+  
+  myAction = action(async ({ onCatch }, userId: string) => {
+    onCatch(console.error);
+
+    const user = await this.routes.getUser({ params: { user_id: userId } });
+    this.collection.collect(user)
+  }) 
+}
+```
 
 ::: tip Native support for TypeScript
 Pulse is written in TypeScript and is designed to support it heavily. Everything is typesafe out of the box resulting in maintainable and predictable code, however Pulse can still be used without TypeScript.

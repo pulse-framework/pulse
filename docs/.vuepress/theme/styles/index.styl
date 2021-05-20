@@ -8,7 +8,7 @@
 html, body
   padding 0
   margin 0
-  background-color #fff
+  background-color $BgColor
 
 body
   font-family -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif
@@ -27,7 +27,7 @@ body
   left 0
   right 0
   height $navbarHeight
-  background-color #fff
+  background-color $BgColor
   box-sizing border-box
   border-bottom 1px solid $borderColor
 
@@ -42,7 +42,7 @@ body
 
 .sidebar
   font-size 16px
-  background-color #fff
+  background-color $BgColor
   width $sidebarWidth
   position fixed
   z-index 10
@@ -54,7 +54,12 @@ body
   border-right 1px solid $borderColor
   overflow-y auto
 
-
+a.sidebar-link
+  color #788ba1 !important
+  &.active 
+    color #fff !important
+  &:hover 
+    color #fff !important
 
     
 {$contentClass}:not(.custom)
@@ -88,6 +93,11 @@ a
 p a code
   font-weight 400
   color $accentColor
+
+p a
+  color $accentColor
+
+
 
 kbd
   background #eee
@@ -202,6 +212,8 @@ th, td
       border-radius: 30px
       padding 0.4rem 1.1rem !important
 
+
+
 @media (min-width: ($MQMobile + 1px))
   .theme-container.no-sidebar
     .sidebar
@@ -209,5 +221,7 @@ th, td
 
     .page
       padding-left 0
+
+
 
 @require 'mobile.styl'
