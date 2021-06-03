@@ -92,7 +92,7 @@ export class Collection<
    * @param initialSelection - An initial PrimaryKey (string or number) to select.
    * Supports selecting data that does not yet exist, will update if that data item is eventually collected.
    */
-  public selector<SN extends SelectorName>(selectorName: SN, initialSelection?: string | number) {
+  public createSelector<SN extends SelectorName>(selectorName: SN, initialSelection?: string | number) {
     const selector = new Selector<DataType>(() => this, initialSelection);
     this.selectors[selectorName] = (selector as unknown) as S[SN];
     //@ts-ignore - doesn't error in vscode, but errors at build
@@ -100,7 +100,7 @@ export class Collection<
   }
 
   public createSelectors<SelectorNames extends SelectorName>(selectorNames: [SelectorNames, ...SelectorNames[]]) {
-    for (const name of selectorNames) this.selector(name);
+    for (const name of selectorNames) this.createSelector(name);
     //@ts-ignore - doesn't error in vscode, but errors at build
     return this as this & Collection<DataType, G, { [key in SelectorNames]: Selector<DataType> }>;
   }

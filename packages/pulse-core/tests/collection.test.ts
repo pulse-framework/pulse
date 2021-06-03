@@ -1,4 +1,4 @@
-import Pulse, { Collection, Group, Data, Selector } from '../lib';
+import Pulse, { Collection, Group, Data, Selector, collection } from '../lib';
 
 interface ExampleData {
   id: string;
@@ -20,16 +20,10 @@ function createExampleDataArray() {
   return arr;
 }
 
-beforeAll(() => {
-  App = new Pulse({ noCore: true });
-});
-
 beforeEach(() => {
-  MyCollection = App.Collection<ExampleData>()(collection => ({
-    defaultGroup: true,
-    groups: { explicitlyDefinedGroup: collection.Group() },
-    selectors: { mySelector: collection.Selector() }
-  }));
+  MyCollection = collection<ExampleData>().createGroup('explicitlyDefinedGroup').createSelector('mySelector');
+
+  MyCollection;
 });
 
 describe('Collections', () => {

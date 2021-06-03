@@ -38,11 +38,11 @@ export class State<ValueType = any> {
   // // for extended classes to store a derived value, such as Group
   // public output?: any;
   // getter and setter for the State value, best for I/O binding
-  public set bind(value: ValueType) {
+  public set mutable(value: ValueType) {
     this.set(value);
   }
-  public get bind(): ValueType {
-    return this._value;
+  public get mutable(): ValueType {
+    return this.value;
   }
   // is value truthey or falsey
   public get exists(): boolean {
