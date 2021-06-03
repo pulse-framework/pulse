@@ -220,7 +220,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
     this.trackChange({ index, key: primaryKey, method: TrackedChangeMethod.UPDATE });
 
-    this.set(undefined, { _caller: this.add });
+    this.set();
   }
 }
 
