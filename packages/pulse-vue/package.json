@@ -1,6 +1,6 @@
 {
   "name": "@pulsejs/vue",
-  "version": "4.0.0-beta.1",
+  "version": "4.0.0-beta.2",
   "author": "Jamie Pine",
   "license": "MIT",
   "description": "Vue integration for PulseJS",
