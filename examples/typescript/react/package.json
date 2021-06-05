@@ -15,8 +15,8 @@
     "react-scripts": "3.4.3",
     "typescript": "~3.7.2",
     "pulse-example-core": "file:../core",
-    "@pulsejs/core": "^3.4.2-0",
-    "@pulsejs/react": "^3.4.2-0"
+    "@pulsejs/core": "^4.0.0-beta.1",
+    "@pulsejs/react": "^4.0.0-beta.1"
   },
   "scripts": {
     "start": "react-scripts start",
