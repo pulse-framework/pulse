@@ -201,7 +201,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
     if (index == -1) return this;
 
-    if (options.softRebuild) this.trackChange({ index, method: TrackedChangeMethod.REMOVE });
+    if (options.softRebuild) this.trackChange({ index, key: primaryKey, method: TrackedChangeMethod.REMOVE });
 
     value.splice(index, 1);
 
