@@ -1,5 +1,5 @@
 import Pulse from './pulse';
-import { State, Computed, DefaultDataItem, CollectionConfig, Collection, FuncType, Action, EventPayload, EventConfig, Event } from './internal';
+import { State, Computed, DefaultDataItem, CollectionConfig, Collection, FuncType, Action, EventPayload, EventConfig, Event, API } from './internal';
 
 // create global instance
 export const instance = new Pulse();
@@ -28,18 +28,46 @@ export function event<P = EventPayload>(config?: EventConfig<P>) {
 
 export interface RouteConfig {
   method?: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
-  endpoint?: string;
+  headers?: RequestInit['headers']
+  baseURL?: string;
 }
 
 export interface CallRouteConfig {
   params?: Record<string, any>;
   query?: Record<string, any>;
   body?: Record<string, any>;
+  path?: string
 }
 
 export function route<ResponseType = any>(config?: RouteConfig) {
-  return async (config?: CallRouteConfig): Promise<ResponseType> => {
-    return null;
+  const _api = new API({
+    options: {
+      headers: config.headers,
+    },
+    baseURL: config.baseURL,
+  });
+  return async (inConfig?: CallRouteConfig): Promise<ResponseType> => {
+    const api = _api.with({
+      options: {
+        headers: config.headers
+      }
+    })
+
+    switch (config.method) {
+      case 'DELETE':
+       return api.delete(inConfig.path).then()
+      case 'GET':
+        return api.get(inConfig.path + inConfig.query ? `?${inConfig.query}` : '').then()
+      case 'PATCH':
+        return api.patch(inConfig.path, inConfig.body).then()
+      case 'POST':
+        return api.post(inConfig.path, inConfig.body).then()
+      case 'PUT':
+        return api.put(inConfig.path, inConfig.body).then()
+      default:
+        break
+    }
+    return 
   };
 }
 
