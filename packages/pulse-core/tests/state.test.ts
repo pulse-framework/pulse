@@ -1,8 +1,7 @@
-import Pulse, { State } from '../lib';
+import Pulse, { State, state } from '../lib';
 import { Days, DefaultLoggers, makeMockLoggers, restoreDefaultLoggers } from './util';
 
 let //
-  App: Pulse,
   BooleanState: State<boolean>,
   StringState: State<string>,
   ObjectState: State<{ days: Partial<Days> }>,
@@ -15,17 +14,12 @@ const initialValue = {
   Null: null
 };
 
-beforeAll(() => {
-  App = new Pulse({ noCore: true });
-});
-
 beforeEach(() => {
   makeMockLoggers();
-
-  BooleanState = App.State(initialValue.Boolean);
-  StringState = App.State(initialValue.String);
-  ObjectState = App.State(initialValue.Object);
-  NullState = App.State(initialValue.Null);
+  BooleanState = state(initialValue.Boolean);
+  StringState = state(initialValue.String);
+  ObjectState = state<{ days: Partial<Days> }>(initialValue.Object);
+  NullState = state(initialValue.Null);
 });
 
 afterEach(() => {
@@ -73,7 +67,7 @@ describe('State', () => {
   });
 
   test('.bind | Assign new value', () => {
-    StringState.bind = 'Bye Pulse!';
+    StringState.mutable = 'Bye Pulse!';
 
     expect(StringState.value).toBe('Bye Pulse!');
   });

@@ -1,4 +1,5 @@
-import { Pulse, State } from './internal';
+import { Pulse } from './pulse';
+import { State } from './internal';
 import { defineConfig, isAsync } from './utils';
 
 export interface StorageConfig {

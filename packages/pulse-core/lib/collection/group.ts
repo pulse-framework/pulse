@@ -1,6 +1,7 @@
 import { config } from 'process';
-import { Pulse, State, Collection, DefaultDataItem, Data } from '../internal';
-import { defineConfig } from '../utils';
+import { Pulse } from '../pulse';
+import { State, Collection, DefaultDataItem, Data } from '../internal';
+import { defineConfig, normalizeArray } from '../utils';
 
 export type PrimaryKey = string | number;
 export type GroupName = string | number;
@@ -20,6 +21,12 @@ interface TrackedChange {
   index: number;
 }
 
+interface GroupConfig {
+  name?: GroupName;
+  provisional?: boolean;
+  lazyBuild?: boolean;
+}
+
 export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> {
   private collection: () => Collection<DataType>;
 
@@ -28,6 +35,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   private _preciseIndex: Array<PrimaryKey> = [];
   private _missingPrimaryKeys: PrimaryKey[] = [];
   private _trackedIndexChanges: TrackedChange[];
+  private _outdated: boolean;
 
   // group configuration
   private computedFunc?: (data: DataType) => DataType;
@@ -44,25 +52,30 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
   // getter for group output, contains built collection data
   public get output(): Array<DataType> {
+    if (this._outdated) this.build();
     if (this.instance().runtime.trackState) this.instance().runtime.foundState.add(this);
     return this._output;
   }
 
-  constructor(context: InstanceContext, initialIndex?: Array<PrimaryKey>, config: { name?: string; provisional?: boolean } = {}) {
+  constructor(context: InstanceContext, initialIndex?: Array<PrimaryKey>, config: GroupConfig = {}) {
     // This invokes the parent class with either the collection or the Pulse instance as context
     // This means groups can be created before (or during) a Collection instantiation
     super((context() instanceof Pulse ? context : (context() as Collection<DataType>).instance) as () => Pulse, initialIndex || []);
     if (context() instanceof Collection) this.collection = context as () => Collection<DataType>;
 
-    if (config.name) this.key(config.name);
+    if (config.name) this.key(config.name as string);
     if (config.provisional) this.provisional = config.provisional;
 
     this.type(Array);
 
-    this.sideEffects = () => this.build();
+    this.sideEffects = () => {
+      if (config.lazyBuild != false) this._outdated = true;
+      else this.build();
+    };
 
     // initial build
-    this.build();
+    if (config.lazyBuild != false) this._output = [];
+    else this.build();
   }
 
   public build() {
@@ -79,7 +92,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
         }
         //
         else {
-          const data = this.getData(change.key, change.index);
+          const data = this.getCollectionData(change.key, change.index);
           if (data && change.method == TrackedChangeMethod.ADD) {
             this._output.splice(change.index, 0, this.renderData(data));
             this._preciseIndex.splice(change.index, 0, change.key);
@@ -101,7 +114,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
       // build the group data from collection data using the index
       this._output = this._value
         .map((primaryKey, index) => {
-          const data = this.getData(primaryKey, index);
+          const data = this.getCollectionData(primaryKey, index);
           if (data) {
             this._preciseIndex.push(primaryKey);
             return this.renderData(data);
@@ -110,9 +123,11 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
         })
         .filter(item => item != undefined);
     }
+
+    delete this._outdated;
   }
 
-  private getData(key: PrimaryKey, index: number): Data<DataType> | undefined {
+  private getCollectionData(key: PrimaryKey, index: number): Data<DataType> | undefined {
     let data = this.collection().data[key];
 
     if (!data) {
@@ -128,8 +143,8 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
       return dataComputed;
 
       // use collection level computed func if local does not exist
-    } else if (this.collection().computedFunc) {
-      let dataComputed = this.collection().computedFunc(data.copy());
+    } else if (this.collection()._computedFunc) {
+      let dataComputed = this.collection()._computedFunc(data.copy());
 
       return dataComputed;
     }
@@ -144,31 +159,35 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     this.computedFunc = func;
   }
 
-  public add(primaryKey: PrimaryKey, options: GroupAddOptions = {}): this {
+  public add(primaryKeyOrKeys: PrimaryKey | PrimaryKey[], options: GroupAddOptions = {}): this {
+    options = defineConfig(options, { method: 'push', overwrite: true, softRebuild: true });
     // set defaults
-    options = defineConfig(options, { method: 'push', overwrite: true });
     let value = this.copy();
     const useIndex = options.atIndex != undefined;
-    const exists = value.includes(primaryKey);
 
-    if (options.overwrite) value = value.filter(i => i !== primaryKey);
-    // if we do not want to overwrite and key already exists in group, exit
-    else if (exists) return this;
+    for (let [i, primaryKey] of normalizeArray(primaryKeyOrKeys).entries()) {
+      const exists = value.includes(primaryKey);
 
-    // if atIndex is set, inject at that index.
-    if (useIndex) {
-      if (options.atIndex > value.length) options.atIndex = value.length - 1;
-      value.splice(options.atIndex, 0, primaryKey);
-    }
-    // push or unshift into state
-    else value[options.method](primaryKey);
+      if (options.overwrite) value = value.filter(i => i !== primaryKey);
+      // if we do not want to overwrite and key already exists in group, exit
+      else if (exists) return this;
 
-    if (options.softRebuild) {
-      this.trackChange({
-        method: exists ? TrackedChangeMethod.UPDATE : TrackedChangeMethod.ADD,
-        key: primaryKey,
-        index: useIndex ? options.atIndex : options.method == 'push' ? value.length - 1 : 0
-      });
+      // if atIndex is set, inject at that index.
+      if (useIndex) {
+        // if index is greater than length insert at the end of the array
+        if (options.atIndex > value.length) options.atIndex = value.length - 1;
+        value.splice(options.atIndex + i, 0, primaryKey);
+      }
+      // push or unshift into state
+      else value[options.method](primaryKey);
+
+      if (options.softRebuild) {
+        this.trackChange({
+          method: exists ? TrackedChangeMethod.UPDATE : TrackedChangeMethod.ADD,
+          key: primaryKey,
+          index: useIndex ? options.atIndex : options.method == 'push' ? value.length - 1 : 0
+        });
+      }
     }
 
     this.set(value, { _caller: this.add });
@@ -176,12 +195,13 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
   }
 
   public remove(primaryKey: PrimaryKey, options: GroupRemoveOptions = {}): this {
+    options = defineConfig(options, { softRebuild: true });
     const value = this.copy();
     const index = this._preciseIndex.indexOf(primaryKey);
 
     if (index == -1) return this;
 
-    if (options.softRebuild) this.trackChange({ index, method: TrackedChangeMethod.REMOVE });
+    if (options.softRebuild) this.trackChange({ index, key: primaryKey, method: TrackedChangeMethod.REMOVE });
 
     value.splice(index, 1);
 
@@ -200,7 +220,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
     this.trackChange({ index, key: primaryKey, method: TrackedChangeMethod.UPDATE });
 
-    this.set(undefined, { _caller: this.add });
+    this.set();
   }
 }
 

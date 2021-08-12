@@ -1,4 +1,5 @@
-import { Pulse, State, SetFunc } from './internal';
+import { Pulse } from './pulse';
+import { State, SetFunc } from './internal';
 
 export class Computed<ComputedValueType = any> extends State<ComputedValueType> {
   // private cleanup: Set<State> = new Set();
@@ -16,6 +17,8 @@ export class Computed<ComputedValueType = any> extends State<ComputedValueType> 
 
   constructor(public instance: () => Pulse, public func: () => ComputedValueType, public deps?: Array<State>) {
     super(instance, instance().config.computedDefault || null);
+
+    instance()._computed.add(this);
 
     if (typeof func !== 'function') throw new TypeError('A compute function must be provided to Computed.');
 

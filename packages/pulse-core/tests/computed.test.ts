@@ -1,17 +1,13 @@
-import Pulse, { Computed, State } from '../lib';
+import Pulse, { Computed, State, state } from '../lib';
 
 let //
   App: Pulse,
   NumberState: State<number>,
   ComputedNumber: Computed<number>;
 
-beforeAll(() => {
-  App = new Pulse({ noCore: true });
-});
-
 beforeEach(() => {
-  NumberState = App.State(1);
-  ComputedNumber = App.Computed(() => NumberState.value + 2);
+  NumberState = state(1);
+  ComputedNumber = state<number>(() => NumberState.value + 2);
 });
 
 describe('Computed State', () => {
@@ -27,11 +23,5 @@ describe('Computed State', () => {
       //Verify state was created and can be retrieved
       expect(ComputedNumber.value).toBe(4);
     });
-  });
-
-  test('Does not error with no function', () => {
-    const makeComputed = jest.fn(() => App.Computed(null));
-
-    expect(makeComputed).toThrowError(TypeError); // does not throw error
   });
 });
