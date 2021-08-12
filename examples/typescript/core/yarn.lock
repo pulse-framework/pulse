@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@pulsejs/core@^3.3.9":
-  version "3.3.9"
-  resolved "https://registry.yarnpkg.com/@pulsejs/core/-/core-3.3.9.tgz#c87721be4f637e30816d64426b617d9a7e5cc661"
-  integrity sha512-9Gt1YfL4LbtDAwNpKfzDUotpbkiEScwezd1Z39MN13dwi+Qq47FopJJ2qbmeL+00PiOS2Z7qoQJdef0mEM00UQ==
+"@pulsejs/core@latest":
+  version "3.5.8"
+  resolved "https://registry.yarnpkg.com/@pulsejs/core/-/core-3.5.8.tgz#63a2212d3d5dd37d72e8296ceefe2a5242fb7832"
+  integrity sha512-EClwlMR/1xEUHMlHpF+QS8+4CKd+ZLzxNxpWL/r/02LvgrRlLexOsWvQ+ji7G7ygDCRNc5gLQXBf1K3f8PHWYA==

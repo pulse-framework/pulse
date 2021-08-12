@@ -7,7 +7,6 @@
 Replaces Redux, Vuex, and MobX for state; and for API requests, replaces Axios and `fetch`.
 
 **Created by [@jamiepine](https://twitter.com/jamiepine)**
-| **Sponsored and maintained by the [Notify](https://notify.me) team.**
 
 ### Read the docs at [pulsejs.org](https://pulsejs.org).
 

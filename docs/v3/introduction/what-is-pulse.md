@@ -9,9 +9,9 @@ title: Welcome
 
 # Pulse Framework `3.0`
 
-Created by [@jamiepine]() | Sponsored and maintained by the [Notify Team]()
+Created by [@jamiepine](https://twitter.com/jamiepine)
 
-> _Pulse is a global state and logic framework for reactive Typescript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
+> _Pulse is a global state and logic framework for reactive TypeScript & Javascript applications. Supporting frameworks like VueJS, React and React Native._
 
 <!-- Using HTML instead of Markdown links because they get themed with an 'external' badge -->
 <!-- TODO: Figure out if there's a way to remove the external badge so we can use sane syntax -->
@@ -38,9 +38,9 @@ Lightweight, modular and powerful. An alternative to `Redux`/`VueX`/`MobX` and r
 
 Pulse provides a clean-cut toolset to build a Javascript application quickly and efficiently. It encourages developers to construct a core library that can be dropped into any UI framework. Your `core` is the brain of your application, it will handle everything from state management, API requests to all logic and calculations. Pulse will supply pre-computed data to your UI components, in the framework of your choice with complete reactivity.
 
-### Typescript
+### TypeScript
 
-Pulse is written in Typescript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code, however Pulse can still be used without Typescript.
+Pulse is written in TypeScript and is designed to support it heavily. Everything is type safe out of the box and encourages you to write clean typed code, however Pulse can still be used without TypeScript.
 
 ## Quick Walk-Through
 
@@ -140,9 +140,11 @@ MY_STATE.value; // Expected Output: "hello"
 const ALERT = App.Event();
 
 ALERT.emit({ message: 'notify events best events!' });
-const cleanup = ALERT.on(renderAlert);
+ALERT.on(renderAlert);
 
 useEvent(ALERT, renderAlert); // React Hook with auto cleanup!
+
+ALERT.onNext(() => {}) // onetime-use callback useful for event chaining.
 ```
 
 ### :hourglass_flowing_sand: [WIP] CRON Jobs — [App.Job()]()
@@ -162,11 +164,33 @@ MY_STATE.watch('name', () => {
 ```
 
 ### :construction: Task queuing for race condition prevention
+```ts
+App.runtime
+```
 
-### :closed_book: [WIP] Error logging & snapshot bug reporting
+### :closed_book: [WIP] Error handling
+A global error handler can be very useful, this is a basic example. App.Action() uses this automatically.
+```ts
+// Set up error handler
+App.onError((error, config) => {
+  console.error('uh oh', error)
+})
+// Usage
+try {
+// do stuff here
+} catch (e) {
+  App.Error(e, { quiet: true });
+}
+```
 
 ### :leaves: Lightweight (only 37KB) with 0 dependencies
 
 ### :fire: Supports Vue, React, React Native and NextJS
+```ts
+yarn add @pulsejs/core // install the Pulse core
 
+yarn add @pulsejs/react // React integration
+yarn add @pulsejs/vue // Vue integration
+yarn add @pulsejs/next // Next integration
+```
 ### :yellow_heart: Well documented (I'm getting there...)

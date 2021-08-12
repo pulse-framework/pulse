@@ -1,6 +1,6 @@
 {
   "name": "@pulsejs/core",
-  "version": "3.5.0-0",
+  "version": "4.0.0-beta.4",
   "author": "Jamie Pine",
   "license": "MIT",
   "description": "Global state and logic framework for reactive JavaScript & TypeScript applications.",
@@ -8,7 +8,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "dev": "tsc --watch"
   },
   "publishConfig": {
     "access": "public"

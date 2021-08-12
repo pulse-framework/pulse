@@ -1,13 +1,7 @@
-import Pulse from '../lib';
-
-let App: Pulse;
-
-beforeAll(() => {
-  App = new Pulse({ noCore: true });
-});
+import { instance } from '../lib';
 
 describe('Pulse Generic', () => {
   test('Pulse instance is created', () => {
-    expect(App).toHaveProperty('runtime');
+    expect(instance).toHaveProperty('runtime');
   });
 });

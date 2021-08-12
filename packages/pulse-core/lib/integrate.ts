@@ -1,4 +1,4 @@
-import { Pulse } from './internal';
+import { Pulse } from './pulse';
 
 export interface IntegrationConfig<T> {
   name?: any;

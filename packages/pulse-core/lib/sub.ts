@@ -1,6 +1,7 @@
 // Global Subscription Controller
 // This class handles external components subscribing to Pulse.
-import { Pulse, State } from './internal';
+import { Pulse } from './pulse';
+import { State } from './internal';
 import Collection from './collection/collection';
 
 export type SubscriptionContainer = ComponentContainer | CallbackContainer;
@@ -88,7 +89,7 @@ export class SubController {
       // Add State to SubscriptionContainer Subs
       if (state instanceof Collection) {
         const collection = state as Collection;
-        if (collection.groups?.default) state = collection.getGroup('default');
+        if (collection.groups['default']) state = collection.getGroup('default');
         else throw 'usePulse error, Collection has no default group';
       }
 

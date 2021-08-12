@@ -1,4 +1,5 @@
-import { Pulse, State, Collection, Computed, Controller } from './internal';
+import { Pulse } from './pulse';
+import { State, Collection, Computed, Controller } from './internal';
 import { isWatchableObject } from './helpers/isWatchableObj';
 
 export function cleanState<T>(state: State<T>): object {
@@ -43,7 +44,7 @@ export function normalizeDeps(deps: Array<State> | State) {
 
 export const copy = val => {
   // ignore if primitive type
-  if (typeof val !== 'object') return val;
+  if (typeof val !== 'object' || val instanceof Date) return val;
 
   if (isWatchableObject(val)) val = { ...val };
   else if (Array.isArray(val)) val = [...val];
@@ -112,5 +113,6 @@ export function validateNumber(mutable, amount) {
   return true;
 }
 export function normalizeArray<T>(items: T | Array<T>): Array<T> {
+  if (items == undefined) return [];
   return Array.isArray(items) ? items : [items];
 }
