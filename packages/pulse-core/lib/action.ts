@@ -26,7 +26,6 @@ export type HigherOrderFunc<F extends FuncType> = F extends (modifiers: Modifier
  */
 export class Action<T extends FuncType = FuncType> {
   public name: string;
-
   constructor(public instance: () => Pulse, private action: T) {}
 
   /**
@@ -48,8 +47,48 @@ export class Action<T extends FuncType = FuncType> {
     };
     try {
       // invoke the function and supply the modifiers
-      return this.action(new ActionModifiers(this.instance, context), ...arguments);
+      const _actionModifier = new ActionModifiers(this.instance, context)
+
+      const onCatch = (...callbacks: (false | ((e: unknown) => unknown))[]) => {
+        // call default global error handler
+        callbacks.unshift((e: unknown) => this.instance().createError(e, { fromAction: this }));
+        // return this
+        console.log('lol', this)
+        context.errorHandlers = callbacks;
+        return this
+      }
+
+      // const finally = (func: () => unknown) => {}
+
+      const undo = () => {
+        context.trackers.forEach(tracker => tracker.undo());
+      }
+
+      /**
+       * @public
+       * This creates a tracker bound to the execution context, can be used several times in a single action.
+       */
+      const batch = (func: () => unknown) => {
+        this.instance().batch(func);
+      }
+
+      /**
+       * @public
+       * This creates a tracker bound to the execution context, can be used several times in a single action.
+       */
+      const track = (func: () => unknown) =>  {
+        const tracker = new Tracker(this.instance, func);
+        context.trackers.add(tracker);
+        return tracker;
+      }
+
+      const uncaught = (e?: unknown) =>  {
+        if (e) throw e;
+      }
+      //@ts-ignore
+      return this.action({ batch, track, uncaught, undo, onCatch }, ...arguments);
     } catch (e) {
+      console.log(e)
       let returnFalse: boolean = false;
       // on error, run the error callbacks
       for (const [index, callback] of context.errorHandlers.entries()) {
@@ -73,7 +112,10 @@ export class ActionModifiers {
   public onCatch(...callbacks: (false | ((e: unknown) => unknown))[]) {
     // call default global error handler
     callbacks.unshift((e: unknown) => this.instance().createError(e, { fromAction: this }));
+    // return this
+    console.log('lol', this)
     this.context.errorHandlers = callbacks;
+    return this
   }
 
   public finally(func: () => unknown) {}
