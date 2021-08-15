@@ -4,8 +4,8 @@ import Vue from 'vue';
 
 declare module 'vue/types/vue' {
   interface VueConstructor {
-    mapCore: <C extends Pulse["Core"]>(...args: any) => any; 
-    <C extends Pulse["Core"]>($core: C): C;
+    mapCore: <C extends Pulse["core"]>(...args: any) => any; 
+    <C extends Pulse["core"]>($core: C): C;
   }
 }
 
@@ -21,7 +21,7 @@ if(Vue.version.startsWith('2.')){
             created: function () {
               pulse.subController.registerSubscription(this);
               this.$core = pulse.core;
-              this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['Core']>) => T) => {
+              this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['core']>) => T) => {
                 const stateObj = mapObj(pulse.core);
                 return pulse.subController.subscribeWithSubsObject(this, stateObj).props;
               };
@@ -44,7 +44,7 @@ else if(Vue.version.startsWith('3.')){
             created: function () {
               pulse.subController.registerSubscription(this);
               this.$core = pulse.core;
-              this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['Core']>) => T) => {
+              this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['core']>) => T) => {
                 const stateObj = mapObj(pulse.core);
                 return pulse.subController.subscribeWithSubsObject(this, stateObj).props;
               };
