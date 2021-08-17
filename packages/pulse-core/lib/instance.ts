@@ -1,5 +1,7 @@
 import Pulse from './pulse';
 import { State, Computed, DefaultDataItem, CollectionConfig, Collection, FuncType, Action, EventPayload, EventConfig, Event, API } from './internal';
+import { Console } from 'console';
+import { PulseResponse } from './api';
 
 // create global instance
 export const instance = new Pulse();
@@ -27,47 +29,58 @@ export function event<P = EventPayload>(config?: EventConfig<P>) {
 }
 
 export interface RouteConfig {
-  method?: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
+  // method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
   headers?: RequestInit['headers']
   baseURL?: string;
+  options?: RequestInit
 }
 
 export interface CallRouteConfig {
   params?: Record<string, any>;
   query?: Record<string, any>;
   body?: Record<string, any>;
-  path?: string
 }
 
+/**
+ * 
+ * @param config.headers Headers to be sent on each request
+ * @param config.baseURL The URL to be used on each request (if left empty, defaults to current hostname)
+ * @returns The configured route function
+ */
 export function route<ResponseType = any>(config?: RouteConfig) {
-  const _api = new API({
-    options: {
-      headers: config.headers,
-    },
+  if(config.baseURL.endsWith('/')){config.baseURL = config.baseURL.substring(0, config.baseURL.length)}
+  const api = new API({
+    options: config.options,
     baseURL: config.baseURL,
   });
-  return async (inConfig?: CallRouteConfig): Promise<ResponseType> => {
-    const api = _api.with({
-      options: {
-        headers: config.headers
+  /**
+   * @param method The HTTP MEthod to use on this request
+   * @param
+   */
+  return async (method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE', path: string, inConfig?: CallRouteConfig): Promise<PulseResponse> => {
+    // if(inConfig.path.startsWith('/')){inConfig.path = inConfig.path.substring(1)}
+    try{
+      console.warn('lol')
+      switch (method) {
+        case 'DELETE':
+          return await api.delete(path)
+        case 'GET':
+          return await api.get(path + inConfig.query ? `?${inConfig.query}` : '')
+        case 'PATCH':
+          return await api.patch(path, inConfig.body)
+        case 'POST':
+          const res = await api.post(path, inConfig.body)
+          console.warn('res', res)
+          return res
+        case 'PUT':
+          return await api.put(path, inConfig.body)
+        default:
+          return await api.get(path + inConfig.query ? `?${inConfig.query}` : '')
       }
-    })
-
-    switch (config.method) {
-      case 'DELETE':
-       return api.delete(inConfig.path).then()
-      case 'GET':
-        return api.get(inConfig.path + inConfig.query ? `?${inConfig.query}` : '').then()
-      case 'PATCH':
-        return api.patch(inConfig.path, inConfig.body).then()
-      case 'POST':
-        return api.post(inConfig.path, inConfig.body).then()
-      case 'PUT':
-        return api.put(inConfig.path, inConfig.body).then()
-      default:
-        break
+    } catch(e) {
+      // throw e;
+      return Promise.reject(e)
     }
-    return 
   };
 }
 
