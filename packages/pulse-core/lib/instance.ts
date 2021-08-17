@@ -60,7 +60,6 @@ export function route<ResponseType = any>(config?: RouteConfig) {
   return async (method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE', path: string, inConfig?: CallRouteConfig): Promise<PulseResponse> => {
     // if(inConfig.path.startsWith('/')){inConfig.path = inConfig.path.substring(1)}
     try{
-      console.warn('lol')
       switch (method) {
         case 'DELETE':
           return await api.delete(path)
@@ -69,9 +68,7 @@ export function route<ResponseType = any>(config?: RouteConfig) {
         case 'PATCH':
           return await api.patch(path, inConfig.body)
         case 'POST':
-          const res = await api.post(path, inConfig.body)
-          console.warn('res', res)
-          return res
+          return await api.post(path, inConfig.body)
         case 'PUT':
           return await api.put(path, inConfig.body)
         default:
