@@ -26,8 +26,9 @@ Users.collect(users);
 
 ## Setup
 
-```js
-const Users = App.Collection()();
+```ts
+import { collection } from '@pulsejs/core';
+const Users = collection();
 ```
 
 This will create a Collection instance, but without any Groups, Selectors or configuration. We've called this collection "Users" for the purposes of this documentation.
@@ -36,7 +37,7 @@ This will create a Collection instance, but without any Groups, Selectors or con
 This is to compensate for a TypeScript caveat with partially inferred generics. The first parentheses allow the generic `DataType` to be passed explicitly, while the second infers types from the config function. [Learn More]()
 
 ```ts
-const Users = App.Collection<DataType>()();
+const Users = collection<DataType>();
 ```
 :::
 
@@ -50,7 +51,7 @@ interface User {
 }
 
 // Create the Collection and pass in the User as a generic
-const Users = App.Collection<User>()();
+const Users = collection<User>();
 ```
 
 The DataType is passed in as a generic type parameter to the first set of parentheses.
@@ -60,29 +61,8 @@ The DataType is passed in as a generic type parameter to the first set of parent
 Configuration is optional, but recommended. The second pair of parentheses is where the config object or function returning a config object is passed in.
 
 ```js
-const Users = App.Collection()(({ Group, Selector }) => ({
-  primaryKey: 'id', // default is 'id'
-  defaultGroup: true // default false
-  groups: {
-    favorites: Group()
-  },
-  selectors: {
-    current: Selector()
-  },
-}))
+const Users = collection().createGroup('favorites').createSelector('current');
 ```
-> We use a function so the Collection being created can be used as context when creating Groups and Selectors.
-
-**All config parameters** _(All params are optional)_
-
-| property        | type                   | description                                                                                          | default |
-| --------------- | ---------------------- | ---------------------------------------------------------------------------------------------------- | ------- |
-| `primaryKey?`   | `string`               | Define which property on collected items should be used for indexing.                                | `id`    |
-| `name?`         | `string`               | The name of this collection, if used within controllers Collection will inherit the controller name. | N/A     |
-| `defaultGroup?` | `boolean`              | Create a default Group that catches all collected items. [Read More](#groups)                        | `false` |
-| `groups?`       | `Object` of `Group`    |  An object of Group instances.                                                                                                    | N/A     | 
-| `selectors?`    | `Object` of `Selector` |                  An object of Selector instances.                                                                                    | N/A     |
-
 ::: tip TypeScript: Groups and Selectors infer types from config
 Collections will infer the types for groups and selectors automatically from the config object. Meaning you do not need to write custom interfaces to have type safety and Intellisense when using your Collection instance.
 :::
@@ -100,12 +80,8 @@ output -> [{ id: 12, name: 'jeff' }, ...]
 
 When the index is modified, the output will rebuild with collection data.
 
-```js
-const Users = App.Collection()(({ Group }) => ({
-  groups: {
-    myGroup: Group()
-  }
-}))
+```ts
+const Users = collection().createGroup('myGroup');
 ```
 
 Groups are dependent on a Collection instance, and so the Collection config function provides the Collection instance as the first and only parameter.
@@ -142,34 +118,6 @@ We can access the posts data for a specific user by using [getGroup()]() and pas
 ```js
 Posts.getGroup(user.id).output
 ```
-
-
-### The default Group
-
-Collections can have a default Group, in which **all** items collected will be included this Group. In order to create default group you can either not define _any_ groups, or use the config param: `defaultGroup: true`.
-
-```ts
-// With no config:
-const Users = App.Collection()();
-
-// With config & custom groups:
-const Users = App.Collection()(() => ({
-  defaultGroup: true;
-  groups: { ... } // custom groups go here
-}));
-...
-```
-
-::: details An example collecting into the default group
-
-```ts
-Users.collect({ id: 1, name: 'jeff' }); // goes into default group
-
-Users.getGroup('default').output; // [{ id: 1, name: 'jeff' }]
-```
-
-:::
-
 
 ## Group Methods
 
@@ -240,12 +188,8 @@ In our tests this feature lead to 7.5 times less compute on building Groups thro
 
 Selectors allow you to _select_ a data item from a Collection. Components that need one piece of data such as a "current user" or maybe "current viewing post" would benefit from using Selectors.
 
-```js
-const Users = App.Collection()(({ Selector }) => ({
-  selectors: {
-    current: Selector(0)
-  }
-}))
+```ts
+const Users = collection().createSelector('CURRENT');
 ```
 
 The default value of a selector can be any primary key.
@@ -379,8 +323,9 @@ MyCollection.collect(data, 'myNewGroup');
 :::
 ::: details An example with Computed State
 The `getGroup()` method can be used within [`Computed State`](). It will reactively link the Group to the Computed State instance as a dependency.
-```js
-const MY_COMPUTED = App.Computed(() => {
+```ts
+import { state } from '@pulsejs/core';
+const MY_COMPUTED = state(() => {
   return Users.getGroup('myGroup').output;
 })
 ```

@@ -14,15 +14,9 @@ Think of `@pulsejs/react` as an extension of Pulse in the context of React. It p
 
 ## Initialization
 
-```ts
-import Pulse from '@pulsejs/react';
+As of version 4.0, Pulse no longer requires you to initialize an instance.
 
-export const App = new Pulse();
-```
-
-Unlike older versions you do not need to pass React into Pulse, as the React package lists React as a peer dependency. This allows for a much cleaner syntax for setup!
-
-Follow this [guide](../docs/core.html#definition) to learn how to set up your core.
+If you wish to setup your core the "official" way, see [this guide](../docs/core.html#definition)
 
 ## Functional Components: `usePulse()`
 
@@ -34,7 +28,7 @@ const myStateValue = usePulse(core.MY_STATE);
 
 > Both the input and the return value are an array, allowing you to subscribe to more than one State.
 
-It also supports extensions of State, such as Computed, Groups, Selectors and even Collection Data, meaning you can also use functions that return State, such as `Collection.findById()`
+It also supports extensions of State, such as Computed, Groups, Selectors and even Collection Data, meaning you can also use functions that return State, such as `Collection.getData()`
 
 ::: tip NOTE: usePulse returns the value, not the instance.
 The return value is `State.value`, not the State instance. For Groups it's slightly different, you'll get the `Group.output`, which is the useful data for your component.
@@ -43,7 +37,7 @@ The return value is `State.value`, not the State instance. For Groups it's sligh
 ### Example Component
 
 ```tsx
-import { usePulse } from 'pulse-framework';
+import { usePulse } from '@pulsejs/react';
 import React from 'react';
 import core from './core';
 
@@ -67,7 +61,7 @@ The names of the values can be anything, though we recommend they be the camel c
 ## Class Components: `PulseHOC()`
 
 ```js
-import { PulseHoc } from 'pulse-framework';
+import { PulseHoc } from '@pulsejs/react';
 
 class Component extends React.Component {
   render() {
@@ -79,12 +73,12 @@ export default PulseHoc(Component, [core.MY_STATE]);
 ```
 
 ::: warning
-PulseHOC is a low priority WIP and has not been tested at the time of writing these docs, if you need this and it doesn't work, please let me know via Discord
+PulseHOC is a low priority WIP and has not been tested at the time of writing these docs, if you need this and it doesn't work, please let us know via Discord
 :::
 
 ## Additional Hooks
 
 Pulse's React integration also provides some helpful hooks for functional React components, the documentation for these hooks can be found in the sections for the parent functionality.
 
-- [useWatcher()](/v3/docs/state.html#methods) - A hook to use State watchers with auto cleanup/
-- [useEvent()](/v3/docs/events.html#useevent) - A hook to use a Pulse Event with a cleaner syntax and auto cleanup.
+- [useWatcher()](/v4/docs/state.html#methods) - A hook to use State watchers with auto cleanup/
+- [useEvent()](/v4/docs/events.html#useevent) - A hook to use a Pulse Event with a cleaner syntax and auto cleanup.
