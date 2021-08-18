@@ -42,7 +42,6 @@ export interface CallRouteConfig {
 }
 
 /**
- *
  * @param config.headers Headers to be sent on each request
  * @param config.baseURL The URL to be used on each request (if left empty, defaults to current hostname)
  * @returns The configured route function

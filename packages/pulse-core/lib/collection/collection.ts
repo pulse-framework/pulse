@@ -372,7 +372,6 @@ export class Collection<
     Object.values(this.groups).forEach(group => group.rebuildOne(primaryKey));
     if (Object.keys(this._provisionalGroups).length > 0) Object.values(this._provisionalGroups).forEach(group => group.rebuildOne(primaryKey));
   }
-
   public getGroupsWith(primaryKey: PrimaryKey, config: { includeDefault?: boolean } = {}): Group[] {
     config = defineConfig(config, {
       includeDefault: true
@@ -389,7 +388,6 @@ export class Collection<
     }
     return groups;
   }
-
   public getGroupNamesWith(primaryKey: PrimaryKey) {
     return this.getGroupsWith(primaryKey).map(group => group.name);
   }

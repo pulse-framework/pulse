@@ -1,6 +1,7 @@
 import Pulse, { Integration, State } from '@pulsejs/core';
 import Vue from 'vue';
 
+
 declare module 'vue/types/vue' {
   interface VueConstructor {
     mapCore: <C extends Pulse['core']>(...args: any) => any;

@@ -96,7 +96,7 @@ export class Action<T extends FuncType = FuncType> {
   }
 }
 
-function actionMods(context: ActionContext) {
+function actionMods(context: ActionContext){
   return {
     onCatch: (...callbacks: (false | ((e: unknown) => unknown))[]) => {
       // call default global error handler
@@ -128,8 +128,8 @@ function actionMods(context: ActionContext) {
       return tracker;
     },
 
-    uncaught: (e?: unknown) => {
+    uncaught: (e?: unknown) =>  {
       if (e) throw e;
     }
-  };
+  }
 }
