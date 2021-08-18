@@ -20,8 +20,6 @@ export type HigherOrderFunc<F extends FuncType> = F extends (modifiers: Modifier
   ? (...args: P) => ReturnType<F>
   : never;
 
-
-
 /**
  * @class
  * Pulse Action
@@ -35,7 +33,9 @@ export class Action<T extends FuncType = FuncType> {
    * Return the higher order function with the correct types & context
    */
   public func(): HigherOrderFunc<T> {
-    return this._func.bind(this) as HigherOrderFunc<T>;
+    if(this.action.constructor.name === "AsyncFunction") return this._func.bind(this) as HigherOrderFunc<T>;
+    else if(this.action.constructor.name === "Function") return this._funcSync.bind(this) as HigherOrderFunc<T>;
+    else console.warn('This is not a function')
   }
 
   /**
@@ -66,10 +66,38 @@ export class Action<T extends FuncType = FuncType> {
       context.trackers.forEach(tracker => tracker.destroy());
     }
   }
+  /**
+   * @internal
+   * The higher order function
+   */
+  private _funcSync() {
+    const context: ActionContext = {
+      trackers: new Set(),
+      errorHandlers: []
+    };
+    try {
+      // invoke the function and supply the modifiers
+      return this.action(actionMods.call(this, context), ...arguments);
+    } catch (e) {
+      let returnFalse: boolean = false;
+      // on error, run the error callbacks
+      for (const [index, callback] of context.errorHandlers.entries()) {
+        if (typeof callback == 'boolean') {
+          returnFalse = true;
+          continue;
+        }
+        if (index == context.errorHandlers.length - 1) return callback(e);
+        else callback(e);
+      }
+      if (returnFalse) return false;
+    } finally {
+      context.trackers.forEach(tracker => tracker.destroy());
+    }
+  }
 }
 
 function actionMods(context: ActionContext){
-  return{ 
+  return { 
     onCatch: (...callbacks: (false | ((e: unknown) => unknown))[]) => {
       // call default global error handler
       callbacks.unshift((e: unknown) => this.instance().createError(e, { fromAction: this }));
