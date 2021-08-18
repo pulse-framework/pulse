@@ -372,16 +372,15 @@ export class Collection<
     Object.values(this.groups).forEach(group => group.rebuildOne(primaryKey));
     if (Object.keys(this._provisionalGroups).length > 0) Object.values(this._provisionalGroups).forEach(group => group.rebuildOne(primaryKey));
   }
-
-  public getGroupsWith(primaryKey: PrimaryKey, config: {includeDefault?: boolean}={}): Group[]{
+  public getGroupsWith(primaryKey: PrimaryKey, config: { includeDefault?: boolean } = {}): Group[] {
     config = defineConfig(config, {
-      includeDefault: true,
+      includeDefault: true
     });
     const groups: Array<Group> = [];
-    for(let key in this.groups){
+    for (let key in this.groups) {
       const group = this.getGroup(key);
-      if(group.has(primaryKey)){
-        if(!config.includeDefault && group.name === "default"){ 
+      if (group.has(primaryKey)) {
+        if (!config.includeDefault && group.name === 'default') {
           continue;
         }
         groups.push(group);
@@ -389,9 +388,8 @@ export class Collection<
     }
     return groups;
   }
-  
-  public getGroupNamesWith(primaryKey: PrimaryKey){
-    return this.getGroupsWith(primaryKey).map(group => group.name)
+  public getGroupNamesWith(primaryKey: PrimaryKey) {
+    return this.getGroupsWith(primaryKey).map(group => group.name);
   }
 
   public reset() {

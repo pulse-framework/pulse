@@ -33,9 +33,9 @@ export class Action<T extends FuncType = FuncType> {
    * Return the higher order function with the correct types & context
    */
   public func(): HigherOrderFunc<T> {
-    if(this.action.constructor.name === "AsyncFunction") return this._func.bind(this) as HigherOrderFunc<T>;
-    else if(this.action.constructor.name === "Function") return this._funcSync.bind(this) as HigherOrderFunc<T>;
-    else console.warn('This is not a function')
+    if (this.action.constructor.name === 'AsyncFunction') return this._func.bind(this) as HigherOrderFunc<T>;
+    else if (this.action.constructor.name === 'Function') return this._funcSync.bind(this) as HigherOrderFunc<T>;
+    else console.warn('This is not a function');
   }
 
   /**
@@ -97,7 +97,7 @@ export class Action<T extends FuncType = FuncType> {
 }
 
 function actionMods(context: ActionContext){
-  return { 
+  return {
     onCatch: (...callbacks: (false | ((e: unknown) => unknown))[]) => {
       // call default global error handler
       callbacks.unshift((e: unknown) => this.instance().createError(e, { fromAction: this }));
@@ -122,7 +122,7 @@ function actionMods(context: ActionContext){
      * @public
      * This creates a tracker bound to the execution context, can be used several times in a single action.
      */
-    track: (func: () => unknown) =>  {
+    track: (func: () => unknown) => {
       const tracker = new Tracker(this.instance, func);
       context.trackers.add(tracker);
       return tracker;

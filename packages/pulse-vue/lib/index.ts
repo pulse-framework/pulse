@@ -4,13 +4,13 @@ import Vue from 'vue';
 
 declare module 'vue/types/vue' {
   interface VueConstructor {
-    mapCore: <C extends Pulse["core"]>(...args: any) => any; 
-    <C extends Pulse["core"]>($core: C): C;
+    mapCore: <C extends Pulse['core']>(...args: any) => any;
+    <C extends Pulse['core']>($core: C): C;
   }
 }
 
 let PulseIntegrationConfig;
-if(Vue.version.startsWith('2.')){
+if (Vue.version.startsWith('2.')) {
   PulseIntegrationConfig = {
     name: 'vue',
     foreignInstance: Vue,
@@ -30,9 +30,8 @@ if(Vue.version.startsWith('2.')){
         }
       });
     }
-  }
-}
-else if(Vue.version.startsWith('3.')){
+  };
+} else if (Vue.version.startsWith('3.')) {
   // for pulse 3
   PulseIntegrationConfig = {
     name: 'vue',
@@ -53,10 +52,9 @@ else if(Vue.version.startsWith('3.')){
         }
       });
     }
-  }  
-}
-else{
-    console.log('%cPulse Does Not Support Current Vue Version!', "background: #41B883; color: white;")
+  };
+} else {
+  console.log('%cPulse Does Not Support Current Vue Version!', 'background: #41B883; color: white;');
 }
 const VuePulse = new Integration(PulseIntegrationConfig);
 

@@ -30,9 +30,9 @@ export function event<P = EventPayload>(config?: EventConfig<P>) {
 
 export interface RouteConfig {
   // method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
-  headers?: RequestInit['headers']
+  headers?: RequestInit['headers'];
   baseURL?: string;
-  options?: RequestInit
+  options?: RequestInit;
 }
 
 export interface CallRouteConfig {
@@ -42,16 +42,17 @@ export interface CallRouteConfig {
 }
 
 /**
- * 
  * @param config.headers Headers to be sent on each request
  * @param config.baseURL The URL to be used on each request (if left empty, defaults to current hostname)
  * @returns The configured route function
  */
 export function route<ResponseType = any>(config?: RouteConfig) {
-  if(config.baseURL.endsWith('/')){config.baseURL = config.baseURL.substring(0, config.baseURL.length)}
+  if (config.baseURL.endsWith('/')) {
+    config.baseURL = config.baseURL.substring(0, config.baseURL.length);
+  }
   const api = new API({
     options: config.options,
-    baseURL: config.baseURL,
+    baseURL: config.baseURL
   });
   /**
    * @param method The HTTP MEthod to use on this request
@@ -59,24 +60,24 @@ export function route<ResponseType = any>(config?: RouteConfig) {
    */
   return async (method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE', path: string, inConfig?: CallRouteConfig): Promise<PulseResponse> => {
     // if(inConfig.path.startsWith('/')){inConfig.path = inConfig.path.substring(1)}
-    try{
+    try {
       switch (method) {
         case 'DELETE':
-          return await api.delete(path)
+          return await api.delete(path);
         case 'GET':
-          return await api.get(path + inConfig.query ? `?${inConfig.query}` : '')
+          return await api.get(path + inConfig.query ? `?${inConfig.query}` : '');
         case 'PATCH':
-          return await api.patch(path, inConfig.body)
+          return await api.patch(path, inConfig.body);
         case 'POST':
-          return await api.post(path, inConfig.body)
+          return await api.post(path, inConfig.body);
         case 'PUT':
-          return await api.put(path, inConfig.body)
+          return await api.put(path, inConfig.body);
         default:
-          return await api.get(path + inConfig.query ? `?${inConfig.query}` : '')
+          return await api.get(path + inConfig.query ? `?${inConfig.query}` : '');
       }
-    } catch(e) {
+    } catch (e) {
       // throw e;
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
   };
 }
