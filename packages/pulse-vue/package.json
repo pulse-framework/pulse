@@ -25,7 +25,7 @@
     "vue": "^2.6.12"
   },
   "peerDependencies": {
-    "@pulsejs/core": "^4.0.0-beta.1",
+    "@pulsejs/core": "^4.0.0-beta.4",
     "vue": "^2.6.12"
   }
 }

@@ -10,7 +10,7 @@ interface ActionContext {
 }
 
 // Alias for the return type of the action modifiers
-type Modifiers = InstanceType<typeof ActionModifiers>;
+type Modifiers = ReturnType<typeof actionMods>;
 
 // The Action definition function type
 export type FuncType = (modifiers: Modifiers, ...args: any) => any;
@@ -26,7 +26,6 @@ export type HigherOrderFunc<F extends FuncType> = F extends (modifiers: Modifier
  */
 export class Action<T extends FuncType = FuncType> {
   public name: string;
-
   constructor(public instance: () => Pulse, private action: T) {}
 
   /**
@@ -34,7 +33,9 @@ export class Action<T extends FuncType = FuncType> {
    * Return the higher order function with the correct types & context
    */
   public func(): HigherOrderFunc<T> {
-    return this._func.bind(this) as HigherOrderFunc<T>;
+    if (this.action.constructor.name === 'AsyncFunction') return this._func.bind(this) as HigherOrderFunc<T>;
+    else if (this.action.constructor.name === 'Function') return this._funcSync.bind(this) as HigherOrderFunc<T>;
+    else console.warn('This is not a function');
   }
 
   /**
@@ -48,7 +49,35 @@ export class Action<T extends FuncType = FuncType> {
     };
     try {
       // invoke the function and supply the modifiers
-      return this.action(new ActionModifiers(this.instance, context), ...arguments);
+      return await this.action(actionMods.call(this, context), ...arguments);
+    } catch (e) {
+      let returnFalse: boolean = false;
+      // on error, run the error callbacks
+      for (const [index, callback] of context.errorHandlers.entries()) {
+        if (typeof callback == 'boolean') {
+          returnFalse = true;
+          continue;
+        }
+        if (index == context.errorHandlers.length - 1) return callback(e);
+        else callback(e);
+      }
+      if (returnFalse) return false;
+    } finally {
+      context.trackers.forEach(tracker => tracker.destroy());
+    }
+  }
+  /**
+   * @internal
+   * The higher order function
+   */
+  private _funcSync() {
+    const context: ActionContext = {
+      trackers: new Set(),
+      errorHandlers: []
+    };
+    try {
+      // invoke the function and supply the modifiers
+      return this.action(actionMods.call(this, context), ...arguments);
     } catch (e) {
       let returnFalse: boolean = false;
       // on error, run the error callbacks
@@ -67,40 +96,40 @@ export class Action<T extends FuncType = FuncType> {
   }
 }
 
-export class ActionModifiers {
-  constructor(public instance: () => Pulse, public context: ActionContext) {}
+function actionMods(context: ActionContext) {
+  return {
+    onCatch: (...callbacks: (false | ((e: unknown) => unknown))[]) => {
+      // call default global error handler
+      callbacks.unshift((e: unknown) => this.instance().createError(e, { fromAction: this }));
+      context.errorHandlers = callbacks;
+    },
 
-  public onCatch(...callbacks: (false | ((e: unknown) => unknown))[]) {
-    // call default global error handler
-    callbacks.unshift((e: unknown) => this.instance().createError(e, { fromAction: this }));
-    this.context.errorHandlers = callbacks;
-  }
+    // finally: (func: () => unknown) => {},
 
-  public finally(func: () => unknown) {}
+    undo: () => {
+      context.trackers.forEach(tracker => tracker.undo());
+    },
 
-  public undo() {
-    this.context.trackers.forEach(tracker => tracker.undo());
-  }
+    /**
+     * @public
+     * This creates a tracker bound to the execution context, can be used several times in a single action.
+     */
+    batch: (func: () => unknown) => {
+      this.instance().batch(func);
+    },
 
-  /**
-   * @public
-   * This creates a tracker bound to the execution context, can be used several times in a single action.
-   */
-  public batch(func: () => unknown) {
-    this.instance().batch(func);
-  }
+    /**
+     * @public
+     * This creates a tracker bound to the execution context, can be used several times in a single action.
+     */
+    track: (func: () => unknown) => {
+      const tracker = new Tracker(this.instance, func);
+      context.trackers.add(tracker);
+      return tracker;
+    },
 
-  /**
-   * @public
-   * This creates a tracker bound to the execution context, can be used several times in a single action.
-   */
-  public track(func: () => unknown) {
-    const tracker = new Tracker(this.instance, func);
-    this.context.trackers.add(tracker);
-    return tracker;
-  }
-
-  public uncaught(e?: unknown) {
-    if (e) throw e;
-  }
+    uncaught: (e?: unknown) => {
+      if (e) throw e;
+    }
+  };
 }

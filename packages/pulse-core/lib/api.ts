@@ -103,7 +103,7 @@ export class API {
     let timedout = false;
     if (config.timeout) {
       let t: any;
-      const timeout = new Promise(resolve => {
+      const timeout = new Promise<void>(resolve => {
         t = setTimeout(() => {
           timedout = true;
           resolve();
