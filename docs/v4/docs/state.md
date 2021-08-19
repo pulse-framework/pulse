@@ -8,28 +8,49 @@ title: State
 
 State is the foundation of Pulse, most everything either _is_ State or _extends_ the functionality of State. It is used to preserve a value, while providing a toolkit to use and mutate it.
 
-State also has the ability to track its dependents and issue "reactive" side effects such as recomputing [Computed State](./computed.md) and updating React/Vue components.
+State also has the ability to track its dependents and issue "reactive" side effects such as recomputing [Computed State](./state.md#computed) and updating React/Vue components.
 
 ### Basic Usage
 
-```js
-const App = new Pulse();
+```ts
+import { state } from '@pulsejs/core';
 
-const MY_STATE = App.State(true);
+const MY_STATE = state(true);
 ```
 
 - State accepts an optional generic type for type safety, if none is supplied the type will be inferred from the initial value provided.
 - The only parameter of State is the initial value.
 - Methods to modify, mutate and access the State value are chainable.
 
-```js
+```ts
 MY_STATE.toggle().persist().set().type().watch().reset().undo(); // etc...
 ```
+
+## Computed State
+
+States may be computed, meaning they will use data from other states as their value.
+
+::: tip Quick example
+```ts
+const COUNTER_STATE = state(7);
+
+const COMPUTED_STATE = state<boolean>(() => {
+  return COUNTER_STATE.value > 10;
+});
+```
+When we update COUNTER_STATE, COMPUTED_STATE's value will *recompute*.
+
+This means if I was to call
+```ts
+COUNTER_STATE.set(11);
+```
+The value of COMPUTED_STATE would now be `true`
+:::
 
 ## Explicit Types
 
 ```ts
-const MY_STATE = App.State<boolean>(true);
+const MY_STATE = state<boolean>(true);
 ```
 
 ## Properties
@@ -39,7 +60,7 @@ const MY_STATE = App.State<boolean>(true);
 Provides the current value (read-only)
 
 ```ts
-const MY_STATE = App.State('hello');
+const MY_STATE = state('hello');
 
 MY_STATE.value; // Expected Output: "hello"
 ```
@@ -49,7 +70,7 @@ MY_STATE.value; // Expected Output: "hello"
 Provides the current value (reactive, can be written to, automatically invokes `set()`)
 
 ```ts
-const MY_STATE = App.State('hello');
+const MY_STATE = state('hello');
 
 MY_STATE.bind = 'bye';
 ```
@@ -71,7 +92,7 @@ Returns the current state, but mutable. You can make static modifications to the
 If you call the [.set()]() method without passing a new value, nextState will be used.
 
 ```ts
-const MY_ARRAY = App.State([1, 2, 3]);
+const MY_ARRAY = state([1, 2, 3]);
 
 MY_ARRAY.nextState.push(4);
 
@@ -91,7 +112,7 @@ Refer to TypeScript / Intellisense for detailed param descriptions
 Allows you to mutate a value
 
 ```ts
-const MY_STATE = App.State(true);
+const MY_STATE = state(true);
 
 MY_STATE.set(false); // the value is now reactively set to false
 ```
@@ -101,7 +122,7 @@ MY_STATE.set(false); // the value is now reactively set to false
 Revert to previous state
 
 ```ts
-const MY_STATE = App.State('hello');
+const MY_STATE = state('hello');
 
 MY_STATE.set('bye');
 
@@ -140,29 +161,11 @@ MY_STATE.name; // MY_STATE
 
 Will preserve State value in the appropriate local storage for the current environment (web / mobile).
 
-Storage can be configured in the [Pulse Instance]() config, but will default to localStorage on web.
+Storage can be configured via the [Pulse Instance Configuration](), but will default to localStorage on web.
 
 ```ts
-MY_STATE.persist();
+MY_STATE.persist("OPTIONAL_KEY_FOR_STOAGE");
 ```
-
-::: tip Local storage key 
-In the example we are not providing a key as the first and only parameter, this would only work in cases where the State is used within a Controller or StateGroup. In which case the key would be extracted from the object.
-```ts
-App.Controller({
-  state: {
-    MY_STATE: App.State().persist()
-  }
-})
-```
-The local storage key will be `MY_STATE`.
-
-Otherwise the key must set directly:
-```ts
-const MY_STATE = App.State(true).persist('MY_STATE')
-```
-If no key is provided Pulse will warn in development, but fail silently in production.
-:::
 
 # `.exists`
 
@@ -199,13 +202,13 @@ MY_STATE.onNext(() => {
   A function to mutate properties of an object, provided the State value is an object. 
 
 ```ts
-const MY_OBJ_STATE = App.State({ thingOne: true, thingTwo: true })
+const MY_OBJ_STATE = state({ thingOne: true, thingTwo: true })
 
 MY_STATE.patch({ thingOne: false });
 ```
 Patch can also target deep properties with the `deep: true` config option.
 ```ts
-const MY_OBJ_STATE = App.State({ things: { thingOne: true, thingTwo: true }, })
+const MY_OBJ_STATE = state({ things: { thingOne: true, thingTwo: true }, })
 
 MY_STATE.patch({ things: { thingOne: false } }, { deep: true });
 ```
@@ -268,13 +271,19 @@ Reset state to initial value
 ```js
 MY_STATE.reset();
 ```
+::: warning
+.reset() will not work if you do not provide a default value. if you wish to be able to reset string states, yous should initialize them like so:
+```ts
+const MY_STATE = state<string>(''); // and not state<string>()
+```
+:::
 
 
 # `.toggle()`
 
 If current value is a boolean, this will invert it.
-```js
-const MY_STATE = App.State(true);
+```ts
+const MY_STATE = state(true);
 
 MY_STATE.toggle();
 
@@ -284,7 +293,7 @@ MY_STATE.value; // true
 # `.interval()`
   A mutation callback fired on a self contained interval, useful for logic that operates on an interval basis. As the interval is contained within State, it is protected from being created more that once, a memory leak which is a common in vanilla JS–especially with frameworks like React and Vue.
 ```ts
-const TIMER = App.State(0);
+const TIMER = state(0);
 
 TIMER.interval((value) => {
   return value++

@@ -1,7 +1,7 @@
 ---
 title: Changelog
 ---
-## 3.5 - The one with Actions
+## 4.0 - The one without *new Pulse()*
 
 ::: tip Current NPM version
 This is the current release build available on NPM
@@ -10,8 +10,13 @@ This is the current release build available on NPM
 yarn add @pulsejs/core
 ```
 
-See updated integration with [React](../getting-started/setup-with-react.html) and [Next](../getting-started/setup-with-next.html)
+See updated integration with [React](../getting-started/setup-with-react.html), [Vue](../getting-started/setup-with-vue.html) and [Next](../getting-started/setup-with-next.html)
 :::
+
+**NEW FEATURES**
+- Pulse now uses a global instance, like React and other frameworks - Allowing you to [start using pulse very quickly & easily](../getting-started/concepts.html)
+
+## 3.5 - The one with Actions
 
 **NEW FEATURES**
 - Added [App.Action()]() - A better way to write actions. [still WIP]
