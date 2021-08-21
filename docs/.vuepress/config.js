@@ -175,7 +175,7 @@ module.exports = {
             'docs/actions',
             'docs/controllers',
             'docs/core',
-            'docs/api',
+            'docs/route',
             'docs/persisting-data',
             'docs/events'
           ]
