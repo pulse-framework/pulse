@@ -32,6 +32,7 @@ export interface RouteConfig {
   // method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
   headers?: RequestInit['headers'];
   baseURL?: string;
+  timeout?: number;
   options?: RequestInit;
 }
 
@@ -52,7 +53,8 @@ export function route<ResponseType = any>(config?: RouteConfig) {
   }
   const api = new API({
     options: config.options,
-    baseURL: config.baseURL
+    baseURL: config.baseURL,
+    timeout: config.timeout || undefined // this is just incease the user passes 0, it should be treated as undefined
   });
   /**
    * @param method The HTTP MEthod to use on this request
@@ -66,7 +68,7 @@ export function route<ResponseType = any>(config?: RouteConfig) {
         case 'DELETE':
           return await api.delete(path);
         case 'GET':
-          return await api.get(`${path}?${ Object.keys(inConfig.query).map(key => key + `=${inConfig.query[key]}`).join('&') }`);
+          return await api.get(`${path}?${ Object.keys(inConfig.query).map(key => key + `=${ encodeURIComponent(inConfig.query[key]) }`).join('&') }`);
         case 'PATCH':
           return await api.patch(path, inConfig.body);
         case 'POST':
@@ -75,7 +77,7 @@ export function route<ResponseType = any>(config?: RouteConfig) {
           return await api.put(path, inConfig.body);
         default: 
           searchParams
-          return await api.get(`${path}?${ Object.keys(inConfig.query).map(key => key + `=${inConfig.query[key]}`).join('&') }`);
+          return await api.get(`${path}?${ Object.keys(inConfig.query).map(key => key + `=${ encodeURIComponent(inConfig.query[key]) }`).join('&') }`);
       }
     } catch (e) {
       // throw e;
