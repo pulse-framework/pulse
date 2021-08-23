@@ -1,15 +1,15 @@
 ---
-title: API
+title: Route
 ---
 ## Introduction
 ::: warning Sorry!
 This page is not up to standards, improvements need to be made inline with the rest of the documentation.
 :::
-# API
+# Route
 
 This is Pulse's integrated fetch API. It's a wrapper around Fetch, which is native to the browser environment.
 ```ts
-const MyAPI = App.API()
+const MyAPI = route()
 ```
 ## Setup
 The API class accepts a config object.

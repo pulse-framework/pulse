@@ -6,47 +6,61 @@ title: Actions
 
 # Actions
 
-Actions are functions, sometimes literally just functions. However there are some added benifits to using Pulse Actions.
+Actions are functions, sometimes literally just functions. However there are some added benifits to using Pulse Actions. Authomatic try/catch wraping, state tracking, undoing, and more!
 
-::: tip Where do I put them?
-Actions are best inside an `actions.ts` file in a [Controller]() directory, exported individually.
+### Basic Usage
+```ts
+import { action } from '@pulsejs/core';
 
-Then, you can use `import * as actions from './actions'` to register them to a Controller.
-:::
+const doSomething = action(({}, num) => {
 
-This is an example of a regular function used as an action. It has a try catch so that errors can be caught and processed within the core, not the UI code.
+  const newnum = num + 1
 
-```js
-export async function MyAction() {
-  try {
-    // perform action
-  } catch (e) {
-    App.Error(e);
-  }
-}
+  return `I Did Something ${newnum}`
+
+})
 ```
 
-> App.Error() is a configurable global error handler. You might want to emit an event to trigger a UI error popup, for example.
+## Async Actions 
 
-## Wrapped Actions 
+You can also use async functions as an action. This becomes escpecially powerful with the `onCatch()` modifier.
 
-### `App.Action()`
-::: warning
- This feature is not currently functional. It is being worked on currently and should be released in the following few days. Check Discord for updates!
-:::
-This is a wrapper function for actions, it contains a built in try/catch + error handler for cleaner syntax. It also provides helper functions as the first parameter, offsetting custom parameters by one. The second parameter in the declaration would be the first parameter when the action is called. 
+```ts
+const doSomethingAsync = action(async ({onCatch}) => {
 
-```js [WIP, Coming Soon]
-export const MyAction = App.Action(() => {
-  // do something
-});
+  return await somethingAsync()
+
+})
 ```
 
-```js
-export const MyAction = App.Action(({ onError, undo, debounce }) => {
-  onError(undo); // configure action to revert all state changes on error
-  debounce(300); // configure action to debounce at a rate of 300ms
+## Modifiers
 
-  // do something
-});
+Modifiers are helper functioned that are passed in an object as the first argument of your action function. We recommend deconstructing this object and only pulling the functions you need.
+
+# `onCatch()`
+
+Catches any errors and passes it to the first argument in the function it's given.
+
+```ts
+const doSomethingBad = action(({onCatch}) => {
+  
+  onCatch((e) => console.error) // throws "a bad word was said"
+
+  throw new Error('a bad word was said.')
+})
+
+doSomethingBad() // returns: void
+```
+
+# `track()`
+
+Track any state changes within the action, then do something!
+
+```ts
+const MY_STATE = state('a state') 
+
+const changeState = action(({track}) => {
+  track(() => 'lol')
+  MY_STATE.set()
+})
 ```
