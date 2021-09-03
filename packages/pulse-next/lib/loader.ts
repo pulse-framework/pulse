@@ -67,11 +67,13 @@ export function loadServerState(pulse: Pulse) {
               if (groupKeys && groupKeys.length > 0) {
                 if (!collection.groups[key]) collection.createGroup(key, groupKeys);
                 else collection.groups[key].add(groupKeys);
+                const toCol = local.data.filter(d => groupKeys.includes(d[collection.config.primaryKey]));
+                for (const data of toCol) collection.collect(data, key);
               }
             }
           }
 
-          collection.collect(local.data);
+          if (local.data?.length > 0) collection.collect(local.data);
 
           for (const key in local.selectors) if (collection.selectors[key].name) collection.selectors[key].set(local.selectors[key]);
         }
