@@ -31,9 +31,10 @@ export function preserveServerState(nextProps: { [key: string]: any }, instance?
       if (collection.config?.name) {
         const collectionData = { data: [], groups: {}, selectors: {}, name: collection.config.name };
 
-        for (let key in collection.data) if (collection.data[key].value !== undefined) collectionData.data.push(collection.data[key]._value);
+        for (let key in collection.data) if (collection.data[key]._value !== undefined) collectionData.data.push(collection.data[key]._value);
 
-        for (let key in collection.groups as any) if (collection.groups[key].size > 0) collectionData.groups[key] = collection.groups[key]._value;
+        for (let key in collection.groups as any)
+          if (collection.groups[key]._value.length > 0) collectionData.groups[key] = collection.groups[key]._value;
 
         for (let key in collection.selectors) if (collection.selectors[key].isSet) collectionData.selectors[key] = collection.selectors[key]._value;
 
