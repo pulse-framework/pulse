@@ -57,7 +57,7 @@ export class Pulse {
   }
 
   public onCoreReady(core?: { [key: string]: any }) {
-    this.ready = true;
+    if (!this.ready) this.ready = true;
 
     // Copy core object structure without destroying this.core object reference
     if (core) for (let p in core) this.core[p] = core[p];
@@ -68,7 +68,7 @@ export class Pulse {
   }
 
   public core<CoreType>(core?: CoreType): CoreType {
-    if (!this.ready && core) this.onCoreReady(core);
+    if (core) this.onCoreReady(core);
     return this._core as CoreType;
   }
 

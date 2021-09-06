@@ -14,7 +14,7 @@ interface PulseData {
   }>;
 }
 
-export function preserveServerState(nextProps: { [key: string]: any }, instance?: Pulse) {
+export function preserveServerState(nextProps: { [key: string]: any }, instance?: Pulse): any {
   if (!instance) instance = getPulseInstance();
   const { _collections: collections, _state: state } = instance;
 
