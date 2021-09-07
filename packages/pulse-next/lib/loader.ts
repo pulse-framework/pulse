@@ -26,7 +26,7 @@ export function preserveServerState(nextProps: { [key: string]: any }, instance?
     state.forEach(stateItem => {
       if (stateItem.name && stateItem.isSet && !(stateItem instanceof Computed)) PULSE_DATA.state[stateItem.name] = stateItem._value;
     });
-  if (collections)
+  if (collections) {
     for (const collection of collections) {
       if (collection.config?.name) {
         const collectionData = { data: [], groups: {}, selectors: {}, name: collection.config.name };
@@ -41,6 +41,7 @@ export function preserveServerState(nextProps: { [key: string]: any }, instance?
         PULSE_DATA.collections.push(collectionData);
       }
     }
+  }
 
   nextProps.props.PULSE_DATA = PULSE_DATA;
 

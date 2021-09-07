@@ -50,6 +50,8 @@ export class State<ValueType = any> {
   }
 
   constructor(public instance: () => Pulse, public initialState?: ValueType | null, deps: Array<Dep> = []) {
+    if (this.instance()._state.has(this)) this.instance()._state.delete(this);
+    if (this.instance()._state[this.name]) this.instance()._state.delete(this.instance()._collections[this.name])
     this.instance()._state.add(this);
     // initialize the dependency manager
     this.dep = new Dep(deps, () => this);

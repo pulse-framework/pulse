@@ -58,6 +58,8 @@ export class Collection<
 
   // collection config can either be an object of type CollectionConfig or a function that returns CollectionConfig
   constructor(public instance: () => Pulse, config: Config<DataType>) {
+    if (this.instance()._collections.has(this)) this.instance()._collections.delete(this);
+    if (this.instance()._collections[this.config?.name]) this.instance()._collections.delete(this.instance()._collections[this.config?.name])
     this.instance()._collections.add(this);
     // if collection config is a function, execute and assign to config
     if (typeof config === 'function') config = config(this) as CollectionConfig;
