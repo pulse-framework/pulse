@@ -1,6 +1,6 @@
 {
   "name": "@pulsejs/core",
-  "version": "4.0.7",
+  "version": "4.0.8",
   "author": "Jamie Pine",
   "license": "MIT",
   "description": "Global state and logic framework for reactive JavaScript & TypeScript applications.",
