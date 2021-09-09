@@ -48,11 +48,12 @@ export function preserveServerState(nextProps: { [key: string]: any }, instance?
   return nextProps;
 }
 
-export function loadServerState(pulse: Pulse) {
+export function loadServerState(pulse?: Pulse, pulseData: PulseData = globalThis?.__NEXT_DATA__?.props?.pageProps?.PULSE_DATA) {
   if (isServer()) return;
 
-  if (globalThis?.__NEXT_DATA__?.props?.pageProps?.PULSE_DATA) {
-    const pulseData: PulseData = globalThis.__NEXT_DATA__.props.pageProps.PULSE_DATA;
+  if (!pulse) pulse = getPulseInstance();
+
+  if (pulseData) {
 
     for (const state of pulse._state.values()) {
       if (state.name && pulseData.state[state.name] && !(state instanceof Computed)) state.set(pulseData.state[state.name]);
@@ -60,23 +61,23 @@ export function loadServerState(pulse: Pulse) {
 
     for (const collection of pulse._collections.values()) {
       if (collection && collection.config.name) {
-        const local = pulseData.collections.find(c => c.name === collection.config.name);
-        if (local) {
-          if (local.groups) {
-            for (const key in local.groups) {
-              const groupKeys = local.groups[key];
+        const fromSSR = pulseData.collections.find(c => c.name === collection.config.name);
+        if (fromSSR) {
+          if (fromSSR.groups) {
+            for (const key in fromSSR.groups) {
+              const groupKeys = fromSSR.groups[key];
               if (groupKeys && groupKeys.length > 0) {
                 if (!collection.groups[key]) collection.createGroup(key, groupKeys);
                 else collection.groups[key].add(groupKeys);
-                const toCol = local.data.filter(d => groupKeys.includes(d[collection.config.primaryKey]));
+                const toCol = fromSSR.data.filter(d => groupKeys.includes(d[collection.config.primaryKey]));
                 for (const data of toCol) collection.collect(data, key);
               }
             }
           }
 
-          if (local.data?.length > 0) collection.collect(local.data);
+          if (fromSSR.data?.length > 0) collection.collect(fromSSR.data);
 
-          for (const key in local.selectors) if (collection.selectors[key].name) collection.selectors[key].set(local.selectors[key]);
+          for (const key in fromSSR.selectors) if (collection.selectors[key].name) collection.selectors[key].set(fromSSR.selectors[key]);
         }
       }
     }
