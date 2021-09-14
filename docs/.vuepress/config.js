@@ -173,7 +173,7 @@ module.exports = {
             'docs/state',
             'docs/collections',
             'docs/actions',
-            'docs/controllers',
+            // 'docs/controllers',
             'docs/core',
             'docs/route',
             'docs/persisting-data',
