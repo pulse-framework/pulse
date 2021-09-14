@@ -86,7 +86,7 @@ export function route<ResponseType = any>(config?: RouteConfig) {
   };
 }
 
-export const core = instance.core;
+export const setCore = <CoreType>(core?: CoreType): CoreType => instance.core<CoreType>(core);
 export const nextPulse = instance.nextPulse;
 export const track = instance.track;
 export const batch = instance.batch;
