@@ -81,21 +81,22 @@ At this point, your core should look something like this:
 
 ### New Directory: `controllers`
 
-Create a folder for your conrollers. Pulse advocates splitting up your core into modules using the [Controller]() class to containerize the module. However this step is optional, you're free to structure your core however you'd like.
+Create a folder for your conrollers. Pulse advocates splitting up your core into modules using an object; however, this step is optional. You're free to structure your core however you'd like.
 
-> See [Controller]() documentation for more detail
+<!-- > See [Controller]() documentation for more detail -->
 
 ```ts
+import {state, action} from '@pulsejs/core';
 import core from './core'; // type from the future
 
 export const accounts = {
   IS_NEW_ACCOUNT: state().type(Boolean),
-  actions: {
-    logout() {
-      App.reset(core.authentication.state)
-    }
-  }
+  logout: action(() => {
+    core.authentication.token.reset()
+  }) 
+  
 });
+export default accounts;
 ```
 
 ### New File: `core.ts`
@@ -125,11 +126,12 @@ export default core;
 
 ## Structure at scale
 
-Pulse is flexible, so you are free to do you own thing, but you must ensure that at the very least instance creation comes first, core construction comes last.
+Pulse is flexible, so you are free to do you own thing, but here is a core structure we recommend.
 
 ::: vue
 **/core**
-├── .**index.ts**
+├── **index.ts** _Export core and whatever else you want to expose to the application_
+├── **core.ts** _Construct the core_
 │ ├── `/controllers`
 │ │ └── **accounts**
 │ │ │ ├── **index.ts** _Create and export controller_
@@ -137,13 +139,8 @@ Pulse is flexible, so you are free to do you own thing, but you must ensure that
 │ │ │ ├── **actions.ts** _All account actions as exported function_
 │ │ │ ├── **interfaces.ts** _Typescript interfaces for accounts_
 │ │ │ ├── **routes.ts** _api/socket endpoints for accounts_
-│ ├── `/api`
-│ │ └── **index.ts**
-│ │ └── **rest.service.ts** _For rest api users_
-│ │ └── **socket.service.ts** _For websocket users_
 │ ├── `/utils`
 │ │ └── **index.ts**
 │ ├── `/data` _(Optional)_
-│ │ ├── **lists.json**
-└── **core.ts** _Construct the core_
+│ │ ├── **lists.json** 
 :::
