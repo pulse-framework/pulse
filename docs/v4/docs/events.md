@@ -11,15 +11,14 @@ Events are handy for emitting UI updates and passing data with them. Both core f
 A prime example for when to use events would be showing an alert dropdown inside your app. Your core can emit the event and a top-level component can listen and render alert dropdown with a message.
 
 ```ts
-const App = new Pulse();
-
-const ALERT = App.Event();
+import { event } from '@pulsejs/core'
+const ALERT = event();
 ```
 
 ::: tip TypeScript: Payload Type
 Events support an optional generic parameter for the payload type, providing typesafety and VScode intellisense when using your Event.
 ```ts
-const ALERT = App.Event<{ message: string }>();
+const ALERT = event<{ message: string }>();
 ```
 :::
 
@@ -29,7 +28,7 @@ const ALERT = App.Event<{ message: string }>();
 Events can optionally receive a configuration object as the first and only parameter.
 
 ```ts
-const ALERT = App.Event({ enabled: false });
+const ALERT = event({ enabled: false });
 ```
 
 **All config parameters** _(optional)_
@@ -67,7 +66,7 @@ cleanup();
 This syntax is bulky considering you must invoke the cleanup function on component unmount, so with React the `useEvent()` hook will cleanup for you!
 ```ts
 import React from 'react';
-import { useEvent } from '@pulse/react';
+import { useEvent } from '@pulsejs/react';
 
 export function MyComponent() {
 	useEvent(ALERT, payload => {
@@ -78,16 +77,6 @@ export function MyComponent() {
 ```
 Eventually we will implement similar support for Vue components.
 
-## Event Groups
-In some cases you might want a cleaner way to define a group of Events at the same time. They are not related to each other in any way other than defining them with a cleaner syntax. Event Groups also assign the `name` property automatically.
-
-```ts
-const events = App.EventGroup(Event => ({
-	JUST_AN_EVENT: Event(),
-	ALERT: Event<{ message: string }>({ throttle: 100 })
-}));
-```
-
 ## useEvent()
 This is a React hook for functional components that allows you to use an Event with automatic cleanup
 
@@ -96,19 +85,19 @@ import React from 'react';
 
 export function MyComponent(props) {
 	
-	useEvent(events.ALERT, () => {
+	useEvent(ALERT, () => {
 		// do something
 	})
 
 	return <div></div>
 }
 ```
-In this example `events` is referencing the EventGroup created above, however usually this would be located inside your [Core](/v3/docs/core.html).
+In this example `events` is referencing the EventGroup created above, however usually this would be located inside your [Core](/v4/docs/core.html).
 
 This is a really handy syntax for using Events and we'd recommend all React users.
 
 ## Importing Events
-It's best practice to export your Events in your [Core](/v3/docs/core.html) object, so they can easily be used within your components.
+It's best practice to export your Events in your [Core](/v4/docs/core.html) object, so they can easily be used within your components.
 
-You might want to make your events global to your core, such as `core.events`, or maybe you'll put them in your [Controllers](/v3/docs/controllers.html) ``core.accounts.events.MY_EVENT``. It's up to you!
+You might want to make your events global to your core, such as `core.events`, or maybe you'll put them in your [Controllers](/v4/docs/controllers.html) ``core.accounts.events.MY_EVENT``. It's up to you!
 
