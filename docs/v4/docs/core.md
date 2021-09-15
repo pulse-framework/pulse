@@ -23,89 +23,36 @@ core.authentication.state.TOKEN.value;
 ## Definition
 
 ```ts
-export const App = new Pulse();
+import { setCore } from '@pulsejs/core'
 
 const core = {
   accounts,
   authentication
 };
 
-export default App.Core(core);
+setCore(core); // register your core and initialize computed states  
 
-export type ICore = typeof core;
+export default core;
 ```
 
 Imports for `accounts` and `authentication` were ommited for this example.
 
-The Pulse instance is created first as `App`, followed by an object that forms the root of the core object, in this case we're passing in two arbitrary Controllers.
+An object forms the root of the core object, in this case we're passing in two arbitrary Controllers.
 
-Now we register the core with `App.Core()` which snapshots the core object. It can now be accessed anywhere with the very same function, without any parameters. (See [Usage]())
-
-> _In practice the initilization of App should be in a seperate file (eg: `app.ts`) as it must occur before the imports that require the `App` instance and TSLint doesn't like code above imports._
-
-See [Creating your core]() for the more detailed structure.
-
-::: tip Why export the type?
-We're unable to directly import the core into controllers, as it would create cyclic dependencies which can cause horrible compile issues, especially at scale. This is why we use `App.Core()` to get the core inside controllers, but it still wouldn't be type safe.
-
-However, TypeScript types are immune to this paradox and can time travel. :crystal_ball: Once you declare them, they are able to be refrenced in code before and after declaration. This means we can import just the type of the finalized core into our individual controllers.
-
-Now when making changes to one Controller you'll see full intelisense in the other—regardless of the order the controllers are initialized.
-:::
-
-## Usage
-
-The core can be accessed from both outside and within itself, which means the syntax is slightly different for each. To demonstrate, we'll import and access a Controller named `accounts`.
-
-> From **within** the core (this could be any file within)
-
-```ts
-import { App } from './app'; // instance
-import { ICore } from './core'; // type from the future
-
-const core = App.Core<ICore>();
-```
-
-This method ensures this Controller can access other Controllers, even ones that might not be initialized yet. We import our time-traveling type `ICore` and assign it to the Core functions' generic.
-
-> From **outside** the core
-
-```js
-import core from './core';
-
-core.accounts;
-```
-
-It's safe to use the default import here as we know everything has been initialized, this would be the easiest way to access the core in your UI components.
+Now we register the core with `setCore()` which snapshots the core object.
 
 ### Caveats
 
-#### 1) Destructuing imports
-
-In an ideal world we'd be able to do this:
-
-```ts
-const { accounts } = App.Core<ICore>();
-```
-
-This would not work because at import-level accounts has not been defined yet, as assembly of the core happens last.
-
-However if you import **without** destructuing, the constant you assign will be a direct reference to the core object within the App instance. So at runtime it will work.
-
-```ts
-const core = App.Core<ICore>();
-```
-
-#### 2) Using the core to supply initial state
+#### 1) Using the core to supply initial state
 
 A way to remember this rule, is to only use `core.` notation inside functions that are not **immediately called**. Such as Computed functions and actions.
 
-```js
-const core = App.Core<ICore>();
+```ts
+import core from './../core'
 
 const state = {
-  noworks: App.State(core.accounts.state.HELLO.value),  // compile error
-  works: App.Computed(() => {
+  noworks: state(core.accounts.state.HELLO.value),  // compile error
+  works: state(() => {
     return core.accounts.state.HELLO.value              // no compile error
   }),
 },
@@ -123,73 +70,52 @@ Create a folder in your application named **_core_**.
 In some cases you might want to create your core in a seperate repo or monorepo if you wish to use the same core in multiple projects.
 :::
 
-### New File: `app.ts`
 
-This is where you create an instance of Pulse.
-
-```ts
-import React from 'react';
-import Pulse from 'pulse-framework';
-
-export const App = new Pulse({
-  framework: React
-});
-```
-
-By this point your core should look something like this:
+At this point, your core should look something like this:
 ::: vue
-├── **core**
+├── **/core**
 │ ├── **index.ts**
-│ ├── `app.ts`
 :::
 
 > Leave index.ts empty for now.
 
 ### New Directory: `controllers`
 
-Create a folder for your conrollers. Pulse advocates splitting up your core into modules using the [Controller]() class to containerize the module. However this step is optional, you're free to structure your core however you'd like.
+Create a folder for your conrollers. Pulse advocates splitting up your core into modules using an object; however, this step is optional. You're free to structure your core however you'd like.
 
-> See [Controller]() documentation for more detail
+<!-- > See [Controller]() documentation for more detail -->
 
 ```ts
-import { App } from './app'; // instance
-import { ICore } from './core'; // type from the future
+import {state, action} from '@pulsejs/core';
+import core from './core'; // type from the future
 
-const core = App.Core<ICore>(); // grab sister controller
-
-export const accounts = App.Controller({
-  state: {
-    IS_NEW_ACCOUNT: App.State().type(Boolean)
-  }
-  actions: {
-    logout() {
-      App.reset(core.authentication.state)
-    }
-  }
+export const accounts = {
+  IS_NEW_ACCOUNT: state().type(Boolean),
+  logout: action(() => {
+    core.authentication.token.reset()
+  }) 
+  
 });
+export default accounts;
 ```
 
 ### New File: `core.ts`
 
 ```ts
-import { App } from './app';
-
 import accounts from './controllers/accounts';
 import authentication from './controllers/authentication';
 
-export const core = App.Core({
+export const core = setCore({
   accounts,
   authentication
 });
 
-export type ICore = typeof core;
+export default core;
 ```
 
 Everything comes together in `core.ts`, it handles importing the Pulse instance, followed by your controllers.
 
-`App.Core()` declares the final core structure and saves it to the instance so that subsequent calls.
-
-Finally the core is registered and exported and `ICore` is exported as a type declaration.
+`setCore()` declares the final core structure and saves it to the instance so that subsequent calls.
 
 ### Export everything `index.ts`
 
@@ -200,26 +126,21 @@ export default core;
 
 ## Structure at scale
 
-Pulse is flexible, so you are free to do you own thing, but you must ensure that at the very least instance creation comes first, core construction comes last.
+Pulse is flexible, so you are free to do you own thing, but here is a core structure we recommend.
 
 ::: vue
-**core**
-├── .**index.ts**
-├── .**app.ts** _Create Pulse instance_
-│ ├── `controllers`
+**/core**
+├── **index.ts** _Export core and whatever else you want to expose to the application_
+├── **core.ts** _Construct the core_
+│ ├── `/controllers`
 │ │ └── **accounts**
 │ │ │ ├── **index.ts** _Create and export controller_
 │ │ │ ├── **state.ts** _Define all State, Computed State & a Collection_
 │ │ │ ├── **actions.ts** _All account actions as exported function_
 │ │ │ ├── **interfaces.ts** _Typescript interfaces for accounts_
 │ │ │ ├── **routes.ts** _api/socket endpoints for accounts_
-│ ├── `api`
+│ ├── `/utils`
 │ │ └── **index.ts**
-│ │ └── **rest.service.ts** _For rest api users_
-│ │ └── **socket.service.ts** _For websocket users_
-│ ├── `utils`
-│ │ └── **index.ts**
-│ ├── `data` _(Optional)_
-│ │ ├── **lists.json**
-└── .**core.ts** _Construct the core_
+│ ├── `/data` _(Optional)_
+│ │ ├── **lists.json** 
 :::

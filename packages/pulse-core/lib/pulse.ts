@@ -60,7 +60,7 @@ export class Pulse {
     if (!this.ready) this.ready = true;
 
     // Copy core object structure without destroying this.core object reference
-    if (core) for (let p in core) this.core[p] = core[p];
+    if (core) for (let p in core) this._core[p] = core[p];
 
     this._computed.forEach(instance => instance.recompute());
 

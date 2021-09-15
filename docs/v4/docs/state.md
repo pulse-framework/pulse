@@ -272,7 +272,7 @@ Reset state to initial value
 MY_STATE.reset();
 ```
 ::: warning
-.reset() will not work if you do not provide a default value. if you wish to be able to reset string states, yous should initialize them like so:
+.reset() will not work if you do not provide a default value. if you wish to be able to reset string states, you should initialize them like so:
 ```ts
 const MY_STATE = state<string>(''); // and not state<string>()
 ```

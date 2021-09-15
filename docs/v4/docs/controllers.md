@@ -22,17 +22,15 @@ core.accounts.myAction();
 
 The first parameter of the Controller function is `ControllerConfig`
 
-```js
-const App = new Pulse();
+```ts
+import {collection, state} from '@pulsejs/core'
 
-const config = {
-  collection: App.Collection()(),
-  state: {
-    MY_STATE: App.State(),
-    MY_COMPUTED_STATE: App.Computed(() => true)
-  }
+const accounts = {
+  collection: collection(),
+  MY_STATE: state(),
+  MY_COMPUTED_STATE: state(() => true)
 };
-export const accounts = App.Controller(config);
+export const accounts;
 ```
 
 ## Config Structure
@@ -60,7 +58,7 @@ For TypeScript users, the inferred types of the object you pass in will be prese
 
 In some cases you will prefer to use more than the default Controller categories, you might want to spread actions to the root of the controller instance so they can be access like the following.
 
-```js
+```ts
 accounts.myAction();
 ```
 
@@ -83,15 +81,13 @@ This is how a controller folder should be organized.
 ### `index.ts`
 
 ```ts
-// import instance
-import App from '../../app';
 // import state
 import { state, computed, collection } from './state';
 // import actions, helpers and routes
 import * as actions from './actions';
 
 // init controller, merge state and computed state
-const controller = App.Controller({ state: { ...state, ...computed }, collection }).root(actions);
+const controller = { state: { ...state, ...computed }, collection };
 ```
 
 The order of imports above is important, state/collections must be imported first to also allow them to be imported into `actions.ts` without creating a cyclic import. Sometimes this can cause `import * as ...` to return an empty object at runtime, following this structure will avoid that.

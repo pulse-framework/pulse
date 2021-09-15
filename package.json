@@ -1,6 +1,6 @@
 {
   "name": "pulse-framework",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Global state and logic framework for reactive JavaScript & TypeScript applications.",
   "license": "MIT",
   "author": {
