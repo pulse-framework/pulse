@@ -59,11 +59,11 @@ export class Collection<
   // collection config can either be an object of type CollectionConfig or a function that returns CollectionConfig
   constructor(public instance: () => Pulse, config: Config<DataType>) {
     if (this.instance()._collections.has(this)) this.instance()._collections.delete(this);
-    this.instance()._collections.forEach((c) => {
+    this.instance()._collections.forEach(c => {
       if (c?.config?.name && config?.name) {
         if (c.config.name === config.name) this.instance()._collections.delete(c);
       }
-    })
+    });
     this.instance()._collections.add(this);
     // if collection config is a function, execute and assign to config
     if (typeof config === 'function') config = config(this) as CollectionConfig;
@@ -219,12 +219,14 @@ export class Collection<
   public getGroup(groupName: string): Group<DataType>;
   public getGroup(groupName: keyof G): Group<DataType>;
   public getGroup(groupName: keyof G | string): Group<DataType> {
-    // if group already exists return that
-    if (this.groups[groupName]) return this.groups[groupName];
-    // if provisional group exists return that
-    else if (this._provisionalGroups[groupName as GroupName]) return this._provisionalGroups[groupName as GroupName];
-    // if no group found create a provisional group
-    else return this.createProvisionalGroup(groupName as GroupName);
+    // @TEMP fixes but with provisional (because provisional sucks)
+    if (!this.groups[groupName])
+      this.groups[groupName] = new Group<DataType>(() => this, [], { provisional: true, name: groupName as string }) as any;
+    return this.groups[groupName];
+    // // if provisional group exists return that
+    // else if (this._provisionalGroups[groupName as GroupName]) return this._provisionalGroups[groupName as GroupName];
+    // // if no group found create a provisional group
+    // else return this.createProvisionalGroup(groupName as GroupName);
   }
 
   public getGroupValue(groupName: keyof G | string): DataType[] {
