@@ -43,7 +43,6 @@ export function event<P = EventPayload>(config?: EventConfig<P>) {
 
 export interface RouteConfig {
   // method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
-  headers?: RequestInit['headers'];
   baseURL?: string;
   timeout?: number;
   options?: RequestInit;
@@ -53,6 +52,8 @@ export interface CallRouteConfig {
   params?: Record<string, any>;
   query?: Record<string, any>;
   body?: Record<string, any>;
+  method?: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
+  options?: RequestInit;
 }
 
 /**
@@ -73,19 +74,28 @@ export function route<ResponseType = any>(config?: RouteConfig) {
    * @param method The HTTP MEthod to use on this request
    * @param
    */
-  return async (method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE', path: string, inConfig?: CallRouteConfig): Promise<PulseResponse> => {
+  return async <ResponseType = any>(path: string, inConfig?: CallRouteConfig): Promise<PulseResponse> => {
     // if(inConfig.path.startsWith('/')){inConfig.path = inConfig.path.substring(1)}
     try {
+      if (inConfig.options) {
+        api.config.options = { ...api.config.options, ...inConfig.options };
+      }
       const searchParams = new URLSearchParams();
-      switch (method) {
+
+      if (!inConfig.method) {
+        inConfig.method = 'GET';
+      }
+
+      switch (inConfig.method) {
         case 'DELETE':
           return await api.delete(path);
         case 'GET':
-          return await api.get(
-            `${path}?${Object.keys(inConfig.query)
-              .map(key => key + `=${encodeURIComponent(inConfig.query[key])}`)
-              .join('&')}`
-          );
+          const query = inConfig.query
+            ? Object.keys(inConfig.query)
+                .map(key => `${key}=${encodeURIComponent(inConfig.query[key])}`)
+                .join('&')
+            : null;
+          return await api.get(`${path}${query ? '?' + query : ''}`);
         case 'PATCH':
           return await api.patch(path, inConfig.body);
         case 'POST':

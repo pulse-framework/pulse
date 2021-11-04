@@ -20,7 +20,12 @@ export interface APIConfig {
 const ensureProperHeaders = headers => {
   let obj = {};
   Object.keys(headers).forEach(t => {
-    obj[t.toLowerCase()] = headers[t];
+    const formattedHeader = t
+      .toLowerCase()
+      .split('-')
+      .map(token => token.charAt(0).toUpperCase() + token.slice(1))
+      .join('-');
+    obj[formattedHeader] = headers[t];
   });
   return obj;
 };
@@ -86,7 +91,8 @@ export class API {
       // stringify body
       config.options.body = JSON.stringify(payload);
       // if body is object and no content type specified, auto assign content-type to application/json
-      if (!config.options.headers['content-type']) config.options.headers['content-type'] = 'application/json';
+      if (!config.options.headers['Content-Type'] || !config.options.headers['content-type'])
+        config.options.headers['Content-Type'] = 'application/json';
     } else {
       config.options.body = payload;
     }
