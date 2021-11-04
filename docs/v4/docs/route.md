@@ -2,44 +2,46 @@
 title: Route
 ---
 ## Introduction
-::: warning Sorry!
-This page is not up to standards, improvements need to be made inline with the rest of the documentation.
-:::
+
 # Route
 
 This is Pulse's integrated fetch API. It's a wrapper around Fetch, which is native to the browser environment.
-```ts
-const MyAPI = route()
-```
 ## Setup
-The API class accepts a config object.
+The route function returns a __Route__ which can be configured and used to make HTTP requests. The basic config is just the baseurl and any fetch config options. There is also a value for timeout, which will set a timeout for the request. This function will return another function to use to make requests in your actions or anywhere else in your app!
 ```ts
-const MyAPI = App.API({
+const MyAPI = route({
+  baseURL: 'http://localhost:3000', // default: 'https://localhost'
   options: {
     headers: {
-      'content-type': 'application/json, text/plain' // this is not necessary
+      'Content-Type': 'application/json'
     }
   },
-  baseURL: 'https://api.mysite.co', // default: 'https://localhost'
-  path: '/api', // default: '/'
   timeout: 20000, // default: infinite
-  requestIntercept: request => {
-    // do something
+})
+```
+## Use
+The returned function accepts a path, and another opportunity to modify the fetch config.
+```ts
+const data = await MyAPI('get-data', {
+  method: 'POST', // default: 'GET'
+  body: {
+    data: 'Hello World!'
   },
-  responseIntercept: response => {
-    // do something
-  }
+  params: {}, // url params
+  query: {}, // url query
+  options: {
+    headers: {
+      'Content-Type': 'application/json, text/plain' // this is not necessary
+    }
+  },
 });
 ```
 
-### API Config Parameters
+### Route Config Parameters
 
 - [options (RequestOptions)](#request-options) _**optional**_ - This has all the same options as the js fetch function. Nothing is required, but it is recommended depending on your setup
 - [baseURL (string)]() _**optional**_ - The base url for the endpoint which defaults to your local system.
-- [path (string)]() _**optional**_ - The path for the endpoint which defaults to root
 - [timeout (number)]() _**optional**_ - A timeout for the fetch. By default it does not have a timeout so if you are unsure if the request will complete, you should set this.
-- [requestIntercept (Function)]() _**optional**_ - An intercept function on request sent
-- [responseIntercept (Function)]() _**optional**_ - An intercept function on response received
 
 ### Request Options
 
@@ -54,7 +56,7 @@ const MyAPI = App.API({
 - [signal (AbortSignal)]() _**optional**_ - An [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) object instance; allows you to communicate with a fetch request and abort it if desired via an [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController).
 
 ::: tip Note: Refer to Fetch Documentation for More Info.
-For more information on the options available, please refer to the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) page, as this is what is used under the hood.
+For more information on the options available, please refer to the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) page, as we use this under the hood.
 :::
 
 ### Response
@@ -71,85 +73,4 @@ interface PulseResponse<DataType = any> {
 }
 ```
 
-## Methods
 
-# `.with()`
-
-This function allows you to override the API config and request options. It returns a modified instance of the original API with the options in the config parameter overriding the original config options.
-
-### Parameters
-
-- [config (APIConfig)](#api-config-parameters)
-
-### Returns
-
-- [response (Response)](#response)
-
-# `.get()`
-
-Send a HTTP get request to a url
-
-### Parameters
-
-- [path (string)]() - The URL path to use
-- [options (RequestOptions)]() _**optional**_ - has the same options as fetch
-
-### Returns
-
-- [response (Response)](#response)
-
-# `.post()`
-
-Send a HTTP post request to a URL
-
-### Parameters
-
-- [path (string)]() - The URL path to use
-- [data (Object)]() - The data to send as the body of the post request
-- [options (RequestOptions)]() _**optional**_ -
-
-### Returns
-
-- [response (Response)](#response)
-
-# `.put()`
-
-Send a HTTP put request to a URL
-
-### Parameters
-
-- [path (string)]() - The URL path to use
-- [data (Object)]() - The data to send as the body of the put request
-- [options (RequestOptions)]() _**optional**_ -
-
-### Returns
-
-- [response (Response)](#response)
-
-# `.patch()`
-
-Send a HTTP patch request to a URL
-
-### Parameters
-
-- [path (string)]() - The URL path to use
-- [data (Object)]() - The data to send as the body of the patch request
-- [options (RequestOptions)]() _**optional**_ -
-
-### Returns
-
-- [Response (response)](#response)
-
-# `.delete()`
-
-Send a HTTP delete request to a URL
-
-### Parameters
-
-- [path (string)]() - The URL path to use
-- [data (Object)]() - The data to send as the body of the delete request
-- [options (RequestOptions)]() _**optional**_ -
-
-### Returns
-
-- [response (Response)](#response)
