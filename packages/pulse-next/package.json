@@ -1,6 +1,6 @@
 {
   "name": "@pulsejs/next",
-  "version": "4.0.8",
+  "version": "4.1.1",
   "author": "Jamie Pine",
   "license": "MIT",
   "description": "Next.js integration for PulseJS",

@@ -1,18 +1,31 @@
 import Pulse from './pulse';
-import { State, Computed, DefaultDataItem, CollectionConfig, Collection, FuncType, Action, EventPayload, EventConfig, Event, API } from './internal';
+import {
+  State,
+  Dep,
+  Computed,
+  DefaultDataItem,
+  CollectionConfig,
+  Collection,
+  FuncType,
+  Action,
+  EventPayload,
+  EventConfig,
+  Event,
+  API
+} from './internal';
 import { Console } from 'console';
 import { PulseResponse } from './api';
 
 // create global instance
 export const instance = new Pulse();
 
-export function state<T>(initialState: T): State<T>;
-export function state<T>(computedFunc: () => T): Computed<T>;
-export function state<T>(value: T | (() => T)): State<T> | Computed<T> {
+export function state<T>(initialState: T, deps?: Array<Dep>): State<T>;
+export function state<T>(computedFunc: () => T, deps?: Array<State>): Computed<T>;
+export function state<T>(value: T | (() => T), deps?: Array<State | Dep>): State<T> | Computed<T> {
   if (typeof value == 'function') {
-    return new Computed<T>(() => instance, (value as unknown) as () => T);
+    return new Computed<T>(() => instance, (value as unknown) as () => T, deps as Array<State>);
   }
-  return new State<T>(() => instance, value);
+  return new State<T>(() => instance, value, deps as Array<Dep>);
 }
 
 export function collection<DataType extends DefaultDataItem = DefaultDataItem>(config: CollectionConfig = {}) {
@@ -63,21 +76,29 @@ export function route<ResponseType = any>(config?: RouteConfig) {
   return async (method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE', path: string, inConfig?: CallRouteConfig): Promise<PulseResponse> => {
     // if(inConfig.path.startsWith('/')){inConfig.path = inConfig.path.substring(1)}
     try {
-      const searchParams = new URLSearchParams()
+      const searchParams = new URLSearchParams();
       switch (method) {
         case 'DELETE':
           return await api.delete(path);
         case 'GET':
-          return await api.get(`${path}?${ Object.keys(inConfig.query).map(key => key + `=${ encodeURIComponent(inConfig.query[key]) }`).join('&') }`);
+          return await api.get(
+            `${path}?${Object.keys(inConfig.query)
+              .map(key => key + `=${encodeURIComponent(inConfig.query[key])}`)
+              .join('&')}`
+          );
         case 'PATCH':
           return await api.patch(path, inConfig.body);
         case 'POST':
           return await api.post(path, inConfig.body);
         case 'PUT':
           return await api.put(path, inConfig.body);
-        default: 
-          searchParams
-          return await api.get(`${path}?${ Object.keys(inConfig.query).map(key => key + `=${ encodeURIComponent(inConfig.query[key]) }`).join('&') }`);
+        default:
+          searchParams;
+          return await api.get(
+            `${path}?${Object.keys(inConfig.query)
+              .map(key => key + `=${encodeURIComponent(inConfig.query[key])}`)
+              .join('&')}`
+          );
       }
     } catch (e) {
       // throw e;
