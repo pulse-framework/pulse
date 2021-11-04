@@ -78,6 +78,7 @@ export class Collection<
 
   /**
    *  Create a group instance under this collection
+   * @param groupName - The name of the group you would like to create
    * @param initialIndex - An optional array of primary keys to initialize this groups with.
    */
   public createGroup<GN extends GroupName>(groupName: GN, initialIndex?: Array<PrimaryKey>) {
@@ -87,7 +88,10 @@ export class Collection<
     //@ts-ignore - doesn't error in vscode, but errors at build
     return this as this & Collection<DataType, Record<GN, Group<DataType>>, S>;
   }
-
+  
+  /**
+   *  Create several group instances under this collection
+   */
   public createGroups<GroupNames extends GroupName>(groupNames: [GroupNames, ...GroupNames[]]) {
     for (const name of groupNames) this.createGroup(name);
     //@ts-ignore - doesn't error in vscode, but errors at build
@@ -96,6 +100,7 @@ export class Collection<
 
   /**
    * Create a selector instance under this collection
+   * @param selectorName - The name of the selector you would like to create
    * @param initialSelection - An initial PrimaryKey (string or number) to select.
    * Supports selecting data that does not yet exist, will update if that data item is eventually collected.
    */
@@ -106,6 +111,11 @@ export class Collection<
     return this as this & Collection<DataType, G, { [key in SN]: Selector<DataType> }>;
   }
 
+  /**
+   * 
+   * @param selectorNames - An array of names to give new selectors
+   * @returns The new Collection
+   */
   public createSelectors<SelectorNames extends SelectorName>(selectorNames: [SelectorNames, ...SelectorNames[]]) {
     for (const name of selectorNames) this.createSelector(name);
     //@ts-ignore - doesn't error in vscode, but errors at build
