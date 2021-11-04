@@ -57,7 +57,7 @@ export interface CallRouteConfig {
 }
 
 /**
- * @param config.headers Headers to be sent on each request
+ * @param config.options normal fetch options such as headers, credentials, etc.
  * @param config.baseURL The URL to be used on each request (if left empty, defaults to current hostname)
  * @returns The configured route function
  */
@@ -71,8 +71,12 @@ export function route<ResponseType = any>(config?: RouteConfig) {
     timeout: config.timeout || undefined // this is just incease the user passes 0, it should be treated as undefined
   });
   /**
-   * @param method The HTTP MEthod to use on this request
-   * @param
+   * @param path The path to be appended to the baseURL
+   * @param config.params The params to be appended to the path
+   * @param config.query The query params to be appended to the path
+   * @param config.body The body to be sent with the request
+   * @param config.method The method to be used for the request
+   * @param config.options The fetch options to be used for the request 
    */
   return async <ResponseType = any>(path: string, inConfig?: CallRouteConfig): Promise<PulseResponse> => {
     // if(inConfig.path.startsWith('/')){inConfig.path = inConfig.path.substring(1)}
