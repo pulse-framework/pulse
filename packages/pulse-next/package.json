@@ -1,6 +1,6 @@
 {
   "name": "@pulsejs/next",
-  "version": "3.5.8",
+  "version": "4.1.3",
   "author": "Jamie Pine",
   "license": "MIT",
   "description": "Next.js integration for PulseJS",
@@ -11,8 +11,8 @@
     "build": "tsc"
   },
   "peerDependencies": {
-    "@pulsejs/core": "^3.3.0",
-    "@pulsejs/react": "^3.3.0",
+    "@pulsejs/core": "^4.0.0-beta.1",
+    "@pulsejs/react": "^4.0.0-beta.1",
     "react": "^16.13.1"
   },
   "devDependencies": {

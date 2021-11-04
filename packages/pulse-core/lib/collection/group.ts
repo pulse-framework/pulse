@@ -1,5 +1,6 @@
 import { config } from 'process';
-import { Pulse, State, Collection, DefaultDataItem, Data } from '../internal';
+import { Pulse } from '../pulse';
+import { State, Collection, DefaultDataItem, Data } from '../internal';
 import { defineConfig, normalizeArray } from '../utils';
 
 export type PrimaryKey = string | number;
@@ -21,7 +22,7 @@ interface TrackedChange {
 }
 
 interface GroupConfig {
-  name?: string;
+  name?: GroupName;
   provisional?: boolean;
   lazyBuild?: boolean;
 }
@@ -62,7 +63,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
     super((context() instanceof Pulse ? context : (context() as Collection<DataType>).instance) as () => Pulse, initialIndex || []);
     if (context() instanceof Collection) this.collection = context as () => Collection<DataType>;
 
-    if (config.name) this.key(config.name);
+    if (config.name) this.key(config.name as string);
     if (config.provisional) this.provisional = config.provisional;
 
     this.type(Array);
@@ -142,8 +143,8 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
       return dataComputed;
 
       // use collection level computed func if local does not exist
-    } else if (this.collection().computedFunc) {
-      let dataComputed = this.collection().computedFunc(data.copy());
+    } else if (this.collection()._computedFunc) {
+      let dataComputed = this.collection()._computedFunc(data.copy());
 
       return dataComputed;
     }
@@ -200,7 +201,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
     if (index == -1) return this;
 
-    if (options.softRebuild) this.trackChange({ index, method: TrackedChangeMethod.REMOVE });
+    if (options.softRebuild) this.trackChange({ index, key: primaryKey, method: TrackedChangeMethod.REMOVE });
 
     value.splice(index, 1);
 
@@ -219,7 +220,7 @@ export class Group<DataType = DefaultDataItem> extends State<Array<PrimaryKey>> 
 
     this.trackChange({ index, key: primaryKey, method: TrackedChangeMethod.UPDATE });
 
-    this.set(undefined, { _caller: this.add });
+    this.set();
   }
 }
 

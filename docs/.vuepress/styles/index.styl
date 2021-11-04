@@ -1,15 +1,22 @@
 $pulseRed = #EF425A;
-$pulseRedLighter = #ff8c9e;
+$pulseRedLighter = #FF6292;
 $pulseCodeBackground = #282e3f;
 $pulseGrey = #7e9ab3;
 $pulseFaint = #526577;
-$pulseGreen = #28EBB0;
+$pulseGreen = #00FFB2;
 $pulseYellow = #FFD696;
 $pulseWhite = #F7F8F8;
 $pulseLightBlue = #B6DCFF;
 
-table code 
-    line-height: 2em !important;
+table
+    tr, td, th
+        border-color: $pulseGrey;
+    tr:nth-child(2n)
+        background-color: $pulseCodeBackground;
+
+    code 
+        line-height: 2em !important;
+
 
 pre.vue-container
   border-left-width: .5rem;
@@ -37,6 +44,7 @@ pre.vue-container
 
 .theme-default-content:not(.custom)
     margin 0
+    max-width 820px
 
 @font-face {
   font-family: dank;
@@ -48,27 +56,26 @@ pre.vue-container
 // body, .sidebar, .navbar, .navbar .links {
 //   background-color: #1d1d1d !important;
 // }
-// .search-box input {
-//   background: #1d1d1d !important;
-// }
+.search-box input 
+  background-color: $codeBgColor !important;
 
-.custom-block.details {
+.custom-block.details 
     display: block;
     position: relative;
     border-radius: 3px;
     margin: 0.5em 0;
     padding: 0.6em 1.2em;
-    background-color: #eee;
-}
+    // background-color: #eee;
+
 
 .theme-default-content
     pre
-        background-color $pulseCodeBackground !important;
+        background-color $codeBgColor !important
         code 
-            color #CDD8E1 !important;
-            font-family: dank;
-            font-size: 1em;  
-            
+            color #CDD8E1 !important
+            font-family dank
+            line-height 1.7rem !important
+            font-size 1rem !important
             // font-weight: bold;
 
 .theme-default-content a code
@@ -165,3 +172,8 @@ code.language-javascript,
         color #a48774;
     &.entity
         cursor help;
+
+
+.home .hero h1
+    font-size 6rem !important
+    font-weight 800 

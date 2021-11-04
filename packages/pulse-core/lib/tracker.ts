@@ -1,4 +1,5 @@
-import { IJob, Pulse } from './internal';
+import { Pulse } from './pulse';
+import { IJob } from './internal';
 
 export class Tracker {
   jobs: Set<IJob> = new Set();

@@ -1,4 +1,5 @@
-import { Pulse, State, Collection, Computed, Controller } from './internal';
+import { Pulse } from './pulse';
+import { State, Collection, Computed, Controller } from './internal';
 import { isWatchableObject } from './helpers/isWatchableObj';
 
 export function cleanState<T>(state: State<T>): object {

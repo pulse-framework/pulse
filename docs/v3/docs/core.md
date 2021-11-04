@@ -48,7 +48,7 @@ See [Creating your core]() for the more detailed structure.
 ::: tip Why export the type?
 We're unable to directly import the core into controllers, as it would create cyclic dependencies which can cause horrible compile issues, especially at scale. This is why we use `App.Core()` to get the core inside controllers, but it still wouldn't be type safe.
 
-However, Typescript types are immune to this paradox and can time travel. :crystal_ball: Once you declare them, they are able to be refrenced in code before and after declaration. This means we can import just the type of the finalized core into our individual controllers.
+However, TypeScript types are immune to this paradox and can time travel. :crystal_ball: Once you declare them, they are able to be refrenced in code before and after declaration. This means we can import just the type of the finalized core into our individual controllers.
 
 Now when making changes to one Controller you'll see full intelisense in the other—regardless of the order the controllers are initialized.
 :::

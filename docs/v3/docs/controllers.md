@@ -51,7 +51,7 @@ Each of the below properties passed into the config will be made available on th
 These are the only available properties for the `ControllerConfig`, any additional will be ignored. However it is possible to add custom root properties ([See .root()](#methods)).
 
 ::: tip Type Safety
-For Typescript users, the inferred types of the object you pass in will be preserved, but only for the properties shown on the above object.
+For TypeScript users, the inferred types of the object you pass in will be preserved, but only for the properties shown on the above object.
 :::
 
 ## Methods

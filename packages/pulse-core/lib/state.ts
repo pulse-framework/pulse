@@ -1,4 +1,5 @@
-import { Pulse, Dep } from './internal';
+import { Pulse } from './pulse';
+import { Dep } from './internal';
 import { copy, shallowmerge } from './utils';
 import { deepmerge } from './helpers/deepmerge';
 
@@ -37,11 +38,11 @@ export class State<ValueType = any> {
   // // for extended classes to store a derived value, such as Group
   // public output?: any;
   // getter and setter for the State value, best for I/O binding
-  public set bind(value: ValueType) {
+  public set mutable(value: ValueType) {
     this.set(value);
   }
-  public get bind(): ValueType {
-    return this._value;
+  public get mutable(): ValueType {
+    return this.value;
   }
   // is value truthey or falsey
   public get exists(): boolean {
@@ -49,6 +50,13 @@ export class State<ValueType = any> {
   }
 
   constructor(public instance: () => Pulse, public initialState?: ValueType | null, deps: Array<Dep> = []) {
+    if (this.instance()._state.has(this)) this.instance()._state.delete(this);
+    this.instance()._state.forEach((s) => {
+      if (s?.name && this.name) {
+        if (s.name === this.name) this.instance()._state.delete(s);
+      }
+    })
+    this.instance()._state.add(this);
     // initialize the dependency manager
     this.dep = new Dep(deps, () => this);
     // write the initial value to this State

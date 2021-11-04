@@ -1,10 +1,10 @@
-y#!/usr/bin/env sh
+#!/usr/bin/env sh
 
 # abort on errors
 set -e
 
 # build
-yern docs:build
+yarn docs:build
 
 # navigate into the build output directory
 cd docs/.vuepress/dist

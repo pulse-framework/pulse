@@ -60,7 +60,7 @@ enum NotificationOptions {
 
  /**
    * Channel Controller Class
-   * Using classes is optional, however Typescript classes provide a clean structure to organize and build a controller instance.
+   * Using classes is optional, however TypeScript classes provide a clean structure to organize and build a controller instance.
    * The Controller class from which this controller extends provides some basic functions to help work with your controller instance
    */
 class Channels extends Controller () {
@@ -125,6 +125,9 @@ class Channels extends Controller () {
 
     // routes accept parameters, body and query data neatly in an object format
     const subscription = this.routes.subscribe({ params: { channelId: this.collection.current.id }, query: { limit: 30 } });
+
+    // action exists within a try/catch, so you can throw an error code, triggering onCatch
+    if (!subscription.active) throw 'subscription_not_active';
 
     // update the data again with correct server data, no need to batch since the only point of failure is above
     this.collection.update(channelId, { subscription })

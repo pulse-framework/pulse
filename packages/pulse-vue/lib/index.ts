@@ -1,33 +1,62 @@
-import Pulse, { Integration } from '@pulsejs/core';
+import Pulse, { Integration, State } from '@pulsejs/core';
 import Vue from 'vue';
+
 
 declare module 'vue/types/vue' {
   interface VueConstructor {
-    mapCore: (...args: any) => any; // define real typings here if you want
-    $core: any;
+    mapCore: <C extends Pulse['core']>(...args: any) => any;
+    <C extends Pulse['core']>($core: C): C;
   }
 }
 
-const VuePulse = new Integration({
-  name: 'vue',
-  foreignInstance: Vue,
-  onPulseReady: pulse => {
-    Vue.use({
-      install: vue => {
-        vue.mixin({
-          created: function () {
-            pulse.subController.registerSubscription(this);
-            this.$core = pulse.core;
-            this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['Core']>) => T) => {
-              const stateObj = mapObj(pulse.core);
-              return pulse.subController.subscribeWithSubsObject(this, stateObj).props;
-            };
-          }
-        });
-      }
-    });
-  }
-});
+let PulseIntegrationConfig;
+if (Vue.version.startsWith('2.')) {
+  PulseIntegrationConfig = {
+    name: 'vue',
+    foreignInstance: Vue,
+    onPulseReady: pulse => {
+      Vue.use({
+        install: vue => {
+          vue.mixin({
+            created: function () {
+              pulse.subController.registerSubscription(this);
+              this.$core = pulse.core;
+              this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['core']>) => T) => {
+                const stateObj = mapObj(pulse.core);
+                return pulse.subController.subscribeWithSubsObject(this, stateObj).props;
+              };
+            }
+          });
+        }
+      });
+    }
+  };
+} else if (Vue.version.startsWith('3.')) {
+  // for pulse 3
+  PulseIntegrationConfig = {
+    name: 'vue',
+    foreignInstance: Vue,
+    onPulseReady: pulse => {
+      Vue.use({
+        install: vue => {
+          vue.mixin({
+            created: function () {
+              pulse.subController.registerSubscription(this);
+              this.$core = pulse.core;
+              this.mapCore = (mapObj: <T = { [key: string]: any }>(core: ReturnType<Pulse['core']>) => T) => {
+                const stateObj = mapObj(pulse.core);
+                return pulse.subController.subscribeWithSubsObject(this, stateObj).props;
+              };
+            }
+          });
+        }
+      });
+    }
+  };
+} else {
+  console.log('%cPulse Does Not Support Current Vue Version!', 'background: #41B883; color: white;');
+}
+const VuePulse = new Integration(PulseIntegrationConfig);
 
 Pulse.initialIntegrations.push(VuePulse);
 
