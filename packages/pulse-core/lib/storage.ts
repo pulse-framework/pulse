@@ -30,21 +30,25 @@ export class Storage {
       // assign localStorage crud functions to config object
       ['get', 'set', 'remove'].forEach(type => (this.config[type] = ls[`${type}Item`].bind(ls)));
       if (this.config.watch && typeof window !== "undefined") {
-        window.addEventListener('storage', (event) => {
-          const k = this.extractKey(event.key);
-          const states = this.persistedState.values();
-          for (const st of states) {
-            if (st.name === k) {
-              let nv: any;
-              try {
-                nv = JSON.parse(event.newValue)
-              } catch (e) {
-                nv = event.newValue;
+        try {
+          window.addEventListener('storage', (event) => {
+            const k = this.extractKey(event.key);
+            const states = this.persistedState.values();
+            for (const st of states) {
+              if (st.name === k) {
+                let nv: any;
+                try {
+                  nv = JSON.parse(event.newValue)
+                } catch (e) {
+                  nv = event.newValue;
+                }
+                st.set(nv);
               }
-              st.set(nv);
             }
-          }
-        })
+          })
+        } catch (error) {
+          // quietly fail
+        }
       }
       this.storageReady = true;
     } else {
