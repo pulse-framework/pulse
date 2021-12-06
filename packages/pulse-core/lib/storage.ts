@@ -29,7 +29,7 @@ export class Storage {
     if (this.config.type === 'localStorage' && ls) {
       // assign localStorage crud functions to config object
       ['get', 'set', 'remove'].forEach(type => (this.config[type] = ls[`${type}Item`].bind(ls)));
-      if (this.config.watch) {
+      if (this.config.watch && typeof window !== "undefined") {
         window.addEventListener('storage', (event) => {
           const k = this.extractKey(event.key);
           const states = this.persistedState.values();
