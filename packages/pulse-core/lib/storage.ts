@@ -9,6 +9,7 @@ export interface StorageConfig {
   get?: any;
   set?: any;
   remove?: any;
+  watch?: boolean;
 }
 
 export class Storage {
@@ -28,6 +29,23 @@ export class Storage {
     if (this.config.type === 'localStorage' && ls) {
       // assign localStorage crud functions to config object
       ['get', 'set', 'remove'].forEach(type => (this.config[type] = ls[`${type}Item`].bind(ls)));
+      if (this.config.watch) {
+        window.addEventListener('storage', (event) => {
+          const k = this.extractKey(event.key);
+          const states = this.persistedState.values();
+          for (const st of states) {
+            if (st.name === k) {
+              let nv: any;
+              try {
+                nv = JSON.parse(event.newValue)
+              } catch (e) {
+                nv = event.newValue;
+              }
+              st.set(nv);
+            }
+          }
+        })
+      }
       this.storageReady = true;
     } else {
       // Local storage not available, fallback to custom.
@@ -78,6 +96,9 @@ export class Storage {
 
   private getKey(key: string) {
     return `_${this.config.prefix}_${key}`;
+  }
+  private extractKey(key: string) {
+    return key.slice(this.config.prefix.length + 1);
   }
   // used by State and Selector to persist value inside storage
 
