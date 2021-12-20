@@ -87,7 +87,7 @@ export class API {
     if (!config.options.headers) config.options.headers = {};
 
     // inject payload into request body
-    if (typeof payload === 'object' && !(payload instanceof FormData)) {
+    if (typeof payload === 'object') {
       // stringify body
       config.options.body = JSON.stringify(payload);
       // if body is object and no content type specified, auto assign content-type to application/json
