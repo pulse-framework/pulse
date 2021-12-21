@@ -78,7 +78,7 @@ export function route<ResponseType = any>(config?: RouteConfig) {
    * @param config.method The method to be used for the request
    * @param config.options The fetch options to be used for the request 
    */
-  return async <ResponseType = any>(path: string, inConfig?: CallRouteConfig): Promise<PulseResponse> => {
+  return async <ResponseType>(path: string, inConfig?: CallRouteConfig): Promise<PulseResponse<ResponseType>> => {
     // if(inConfig.path.startsWith('/')){inConfig.path = inConfig.path.substring(1)}
     try {
       if (inConfig.options) {
