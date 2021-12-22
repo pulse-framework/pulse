@@ -51,7 +51,7 @@ export class Route {
     return this.send('DELETE', endpoint, payload);
   }
 
-  public async send(method: string, endpoint, payload?: any): Promise<PulseResponse> {
+  public async send(method: string, endpoint: string, payload?: any): Promise<PulseResponse> {
     // initial definitions
     let fullUrl: string,
       response: PulseResponse | unknown,
@@ -75,7 +75,7 @@ export class Route {
 
     // construct endpoint
     if (endpoint.startsWith('http')) fullUrl = endpoint;
-    else fullUrl = `${this.config.baseURL ? this.config.baseURL : ''}${endpoint}`;
+    else fullUrl = `${this.config.baseURL ? this.config.baseURL : ''}/${endpoint}`;
 
     // make the request
     let timedout = false;
