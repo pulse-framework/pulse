@@ -31,8 +31,8 @@ export { Event } from './event';
 // Actions
 export { Action } from './action';
 
-// API
-export { API } from './api';
+// // API
+// export { API } from './api';
 
 // Helper functions
 export { cleanState, resetState, normalizeDeps, getPulseInstance } from './utils';
@@ -44,7 +44,6 @@ export { SetFunc } from './state';
 export { IJob } from './runtime';
 export { FuncType } from './action';
 export { SubscriptionContainer } from './sub';
-export { APIConfig, PulseResponse } from './api';
 export { PrimaryKey, GroupName, GroupAddOptions } from './collection/group';
 export { StorageConfig } from './storage';
 export { EventPayload, EventConfig, EventsObjFunc, EventCallbackFunc } from './event';

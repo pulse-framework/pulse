@@ -11,10 +11,9 @@ import {
   EventPayload,
   EventConfig,
   Event,
-  API
 } from './internal';
 import { Console } from 'console';
-import { PulseResponse } from './api';
+import { route } from './route';
 
 // create global instance
 export const instance = new Pulse();
@@ -41,85 +40,7 @@ export function event<P = EventPayload>(config?: EventConfig<P>) {
   return new Event(() => instance, config);
 }
 
-export interface RouteConfig {
-  // method: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
-  baseURL?: string;
-  timeout?: number;
-  options?: RequestInit;
-}
-
-export interface CallRouteConfig {
-  params?: Record<string, any>;
-  query?: Record<string, any>;
-  body?: Record<string, any>;
-  method?: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
-  options?: RequestInit;
-}
-
-/**
- * @param config.options normal fetch options such as headers, credentials, etc.
- * @param config.baseURL The URL to be used on each request (if left empty, defaults to current hostname)
- * @returns The configured route function
- */
-export function route<ResponseType = any>(config?: RouteConfig) {
-  if (config.baseURL.endsWith('/')) {
-    config.baseURL = config.baseURL.substring(0, config.baseURL.length);
-  }
-  const api = new API({
-    options: config.options,
-    baseURL: config.baseURL,
-    timeout: config.timeout || undefined // this is just incease the user passes 0, it should be treated as undefined
-  });
-  /**
-   * @param path The path to be appended to the baseURL
-   * @param config.params The params to be appended to the path
-   * @param config.query The query params to be appended to the path
-   * @param config.body The body to be sent with the request
-   * @param config.method The method to be used for the request
-   * @param config.options The fetch options to be used for the request 
-   */
-  return async <ResponseType>(path: string, inConfig?: CallRouteConfig): Promise<PulseResponse<ResponseType>> => {
-    // if(inConfig.path.startsWith('/')){inConfig.path = inConfig.path.substring(1)}
-    try {
-      if (inConfig.options) {
-        api.config.options = { ...api.config.options, ...inConfig.options };
-      }
-      const searchParams = new URLSearchParams();
-
-      if (!inConfig.method) {
-        inConfig.method = 'GET';
-      }
-
-      switch (inConfig.method) {
-        case 'DELETE':
-          return await api.delete(path);
-        case 'GET':
-          const query = inConfig.query
-            ? Object.keys(inConfig.query)
-                .map(key => `${key}=${encodeURIComponent(inConfig.query[key])}`)
-                .join('&')
-            : null;
-          return await api.get(`${path}${query ? '?' + query : ''}`);
-        case 'PATCH':
-          return await api.patch(path, inConfig.body);
-        case 'POST':
-          return await api.post(path, inConfig.body);
-        case 'PUT':
-          return await api.put(path, inConfig.body);
-        default:
-          searchParams;
-          return await api.get(
-            `${path}?${Object.keys(inConfig.query)
-              .map(key => key + `=${encodeURIComponent(inConfig.query[key])}`)
-              .join('&')}`
-          );
-      }
-    } catch (e) {
-      // throw e;
-      return Promise.reject(e);
-    }
-  };
-}
+export {route}
 
 export const setCore = <CoreType>(core?: CoreType): CoreType => instance.core<CoreType>(core);
 export const nextPulse = instance.nextPulse;
