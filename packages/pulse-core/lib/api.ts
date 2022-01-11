@@ -23,7 +23,7 @@ const ensureProperHeaders = headers => {
     const formattedHeader = t
       .toLowerCase()
       .split('-')
-      .map(token => token.charAt(0).toUpperCase() + token.slice(1))
+      .map(token => token.slice(0, 1).toUpperCase() + token.slice(1))
       .join('-');
     obj[formattedHeader] = headers[t];
   });
