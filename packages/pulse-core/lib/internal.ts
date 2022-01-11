@@ -32,7 +32,7 @@ export { Event } from './event';
 export { Action } from './action';
 
 // // API
-// export { API } from './api';
+export { API, PulseResponse } from './api';
 
 // Helper functions
 export { cleanState, resetState, normalizeDeps, getPulseInstance } from './utils';
