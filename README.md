@@ -1,5 +1,9 @@
 # Pulse Framework
+______________________________________________________________
 
+### NO LONGER MAINTAINED.
+Use [AgileTS](https://github.com/agile-ts/agile) which was based on this library.
+______________________________________________________________
 **Global state and logic for reactive JavaScript applications.** Supports frameworks like React, Vue, and React Native.
 
 **Lightweight, modular and powerful.** Provides a **core** state & logic framework for your entire application; plug-and-play directly into any UI framework.
