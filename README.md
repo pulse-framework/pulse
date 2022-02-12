@@ -3,7 +3,8 @@ ______________________________________________________________
 
 ### NO LONGER MAINTAINED.
 Use [Plexus](https://github.com/PlexusJS/plexus) which is made/maintained by some of Pulse's previous maintainers.
-Alternative: [AgileTS](https://github.com/agile-ts/agile)
+
+Alternatively, you can also check out: [AgileTS](https://github.com/agile-ts/agile)
 ______________________________________________________________
 **Global state and logic for reactive JavaScript applications.** Supports frameworks like React, Vue, and React Native.
 
