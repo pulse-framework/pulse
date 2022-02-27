@@ -1374,20 +1374,20 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
-"@pulsejs/core@^3.4.2-0":
-  version "3.4.2-0"
-  resolved "https://registry.yarnpkg.com/@pulsejs/core/-/core-3.4.2-0.tgz#92d1e52fc4c2ab791aa6b90f96f7e7c5354c7be5"
-  integrity sha512-9fK5q0S/7fScjY8jA8R3ltYS4MRH2Bw4rKMzxKJ3q7O4nSD1jqbpCosquyAXcGiMG/D3KHm2XflCnUURdC7jqQ==
+"@pulsejs/core@^4.0.0-beta.1":
+  version "4.5.4"
+  resolved "https://registry.yarnpkg.com/@pulsejs/core/-/core-4.5.4.tgz#7412127ca0d86c20620091a00cb3dcc41e9fc204"
+  integrity sha512-49IOk3YUgmuKDVX2+qfIXYwBOx+68hZRTpueZHYUvcJ7VDx6h1zaTp601UVxxHBMTqezH9urSn4FjHPOnb2Auw==
 
 "@pulsejs/core@latest":
   version "3.5.8"
   resolved "https://registry.yarnpkg.com/@pulsejs/core/-/core-3.5.8.tgz#63a2212d3d5dd37d72e8296ceefe2a5242fb7832"
   integrity sha512-EClwlMR/1xEUHMlHpF+QS8+4CKd+ZLzxNxpWL/r/02LvgrRlLexOsWvQ+ji7G7ygDCRNc5gLQXBf1K3f8PHWYA==
 
-"@pulsejs/react@^3.4.2-0":
-  version "3.4.2-0"
-  resolved "https://registry.yarnpkg.com/@pulsejs/react/-/react-3.4.2-0.tgz#022cbcd0270fd8438181c91d3f1466daffe44c8a"
-  integrity sha512-MRdjimq5Kvh8SVJw7Q8a3QeAgMb9J20qdfQidaG81MJfC7F2+UeN2eXWHKgflfrwotZ4pZJo5W9XLXgW9SnvkQ==
+"@pulsejs/react@^4.0.0-beta.1":
+  version "4.5.4"
+  resolved "https://registry.yarnpkg.com/@pulsejs/react/-/react-4.5.4.tgz#2e8f803e199792b5380900746341d4c50b3fb43b"
+  integrity sha512-yZ7tWPcWaWCmZ2MdKTz0/7cshTB0ZS9rulHgmaxhWKnpB2L3mARcm0XaT4N5vlWhkOLn1RGVHrdkAIw6VN1BLw==
 
 "@sheerun/mutationobserver-shim@^0.3.2":
   version "0.3.3"
@@ -10374,9 +10374,9 @@ url-loader@2.3.0:
     schema-utils "^2.5.0"
 
 url-parse@^1.4.3:
-  version "1.4.7"
-  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.4.7.tgz#a8a83535e8c00a316e403a5db4ac1b9b853ae278"
-  integrity sha512-d3uaVyzDB9tQoSXFvuSUNFibTd9zxd2bkVrDRvF5TmvWWQwqE4lgYJ5m+x1DbecWkw+LK4RNl2CU1hHuOKPVlg==
+  version "1.5.10"
+  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.10.tgz#9d3c2f736c1d75dd3bd2be507dcc111f1e2ea9c1"
+  integrity sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
