@@ -2,7 +2,8 @@
 ______________________________________________________________
 
 ### NO LONGER MAINTAINED.
-Use [AgileTS](https://github.com/agile-ts/agile) which was based on this library.
+For a nearly hot-swap replacement, use [PlexusJS](https://plexusjs.org) which was made by Pulse's old maintainers and shares the same vision.
+If you want another option, feel free to check out [AgileTS](https://github.com/agile-ts/agile) which was based off of an older version of Pulse and shares a lot of the same concepts.
 ______________________________________________________________
 **Global state and logic for reactive JavaScript applications.** Supports frameworks like React, Vue, and React Native.
 
