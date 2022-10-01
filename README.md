@@ -1,8 +1,10 @@
 # Pulse Framework
 ______________________________________________________________
 
-### NO LONGER MAINTAINED.
-For a nearly hot-swap replacement, use [PlexusJS](https://plexusjs.org) which was made by Pulse's old maintainers and shares the same vision.
+### NO LONGER MAINTAINED
+There's a sea of brilliant state libraries out there to use instead.
+Pulse taught me Typescript and had a good run, but I use TanStack Query + Valtio in newer projects.
+-Jamie
 ______________________________________________________________
 **Global state and logic for reactive JavaScript applications.** Supports frameworks like React, Vue, and React Native.
 
